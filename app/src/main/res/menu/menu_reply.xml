@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" tools:context="com.ladjzero.uzlee.EditActivity">
+    <item
+        android:id="@+id/reply_add_image"
+        android:showAsAction="ifRoom"
+        android:title="图片"/>
+
+    <item
+        android:id="@+id/reply_send"
+        android:showAsAction="ifRoom"
+        android:title="回复"/>
+</menu>

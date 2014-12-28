@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="7dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingTop="7dp" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="20dp"
+        android:orientation="horizontal" >
+
+        <include layout="@layout/user_mini" />
+
+        <TextView
+            android:id="@+id/post_list_item_comment_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="7dp"
+            android:background="@color/smallFont"
+            android:gravity="center_horizontal"
+            android:paddingBottom="2dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingTop="2dp"
+            android:text="500"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:width="36dp" />
+
+        <TextView
+            android:id="@+id/post_list_item_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_toLeftOf="@id/post_list_item_comment_count"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/smallFont"
+            android:textSize="10sp" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/post_list_item_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        android:autoLink="web"
+        android:ellipsize="end"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:text="我还是比较看好华为"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="18sp" />
+
+</LinearLayout>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/backgroud"
+    android:orientation="vertical"
+    android:layout_margin="7dp"
+    android:padding="8dp"
+    android:id="@+id/post_quote" >
+
+    <include layout="@layout/quote_user" />
+
+    <TextView
+        android:id="@+id/post_quote_text"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        android:ellipsize="end"
+        android:lineSpacingMultiplier="1.2"
+        android:maxLines="8"
+        android:text="quote text quote text quote text quote text quote text quote text quote text quote text quote text quote text quote text quote text"
+        android:textColor="@color/smallFont"
+        android:textSize="14sp" />
+
+</LinearLayout>

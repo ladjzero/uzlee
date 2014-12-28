@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="actionBar">#7373aa</color>
+    <color name="backgroud">#E9E9EF</color>
+    <color name="border">#D5D5DE</color>
+    <color name="smallFont">#696969</color>
+    <color name="dark">#343440</color>
+    <color name="commentNoBg">#FF2A55</color>
+    <color name="postBody">#4B4B4B</color>
+</resources>

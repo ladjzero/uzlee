@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\libs\jsoup-1.8.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="3d57e95c0f150b885ccdbda7a12bef353fd31d02">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\jsoup-1.8.1-599cadd1d3785741379a4094a2a5f0b25aef4672.jar" />
+    </item>
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\build\intermediates\exploded-aar\com.android.support\support-v13\21.0.3\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="2c2071dcaf7a008c3b01a6381a33be55396bab09">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\classes-583900760c225d914760ddd0d1045ab326104b09.jar" />
+    </item>
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\libs\android-async-http-1.4.6.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="a845a88238be0b5be9d238652c1bc0605ef91f52">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\android-async-http-1.4.6-fd2c35025396d71820566270ace5c22f7875f60d.jar" />
+    </item>
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\libs\internal_impl-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-af3bcb72faac6955f99580a6c1d24524a052b97a.jar" />
+    </item>
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\build\intermediates\exploded-aar\com.android.support\support-v13\21.0.3\libs\internal_impl-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="0dcc55e70f7ebf7238fe2ec53f662eb378ab2668">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-69f9c2e313a370e1c1ebd09a100221c187b6ac8b.jar" />
+    </item>
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\classes-6979858e88e7053e3e33d95b66a809f41e11abfd.jar" />
+    </item>
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\libs\ormlite-android-4.48.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="afa06f539a4026c10b247386312aa67404b80a16">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\ormlite-android-4.48-e01bf1e0e8c365aa233aa0f0b8b9980c9e1c9ebd.jar" />
+    </item>
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\libs\ormlite-core-4.48.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="e579bd2905d0399af5029aaaf9817d5fa0ca88a5">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\ormlite-core-4.48-fc836713f20cea4e98efed7dbc22ce44fc3e5614.jar" />
+    </item>
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\libs\fastjson-1.1.34.android.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="bef1d1224be099c387794bce1bdf81b38f37c6ce">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\fastjson-1.1.34.android-3fda747d4929588ea4829d19100d4fad97660492.jar" />
+    </item>
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\libs\commons-collections-3.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="aa12980fe4eca7331a660bdeed371d024687c68d">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\commons-collections-3.0-14446e3abf3bc374cd3e7e9cead360ab3c78f074.jar" />
+    </item>
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\libs\android-iconify-1.0.8.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="7bba1039e3413ac0c82452b431a4aaa76648f7e9">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\android-iconify-1.0.8-6678f40ffdc3b97224328b5d707150e07c547556.jar" />
+    </item>
+    <item
+        jar="C:\Users\ladjzero\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\21.0.3\support-annotations-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="4b74cefe1f0c1b819e7260c8627a14674e37fd35">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\support-annotations-21.0.3-d9bfeac2c66d542a3d81317d914dcd23f83f8a1d.jar" />
+    </item>
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\libs\universal-image-loader-1.9.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="a85588bec3e2c4584d593d3f15df1677321bca72">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\universal-image-loader-1.9.3-430d9ae9ef2a21efa9e005eb6e0c2f48c8a60b76.jar" />
+    </item>
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\libs\commons-lang3-3.3.2.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="659861b4acde07a0527211e40d256119face1d15">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\commons-lang3-3.3.2-eb189f4e68524c61a3a644f3ebb0f7e077ef61c1.jar" />
+    </item>
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\build\intermediates\exploded-aar\com.github.eluleci\flatui\3.0.0\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="d1089efa4a24767294278997764bea2fda31ccca">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\classes-e0495d8e7cce3ab7043d02e269ed0f1e373a80ab.jar" />
+    </item>
+
+</items>
