@@ -37,6 +37,7 @@ public class Core {
 	private static ArrayList<MsgCB> msgCbs = new ArrayList<MsgCB>();
 
 	static final int uidPrefixLength = "space.php?uid=".length();
+	private static String formhash;
 
 	public Core(Context context) {
 		this.cookieStore = new PersistentCookieStore(context);
@@ -153,6 +154,11 @@ public class Core {
 	public static ArrayList<Post> parsePosts(String html) {
 		ArrayList<Post> posts = new ArrayList<Post>();
 		Document doc = Jsoup.parse(html);
+
+		if (formhash == null) {
+			formhash = doc.select("input[name=formhash]").val();
+		}
+
 		Elements ePosts = doc.select("table[id^=pid]");
 
 		if (doc.select("a#myprompt.new").size() != 0) {
@@ -297,6 +303,32 @@ public class Core {
 		}
 
 		return temps.toArray(new String[0]);
+	}
+
+	public static void sendReply(int tid, String content) {
+		RequestParams params = new RequestParams();
+		params.setContentEncoding("GBK");
+		params.put("formhash", formhash);
+		params.put("subject", "");
+		params.put("usesig", "0");
+		params.put("message", content);
+
+		httpClient
+				.post("http://www.hi-pda.com/forum/post.php?action=reply&fid=57&tid=" + tid + "&extra=&replysubmit=yes&infloat=yes&handlekey=fastpost&inajax=1",
+						params, new AsyncHttpResponseHandler() {
+
+							@Override
+							public void onFailure(int statusCode,
+												  Header[] headers, byte[] responseBody,
+												  Throwable error) {
+							}
+
+							@Override
+							public void onSuccess(int statusCode,
+												  Header[] headers, byte[] responseBody) {
+							}
+
+						});
 	}
 
 	public interface Search {
@@ -453,7 +485,7 @@ public class Core {
 						String href = eTitle.attr("href");
 						String id = href.substring(href.indexOf("ptid=") + 5);
 						String title = eTitle.text();
-						String body = eThreads.get(i+1).select("th.lighttxt").text().trim();
+						String body = eThreads.get(i + 1).select("th.lighttxt").text().trim();
 						Thread thread = new Thread().setTitle(title).setId(Integer.valueOf(id)).setBody(body);
 						threads.add(thread);
 					}

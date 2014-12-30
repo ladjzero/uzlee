@@ -1,6 +1,7 @@
 package com.ladjzero.uzlee;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.LayoutInflater;
@@ -71,17 +72,12 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 
 		switch (tabIndex) {
 			case 0:
-				mAdapter = new ArrayAdapter<String>(getActivity(), R.layout.simple_thread, R.id.simple_thread_text);
+				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_thread, R.id.simple_thread_text);
 
 				Core.getMyThreads(new Core.OnThreads() {
 					@Override
 					public void onThreads(ArrayList<Thread> threads) {
-						mAdapter.addAll(CollectionUtils.collect(threads, new Transformer() {
-							@Override
-							public Object transform(Object o) {
-								return ((Thread) o).getTitle();
-							}
-						}));
+						mAdapter.addAll(threads);
 					}
 				});
 				break;
@@ -120,17 +116,12 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 				break;
 
 			case 2:
-				mAdapter = new ArrayAdapter<String>(getActivity(), R.layout.simple_thread, R.id.simple_thread_text);
+				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_thread, R.id.simple_thread_text);
 
 				Core.getFavorites(new Core.OnThreads() {
 					@Override
 					public void onThreads(ArrayList<Thread> threads) {
-						mAdapter.addAll(CollectionUtils.collect(threads, new Transformer() {
-							@Override
-							public Object transform(Object o) {
-								return ((Thread) o).getTitle();
-							}
-						}));
+						mAdapter.addAll(threads);
 					}
 				});
 
@@ -173,11 +164,11 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		if (null != mListener) {
-			// Notify the active callbacks interface (the activity, if the
-			// fragment is attached to one) that an item has been selected.
-			mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
-		}
+		Thread thread = (Thread) parent.getAdapter().getItem(position);
+		Intent intent = new Intent(getActivity(), PostsActivity.class);
+		intent.putExtra("thread_id", thread.getId());
+
+		startActivity(intent);
 	}
 
 	/**

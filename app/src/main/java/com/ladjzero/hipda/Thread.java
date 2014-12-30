@@ -97,4 +97,9 @@ public class Thread {
 		this.replyTo = replyTo;
 		return this;
 	}
+
+	@Override
+	public String toString() {
+		return this.getTitle();
+	}
 }

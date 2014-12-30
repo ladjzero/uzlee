@@ -47,3 +47,4 @@ Temporary Items
 .gradle
 /.idea
 app/build/
+build/
