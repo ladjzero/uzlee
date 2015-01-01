@@ -4,15 +4,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.j256.ormlite.dao.Dao;
 import com.joanzapata.android.iconify.IconDrawable;
@@ -21,41 +18,34 @@ import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.DBHelper;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.Post;
-import com.ladjzero.hipda.PostScanner;
 import com.ladjzero.hipda.User;
-import com.ladjzero.hipda.cb.ScannerIsReadyCB;
-import com.ladjzero.hipda.cb.UserStatsCB;
 
-public class PostsActivity extends BaseActivity {
+public class PostsActivity extends BaseActivity implements AdapterView.OnItemClickListener{
 
-	Core core;
 	DBHelper db;
 	Dao<Thread, Integer> threadDao;
 	Dao<Post, Integer> postDao;
 	Dao<User, Integer> userDao;
 	int tid;
-	PostScanner ps;
-	int pageCount;
-	final ArrayList<Post> posts = new ArrayList<Post>();
-	ListView lv;
-	ViewGroup title;
+	ArrayList<Post> posts = new ArrayList<Post>();
+	ListView listView;
 	String titleStr;
+	PostsAdapter adapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 
-		tid = getIntent().getIntExtra("thread_id", 0);
-		titleStr = getIntent().getStringExtra("title");
-
+		this.setContentView(R.layout.posts);
 		db = this.getHelper();
+		tid = getIntent().getIntExtra("thread_id", 0);
+		setTitle(titleStr = getIntent().getStringExtra("title"));
+
 		try {
 			threadDao = db.getThreadDao();
 			postDao = db.getPostDao();
 			userDao = db.getUserDao();
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
@@ -73,30 +63,11 @@ public class PostsActivity extends BaseActivity {
 			}
 		}
 
-		this.setContentView(R.layout.posts);
-
-		lv = (ListView) this.findViewById(R.id.post_detail_list);
-		title = ((ViewGroup) getLayoutInflater().inflate(
-				R.layout.posts_header, lv, false));
-		lv.addHeaderView(title, null, false);
-
-		TextView _title = (TextView) title
-				.findViewById(R.id.posts_header);
-		_title.setText(titleStr);
-
-		lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-				Post post = (Post) adapterView.getAdapter().getItem(position);
-
-				Intent replyIntent = new Intent(PostsActivity.this, EditActivity.class);
-				replyIntent.putExtra("title", "回复：#" + position + " " + post.getAuthor().getName());
-				replyIntent.putExtra("hideTitleInput", true);
-				startActivity(replyIntent);
-			}
-		});
-
-		setTitle(titleStr);
+		posts = new ArrayList<Post>();
+		listView = (ListView) this.findViewById(R.id.posts);
+		adapter = new PostsAdapter(this, posts);
+		listView.setOnItemClickListener(this);
+		listView.setAdapter(adapter);
 	}
 
 	@Override
@@ -104,47 +75,16 @@ public class PostsActivity extends BaseActivity {
 		super.onStart();
 
 		if (posts.size() == 0) {
-			ps = new PostScanner(tid, new UserStatsCB() {
-
+			Core.getHtml("http://www.hi-pda.com/forum/viewthread.php?tid=" + tid, new Core.OnRequestListener() {
 				@Override
-				public void onMsg() {
-					// TODO Auto-generated method stub
+				public void onError(String error) {
 
 				}
 
 				@Override
-				public void onOffline() {
-					// TODO Auto-generated method stub
-
-				}
-
-			}, new ScannerIsReadyCB() {
-
-				@Override
-				public void onReady() {
-					pageCount = ps.getPageCount();
-					posts.addAll(ps.getPageAt(0));
-
-					(new AsyncTask<Void, Void, Void>() {
-						@Override
-						protected Void doInBackground(Void... params) {
-							for (Post p : posts) {
-								try {
-									userDao.createOrUpdate(p.getAuthor());
-									postDao.createOrUpdate(p);
-								} catch (SQLException e) {
-									// TODO Auto-generated catch
-									// block
-									e.printStackTrace();
-								}
-							}
-							return null;
-						}
-
-					}).execute();
-
-
-					lv.setAdapter(new PostsAdapter(PostsActivity.this, posts));
+				public void onSuccess(String html) {
+					posts.addAll(Core.parsePosts(html));
+					adapter.notifyDataSetChanged();
 				}
 			});
 		}
@@ -154,11 +94,14 @@ public class PostsActivity extends BaseActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.posts, menu);
 
-		menu.findItem(R.id.post_reply).setIcon(new IconDrawable(this, Iconify.IconValue.fa_comment_o).colorRes(android.R.color.white).actionBarSize());
+		menu.findItem(R.id.post_reply).setIcon(
+				new IconDrawable(this, Iconify.IconValue.fa_comment_o)
+						.colorRes(android.R.color.white)
+						.actionBarSize()
+		);
 
 		return super.onCreateOptionsMenu(menu);
 	}
-
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -185,5 +128,15 @@ public class PostsActivity extends BaseActivity {
 
 			outState.putIntegerArrayList("ids", ids);
 		}
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+		Post post = (Post) adapterView.getAdapter().getItem(i);
+
+		Intent replyIntent = new Intent(PostsActivity.this, EditActivity.class);
+		replyIntent.putExtra("title", "回复 " + post.getAuthor().getName() + " #" + (i + 1));
+		replyIntent.putExtra("hideTitleInput", true);
+		startActivity(replyIntent);
 	}
 }

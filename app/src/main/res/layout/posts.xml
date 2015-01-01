@@ -6,7 +6,7 @@
     android:orientation="vertical" >
 
     <ListView
-        android:id="@+id/post_detail_list"
+        android:id="@+id/posts"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:divider="@color/border"

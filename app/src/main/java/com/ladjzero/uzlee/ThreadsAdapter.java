@@ -8,12 +8,12 @@ import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.DBHelper;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
-import com.ladjzero.hipda.Core.GetUserCB;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,14 +26,12 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> {
 
 	Context context;
 	Core core;
-	GetUserCB userCb;
 	DBHelper db;
 	Dao<User, Integer> userDao;
 
 	public ThreadsAdapter(Context context, ArrayList<Thread> threads) {
 		super(context, R.layout.thread, threads);
 		this.context = context;
-		core = Core.getInstance(context);
 		try {
 			userDao = ((BaseActivity) context).getHelper().getUserDao();
 		} catch (SQLException e) {
@@ -63,8 +61,10 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> {
 
 		final Thread thread = getItem(position);
 		String img = thread.getAuthor().getImage();
+		final int uid = thread.getAuthor().getId();
+		final String userName = thread.getAuthor().getName();
+
 		if (img == null) {
-			int uid = thread.getAuthor().getId();
 			User u;
 			try {
 				u = userDao.queryForId(uid);
@@ -98,6 +98,18 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> {
 			ImageLoader.getInstance().displayImage(
 					thread.getAuthor().getImage(), holder.img);
 		}
+
+
+		holder.img.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Intent intent = new Intent(context, UserActivity.class);
+				intent.putExtra("uid", uid);
+				intent.putExtra("name", userName);
+				context.startActivity(intent);
+			}
+		});
+
 		holder.name.setText(thread.getAuthor().getName());
 		holder.title.setText(thread.getTitle());
 		holder.commentCount.setText(String.valueOf(thread.getCommentCount()));

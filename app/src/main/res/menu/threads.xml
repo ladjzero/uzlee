@@ -1,16 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.ladjzero.uzlee.MainActivity" >
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:context="com.ladjzero.uzlee.MainActivity">
 
-    <item
-        android:id="@+id/thread_search"
-        android:actionViewClass="android.widget.SearchView"
-        android:showAsAction="ifRoom"
-        android:title="search"/>
-    
-    <item
-        android:id="@+id/thread_publish"
-        android:showAsAction="ifRoom"
-        android:title="new thread"/>
+	<item
+		android:id="@+id/thread_publish"
+		android:showAsAction="ifRoom"
+		android:title="new thread" />
 
 </menu>

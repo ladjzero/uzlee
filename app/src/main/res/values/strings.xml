@@ -3,8 +3,8 @@
 
     <string name="app_name">有只梨</string>
     <string name="title_section1">{fa-globe}		Discovery</string>
-    <string name="title_section2">{fa-shopping-cart}		BS</string>
-    <string name="title_section3">{fa-book}		eInk</string>
+    <string name="title_section2">{fa-shopping-cart}		Buy &amp; Sell</string>
+    <string name="title_section3">{fa-book}		E-INK</string>
     <string name="nav_alert">{fa-bell}		通知</string>
     <string name="nav_my_posts">{fa-bookmark}		我的帖子</string>
     <string name="nav_search">{fa-search}		搜索</string>
@@ -16,5 +16,8 @@
     <string name="title_activity_reply">ReplyActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_my_posts">MyPostsActivity</string>
+    <string name="title_activity_search">搜索</string>
+    <string name="title_activity_user">UserActivity</string>
+    <string name="title_activity_threads">ThreadsActivity</string>
 
 </resources>

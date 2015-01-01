@@ -3,22 +3,18 @@ package com.ladjzero.uzlee;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import com.j256.ormlite.dao.Dao;
 import com.ladjzero.hipda.Core;
-import com.ladjzero.hipda.Core.OnThreads;
+import com.ladjzero.hipda.Core.OnThreadsListener;
 import com.ladjzero.hipda.DBHelper;
 import com.ladjzero.hipda.Thread;
-import com.ladjzero.hipda.Post;
-import com.ladjzero.hipda.Core.GetHtmlCB;
 import com.ladjzero.hipda.User;
-import com.ladjzero.hipda.cb.UserStatsCB;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.SpannableString;
@@ -26,40 +22,37 @@ import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ThreadsFragment extends Fragment implements OnRefreshListener {
+public class ThreadsFragment extends Fragment implements OnRefreshListener, AdapterView.OnItemClickListener, OnThreadsListener {
 
-	Core core;
 	SwipeRefreshLayout swipe;
 	DBHelper db;
 	Dao<Thread, Integer> threadDao;
 	Dao<User, Integer> userDao;
 	final ArrayList<Thread> threads = new ArrayList<Thread>();
-	final ArrayList<Thread> backup = new ArrayList<Thread>();
-	ListView postList;
+	ListView listView;
 	ThreadsAdapter adapter;
-	private int index = 0, top = 0;
-	static HashMap<Integer, ThreadsFragment> cache = new HashMap<Integer, ThreadsFragment>();
+	static HashMap<Integer, ThreadsFragment> fragmentsCache = new HashMap<Integer, ThreadsFragment>();
 
 	public static ThreadsFragment newInstance(int fid) {
-		ThreadsFragment fragment = cache.get(Integer.valueOf(fid));
+		ThreadsFragment fragment = fragmentsCache.get(Integer.valueOf(fid));
 
 		if (fragment == null) {
 			fragment = new ThreadsFragment();
 			Bundle args = new Bundle();
 			args.putInt("fid", fid);
 			fragment.setArguments(args);
-			cache.put(fid, fragment);
+			fragmentsCache.put(fid, fragment);
 		}
 
 		return fragment;
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 		db = ((BaseActivity) getActivity()).getHelper();
 		try {
@@ -82,112 +75,54 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener {
 					e.printStackTrace();
 				}
 			}
-			
-			index = savedInstanceState.getInt("index", 0);
-			top = savedInstanceState.getInt("top", 0);
 		}
 
-		View rootView = inflater.inflate(R.layout.threads, container, false);
+		View rootView = inflater.inflate(R.layout.threads_can_refresh, container, false);
 
 		swipe = (SwipeRefreshLayout) rootView.findViewById(R.id.thread_swipe);
 
 		swipe.setOnRefreshListener(this);
-        swipe.setColorSchemeResources(R.color.deep_darker, R.color.deep_dark, R.color.deep_light, android.R.color.white);
+		swipe.setColorSchemeResources(R.color.deep_darker, R.color.deep_dark, R.color.deep_light, android.R.color.white);
 
-		postList = (ListView) rootView.findViewById(R.id.disvoery_post_list);
+		listView = (ListView) rootView.findViewById(R.id.threads);
 
-        String udata = "下一页";
-        SpannableString content = new SpannableString(udata);
-        content.setSpan(new UnderlineSpan(), 0, udata.length(), 0);
+		String udata = "下一页";
+		SpannableString content = new SpannableString(udata);
+		content.setSpan(new UnderlineSpan(), 0, udata.length(), 0);
 
-        ViewGroup loadNextPage = ((ViewGroup) inflater.inflate(
-                R.layout.load_next_page, postList, false));
-        TextView _tv = (TextView) loadNextPage.findViewById(R.id.next_page);
-        _tv.setText(content);
+		ViewGroup loadNextPage = ((ViewGroup) inflater.inflate(
+				R.layout.load_next_page, listView, false));
+		TextView _tv = (TextView) loadNextPage.findViewById(R.id.next_page);
+		_tv.setText(content);
 
-        postList.addFooterView(loadNextPage, null, false);
 		adapter = new ThreadsAdapter(getActivity(),
 				threads);
-		postList.setAdapter(adapter);
-		
+		listView.setAdapter(adapter);
+		listView.setOnItemClickListener(this);
+
 		return rootView;
 	}
 
-	public void showSearch(ArrayList<Thread> threads) {
-		backup.clear();
-		backup.addAll(this.threads);
-		this.threads.clear();
-		this.threads.addAll(threads);
-		adapter.notifyDataSetChanged();
-	}
-	
-	public void dismissSearch() {
-		threads.clear();
-		threads.addAll(backup);
-		adapter.notifyDataSetChanged();
-	}
-	
-	private void fetch(OnThreads onThreads) {
-		core.getThreadsByUrl(
-				"http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid"),
-				onThreads, new UserStatsCB() {
+	private void fetch(final OnThreadsListener onThreadsListener) {
+		Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid"), new Core.OnRequestListener() {
+			@Override
+			public void onError(String error) {
 
-					@Override
-					public void onMsg() {
-						// TODO Auto-generated method stub
+			}
 
-					}
-
-					@Override
-					public void onOffline() {
-						((MainActivity) getActivity()).showLoginDialog();
-					}
-				});
+			@Override
+			public void onSuccess(String html) {
+				onThreadsListener.onThreads(Core.parseThreads(html));
+			}
+		});
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
-		
-		adapter.notifyDataSetChanged();
-
-		MainActivity ma = (MainActivity) getActivity();
-
-		if (ma.dListClickListener != null) {
-			postList.setOnItemClickListener(ma.dListClickListener);
-		}
-
-		core = Core.getInstance(getActivity());
 
 		if (threads.size() == 0) {
-			fetch(new OnThreads() {
-				@Override
-				public void onThreads(final ArrayList<Thread> _threads) {
-					if (_threads != null) {
-
-						threads.addAll(_threads);
-						adapter.notifyDataSetChanged();
-
-						(new AsyncTask<Void, Void, Void>() {
-							@Override
-							protected Void doInBackground(Void... params) {
-								for (Thread t : _threads) {
-									try {
-										userDao.createIfNotExists(t.getAuthor());
-										threadDao.createOrUpdate(t);
-									} catch (SQLException e) {
-										// TODO Auto-generated catch
-										// block
-										e.printStackTrace();
-									}
-								}
-								return null;
-							}
-
-						}).execute();
-					}
-				}
-			});
+			fetch(this);
 		}
 	}
 
@@ -201,9 +136,28 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener {
 			}
 			outState.putIntegerArrayList("ids", ids);
 		}
-		outState.putInt("index", postList.getFirstVisiblePosition());
-		View v = postList.getChildAt(0);
+		outState.putInt("index", listView.getFirstVisiblePosition());
+		View v = listView.getChildAt(0);
 		outState.putInt("top", v == null ? 0 : v.getTop());
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+		Thread t = (Thread) adapterView.getAdapter().getItem(i);
+		t.setNew(false);
+
+		Intent intent = new Intent(getActivity(), PostsActivity.class);
+		intent.putExtra("thread_id", t.getId());
+		intent.putExtra("title", t.getTitle());
+
+		startActivity(intent);
+	}
+
+	@Override
+	public void onThreads(ArrayList<Thread> threads) {
+		this.threads.clear();
+		this.threads.addAll(threads);
+		adapter.notifyDataSetChanged();
 	}
 
 	class SaveData extends AsyncTask<String, Void, String> {
@@ -218,35 +172,6 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener {
 
 	@Override
 	public void onRefresh() {
-		fetch(new OnThreads() {
-			@Override
-			public void onThreads(final ArrayList<Thread> _threads) {
-				if (_threads != null) {
-
-					threads.clear();
-					threads.addAll(_threads);
-					swipe.setRefreshing(false);
-					adapter.notifyDataSetChanged();
-					
-					(new AsyncTask<Void, Void, Void>() {
-						@Override
-						protected Void doInBackground(Void... params) {
-							for (Thread t : _threads) {
-								try {
-									userDao.createIfNotExists(t.getAuthor());
-									threadDao.createOrUpdate(t);
-								} catch (SQLException e) {
-									// TODO Auto-generated catch
-									// block
-									e.printStackTrace();
-								}
-							}
-							return null;
-						}
-
-					}).execute();
-				}
-			}
-		});
+		fetch(this);
 	}
 }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/thread_swipe"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/snow_dark"
+    android:orientation="vertical" >
+
+    <ListView
+        android:id="@+id/threads"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@color/border"
+        android:dividerHeight="1px"
+        android:listSelector="@android:color/transparent"
+        android:background="@android:color/white">
+    </ListView>
+
+</android.support.v4.widget.SwipeRefreshLayout>

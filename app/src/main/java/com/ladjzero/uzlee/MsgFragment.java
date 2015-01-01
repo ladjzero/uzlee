@@ -1,9 +1,9 @@
 package com.ladjzero.uzlee;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,23 +13,15 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-
 import com.ladjzero.hipda.*;
 import com.ladjzero.hipda.Thread;
 
 import java.util.ArrayList;
 
 /**
- * A fragment representing a list of Items.
- * <p/>
- * Large screen devices (such as tablets) are supported by replacing the ListView
- * with a GridView.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
- * interface.
+ * Created by ladjzero on 2015/1/1.
  */
-public class SimpleThreadsFragment extends Fragment implements AbsListView.OnItemClickListener {
-
+public class MsgFragment extends Fragment implements AbsListView.OnItemClickListener {
 	Core core;
 	private OnFragmentInteractionListener mListener;
 
@@ -45,8 +37,8 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 	private ArrayAdapter mAdapter;
 
 	// TODO: Rename and change types of parameters
-	public static SimpleThreadsFragment newInstance(int position) {
-		SimpleThreadsFragment fragment = new SimpleThreadsFragment();
+	public static MsgFragment newInstance(int position) {
+		MsgFragment fragment = new MsgFragment();
 		Bundle args = new Bundle();
 		args.putInt("tab_index", position);
 		fragment.setArguments(args);
@@ -57,7 +49,7 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 	 * Mandatory empty constructor for the fragment manager to instantiate the
 	 * fragment (e.g. upon screen orientation changes).
 	 */
-	public SimpleThreadsFragment() {
+	public MsgFragment() {
 	}
 
 	@Override
@@ -68,31 +60,20 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 
 		switch (tabIndex) {
 			case 0:
-				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_thread, R.id.simple_thread_text);
-
-				Core.getMyThreads(new Core.OnThreadsListener() {
-					@Override
-					public void onThreads(ArrayList<Thread> threads) {
-						mAdapter.addAll(threads);
-					}
-				});
-				break;
-
-			case 1:
-				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_post, R.id.simple_thread_text) {
+				mAdapter = new ArrayAdapter<Post>(getActivity(), R.layout.simple_post, R.id.simple_thread_text) {
 					@Override
 					public View getView(int position, View convertView, ViewGroup parent) {
 						View row = super.getView(position, convertView, parent);
 
 						TextView title = (TextView) row.findViewById(R.id.simple_thread_text);
 						TextView content = (TextView) row.findViewById(R.id.simple_post_text);
-						Thread thread = getItem(position);
-						title.setText(thread.getTitle());
+						Post post = getItem(position);
+						title.setText(post.getTitle());
 
-						String body = thread.getBody();
+						String body = post.getBody();
 
 						if (body.length() > 0) {
-							content.setText(thread.getBody());
+							content.setText(post.getBody());
 							content.setVisibility(View.VISIBLE);
 						} else {
 							content.setVisibility(View.GONE);
@@ -102,19 +83,36 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 					}
 				};
 
-				Core.getMyPosts(new Core.OnThreadsListener() {
+				Core.getAlerts(new Core.OnPostsListener() {
 					@Override
-					public void onThreads(ArrayList<Thread> threads) {
-						mAdapter.addAll(threads);
+					public void onPosts(ArrayList<Post> posts) {
+						mAdapter.addAll(posts);
 					}
 				});
-
 				break;
 
-			case 2:
-				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_thread, R.id.simple_thread_text);
+			case 1:
+				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_thread, R.id.simple_thread_text) {
+					@Override
+					public View getView(int position, View convertView, ViewGroup parent) {
+						View row = super.getView(position, convertView, parent);
 
-				Core.getFavorites(new Core.OnThreadsListener() {
+						TextView title = (TextView) row.findViewById(R.id.simple_thread_text);
+						Thread thread = getItem(position);
+						String msg = thread.getDateStr() + ", " + thread.getAuthor().getName() + ": " + thread.getTitle();
+
+
+						title.setText(msg);
+						if (!thread.isNew()) {
+							title.setTextColor(getResources().getColor(R.color.dark_light));
+						}
+
+
+						return row;
+					}
+				};
+
+				Core.getMessages(new Core.OnThreadsListener() {
 					@Override
 					public void onThreads(ArrayList<Thread> threads) {
 						mAdapter.addAll(threads);
@@ -194,5 +192,4 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 		// TODO: Update argument type and name
 		public void onFragmentInteraction(String id);
 	}
-
 }

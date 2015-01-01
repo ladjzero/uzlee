@@ -16,7 +16,6 @@
         android:paddingLeft="8dp"
         android:paddingBottom="8dp"
         android:paddingRight="8dp"
-        android:textColor="@color/dark_light"
-        android:lines="1" />
+        android:textColor="@color/dark_light" />
 
 </LinearLayout>

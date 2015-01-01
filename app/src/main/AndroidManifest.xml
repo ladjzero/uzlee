@@ -52,6 +52,22 @@
             android:name=".MyPostsActivity"
             android:label="@string/title_activity_my_posts" >
         </activity>
+        <activity
+            android:name=".SearchActivity"
+            android:label="@string/title_activity_search" >
+        </activity>
+        <activity
+            android:name=".MsgActivity"
+            android:label="消息" >
+        </activity>
+        <activity
+            android:name=".UserActivity"
+            android:label="@string/title_activity_user" >
+        </activity>
+        <activity
+            android:name=".ThreadsActivity"
+            android:label="@string/title_activity_threads" >
+        </activity>
     </application>
 
 </manifest>

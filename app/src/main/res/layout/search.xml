@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<RelativeLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+
+		<EditText
+			android:id="@+id/search_input"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:background="@color/dark_primary"
+			android:imeOptions="actionSearch"
+			android:paddingLeft="12dp"
+			android:paddingRight="12dp"
+			android:singleLine="true"
+			android:textColor="@android:color/white"
+			android:textCursorDrawable="@null"
+			android:hint="搜索"/>
+
+	</RelativeLayout>
+
+	<include layout="@layout/threads_can_refresh" />
+</LinearLayout>

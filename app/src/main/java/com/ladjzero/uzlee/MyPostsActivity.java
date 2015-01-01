@@ -8,12 +8,15 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.os.Bundle;
+import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
 
 
 public class MyPostsActivity extends BaseActivity implements ActionBar.TabListener, SimpleThreadsFragment.OnFragmentInteractionListener {
@@ -40,9 +43,9 @@ public class MyPostsActivity extends BaseActivity implements ActionBar.TabListen
 
 		// Set up the action bar.
 		final ActionBar actionBar = getActionBar();
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-		actionBar.setDisplayShowHomeEnabled(false);
-		actionBar.setDisplayShowTitleEnabled(false);
+//		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+//		actionBar.setDisplayShowHomeEnabled(false);
+//		actionBar.setDisplayShowTitleEnabled(false);
 
 		// Create the adapter that will return a fragment for each of the three
 		// primary sections of the activity.
@@ -52,27 +55,43 @@ public class MyPostsActivity extends BaseActivity implements ActionBar.TabListen
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
 
+//		PagerTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+//		tabs.setViewPager(mViewPager);
+
+
 		// When swiping between different sections, select the corresponding
 		// tab. We can also use ActionBar.Tab#select() to do this if we have
 		// a reference to the Tab.
-		mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-			@Override
-			public void onPageSelected(int position) {
-				actionBar.setSelectedNavigationItem(position);
-			}
-		});
+//		mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+//			@Override
+//			public void onPageSelected(int position) {
+//				actionBar.setSelectedNavigationItem(position);
+//			}
+//		});
+
+		PagerTabStrip tabs = (PagerTabStrip) findViewById(R.id.tabs);
+
+		TypedValue tv = new TypedValue();
+		if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true))
+		{
+			int actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+			ViewGroup.LayoutParams params = tabs.getLayoutParams();
+			params.height = actionBarHeight;
+			tabs.setLayoutParams(params);
+		}
+		actionBar.hide();
 
 		// For each of the sections in the app, add a tab to the action bar.
-		for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
-			// Create a tab with text corresponding to the page title defined by
-			// the adapter. Also specify this Activity object, which implements
-			// the TabListener interface, as the callback (listener) for when
-			// this tab is selected.
-			actionBar.addTab(
-					actionBar.newTab()
-							.setText(mSectionsPagerAdapter.getPageTitle(i))
-							.setTabListener(this));
-		}
+//		for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
+//			// Create a tab with text corresponding to the page title defined by
+//			// the adapter. Also specify this Activity object, which implements
+//			// the TabListener interface, as the callback (listener) for when
+//			// this tab is selected.
+//			actionBar.addTab(
+//					actionBar.newTab()
+//							.setText(mSectionsPagerAdapter.getPageTitle(i))
+//							.setTabListener(this));
+//		}
 	}
 
 
@@ -153,38 +172,4 @@ public class MyPostsActivity extends BaseActivity implements ActionBar.TabListen
 			return null;
 		}
 	}
-
-	/**
-	 * A placeholder fragment containing a simple view.
-	 */
-	public static class PlaceholderFragment extends Fragment {
-		/**
-		 * The fragment argument representing the section number for this
-		 * fragment.
-		 */
-		private static final String ARG_SECTION_NUMBER = "section_number";
-
-		/**
-		 * Returns a new instance of this fragment for the given section
-		 * number.
-		 */
-		public static PlaceholderFragment newInstance(int sectionNumber) {
-			PlaceholderFragment fragment = new PlaceholderFragment();
-			Bundle args = new Bundle();
-			args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-			fragment.setArguments(args);
-			return fragment;
-		}
-
-		public PlaceholderFragment() {
-		}
-
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-								 Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_my_posts, container, false);
-			return rootView;
-		}
-	}
-
 }

@@ -26,6 +26,7 @@ public class Post{
 	private String title;
 	@DatabaseField
 	private String body;
+	private int tid;
 	private String[] niceBody;
 	private String type;
 	private ArrayList<Post> comments;
@@ -92,6 +93,11 @@ public class Post{
 	}
 	public Post setId(int id) {
 		this.id = id;
+		return this;
+	}
+	public int getTid() {return tid;}
+	public Post setTid(int tid) {
+		this.tid = tid;
 		return this;
 	}
 	public int getCommentCount() {
