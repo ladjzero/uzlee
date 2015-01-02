@@ -19,5 +19,6 @@
     <string name="title_activity_search">搜索</string>
     <string name="title_activity_user">UserActivity</string>
     <string name="title_activity_threads">ThreadsActivity</string>
+    <string name="title_activity_image">ImageActivity</string>
 
 </resources>

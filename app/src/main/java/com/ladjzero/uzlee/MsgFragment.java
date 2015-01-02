@@ -85,7 +85,7 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 
 				Core.getAlerts(new Core.OnPostsListener() {
 					@Override
-					public void onPosts(ArrayList<Post> posts) {
+					public void onPosts(ArrayList<Post> posts, int page, boolean hasNextPage) {
 						mAdapter.addAll(posts);
 					}
 				});
@@ -114,7 +114,7 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 
 				Core.getMessages(new Core.OnThreadsListener() {
 					@Override
-					public void onThreads(ArrayList<Thread> threads) {
+					public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
 						mAdapter.addAll(threads);
 					}
 				});

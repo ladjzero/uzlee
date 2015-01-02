@@ -70,7 +70,7 @@ public class SearchActivity extends BaseActivity implements Core.OnThreadsListen
 	}
 
 	@Override
-	public void onThreads(ArrayList<Thread> threads) {
+	public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
 		this.threads.clear();
 		this.threads.addAll(threads);
 		adapter.notifyDataSetChanged();

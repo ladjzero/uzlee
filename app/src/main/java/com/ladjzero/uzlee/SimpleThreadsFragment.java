@@ -72,7 +72,7 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 
 				Core.getMyThreads(new Core.OnThreadsListener() {
 					@Override
-					public void onThreads(ArrayList<Thread> threads) {
+					public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
 						mAdapter.addAll(threads);
 					}
 				});
@@ -104,7 +104,7 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 
 				Core.getMyPosts(new Core.OnThreadsListener() {
 					@Override
-					public void onThreads(ArrayList<Thread> threads) {
+					public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
 						mAdapter.addAll(threads);
 					}
 				});
@@ -116,7 +116,7 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 
 				Core.getFavorites(new Core.OnThreadsListener() {
 					@Override
-					public void onThreads(ArrayList<Thread> threads) {
+					public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
 						mAdapter.addAll(threads);
 					}
 				});

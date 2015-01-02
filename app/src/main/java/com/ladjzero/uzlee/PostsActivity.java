@@ -20,7 +20,7 @@ import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.User;
 
-public class PostsActivity extends BaseActivity implements AdapterView.OnItemClickListener{
+public class PostsActivity extends BaseActivity implements AdapterView.OnItemClickListener, Core.OnPostsListener{
 
 	DBHelper db;
 	Dao<Thread, Integer> threadDao;
@@ -31,6 +31,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	ListView listView;
 	String titleStr;
 	PostsAdapter adapter;
+	boolean hasNextPage = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +69,14 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		adapter = new PostsAdapter(this, posts);
 		listView.setOnItemClickListener(this);
 		listView.setAdapter(adapter);
+		listView.setOnScrollListener(new EndlessScrollListener() {
+			@Override
+			public void onLoadMore(int page, int totalItemsCount) {
+				if (hasNextPage) {
+					fetch(page, PostsActivity.this);
+				}
+			}
+		});
 	}
 
 	@Override
@@ -75,18 +84,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		super.onStart();
 
 		if (posts.size() == 0) {
-			Core.getHtml("http://www.hi-pda.com/forum/viewthread.php?tid=" + tid, new Core.OnRequestListener() {
-				@Override
-				public void onError(String error) {
-
-				}
-
-				@Override
-				public void onSuccess(String html) {
-					posts.addAll(Core.parsePosts(html));
-					adapter.notifyDataSetChanged();
-				}
-			});
+			fetch(1, this);
 		}
 	}
 
@@ -138,5 +136,26 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		replyIntent.putExtra("title", "回复 " + post.getAuthor().getName() + " #" + (i + 1));
 		replyIntent.putExtra("hideTitleInput", true);
 		startActivity(replyIntent);
+	}
+
+	private void fetch(int page, final Core.OnPostsListener onPostsListener) {
+		Core.getHtml("http://www.hi-pda.com/forum/viewthread.php?tid=" + tid + "&page=" + page, new Core.OnRequestListener() {
+			@Override
+			public void onError(String error) {
+
+			}
+
+			@Override
+			public void onSuccess(String html) {
+				Core.parsePosts(html, onPostsListener);
+			}
+		});
+	}
+
+	@Override
+	public void onPosts(ArrayList<Post> posts, int page, boolean hasNextPage) {
+		this.hasNextPage = hasNextPage;
+		this.posts.addAll(posts);
+		adapter.notifyDataSetChanged();
 	}
 }

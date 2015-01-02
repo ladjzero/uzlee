@@ -62,7 +62,7 @@ public class ThreadsActivity extends BaseActivity implements Core.OnThreadsListe
 	}
 
 	@Override
-	public void onThreads(ArrayList<Thread> threads) {
+	public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
 		this.threads.addAll(threads);
 		adapter.notifyDataSetChanged();
 	}

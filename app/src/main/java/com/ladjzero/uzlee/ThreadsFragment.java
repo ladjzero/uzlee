@@ -36,6 +36,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	ListView listView;
 	ThreadsAdapter adapter;
 	static HashMap<Integer, ThreadsFragment> fragmentsCache = new HashMap<Integer, ThreadsFragment>();
+	boolean hasNextPage = false;
 
 	public static ThreadsFragment newInstance(int fid) {
 		ThreadsFragment fragment = fragmentsCache.get(Integer.valueOf(fid));
@@ -90,7 +91,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		SpannableString content = new SpannableString(udata);
 		content.setSpan(new UnderlineSpan(), 0, udata.length(), 0);
 
-		ViewGroup loadNextPage = ((ViewGroup) inflater.inflate(
+		final ViewGroup loadNextPage = ((ViewGroup) inflater.inflate(
 				R.layout.load_next_page, listView, false));
 		TextView _tv = (TextView) loadNextPage.findViewById(R.id.next_page);
 		_tv.setText(content);
@@ -99,12 +100,20 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 				threads);
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(this);
+		listView.setOnScrollListener(new EndlessScrollListener() {
+			@Override
+			public void onLoadMore(int page, int totalItemsCount) {
+				if (hasNextPage) {
+					fetch(page, ThreadsFragment.this);
+				}
+			}
+		});
 
 		return rootView;
 	}
 
-	private void fetch(final OnThreadsListener onThreadsListener) {
-		Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid"), new Core.OnRequestListener() {
+	private void fetch(int page, final OnThreadsListener onThreadsListener) {
+		Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid") + "&page=" + page, new Core.OnRequestListener() {
 			@Override
 			public void onError(String error) {
 
@@ -112,7 +121,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 			@Override
 			public void onSuccess(String html) {
-				onThreadsListener.onThreads(Core.parseThreads(html));
+				Core.parseThreads(html, onThreadsListener);
 			}
 		});
 	}
@@ -122,7 +131,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		super.onStart();
 
 		if (threads.size() == 0) {
-			fetch(this);
+			fetch(1, this);
 		}
 	}
 
@@ -154,8 +163,8 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	}
 
 	@Override
-	public void onThreads(ArrayList<Thread> threads) {
-		this.threads.clear();
+	public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
+		this.hasNextPage = hasNextPage;
 		this.threads.addAll(threads);
 		adapter.notifyDataSetChanged();
 	}
@@ -172,6 +181,15 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 	@Override
 	public void onRefresh() {
-		fetch(this);
+		fetch(1, new OnThreadsListener() {
+			@Override
+			public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
+				ThreadsFragment.this.hasNextPage = hasNextPage;
+				ThreadsFragment.this.threads.clear();
+				ThreadsFragment.this.threads.addAll(threads);
+				adapter.notifyDataSetChanged();
+				swipe.setRefreshing(false);
+			}
+		});
 	}
 }

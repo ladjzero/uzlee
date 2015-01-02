@@ -145,7 +145,7 @@ public class Core {
 		getHtml("http://www.hi-pda.com/forum/logging.php?action=logout&formhash=" + formhash, onRequestListener);
 	}
 
-	public static ArrayList<Post> parsePosts(String html) {
+	public static ArrayList<Post> parsePosts(String html, OnPostsListener onPostsListener) {
 		ArrayList<Post> posts = new ArrayList<Post>();
 		Document doc = getDoc(html);
 
@@ -161,7 +161,24 @@ public class Core {
 			posts.add(toPostObj(ePost));
 		}
 
+		int currPage = 1;
+		Elements page = doc.select("div.pages > strong");
+
+		if (page.size() > 0) {
+			currPage = Integer.valueOf(page.first().text());
+		}
+
+		boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
+
+		if (onPostsListener != null) {
+			onPostsListener.onPosts(posts, currPage, hasNextPage);
+		}
+
 		return posts;
+	}
+
+	public static ArrayList<Post> parsePosts(String html) {
+		return parsePosts(html, null);
 	}
 
 	private static Post toPostObj(Element ePost) {
@@ -347,17 +364,16 @@ public class Core {
 
 				@Override
 				public void onSuccess(String html) {
-					onThreadsListenerListener.onThreads(parseThreads(html));
+					parseThreads(html, onThreadsListenerListener);
 				}
 
 			});
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
-			onThreadsListenerListener.onThreads(null);
 		}
 	}
 
-	public static ArrayList<Thread> parseThreads(String html) {
+	public static ArrayList<Thread> parseThreads(String html, OnThreadsListener onThreadsListener) {
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 		Document doc = getDoc(html);
 
@@ -373,7 +389,26 @@ public class Core {
 			threads.add(toThreadObj(eThread));
 		}
 
+
+		int currPage = 1;
+
+		Elements page = doc.select("div.pages > strong");
+
+		if (page.size() > 0) {
+			currPage = Integer.valueOf(page.first().text());
+		}
+
+		Elements nextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]");
+
+		if (onThreadsListener != null) {
+			onThreadsListener.onThreads(threads, currPage, nextPage.size() > 0);
+		}
+
 		return threads;
+	}
+
+	public static ArrayList<Thread> parseThreads(String html) {
+		return parseThreads(html, null);
 	}
 
 	private static Thread toThreadObj(Element eThread) {
@@ -432,7 +467,16 @@ public class Core {
 					}
 				}
 
-				onThreadsListener.onThreads(threads);
+				int currPage = 1;
+				Elements page = doc.select("div.pages > strong");
+
+				if (page.size() > 0) {
+					currPage = Integer.valueOf(page.first().text());
+				}
+
+				boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
+
+				onThreadsListener.onThreads(threads, currPage, hasNextPage);
 			}
 		});
 	}
@@ -465,7 +509,16 @@ public class Core {
 					posts.add(post);
 				}
 
-				onPostsListener.onPosts(posts);
+				int currPage = 1;
+				Elements page = doc.select("div.pages > strong");
+
+				if (page.size() > 0) {
+					currPage = Integer.valueOf(page.first().text());
+				}
+
+				boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
+
+				onPostsListener.onPosts(posts, currPage, hasNextPage);
 			}
 		});
 	}
@@ -501,7 +554,16 @@ public class Core {
 					threads.add(thread);
 				}
 
-				onThreadsListenerListener.onThreads(threads);
+				int currPage = 1;
+				Elements page = doc.select("div.pages > strong");
+
+				if (page.size() > 0) {
+					currPage = Integer.valueOf(page.first().text());
+				}
+
+				boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
+
+				onThreadsListenerListener.onThreads(threads, currPage, hasNextPage);
 			}
 		});
 	}
@@ -532,7 +594,16 @@ public class Core {
 					}
 				}
 
-				onThreadsListener.onThreads(threads);
+				int currPage = 1;
+				Elements page = doc.select("div.pages > strong");
+
+				if (page.size() > 0) {
+					currPage = Integer.valueOf(page.first().text());
+				}
+
+				boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
+
+				onThreadsListener.onThreads(threads, currPage, hasNextPage);
 			}
 		});
 	}
@@ -564,17 +635,26 @@ public class Core {
 					}
 				}
 
-				onThreadsListener.onThreads(threads);
+				int currPage = 1;
+				Elements page = doc.select("div.pages > strong");
+
+				if (page.size() > 0) {
+					currPage = Integer.valueOf(page.first().text());
+				}
+
+				boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
+
+				onThreadsListener.onThreads(threads, currPage, hasNextPage);
 			}
 		});
 	}
 
 	public interface OnPostsListener {
-		void onPosts(ArrayList<Post> posts);
+		void onPosts(ArrayList<Post> posts, int currPage, boolean hasNextPage);
 	}
 
 	public interface OnThreadsListener {
-		void onThreads(ArrayList<Thread> threads);
+		void onThreads(ArrayList<Thread> threads, int currPage, boolean hasNextPage);
 	}
 
 	public static void getThreadsByUrl(String url, final OnThreadsListener onThreadsListener) {
@@ -587,7 +667,7 @@ public class Core {
 
 			@Override
 			public void onSuccess(String html) {
-				onThreadsListener.onThreads(parseThreads(html));
+				parseThreads(html, onThreadsListener);
 			}
 		});
 	}

@@ -117,8 +117,19 @@ public class PostsAdapter extends ArrayAdapter<Post> {
 				postImageLayout.removeAllViews();
 				holder.body.addView(iv);
 
+				final String url = bodySnippet.substring(4);
+
 				ImageLoader.getInstance().displayImage(
-						bodySnippet.substring(4), iv);
+						url, iv);
+
+				iv.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						Intent intent = new Intent(context, ImageActivity.class);
+						intent.putExtra("url", url);
+						context.startActivity(intent);
+					}
+				});
 			}
 		}
 

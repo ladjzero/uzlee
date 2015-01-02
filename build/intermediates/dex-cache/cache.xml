@@ -23,6 +23,13 @@
         <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\android-async-http-1.4.6-fd2c35025396d71820566270ace5c22f7875f60d.jar" />
     </item>
     <item
+        jar="C:\Users\ladjzero\.gradle\caches\modules-2\files-2.1\com.nineoldandroids\library\2.4.0\e9b63380f3a242dbdbf103a2355ad7e43bad17cb\library-2.4.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="e9b63380f3a242dbdbf103a2355ad7e43bad17cb">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\library-2.4.0-9ed32d58fc9521de0b8da36e442de889a48027f1.jar" />
+    </item>
+    <item
         jar="E:\workspace\android_studio\uzlee\app\build\intermediates\exploded-aar\com.android.support\support-v13\21.0.3\libs\internal_impl-21.0.3.jar"
         jumboMode="false"
         revision="21.1.2"
@@ -58,6 +65,13 @@
         <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\ormlite-android-4.48-e01bf1e0e8c365aa233aa0f0b8b9980c9e1c9ebd.jar" />
     </item>
     <item
+        jar="E:\workspace\android_studio\uzlee\app\libs\acra-4.5.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="44a5eb946e0d83eed4a0128d877ca1fd8168b83a">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\acra-4.5.0-93e78f21fef84ce4cbc38e58fc45df0698840ccb.jar" />
+    </item>
+    <item
         jar="E:\workspace\android_studio\uzlee\app\libs\fastjson-1.1.34.android.jar"
         jumboMode="false"
         revision="21.1.2"
@@ -72,13 +86,6 @@
         <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\commons-collections-3.0-14446e3abf3bc374cd3e7e9cead360ab3c78f074.jar" />
     </item>
     <item
-        jar="E:\workspace\android_studio\uzlee\app\build\intermediates\exploded-aar\me.biubiubiu.justifytext\library\1.1\classes.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="69ee8c3f146ba6b2ead91fea61a283b19cfbf387">
-        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\classes-25f8528c45a85c9147424deba96d4d1e812090b3.jar" />
-    </item>
-    <item
         jar="E:\workspace\android_studio\uzlee\app\libs\android-iconify-1.0.8.jar"
         jumboMode="false"
         revision="21.1.2"
@@ -91,6 +98,13 @@
         revision="21.1.2"
         sha1="4b74cefe1f0c1b819e7260c8627a14674e37fd35">
         <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\support-annotations-21.0.3-d9bfeac2c66d542a3d81317d914dcd23f83f8a1d.jar" />
+    </item>
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\build\intermediates\exploded-aar\it.sephiroth.android.library.imagezoom\imagezoom\2.1.1\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="8fbd4390c086423b591596e4b04a03e0e59b9397">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\classes-802ccb187109dd5e6cbd0f9bd4ad1042e3b747ee.jar" />
     </item>
     <item
         jar="E:\workspace\android_studio\uzlee\app\libs\universal-image-loader-1.9.3.jar"
