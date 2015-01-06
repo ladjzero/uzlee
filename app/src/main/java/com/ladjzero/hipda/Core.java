@@ -1,5 +1,7 @@
 package com.ladjzero.hipda;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ public class Core {
 	private static ArrayList<OnMessageListener> onMessageListeners = new ArrayList<OnMessageListener>();
 	private static String formhash;
 	private static Context context;
+	private static int uid;
 
 	public static void setup(Context context) {
 		if (Core.context == null) {
@@ -49,6 +52,35 @@ public class Core {
 		void onError(String error);
 
 		void onSuccess(String html);
+	}
+
+	public interface OnUploadListener{
+		void onUpload(String response);
+	}
+
+	public static void uploadImage(File imageFile, OnUploadListener onUploadListener) {
+		try {
+			RequestParams params = new RequestParams();
+			params.setContentEncoding("GBK");
+			params.put("uid", uid);
+			params.put("hash", "ac62265abc8a56fa12705ceca76c46da");
+			params.put("Filedata", imageFile);
+			params.put("filename", imageFile.getName());
+
+			httpClient.post("http://www.hi-pda.com/forum/misc.php?action=swfupload&operation=upload&simple=1&type=image", params, new AsyncHttpResponseHandler() {
+				@Override
+				public void onSuccess(int i, Header[] headers, byte[] bytes) {
+
+				}
+
+				@Override
+				public void onFailure(int i, Header[] headers, byte[] bytes, Throwable throwable) {
+
+				}
+			});
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void getHtml(String url, final OnRequestListener onRequestListener) {
@@ -88,6 +120,9 @@ public class Core {
 					onMessageListener.onMsg(1);
 				}
 			}
+
+			String uidHref = doc.select("#umenu > cite > a").attr("href");
+			uid = Integer.valueOf(uidHref.substring(uidHref.indexOf("uid=") + 4));
 		} catch (Error e) {
 
 		}
@@ -281,7 +316,7 @@ public class Core {
 					String src = e.attr("src");
 
 					if (iconKeys.contains(src)) {
-						sb.append(":{" + icons.get(src) + "}:");
+						sb.append(icons.get(src));
 					} else {
 						if ((sbStr = sb.toString().trim()).length() != 0) {
 							temps.add("txt:" + sbStr);
@@ -677,69 +712,69 @@ public class Core {
 	public static final Collection<String> iconValues;
 
 	static {
-		icons.put("images/smilies/default/smile.gif", "smile");
-		icons.put("images/smilies/default/sweat.gif", "sweat");
-		icons.put("images/smilies/default/huffy.gif", "huffy");
-		icons.put("images/smilies/default/cry.gif", "cry");
-		icons.put("images/smilies/default/titter.gif", "titter");
-		icons.put("images/smilies/default/handshake.gif", "handshake");
-		icons.put("images/smilies/default/victory.gif", "victory");
-		icons.put("images/smilies/default/curse.gif", "curse");
-		icons.put("images/smilies/default/dizzy.gif", "dizzy");
-		icons.put("images/smilies/default/shutup.gif", "shutup");
-		icons.put("images/smilies/default/funk.gif", "funk");
-		icons.put("images/smilies/default/loveliness.gif", "loveliness");
-		icons.put("images/smilies/default/sad.gif", "sad");
-		icons.put("images/smilies/default/biggrin.gif", "biggrin");
-		icons.put("images/smilies/default/cool.gif", "cool");
-		icons.put("images/smilies/default/mad.gif", "mad");
-		icons.put("images/smilies/default/shocked.gif", "shocked");
-		icons.put("images/smilies/default/tongue.gif", "tongue");
-		icons.put("images/smilies/default/lol.gif", "lol");
-		icons.put("images/smilies/default/shy.gif", "shy");
-		icons.put("images/smilies/default/sleepy.gif", "sleepy");
+		icons.put("images/smilies/default/smile.gif", ":)");
+		icons.put("images/smilies/default/sweat.gif", ":sweat:");
+		icons.put("images/smilies/default/huffy.gif", ":huffy:");
+		icons.put("images/smilies/default/cry.gif", ":cry:");
+		icons.put("images/smilies/default/titter.gif", ":titter:");
+		icons.put("images/smilies/default/handshake.gif", ":handshake:");
+		icons.put("images/smilies/default/victory.gif", ":victory:");
+		icons.put("images/smilies/default/curse.gif", ":curse:");
+		icons.put("images/smilies/default/dizzy.gif", ":dizzy:");
+		icons.put("images/smilies/default/shutup.gif", ":shutup:");
+		icons.put("images/smilies/default/funk.gif", ":funk:");
+		icons.put("images/smilies/default/loveliness.gif", ":loveliness:");
+		icons.put("images/smilies/default/sad.gif", ":(");
+		icons.put("images/smilies/default/biggrin.gif", ":D");
+		icons.put("images/smilies/default/cool.gif", ":cool:");
+		icons.put("images/smilies/default/mad.gif", ":mad:");
+		icons.put("images/smilies/default/shocked.gif", ":o");
+		icons.put("images/smilies/default/tongue.gif", ":P");
+		icons.put("images/smilies/default/lol.gif", ":lol:");
+		icons.put("images/smilies/default/shy.gif", ":shy:");
+		icons.put("images/smilies/default/sleepy.gif", ":sleepy:");
 
-		icons.put("images/smilies/coolmonkey/01.gif", "coolmonkey01");
-		icons.put("images/smilies/coolmonkey/02.gif", "coolmonkey02");
-		icons.put("images/smilies/coolmonkey/03.gif", "coolmonkey03");
-		icons.put("images/smilies/coolmonkey/04.gif", "coolmonkey04");
-		icons.put("images/smilies/coolmonkey/05.gif", "coolmonkey05");
-		icons.put("images/smilies/coolmonkey/06.gif", "coolmonkey06");
-		icons.put("images/smilies/coolmonkey/07.gif", "coolmonkey07");
-		icons.put("images/smilies/coolmonkey/08.gif", "coolmonkey08");
-		icons.put("images/smilies/coolmonkey/09.gif", "coolmonkey09");
-		icons.put("images/smilies/coolmonkey/10.gif", "coolmonkey10");
-		icons.put("images/smilies/coolmonkey/11.gif", "coolmonkey11");
-		icons.put("images/smilies/coolmonkey/12.gif", "coolmonkey12");
-		icons.put("images/smilies/coolmonkey/13.gif", "coolmonkey13");
-		icons.put("images/smilies/coolmonkey/14.gif", "coolmonkey14");
-		icons.put("images/smilies/coolmonkey/15.gif", "coolmonkey15");
-		icons.put("images/smilies/coolmonkey/16.gif", "coolmonkey16");
+		icons.put("images/smilies/coolmonkey/01.gif", "{:2_41:}");
+		icons.put("images/smilies/coolmonkey/02.gif", "{:2_42:}");
+		icons.put("images/smilies/coolmonkey/03.gif", "{:2_43:}");
+		icons.put("images/smilies/coolmonkey/04.gif", "{:2_44:}");
+		icons.put("images/smilies/coolmonkey/05.gif", "{:2_45:}");
+		icons.put("images/smilies/coolmonkey/06.gif", "{:2_46:}");
+		icons.put("images/smilies/coolmonkey/07.gif", "{:2_47:}");
+		icons.put("images/smilies/coolmonkey/08.gif", "{:2_48:}");
+		icons.put("images/smilies/coolmonkey/09.gif", "{:2_49:}");
+		icons.put("images/smilies/coolmonkey/10.gif", "{:2_50:}");
+		icons.put("images/smilies/coolmonkey/11.gif", "{:2_51:}");
+		icons.put("images/smilies/coolmonkey/12.gif", "{:2_52:}");
+		icons.put("images/smilies/coolmonkey/13.gif", "{:2_53:}");
+		icons.put("images/smilies/coolmonkey/14.gif", "{:2_54:}");
+		icons.put("images/smilies/coolmonkey/15.gif", "{:2_55:}");
+		icons.put("images/smilies/coolmonkey/16.gif", "{:2_56:}");
 
-		icons.put("images/smilies/grapeman/01.gif", "grapeman01");
-		icons.put("images/smilies/grapeman/02.gif", "grapeman02");
-		icons.put("images/smilies/grapeman/03.gif", "grapeman03");
-		icons.put("images/smilies/grapeman/04.gif", "grapeman04");
-		icons.put("images/smilies/grapeman/05.gif", "grapeman05");
-		icons.put("images/smilies/grapeman/06.gif", "grapeman06");
-		icons.put("images/smilies/grapeman/07.gif", "grapeman07");
-		icons.put("images/smilies/grapeman/08.gif", "grapeman08");
-		icons.put("images/smilies/grapeman/09.gif", "grapeman09");
-		icons.put("images/smilies/grapeman/10.gif", "grapeman10");
-		icons.put("images/smilies/grapeman/11.gif", "grapeman11");
-		icons.put("images/smilies/grapeman/12.gif", "grapeman12");
-		icons.put("images/smilies/grapeman/13.gif", "grapeman13");
-		icons.put("images/smilies/grapeman/14.gif", "grapeman14");
-		icons.put("images/smilies/grapeman/15.gif", "grapeman15");
-		icons.put("images/smilies/grapeman/16.gif", "grapeman16");
-		icons.put("images/smilies/grapeman/17.gif", "grapeman17");
-		icons.put("images/smilies/grapeman/18.gif", "grapeman18");
-		icons.put("images/smilies/grapeman/19.gif", "grapeman19");
-		icons.put("images/smilies/grapeman/20.gif", "grapeman20");
-		icons.put("images/smilies/grapeman/21.gif", "grapeman21");
-		icons.put("images/smilies/grapeman/22.gif", "grapeman22");
-		icons.put("images/smilies/grapeman/23.gif", "grapeman23");
-		icons.put("images/smilies/grapeman/24.gif", "grapeman24");
+		icons.put("images/smilies/grapeman/01.gif", "{:3_57:}");
+		icons.put("images/smilies/grapeman/02.gif", "{:3_58:}");
+		icons.put("images/smilies/grapeman/03.gif", "{:3_59:}");
+		icons.put("images/smilies/grapeman/04.gif", "{:3_60:}");
+		icons.put("images/smilies/grapeman/05.gif", "{:3_61:}");
+		icons.put("images/smilies/grapeman/06.gif", "{:3_62:}");
+		icons.put("images/smilies/grapeman/07.gif", "{:3_63:}");
+		icons.put("images/smilies/grapeman/08.gif", "{:3_64:}");
+		icons.put("images/smilies/grapeman/09.gif", "{:3_65:}");
+		icons.put("images/smilies/grapeman/10.gif", "{:3_66:}");
+		icons.put("images/smilies/grapeman/11.gif", "{:3_67:}");
+		icons.put("images/smilies/grapeman/12.gif", "{:3_68:}");
+		icons.put("images/smilies/grapeman/13.gif", "{:3_69:}");
+		icons.put("images/smilies/grapeman/14.gif", "{:3_70:}");
+		icons.put("images/smilies/grapeman/15.gif", "{:3_71:}");
+		icons.put("images/smilies/grapeman/16.gif", "{:3_72:}");
+		icons.put("images/smilies/grapeman/17.gif", "{:3_73:}");
+		icons.put("images/smilies/grapeman/18.gif", "{:3_74:}");
+		icons.put("images/smilies/grapeman/19.gif", "{:3_75:}");
+		icons.put("images/smilies/grapeman/20.gif", "{:3_76:}");
+		icons.put("images/smilies/grapeman/21.gif", "{:3_77:}");
+		icons.put("images/smilies/grapeman/22.gif", "{:3_78:}");
+		icons.put("images/smilies/grapeman/23.gif", "{:3_79:}");
+		icons.put("images/smilies/grapeman/24.gif", "{:3_80:}");
 
 		iconKeys = icons.keySet();
 		iconValues = icons.values();

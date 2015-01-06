@@ -8,8 +8,10 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.j256.ormlite.dao.Dao;
 import com.joanzapata.android.iconify.IconDrawable;
@@ -68,6 +70,10 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		listView = (ListView) this.findViewById(R.id.posts);
 		adapter = new PostsAdapter(this, posts);
 		listView.setOnItemClickListener(this);
+		ViewGroup title = ((ViewGroup) getLayoutInflater().inflate(R.layout.posts_header, listView, false));
+		TextView titleView = (TextView) title.findViewById(R.id.posts_header);
+		titleView.setText(titleStr);
+		listView.addHeaderView(title, null, false);
 		listView.setAdapter(adapter);
 		listView.setOnScrollListener(new EndlessScrollListener() {
 			@Override

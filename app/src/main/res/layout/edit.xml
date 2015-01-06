@@ -1,39 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical" >
+			  xmlns:flatui="http://schemas.android.com/apk/res-auto"
+			  android:layout_width="match_parent"
+			  android:layout_height="wrap_content"
+			  android:orientation="vertical"
+			  android:paddingBottom="12dp"
+			  android:paddingLeft="12dp"
+			  android:paddingRight="12dp"
+			  android:paddingTop="12dp">
 
-    <EditText
-        android:id="@+id/edit_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="标题"
-        android:inputType="textMultiLine" />
+	<com.cengalabs.flatui.views.FlatEditText
+		android:id="@+id/edit_title"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginBottom="10dp"
+		android:ems="10"
+		android:hint="标题"
+		android:inputType="textMultiLine"
+		flatui:fl_theme="@array/dark"/>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
 
-        <EditText
-            android:id="@+id/edit_body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="内容"
-            android:inputType="textMultiLine" />
+		<com.cengalabs.flatui.views.FlatEditText
+			android:id="@+id/edit_body"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:ems="10"
+			android:hint="内容"
+			android:inputType="textMultiLine"
+			flatui:fl_theme="@array/snow"
+			android:gravity="top"/>
 
-        <android.widget.IconTextView
-            android:id="@+id/edit_keyboard_emoticon_switch"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:text="{fa-smile-o}"
-            android:textColor="@color/deep_primary"
-            android:textSize="30dp"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true" />
+		<android.widget.IconTextView
+			android:id="@+id/edit_keyboard_emoticon_switch"
+			android:layout_width="30dp"
+			android:layout_height="30dp"
+			android:layout_alignParentRight="true"
+			android:text="{fa-smile-o}"
+			android:textColor="@color/deep_primary"
+			android:textSize="30dp"
+			android:layout_alignParentEnd="false"
+			android:layout_alignParentBottom="true"/>
 
-    </RelativeLayout>
+	</RelativeLayout>
 
 </LinearLayout>

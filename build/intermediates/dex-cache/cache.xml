@@ -30,18 +30,18 @@
         <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\library-2.4.0-9ed32d58fc9521de0b8da36e442de889a48027f1.jar" />
     </item>
     <item
-        jar="E:\workspace\android_studio\uzlee\app\build\intermediates\exploded-aar\com.android.support\support-v13\21.0.3\libs\internal_impl-21.0.3.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="0dcc55e70f7ebf7238fe2ec53f662eb378ab2668">
-        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-69f9c2e313a370e1c1ebd09a100221c187b6ac8b.jar" />
-    </item>
-    <item
         jar="E:\workspace\android_studio\uzlee\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\libs\internal_impl-21.0.3.jar"
         jumboMode="false"
         revision="21.1.2"
         sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
         <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-af3bcb72faac6955f99580a6c1d24524a052b97a.jar" />
+    </item>
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\build\intermediates\exploded-aar\com.android.support\support-v13\21.0.3\libs\internal_impl-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="0dcc55e70f7ebf7238fe2ec53f662eb378ab2668">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-69f9c2e313a370e1c1ebd09a100221c187b6ac8b.jar" />
     </item>
     <item
         jar="E:\workspace\android_studio\uzlee\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\classes.jar"
