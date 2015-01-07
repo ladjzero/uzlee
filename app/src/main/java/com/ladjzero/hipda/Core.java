@@ -58,7 +58,7 @@ public class Core {
 		void onUpload(String response);
 	}
 
-	public static void uploadImage(File imageFile, OnUploadListener onUploadListener) {
+	public static void uploadImage(File imageFile, final OnUploadListener onUploadListener) {
 		try {
 			RequestParams params = new RequestParams();
 			params.setContentEncoding("GBK");
@@ -70,7 +70,7 @@ public class Core {
 			httpClient.post("http://www.hi-pda.com/forum/misc.php?action=swfupload&operation=upload&simple=1&type=image", params, new AsyncHttpResponseHandler() {
 				@Override
 				public void onSuccess(int i, Header[] headers, byte[] bytes) {
-
+					onUploadListener.onUpload(new String(bytes));
 				}
 
 				@Override
@@ -352,16 +352,22 @@ public class Core {
 		return temps.toArray(new String[0]);
 	}
 
-	public static void sendReply(int tid, String content) {
+	public static void sendReply(int tid, String content, String key) {
 		RequestParams params = new RequestParams();
 		params.setContentEncoding("GBK");
 		params.put("formhash", formhash);
+		params.put("posttime", Long.valueOf(System.currentTimeMillis()/1000).toString());
 		params.put("subject", "");
-		params.put("usesig", "0");
+		params.put("wysiwyg", 1);
+		params.put("noticeauthor", "");
+		params.put("noticetrimstr", "");
+		params.put("noticeauthormsg", "");
+		params.put("subject", "");
 		params.put("message", content);
+		params.put(key, "");
 
 		httpClient
-				.post("http://www.hi-pda.com/forum/post.php?action=reply&fid=57&tid=" + tid + "&extra=&replysubmit=yes&infloat=yes&handlekey=fastpost&inajax=1",
+				.post("http://www.hi-pda.com/forum/post.php?action=reply&fid=57&tid=" + tid + "&extra=&replysubmit=yes",
 						params, new AsyncHttpResponseHandler() {
 
 							@Override
