@@ -2,8 +2,12 @@ package com.ladjzero.hipda;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,6 +29,9 @@ import com.loopj.android.http.TextHttpResponseHandler;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 
 public class Core {
 	private static AsyncHttpClient httpClient = new AsyncHttpClient();
@@ -32,6 +39,7 @@ public class Core {
 	private static String formhash;
 	private static Context context;
 	private static int uid;
+	private final static int maxImageLength = 299 * 1024;
 
 	public static void setup(Context context) {
 		if (Core.context == null) {
@@ -54,7 +62,7 @@ public class Core {
 		void onSuccess(String html);
 	}
 
-	public interface OnUploadListener{
+	public interface OnUploadListener {
 		void onUpload(String response);
 	}
 
@@ -117,7 +125,7 @@ public class Core {
 
 			if (msgCount > 0) {
 				for (OnMessageListener onMessageListener : onMessageListeners) {
-					onMessageListener.onMsg(1);
+					onMessageListener.onMsg(msgCount);
 				}
 			}
 
@@ -185,12 +193,6 @@ public class Core {
 		Document doc = getDoc(html);
 
 		Elements ePosts = doc.select("table[id^=pid]");
-
-		if (doc.select("a#myprompt.new").size() != 0) {
-			for (OnMessageListener onMessageListener : onMessageListeners) {
-				onMessageListener.onMsg(1);
-			}
-		}
 
 		for (Element ePost : ePosts) {
 			posts.add(toPostObj(ePost));
@@ -352,11 +354,11 @@ public class Core {
 		return temps.toArray(new String[0]);
 	}
 
-	public static void sendReply(int tid, String content, String key) {
+	public static void sendReply(int tid, String content, ArrayList<Integer> attachIds, final OnRequestListener onRequestListener) {
 		RequestParams params = new RequestParams();
 		params.setContentEncoding("GBK");
 		params.put("formhash", formhash);
-		params.put("posttime", Long.valueOf(System.currentTimeMillis()/1000).toString());
+		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
 		params.put("subject", "");
 		params.put("wysiwyg", 1);
 		params.put("noticeauthor", "");
@@ -364,21 +366,25 @@ public class Core {
 		params.put("noticeauthormsg", "");
 		params.put("subject", "");
 		params.put("message", content);
-		params.put(key, "");
+
+		if (attachIds != null) {
+			for (Integer attachId : attachIds) {
+				params.put("attachnew[" + attachId + "][description]", "");
+			}
+		}
 
 		httpClient
 				.post("http://www.hi-pda.com/forum/post.php?action=reply&fid=57&tid=" + tid + "&extra=&replysubmit=yes",
 						params, new AsyncHttpResponseHandler() {
 
 							@Override
-							public void onFailure(int statusCode,
-												  Header[] headers, byte[] responseBody,
-												  Throwable error) {
+							public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+								onRequestListener.onError(new String(responseBody));
 							}
 
 							@Override
-							public void onSuccess(int statusCode,
-												  Header[] headers, byte[] responseBody) {
+							public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+								onRequestListener.onSuccess(new String(responseBody));
 							}
 
 						});
@@ -417,12 +423,6 @@ public class Core {
 	public static ArrayList<Thread> parseThreads(String html, OnThreadsListener onThreadsListener) {
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 		Document doc = getDoc(html);
-
-		if (doc.select("a#myprompt.new").size() != 0) {
-			for (OnMessageListener onMessageListener : onMessageListeners) {
-				onMessageListener.onMsg(1);
-			}
-		}
 
 		Elements eThreads = doc.select("body#search").size() == 0 ? doc.select("tbody[id^=normalthread_]") : doc.select("div.searchlist tbody");
 
@@ -786,4 +786,63 @@ public class Core {
 		iconValues = icons.values();
 	}
 
+	public interface OnImageCompressed {
+		void onImage(File imageFile);
+	}
+
+	public static void compressImage(final File imgFile, final OnImageCompressed onImageCompressed) {
+//		new AsyncTask<Void, Void, Void>() {
+//			@Override
+//			protected Void doInBackground(Void... params) {
+		Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+		File tempDir = context.getCacheDir();
+		int width = bitmap.getWidth(), height = bitmap.getHeight();
+		int newWidth = width, newHeight = height;
+
+		if (width > 800 && height > 800) {
+			if (width > height) {
+				newWidth = 800;
+				newHeight = 800 * height / width;
+			} else {
+				newHeight = 800;
+				newWidth = 800 * width / height;
+			}
+		}
+
+		Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+
+		long fileLength = imgFile.length();
+
+		File tempFile = imgFile;
+
+		while (fileLength > maxImageLength) {
+			OutputStream os = null;
+
+			try {
+				tempFile = File.createTempFile("uzlee-compress", ".jpg", tempDir);
+				os = new FileOutputStream(tempFile);
+				scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 90, os);
+				os.close();
+
+				fileLength = tempFile.length();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				if (os != null) {
+					try {
+						os.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+
+		}
+
+		onImageCompressed.onImage(tempFile);
+
+//				return null;
+//			}
+//		}.execute();
+	}
 }

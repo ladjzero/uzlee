@@ -79,7 +79,7 @@ public class MyPostsActivity extends BaseActivity implements ActionBar.TabListen
 			params.height = actionBarHeight;
 			tabs.setLayoutParams(params);
 		}
-		actionBar.hide();
+//		actionBar.hide();
 
 		// For each of the sections in the app, add a tab to the action bar.
 //		for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {

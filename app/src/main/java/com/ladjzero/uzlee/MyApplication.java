@@ -12,7 +12,7 @@ import org.acra.annotation.ReportsCrashes;
 @ReportsCrashes(
 		formKey = "", // This is required for backward compatibility but not used
 		mailTo = "ladjzero@163.com",
-		mode = ReportingInteractionMode.DIALOG
+		mode = ReportingInteractionMode.TOAST
 )
 public class MyApplication extends Application{
 

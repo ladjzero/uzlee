@@ -3,7 +3,10 @@ package com.ladjzero.uzlee;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import android.app.ActionBar;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,6 +16,9 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.balysv.materialmenu.MaterialMenu;
+import com.balysv.materialmenu.MaterialMenuDrawable;
+import com.balysv.materialmenu.MaterialMenuIcon;
 import com.j256.ormlite.dao.Dao;
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
@@ -22,7 +28,11 @@ import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.User;
 
-public class PostsActivity extends BaseActivity implements AdapterView.OnItemClickListener, Core.OnPostsListener{
+import at.markushi.ui.ActionView;
+import at.markushi.ui.action.BackAction;
+import at.markushi.ui.action.DrawerAction;
+
+public class PostsActivity extends BaseActivity implements AdapterView.OnItemClickListener, Core.OnPostsListener {
 
 	DBHelper db;
 	Dao<Thread, Integer> threadDao;
@@ -34,10 +44,25 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	String titleStr;
 	PostsAdapter adapter;
 	boolean hasNextPage = false;
+	MaterialMenuIcon materialMenu;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+//		ActionBar actionBar = getActionBar();
+//		actionBar.setHomeButtonEnabled(true);
+//		actionBar.setDisplayShowHomeEnabled(true);
+//
+//		materialMenu = new MaterialMenuIcon(this, Color.WHITE, MaterialMenuDrawable.Stroke.THIN);
+
+		ActionView mHome = new ActionView(this);
+		mHome.setColor(Color.WHITE);
+//		mHome.setPadding(itemPadding, itemPadding, itemPadding, itemPadding);
+//		mHome.setBackgroundResource(R.drawable.default_toolbar_action_bg);
+		mHome.setClickable(true);
+
+		mHome.setAction(new BackAction());
 
 		this.setContentView(R.layout.posts);
 		db = this.getHelper();
@@ -52,20 +77,6 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 			e1.printStackTrace();
 		}
 
-		if (savedInstanceState != null) {
-			ArrayList<Integer> ids = savedInstanceState
-					.getIntegerArrayList("ids");
-			if (ids != null) {
-				try {
-					posts.addAll((postDao.query(postDao.queryBuilder().where()
-							.in("id", ids).prepare())));
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-
 		posts = new ArrayList<Post>();
 		listView = (ListView) this.findViewById(R.id.posts);
 		adapter = new PostsAdapter(this, posts);
@@ -73,7 +84,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		ViewGroup title = ((ViewGroup) getLayoutInflater().inflate(R.layout.posts_header, listView, false));
 		TextView titleView = (TextView) title.findViewById(R.id.posts_header);
 		titleView.setText(titleStr);
-		listView.addHeaderView(title, null, false);
+//		listView.addHeaderView(title, null, false);
 		listView.setAdapter(adapter);
 		listView.setOnScrollListener(new EndlessScrollListener() {
 			@Override
@@ -116,9 +127,13 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 				replyIntent.putExtra("title", "回复：" + titleStr);
 				replyIntent.putExtra("hideTitleInput", true);
 				startActivity(replyIntent);
+				return true;
+			case android.R.id.home:
+				finish();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
 		}
-
-		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -159,9 +174,24 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	}
 
 	@Override
-	public void onPosts(ArrayList<Post> posts, int page, boolean hasNextPage) {
+	public void onPosts(final ArrayList<Post> posts, int page, boolean hasNextPage) {
 		this.hasNextPage = hasNextPage;
 		this.posts.addAll(posts);
 		adapter.notifyDataSetChanged();
+
+		new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... params) {
+				for (Post p : posts) {
+					try {
+						userDao.createOrUpdate(p.getAuthor());
+					} catch (SQLException e) {
+						// TODO Auto-generated catch
+						e.printStackTrace();
+					}
+				}
+				return null;
+			}
+		}.execute();
 	}
 }

@@ -1,6 +1,7 @@
 package com.ladjzero.uzlee;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -10,6 +11,7 @@ import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.joanzapata.android.iconify.IconDrawable;
@@ -17,6 +19,8 @@ import com.joanzapata.android.iconify.Iconify;
 import com.ladjzero.hipda.Core;
 
 import java.io.File;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 
 public class EditActivity extends BaseActivity {
@@ -25,6 +29,7 @@ public class EditActivity extends BaseActivity {
 	String content;
 	TextView contentInput;
 	private static final int SELECT_PHOTO = 100;
+	ArrayList<Integer> attachIds = new ArrayList<Integer>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +37,7 @@ public class EditActivity extends BaseActivity {
 
 		tid = getIntent().getIntExtra("thread_id", 0);
 
+		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 		getActionBar().setTitle(getIntent().getStringExtra("title"));
 		setContentView(R.layout.edit);
 	}
@@ -70,14 +76,28 @@ public class EditActivity extends BaseActivity {
 
 		//noinspection SimplifiableIfStatement
 		if (id == R.id.reply_send) {
-//			Core.sendReply(tid, contentInput.getText().toString());
-			Core.uploadImage(new File("/mnt/sdcard/6.png"), new Core.OnUploadListener() {
-
+			final ProgressDialog progress = new ProgressDialog(this);
+			progress.setTitle("发送");
+			progress.show();
+			Core.sendReply(tid, contentInput.getText().toString(), attachIds, new Core.OnRequestListener() {
 				@Override
-				public void onUpload(String response) {
+				public void onError(String error) {
 
 				}
+
+				@Override
+				public void onSuccess(String html) {
+					progress.dismiss();
+					finish();
+				}
 			});
+//			Core.uploadImage(new File("/mnt/sdcard/6.png"), new Core.OnUploadListener() {
+//
+//				@Override
+//				public void onUpload(String response) {
+//
+//				}
+//			});
 		} else if (id == R.id.reply_add_image) {
 			Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
 			photoPickerIntent.setType("image/*");
@@ -92,22 +112,39 @@ public class EditActivity extends BaseActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
 		Uri uri = imageReturnedIntent.getData();
 		File imageFile = new File(getRealPathFromURI(this, uri));
-		Core.uploadImage(imageFile, new Core.OnUploadListener() {
+
+		final ProgressDialog progress = new ProgressDialog(this);
+		progress.setTitle("图片压缩");
+		progress.show();
+
+		Core.compressImage(imageFile, new Core.OnImageCompressed() {
 			@Override
-			public void onUpload(String response) {
-				if (response.startsWith("DISCUZUPLOAD")) {
-					int attachId = -1;
+			public void onImage(File imageFile) {
+//				progress.dismiss();
 
-					try {
-						attachId = Integer.valueOf(response.split("\\|")[2]);
-					} catch (Exception e) {
+				progress.setTitle("图片上传");
 
+				Core.uploadImage(imageFile, new Core.OnUploadListener() {
+					@Override
+					public void onUpload(String response) {
+						progress.dismiss();
+
+						if (response.startsWith("DISCUZUPLOAD")) {
+							int attachId = -1;
+
+							try {
+								attachId = Integer.valueOf(response.split("\\|")[2]);
+							} catch (Exception e) {
+
+							}
+
+							if (attachId != -1) {
+								attachIds.add(attachId);
+								contentInput.setText(contentInput.getText() + "[attachimg]" + attachId + "[/attachimg]");
+							}
+						}
 					}
-
-					if (attachId != -1) {
-						Core.sendReply(tid, "[attachimg]" + attachId + "[/attachimg]", "attachnew[" + attachId + "][description]");
-					}
-				}
+				});
 			}
 		});
 	}

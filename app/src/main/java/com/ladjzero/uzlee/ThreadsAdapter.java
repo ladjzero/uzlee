@@ -9,7 +9,9 @@ import com.ladjzero.hipda.DBHelper;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import android.app.Activity;
 import android.content.Context;
@@ -65,29 +67,24 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> {
 		final String userName = thread.getAuthor().getName();
 
 		if (img == null) {
-			User u;
 			try {
-				u = userDao.queryForId(uid);
+				User u = userDao.queryForId(uid);
+
 				if (u != null && u.getImage() != null) {
-					ImageLoader.getInstance().displayImage(u.getImage(),
-							holder.img);
+					ImageLoader.getInstance().displayImage(u.getImage(), holder.img, new SimpleImageLoadingListener() {
+
+						@Override
+						public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
+							thread.getAuthor().setImage(imageUri);
+						}
+
+						@Override
+						public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
+							thread.getAuthor().setImage("");
+						}
+					});
 				} else {
-					// core.getUserFromServer(thread.getAuthor().getId(),
-					// new GetUserCB() {
-					//
-					// @Override
-					// public void onGet(User u) {
-					// try {
-					// userDao.createOrUpdate(u);
-					// } catch (SQLException e) {
-					// // TODO Auto-generated catch block
-					// e.printStackTrace();
-					// }
-					// ImageLoader.getInstance().displayImage(
-					// u.getImage(), holder.img);
-					// }
-					//
-					// });
+					// TODO replace default image
 					ImageLoader.getInstance().displayImage("", holder.img);
 				}
 			} catch (SQLException e) {
@@ -95,10 +92,8 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> {
 				e.printStackTrace();
 			}
 		} else {
-			ImageLoader.getInstance().displayImage(
-					thread.getAuthor().getImage(), holder.img);
+			ImageLoader.getInstance().displayImage(img, holder.img);
 		}
-
 
 		holder.img.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -130,5 +125,4 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> {
 		TextView title;
 		TextView commentCount;
 	}
-
 }

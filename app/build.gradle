@@ -38,4 +38,6 @@ dependencies {
     compile 'com.android.support:support-v13:21.0.3'
     compile 'com.github.eluleci:flatui:3.0.0'
     compile 'it.sephiroth.android.library.imagezoom:imagezoom:+'
+    compile 'com.balysv.materialmenu:material-menu:1.5.0'
+    compile 'com.github.markushi:android-ui:1.2'
 }

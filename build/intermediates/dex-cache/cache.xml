@@ -51,6 +51,13 @@
         <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\classes-6979858e88e7053e3e33d95b66a809f41e11abfd.jar" />
     </item>
     <item
+        jar="E:\workspace\android_studio\uzlee\app\build\intermediates\exploded-aar\com.github.markushi\android-ui\1.2\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="96436aef5f48b09aca1e0183dfcd7782aa580bd6">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\classes-fa89cd4d91519858bd194d46510604e1721d9c3e.jar" />
+    </item>
+    <item
         jar="E:\workspace\android_studio\uzlee\app\libs\ormlite-core-4.48.jar"
         jumboMode="false"
         revision="21.1.2"
@@ -105,6 +112,13 @@
         revision="21.1.2"
         sha1="8fbd4390c086423b591596e4b04a03e0e59b9397">
         <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\classes-802ccb187109dd5e6cbd0f9bd4ad1042e3b747ee.jar" />
+    </item>
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\build\intermediates\exploded-aar\com.balysv.materialmenu\material-menu\1.5.0\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="4d18e08d7727046ebd7f06f2d5a091bf76914008">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\classes-90c7059d0bade4fb2586deaf5ec94743344ac9cf.jar" />
     </item>
     <item
         jar="E:\workspace\android_studio\uzlee\app\libs\universal-image-loader-1.9.3.jar"
