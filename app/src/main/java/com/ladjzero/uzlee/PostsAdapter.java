@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -24,13 +25,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Post;
+import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
-public class PostsAdapter extends ArrayAdapter<Post> {
+public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener {
 	PostsActivity context;
 	ArrayList<Post> posts;
 	HashMap<Integer, View> viewCache = new HashMap<Integer, View>();
@@ -72,23 +75,30 @@ public class PostsAdapter extends ArrayAdapter<Post> {
 
 
 			final Post post = getItem(position);
+			final User user = post.getAuthor();
+
 			String img = post.getAuthor().getImage();
 			if (img == null) {
 				ImageLoader.getInstance().displayImage("", holder.img);
 			} else {
-				ImageLoader.getInstance().displayImage(post.getAuthor().getImage(), holder.img, new SimpleImageLoadingListener() {
+				ImageLoader.getInstance().displayImage(user.getImage(), holder.img, new SimpleImageLoadingListener() {
 					@Override
 					public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
-						post.getAuthor().setImage(imageUri);
+						user.setImage(imageUri);
 					}
 
 					@Override
 					public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
-						post.getAuthor().setImage("");
+						user.setImage("");
 					}
 				});
 			}
 			holder.name.setText(post.getAuthor().getName());
+
+			holder.img.setTag(user);
+			holder.name.setTag(user);
+			holder.img.setOnClickListener(this);
+			holder.name.setOnClickListener(this);
 
 			holder.body.removeAllViews();
 
@@ -158,6 +168,10 @@ public class PostsAdapter extends ArrayAdapter<Post> {
 
 				});
 
+				if (quote.getAuthor().getId() == Core.UGLEE_ID) {
+					holder.quoteLayout.setBackgroundResource(R.color.uglee);
+				}
+
 				holder.quoteLayout.setVisibility(View.VISIBLE);
 				holder.quoteName.setText(quote.getAuthor().getName());
 				ImageLoader.getInstance().displayImage(
@@ -171,9 +185,25 @@ public class PostsAdapter extends ArrayAdapter<Post> {
 				holder.quoteLayout.setVisibility(View.GONE);
 			}
 
+
+			if (user.getId() == Core.UGLEE_ID) {
+				row.setBackgroundResource(R.color.uglee);
+				holder.quoteLayout.setBackgroundResource(R.color.ugleeQuote);
+			}
+
+
 			viewCache.put(position, row);
 		}
 		return row;
+	}
+
+	@Override
+	public void onClick(View view) {
+		User user = (User) view.getTag();
+		Intent intent = new Intent(context, UserActivity.class);
+		intent.putExtra("uid", user.getId());
+		intent.putExtra("name", user.getName());
+		context.startActivity(intent);
 	}
 
 	static class PostHolder {

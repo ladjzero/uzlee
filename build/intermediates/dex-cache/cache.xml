@@ -30,6 +30,13 @@
         <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\library-2.4.0-9ed32d58fc9521de0b8da36e442de889a48027f1.jar" />
     </item>
     <item
+        jar="E:\workspace\android_studio\uzlee\app\build\intermediates\exploded-aar\com.balysv.materialmenu\material-menu-toolbar\1.5.0\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="d737e14c69efdf59fe12790a67c167006590b38c">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\classes-6e8a2898ef7886d3b45ce0823dd9eeaef119a2a4.jar" />
+    </item>
+    <item
         jar="E:\workspace\android_studio\uzlee\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\libs\internal_impl-21.0.3.jar"
         jumboMode="false"
         revision="21.1.2"
@@ -91,6 +98,13 @@
         revision="21.1.2"
         sha1="aa12980fe4eca7331a660bdeed371d024687c68d">
         <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\commons-collections-3.0-14446e3abf3bc374cd3e7e9cead360ab3c78f074.jar" />
+    </item>
+    <item
+        jar="E:\workspace\android_studio\uzlee\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\21.0.3\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="81d42bf983a8741f4888a6e333e454e4a5e0eeb7">
+        <dex dex="E:\workspace\android_studio\uzlee\app\build\intermediates\pre-dexed\debug\classes-376be1ea018b6327d3b8a6020ebac282540f4f47.jar" />
     </item>
     <item
         jar="E:\workspace\android_studio\uzlee\app\libs\android-iconify-1.0.8.jar"

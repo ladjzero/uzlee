@@ -8,9 +8,11 @@ import android.app.ActionBar;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
+import android.widget.Toast;
 
 public class MainActivity extends BaseActivity implements
 		NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -99,8 +101,34 @@ public class MainActivity extends BaseActivity implements
 			Intent editIntent = new Intent(this, EditActivity.class);
 			editIntent.putExtra("title", "新主题");
 			startActivity(editIntent);
+			return true;
+		}
+
+		if (id == android.R.id.home) {
+			return false;
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	boolean doubleBackToExitPressedOnce = false;
+
+	@Override
+	public void onBackPressed() {
+		if (doubleBackToExitPressedOnce) {
+			super.onBackPressed();
+			return;
+		}
+
+		this.doubleBackToExitPressedOnce = true;
+		Toast.makeText(this, "再次后退将会退出", Toast.LENGTH_SHORT).show();
+
+		new Handler().postDelayed(new Runnable() {
+
+			@Override
+			public void run() {
+				doubleBackToExitPressedOnce=false;
+			}
+		}, 2000);
 	}
 }

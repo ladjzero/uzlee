@@ -25,9 +25,11 @@ public class MsgActivity extends BaseActivity implements MsgFragment.OnFragmentI
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		enableBackAction();
+
+
 		setContentView(R.layout.activity_my_posts);
 
-		final ActionBar actionBar = getActionBar();
 		mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
 
 		mViewPager = (ViewPager) findViewById(R.id.pager);
@@ -43,7 +45,6 @@ public class MsgActivity extends BaseActivity implements MsgFragment.OnFragmentI
 			params.height = actionBarHeight;
 			tabs.setLayoutParams(params);
 		}
-		actionBar.hide();
 	}
 
 

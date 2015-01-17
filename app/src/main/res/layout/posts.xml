@@ -5,15 +5,24 @@
 				android:background="@android:color/white"
 				android:orientation="vertical">
 
-	<ListView
-		android:id="@+id/posts"
+	<android.support.v4.widget.SwipeRefreshLayout
+		android:id="@+id/post_swipe"
+		xmlns:android="http://schemas.android.com/apk/res/android"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:divider="@color/border"
-		android:dividerHeight="1px"
-		android:fastScrollEnabled="true"
-		android:fastScrollAlwaysVisible="false"
-		android:fadeScrollbars="true">
-	</ListView>
+		android:layout_height="match_parent"
+		android:orientation="vertical">
+
+		<ListView
+			android:id="@+id/posts"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:background="@android:color/white"
+			android:divider="@color/border"
+			android:dividerHeight="1px"
+			android:fadeScrollbars="true"
+			android:fastScrollAlwaysVisible="false"
+			android:fastScrollEnabled="true"
+			android:listSelector="@android:color/transparent"/>
+	</android.support.v4.widget.SwipeRefreshLayout>
 
 </RelativeLayout>

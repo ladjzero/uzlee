@@ -1,6 +1,5 @@
 package com.ladjzero.uzlee;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -9,49 +8,73 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.j256.ormlite.dao.Dao;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import java.sql.SQLException;
 
 public class UserActivity extends BaseActivity {
+
+	private Dao<User, Integer> userDao;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		enableBackAction();
+
 		setContentView(R.layout.activity_user);
+
+		try {
+			userDao = getHelper().getUserDao();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 
 		final int uid = getIntent().getIntExtra("uid", -1);
 
-		Core.getHtml("http://www.hi-pda.com/forum/space.php?uid=" + uid, new Core.OnRequestListener() {
-			@Override
-			public void onError(String error) {
+		final ImageView imageView = (ImageView) findViewById(R.id.user_info_img);
 
+		try {
+			User user = userDao.queryForId(uid);
+			String img = user.getImage();
+
+			if (img != null) {
+				ImageLoader.getInstance().displayImage(img, imageView);
 			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 
+		Core.getUser(uid, new Core.OnUserListener() {
 			@Override
-			public void onSuccess(String html) {
-				User user = Core.parseUser(html);
+			public void onUser(User u) {
+				ImageLoader.getInstance().displayImage(u.getImage(), imageView);
 
-				ImageView imageView = (ImageView) findViewById(R.id.user_info_img);
-				ImageLoader.getInstance().displayImage(user.getImage(), imageView);
+				try {
+					userDao.createOrUpdate(u);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 
-		String userName = getIntent().getStringExtra("name");
-		setTitle(userName + " 的资料");
+		final String userName = getIntent().getStringExtra("name");
+		setTitle(userName + "的资料");
 
 		Button searchPosts = (Button) findViewById(R.id.user_btn_1);
 		searchPosts.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				Intent intent = new Intent(UserActivity.this, ThreadsActivity.class);
-				intent.putExtra("url", "http://www.hi-pda.com/forum/search.php?srchuid=" + uid + "&srchfid=all&srchfrom=0&searchsubmit=yes");
+				intent.putExtra("name", userName);
+				intent.putExtra("uid", uid);
 				startActivity(intent);
 			}
 		});
 	}
-
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

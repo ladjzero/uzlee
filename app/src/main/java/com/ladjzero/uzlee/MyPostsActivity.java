@@ -39,6 +39,8 @@ public class MyPostsActivity extends BaseActivity implements ActionBar.TabListen
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		enableBackAction();
+
 		setContentView(R.layout.activity_my_posts);
 
 		// Set up the action bar.

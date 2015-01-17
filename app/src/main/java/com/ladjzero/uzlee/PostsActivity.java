@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,11 +29,9 @@ import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.User;
 
-import at.markushi.ui.ActionView;
-import at.markushi.ui.action.BackAction;
-import at.markushi.ui.action.DrawerAction;
+public class PostsActivity extends BaseActivity implements AdapterView.OnItemClickListener, Core.OnPostsListener, SwipeRefreshLayout.OnRefreshListener {
 
-public class PostsActivity extends BaseActivity implements AdapterView.OnItemClickListener, Core.OnPostsListener {
+	private SwipeRefreshLayout swipe;
 
 	DBHelper db;
 	Dao<Thread, Integer> threadDao;
@@ -44,25 +43,12 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	String titleStr;
 	PostsAdapter adapter;
 	boolean hasNextPage = false;
-	MaterialMenuIcon materialMenu;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-//		ActionBar actionBar = getActionBar();
-//		actionBar.setHomeButtonEnabled(true);
-//		actionBar.setDisplayShowHomeEnabled(true);
-//
-//		materialMenu = new MaterialMenuIcon(this, Color.WHITE, MaterialMenuDrawable.Stroke.THIN);
-
-		ActionView mHome = new ActionView(this);
-		mHome.setColor(Color.WHITE);
-//		mHome.setPadding(itemPadding, itemPadding, itemPadding, itemPadding);
-//		mHome.setBackgroundResource(R.drawable.default_toolbar_action_bg);
-		mHome.setClickable(true);
-
-		mHome.setAction(new BackAction());
+		enableBackAction();
 
 		this.setContentView(R.layout.posts);
 		db = this.getHelper();
@@ -94,6 +80,10 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 				}
 			}
 		});
+
+		swipe = (SwipeRefreshLayout) findViewById(R.id.post_swipe);
+		swipe.setOnRefreshListener(this);
+		swipe.setColorSchemeResources(R.color.deep_darker, R.color.deep_dark, R.color.deep_light, android.R.color.white);
 	}
 
 	@Override
@@ -127,9 +117,6 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 				replyIntent.putExtra("title", "回复：" + titleStr);
 				replyIntent.putExtra("hideTitleInput", true);
 				startActivity(replyIntent);
-				return true;
-			case android.R.id.home:
-				finish();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -193,5 +180,19 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 				return null;
 			}
 		}.execute();
+	}
+
+	@Override
+	public void onRefresh() {
+		fetch(1, new Core.OnPostsListener() {
+			@Override
+			public void onPosts(ArrayList<Post> _posts, int page, boolean _hasNextPage) {
+				hasNextPage = _hasNextPage;
+				posts.clear();
+				posts.addAll(_posts);
+				adapter.notifyDataSetChanged();
+				swipe.setRefreshing(false);
+			}
+		});
 	}
 }

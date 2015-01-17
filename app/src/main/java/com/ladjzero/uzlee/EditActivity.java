@@ -1,10 +1,12 @@
 package com.ladjzero.uzlee;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -14,6 +16,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.balysv.materialmenu.MaterialMenuDrawable;
+import com.balysv.materialmenu.MaterialMenuIcon;
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
 import com.ladjzero.hipda.Core;
@@ -21,6 +25,7 @@ import com.ladjzero.hipda.Core;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+
 
 
 public class EditActivity extends BaseActivity {
@@ -34,12 +39,14 @@ public class EditActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		enableBackAction();
 
 		tid = getIntent().getIntExtra("thread_id", 0);
 
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 		getActionBar().setTitle(getIntent().getStringExtra("title"));
 		setContentView(R.layout.edit);
+
 	}
 
 	@Override

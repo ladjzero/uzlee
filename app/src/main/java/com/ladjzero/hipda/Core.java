@@ -40,6 +40,7 @@ public class Core {
 	private static Context context;
 	private static int uid;
 	private final static int maxImageLength = 299 * 1024;
+	public final static int UGLEE_ID = 1261;
 
 	public static void setup(Context context) {
 		if (Core.context == null) {
@@ -420,6 +421,8 @@ public class Core {
 		}
 	}
 
+
+
 	public static ArrayList<Thread> parseThreads(String html, OnThreadsListener onThreadsListener) {
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 		Document doc = getDoc(html);
@@ -457,7 +460,7 @@ public class Core {
 		String lastHref = eLastPost.attr("href");
 		String id = lastHref.substring(lastHref.indexOf("tid=") + 4, lastHref.indexOf("&goto"));
 
-		String title = eThread.select("th.subject a").first().text();
+		String title = eThread.select("th.subject span a, th.subject a").first().text();
 		boolean isNew = eThread.select("th.subject").hasClass("new");
 		Elements eUser = eThread.select("td.author a");
 		String userName = eUser.text();
@@ -469,6 +472,24 @@ public class Core {
 		ret.setId(Integer.valueOf(id)).setTitle(title).setNew(isNew)
 				.setCommentCount(Integer.valueOf(commentNum)).setAuthor(user);
 		return ret;
+	}
+
+	public interface OnUserListener{
+		void onUser(User u);
+	}
+
+	public static void getUser(int uid, final OnUserListener onUserListener) {
+		getHtml("http://www.hi-pda.com/forum/space.php?uid=" + uid, new OnRequestListener() {
+			@Override
+			public void onError(String error) {
+				onUserListener.onUser(null);
+			}
+
+			@Override
+			public void onSuccess(String html) {
+				onUserListener.onUser(parseUser(html));
+			}
+		});
 	}
 
 	public static User parseUser(String html) {
@@ -649,6 +670,12 @@ public class Core {
 		});
 	}
 
+	public static void getUserThreadsAtPage(int uid, int page, OnThreadsListener onThreadsListener) {
+		String url = "http://www.hi-pda.com/forum/search.php?srchuid=" + uid + "&srchfid=all&srchfrom=0&searchsubmit=yes";
+
+		getThreadsByUrl(url, onThreadsListener);
+	}
+
 	public static void getMyPosts(final OnThreadsListener onThreadsListener) {
 		getHtml("http://www.hi-pda.com/forum/my.php?item=posts", new OnRequestListener() {
 			@Override
@@ -703,7 +730,7 @@ public class Core {
 
 			@Override
 			public void onError(String error) {
-
+				onThreadsListener.onThreads(null, 1, false);
 			}
 
 			@Override

@@ -10,13 +10,11 @@ import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ThreadsAdapter extends ArrayAdapter<Thread> {
+public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClickListener{
 
 	Context context;
 	Core core;
@@ -37,7 +35,6 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> {
 		try {
 			userDao = ((BaseActivity) context).getHelper().getUserDao();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -63,8 +60,16 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> {
 
 		final Thread thread = getItem(position);
 		String img = thread.getAuthor().getImage();
-		final int uid = thread.getAuthor().getId();
-		final String userName = thread.getAuthor().getName();
+		User user = thread.getAuthor();
+		final int uid = user.getId();
+
+		if (uid == Core.UGLEE_ID) {
+			row.setBackgroundResource(R.color.uglee);
+		} else {
+			row.setBackgroundResource(android.R.color.white);
+		}
+
+		final String userName = user.getName();
 
 		if (img == null) {
 			try {
@@ -95,17 +100,33 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> {
 			ImageLoader.getInstance().displayImage(img, holder.img);
 		}
 
-		holder.img.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				Intent intent = new Intent(context, UserActivity.class);
-				intent.putExtra("uid", uid);
-				intent.putExtra("name", userName);
-				context.startActivity(intent);
-			}
-		});
+		holder.img.setTag(user);
+		holder.name.setTag(user);
+		holder.img.setOnClickListener(this);
+		holder.name.setOnClickListener(this);
+
+//		holder.img.setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View view) {
+//				Intent intent = new Intent(context, UserActivity.class);
+//				intent.putExtra("uid", uid);
+//				intent.putExtra("name", userName);
+//				context.startActivity(intent);
+//			}
+//		});
 
 		holder.name.setText(thread.getAuthor().getName());
+
+//		holder.name.setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View view) {
+//				Intent intent = new Intent(context, UserActivity.class);
+//				intent.putExtra("uid", uid);
+//				intent.putExtra("name", userName);
+//				context.startActivity(intent);
+//			}
+//		});
+
 		holder.title.setText(thread.getTitle());
 		holder.commentCount.setText(String.valueOf(thread.getCommentCount()));
 
@@ -116,6 +137,15 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> {
 		}
 
 		return row;
+	}
+
+	@Override
+	public void onClick(View view) {
+		User user = (User) view.getTag();
+		Intent intent = new Intent(context, UserActivity.class);
+		intent.putExtra("uid", user.getId());
+		intent.putExtra("name", user.getName());
+		context.startActivity(intent);
 	}
 
 	static class PostHolder {

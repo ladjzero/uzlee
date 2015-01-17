@@ -5,23 +5,40 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.balysv.materialmenu.MaterialMenuDrawable;
+import com.balysv.materialmenu.MaterialMenuIcon;
 import com.cengalabs.flatui.FlatUI;
 import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.DBHelper;
+import com.ladjzero.hipda.Post;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
+
 public class BaseActivity extends OrmLiteBaseActivity<DBHelper>{
 
+
+	public void enableBackAction() {
+		MaterialMenuIcon materialMenu = new MaterialMenuIcon(this, Color.WHITE, MaterialMenuDrawable.Stroke.THIN);
+		materialMenu.setState(MaterialMenuDrawable.IconState.ARROW);
+
+//		ActionView mHome = new ActionView(this);
+//		mHome.setColor(Color.WHITE);
+//		mHome.setClickable(true);
+//		mHome.setAction(new BackAction());
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,5 +104,16 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper>{
 
 		});
 		alert.show();
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				finish();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 }
