@@ -9,19 +9,23 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.ladjzero.hipda.*;
 import com.ladjzero.hipda.Thread;
 
 import java.util.ArrayList;
 
-public class SearchActivity extends BaseActivity implements Core.OnThreadsListener, View.OnKeyListener, AdapterView.OnItemClickListener{
+public class SearchActivity extends BaseActivity implements Core.OnThreadsListener, View.OnKeyListener, AdapterView.OnItemClickListener {
 
 	Menu menu;
 	ThreadsAdapter adapter;
 	ArrayList<Thread> threads;
 	ListView listView;
 	EditText searchInput;
+	TextView close;
+	boolean hasNextPage;
+	String query;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -36,13 +40,33 @@ public class SearchActivity extends BaseActivity implements Core.OnThreadsListen
 		listView = (ListView) findViewById(R.id.threads);
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(this);
+		listView.setOnScrollListener(new EndlessScrollListener() {
+			@Override
+			public void onLoadMore(int page, int totalItemsCount) {
+				if (hasNextPage && query != null) {
+					Core.search(query, page, SearchActivity.this);
+				}
+			}
+		});
+
+		close = (TextView) findViewById(R.id.search_close);
+		close.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				String q = searchInput.getText().toString();
+				if (q.length() == 0) {
+					finish();
+				} else {
+					searchInput.setText(query = "");
+				}
+			}
+		});
 
 		searchInput = (EditText) findViewById(R.id.search_input);
 
 		TypedValue tv = new TypedValue();
-		if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true))
-		{
-			int actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+		if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+			int actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
 			searchInput.setHeight(actionBarHeight);
 		}
 
@@ -53,8 +77,13 @@ public class SearchActivity extends BaseActivity implements Core.OnThreadsListen
 	@Override
 	public boolean onKey(View view, int i, KeyEvent keyEvent) {
 		if (i == KeyEvent.KEYCODE_SEARCH || i == KeyEvent.KEYCODE_ENTER) {
-			String query = searchInput.getText().toString();
-			Core.search(query, this);
+			query = searchInput.getText().toString();
+			query = query.trim();
+
+			if (query.length() != 0) {
+				threads.clear();
+				Core.search(query, 1, this);
+			}
 		}
 
 		return false;
@@ -71,7 +100,7 @@ public class SearchActivity extends BaseActivity implements Core.OnThreadsListen
 
 	@Override
 	public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
-		this.threads.clear();
+		this.hasNextPage = hasNextPage;
 		this.threads.addAll(threads);
 		adapter.notifyDataSetChanged();
 	}

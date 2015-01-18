@@ -37,7 +37,7 @@ public class ThreadsActivity extends BaseActivity implements Core.OnThreadsListe
 
 		Intent intent = getIntent();
 
-		final int uid = intent.getIntExtra("uid", 0);
+		final String userName = intent.getStringExtra("name");
 
 		listView = (ListView) findViewById(R.id.threads);
 		threads = new ArrayList<Thread>();
@@ -48,13 +48,13 @@ public class ThreadsActivity extends BaseActivity implements Core.OnThreadsListe
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
 				if (hasNextPage) {
-					Core.getUserThreadsAtPage(uid, page, ThreadsActivity.this);
+					Core.getUserThreadsAtPage(userName, page, ThreadsActivity.this);
 				}
 			}
 		});
 
 		setTitle(getIntent().getStringExtra("name") + "的主题");
-		Core.getUserThreadsAtPage(uid, 1, ThreadsActivity.this);
+		Core.getUserThreadsAtPage(userName, 1, ThreadsActivity.this);
 	}
 
 	@Override

@@ -39,10 +39,13 @@ public class UserActivity extends BaseActivity {
 
 		try {
 			User user = userDao.queryForId(uid);
-			String img = user.getImage();
 
-			if (img != null) {
-				ImageLoader.getInstance().displayImage(img, imageView);
+			if (user != null) {
+				String img = user.getImage();
+
+				if (img != null) {
+					ImageLoader.getInstance().displayImage(img, imageView);
+				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -70,7 +73,6 @@ public class UserActivity extends BaseActivity {
 			public void onClick(View view) {
 				Intent intent = new Intent(UserActivity.this, ThreadsActivity.class);
 				intent.putExtra("name", userName);
-				intent.putExtra("uid", uid);
 				startActivity(intent);
 			}
 		});

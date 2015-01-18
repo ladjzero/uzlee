@@ -391,9 +391,9 @@ public class Core {
 						});
 	}
 
-	public static void search(String word, final OnThreadsListener onThreadsListenerListener) {
+	public static void search(String query, int page, final OnThreadsListener onThreadsListenerListener) {
 		try {
-			getHtml("http://www.hi-pda.com/forum/search.php?srchtxt=" + URLEncoder.encode(word, "GBK")
+			getHtml("http://www.hi-pda.com/forum/search.php?srchtxt=" + URLEncoder.encode(query, "GBK")
 					+ "&srchtype=title&"
 					+ "searchsubmit=true&"
 					+ "st=on&"
@@ -403,7 +403,8 @@ public class Core {
 					+ "before=&"
 					+ "orderby=lastpost&"
 					+ "ascdesc=desc&"
-					+ "srchfid%5B0%5D=all", new OnRequestListener() {
+					+ "srchfid%5B0%5D=all&"
+					+ "page=" + page, new OnRequestListener() {
 
 				@Override
 				public void onError(String error) {
@@ -670,8 +671,13 @@ public class Core {
 		});
 	}
 
-	public static void getUserThreadsAtPage(int uid, int page, OnThreadsListener onThreadsListener) {
-		String url = "http://www.hi-pda.com/forum/search.php?srchuid=" + uid + "&srchfid=all&srchfrom=0&searchsubmit=yes";
+	public static void getUserThreadsAtPage(String userName, int page, OnThreadsListener onThreadsListener) {
+		String url = null;
+		try {
+			url = "http://www.hi-pda.com/forum/search.php?srchtype=title&srchtxt=&searchsubmit=true&st=on&srchuname=" + URLEncoder.encode(userName, "GBK") + "&srchfilter=all&srchfrom=0&before=&orderby=lastpost&ascdesc=desc&page=" + page;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 
 		getThreadsByUrl(url, onThreadsListener);
 	}
