@@ -6,13 +6,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.net.URLEncoder;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,6 +25,7 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
+import com.alibaba.fastjson.JSON;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.PersistentCookieStore;
@@ -29,24 +34,33 @@ import com.loopj.android.http.TextHttpResponseHandler;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 
 public class Core {
 	private static AsyncHttpClient httpClient = new AsyncHttpClient();
 	private static ArrayList<OnMessageListener> onMessageListeners = new ArrayList<OnMessageListener>();
+	private static ArrayList<OnStatusChangeListener> onStatusChangeListeners = new ArrayList<OnStatusChangeListener>();
 	private static String formhash;
 	private static Context context;
 	private static int uid;
 	private final static int maxImageLength = 299 * 1024;
 	public final static int UGLEE_ID = 1261;
+	private static boolean isOnline = false;
+	public static final Set<Integer> bans = new HashSet<Integer>();
 
 	public static void setup(Context context) {
 		if (Core.context == null) {
 			Core.context = context;
 			httpClient.setCookieStore(new PersistentCookieStore(context));
+			bans.addAll(getBanList());
 		}
+	}
+
+	public static boolean isOnline() {
+		return isOnline;
 	}
 
 	public interface OnMessageListener {
@@ -55,6 +69,70 @@ public class Core {
 
 	public static void addOnMsgListener(OnMessageListener onMessageListener) {
 		onMessageListeners.add(onMessageListener);
+	}
+
+	public static void removeOnMsgListener(OnMessageListener onMessageListener) {
+		onMessageListeners.remove(onMessageListener);
+	}
+
+	public static void addOnStatusChangeListener(OnStatusChangeListener onStatusChangeListener) {
+		onStatusChangeListeners.add(onStatusChangeListener);
+	}
+
+	public static void removeOnStatusChangeListener(OnStatusChangeListener onStatusChangeListener) {
+		onStatusChangeListeners.remove(onStatusChangeListener);
+	}
+
+	public static class UpdateInfo {
+		private String version;
+		private String uri;
+		private String info;
+
+		public String getVersion() {
+			return version;
+		}
+
+		public void setVersion(String version) {
+			this.version = version;
+		}
+
+		public String getUri() {
+			return uri;
+		}
+
+		public void setUri(String uri) {
+			this.uri = uri;
+		}
+
+		public String getInfo() {
+			return info;
+		}
+
+		public void setInfo(String info) {
+			this.info = info;
+		}
+	}
+
+	public interface OnUpdateAvailableListener {
+		void onUpdateAvailable(UpdateInfo updateInfo);
+	}
+
+	public static void requestUpdate(final OnUpdateAvailableListener onUpdateAvailableListener) {
+		httpClient.get(
+				context,
+				"https://raw.githubusercontent.com/ladjzero/uzlee/master/release/update.json",
+				new TextHttpResponseHandler() {
+					@Override
+					public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+						onUpdateAvailableListener.onUpdateAvailable(null);
+					}
+
+					@Override
+					public void onSuccess(int i, Header[] headers, String s) {
+						UpdateInfo updateInfo = JSON.parseObject(s, UpdateInfo.class);
+						onUpdateAvailableListener.onUpdateAvailable(updateInfo);
+					}
+				});
 	}
 
 	public interface OnRequestListener {
@@ -107,6 +185,12 @@ public class Core {
 		});
 	}
 
+	public interface OnStatusChangeListener {
+		void onLogin(boolean silent);
+
+		void onLogout();
+	}
+
 	public static Document getDoc(String html) {
 		Document doc = Jsoup.parse(html);
 
@@ -131,7 +215,19 @@ public class Core {
 			}
 
 			String uidHref = doc.select("#umenu > cite > a").attr("href");
-			uid = Integer.valueOf(uidHref.substring(uidHref.indexOf("uid=") + 4));
+
+			if (uidHref.indexOf("uid=") > -1) {
+				isOnline = true;
+				uid = Integer.valueOf(uidHref.substring(uidHref.indexOf("uid=") + 4));
+				for (OnStatusChangeListener onStatusChangeListener : onStatusChangeListeners) {
+					onStatusChangeListener.onLogin(true);
+				}
+			} else {
+				isOnline = false;
+				for (OnStatusChangeListener onStatusChangeListener : onStatusChangeListeners) {
+					onStatusChangeListener.onLogout();
+				}
+			}
 		} catch (Error e) {
 
 		}
@@ -167,6 +263,12 @@ public class Core {
 
 							@Override
 							public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+								isOnline = true;
+
+								for (OnStatusChangeListener onStatusChangeListener : onStatusChangeListeners) {
+									onStatusChangeListener.onLogin(false);
+								}
+
 								String html;
 								try {
 									html = new String(responseBody, "GBK");
@@ -185,8 +287,22 @@ public class Core {
 
 	}
 
-	public static void logout(OnRequestListener onRequestListener) {
-		getHtml("http://www.hi-pda.com/forum/logging.php?action=logout&formhash=" + formhash, onRequestListener);
+	public static void logout(final OnRequestListener onRequestListener) {
+		getHtml("http://www.hi-pda.com/forum/logging.php?action=logout&formhash=" + formhash, new OnRequestListener() {
+			@Override
+			public void onError(String error) {
+				onRequestListener.onError(error);
+			}
+
+			@Override
+			public void onSuccess(String html) {
+				isOnline = false;
+				for (OnStatusChangeListener onStatusChangeListener : onStatusChangeListeners) {
+					onStatusChangeListener.onLogout();
+				}
+				onRequestListener.onSuccess(html);
+			}
+		});
 	}
 
 	public static ArrayList<Post> parsePosts(String html, OnPostsListener onPostsListener) {
@@ -315,6 +431,20 @@ public class Core {
 
 				if (tag.equals("br")) {
 					sb.append("\r\n");
+				} else if (tag.equals("font") && e.attr("size").equals("1")) {
+					if ((sbStr = sb.toString().trim()).length() != 0) {
+						temps.add("txt:" + sbStr);
+					}
+
+					temps.add("sig:" + e.text().replaceAll("\u00a0", " ").trim());
+					sb.delete(0, sb.length());
+				} else if (tag.equals("img") && e.attr("width").equals("16") && e.attr("height").equals("16")) {
+					if ((sbStr = sb.toString().trim()).length() != 0) {
+						temps.add("txt:" + sbStr);
+					}
+
+					temps.add("sig:{fa-windows}");
+					sb.delete(0, sb.length());
 				} else if (tag.equals("img")) {
 					String src = e.attr("src");
 
@@ -423,7 +553,6 @@ public class Core {
 	}
 
 
-
 	public static ArrayList<Thread> parseThreads(String html, OnThreadsListener onThreadsListener) {
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 		Document doc = getDoc(html);
@@ -475,7 +604,7 @@ public class Core {
 		return ret;
 	}
 
-	public interface OnUserListener{
+	public interface OnUserListener {
 		void onUser(User u);
 	}
 
@@ -744,6 +873,48 @@ public class Core {
 				parseThreads(html, onThreadsListener);
 			}
 		});
+	}
+
+	public static Set<Integer> getBanList() {
+		SharedPreferences setting = context.getSharedPreferences("uzlee.setting", 0);
+		String banList = setting.getString("ban", "");
+		String bans[] = banList.split(",");
+
+		ArrayList<String> banlist = new ArrayList<String>();
+		CollectionUtils.addAll(banlist, bans);
+
+		return new HashSet(CollectionUtils.collect(banlist, new Transformer() {
+			@Override
+			public Object transform(Object o) {
+				String ban = (String) o;
+				try {
+					return Integer.valueOf(ban);
+				} catch (Exception e) {
+					return Integer.valueOf(0);
+				}
+			}
+		}));
+	}
+
+	public static void addToBanList(int uid) {
+		bans.add(uid);
+		String bansStr = StringUtils.join(bans, ",");
+
+		SharedPreferences setting = context.getSharedPreferences("uzlee.setting", 0);
+		SharedPreferences.Editor editor = setting.edit();
+		editor.putString("ban", bansStr);
+		editor.commit();
+
+	}
+
+	public static void removeFromBanList(int uid) {
+		bans.remove(uid);
+		String bansStr = StringUtils.join(bans, ",");
+
+		SharedPreferences setting = context.getSharedPreferences("uzlee.setting", 0);
+		SharedPreferences.Editor editor = setting.edit();
+		editor.putString("ban", bansStr);
+		editor.commit();
 	}
 
 	public static final HashMap<String, String> icons = new HashMap<String, String>();

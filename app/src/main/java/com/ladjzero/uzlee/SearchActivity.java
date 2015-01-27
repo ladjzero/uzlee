@@ -93,7 +93,7 @@ public class SearchActivity extends BaseActivity implements Core.OnThreadsListen
 	public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 		Thread t = (Thread) adapterView.getAdapter().getItem(i);
 		Intent intent = new Intent(this, PostsActivity.class);
-		intent.putExtra("thread_id", t.getId());
+		intent.putExtra("tid", t.getId());
 		intent.putExtra("title", t.getTitle());
 		startActivity(intent);
 	}

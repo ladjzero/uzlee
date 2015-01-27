@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class ThreadsFragment extends Fragment implements OnRefreshListener, AdapterView.OnItemClickListener, OnThreadsListener {
 
@@ -36,15 +37,12 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private boolean hasNextPage = false;
 
 	public static ThreadsFragment newInstance(int fid) {
-		ThreadsFragment fragment = fragmentsCache.get(Integer.valueOf(fid));
 
-		if (fragment == null) {
-			fragment = new ThreadsFragment();
-			Bundle args = new Bundle();
-			args.putInt("fid", fid);
-			fragment.setArguments(args);
-			fragmentsCache.put(fid, fragment);
-		}
+		ThreadsFragment fragment = new ThreadsFragment();
+		Bundle args = new Bundle();
+		args.putInt("fid", fid);
+		fragment.setArguments(args);
+		fragmentsCache.put(fid, fragment);
 
 		return fragment;
 	}
@@ -58,7 +56,6 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 			threadDao = db.getThreadDao();
 			userDao = db.getUserDao();
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
@@ -130,7 +127,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		t.setNew(false);
 
 		Intent intent = new Intent(getActivity(), PostsActivity.class);
-		intent.putExtra("thread_id", t.getId());
+		intent.putExtra("tid", t.getId());
 		intent.putExtra("title", t.getTitle());
 
 		startActivity(intent);

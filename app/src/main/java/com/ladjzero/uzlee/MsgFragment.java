@@ -160,7 +160,7 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Thread thread = (Thread) parent.getAdapter().getItem(position);
 		Intent intent = new Intent(getActivity(), PostsActivity.class);
-		intent.putExtra("thread_id", thread.getId());
+		intent.putExtra("tid", thread.getId());
 
 		startActivity(intent);
 	}

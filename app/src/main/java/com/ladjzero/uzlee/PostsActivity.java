@@ -2,6 +2,7 @@ package com.ladjzero.uzlee;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Set;
 
 import android.app.ActionBar;
 import android.content.Intent;
@@ -52,7 +53,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 		this.setContentView(R.layout.posts);
 		db = this.getHelper();
-		tid = getIntent().getIntExtra("thread_id", 0);
+		tid = getIntent().getIntExtra("tid", 0);
 		setTitle(titleStr = getIntent().getStringExtra("title"));
 
 		try {
@@ -113,7 +114,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		switch (item.getItemId()) {
 			case R.id.post_reply:
 				Intent replyIntent = new Intent(this, EditActivity.class);
-				replyIntent.putExtra("thread_id", tid);
+				replyIntent.putExtra("tid", tid);
 				replyIntent.putExtra("title", "回复：" + titleStr);
 				replyIntent.putExtra("hideTitleInput", true);
 				startActivity(replyIntent);
@@ -143,6 +144,10 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		Intent replyIntent = new Intent(PostsActivity.this, EditActivity.class);
 		replyIntent.putExtra("title", "回复 " + post.getAuthor().getName() + " #" + (i + 1));
 		replyIntent.putExtra("hideTitleInput", true);
+		replyIntent.putExtra("pid", post.getId());
+		replyIntent.putExtra("tid", tid);
+		replyIntent.putExtra("no", i + 1);
+		replyIntent.putExtra("userName", post.getAuthor().getName());
 		startActivity(replyIntent);
 	}
 

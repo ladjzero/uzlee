@@ -92,7 +92,7 @@ public class ThreadsActivity extends BaseActivity implements Core.OnThreadsListe
 		t.setNew(false);
 
 		Intent intent = new Intent(this, PostsActivity.class);
-		intent.putExtra("thread_id", t.getId());
+		intent.putExtra("tid", t.getId());
 		intent.putExtra("title", t.getTitle());
 
 		startActivity(intent);

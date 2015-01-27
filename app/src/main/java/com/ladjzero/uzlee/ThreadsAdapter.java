@@ -2,6 +2,7 @@ package com.ladjzero.uzlee;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Set;
 
 import com.j256.ormlite.dao.Dao;
 import com.ladjzero.hipda.Core;
@@ -127,7 +128,11 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 //			}
 //		});
 
-		holder.title.setText(thread.getTitle());
+		if (Core.bans.contains(uid)) {
+			holder.title.setText("blocked");
+		} else {
+			holder.title.setText(thread.getTitle());
+		}
 		holder.commentCount.setText(String.valueOf(thread.getCommentCount()));
 
 		if (!thread.isNew()) {

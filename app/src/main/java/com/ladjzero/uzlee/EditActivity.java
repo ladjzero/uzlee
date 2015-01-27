@@ -31,6 +31,7 @@ import java.util.ArrayList;
 public class EditActivity extends BaseActivity {
 
 	int tid;
+	int pid;
 	String content;
 	TextView contentInput;
 	private static final int SELECT_PHOTO = 100;
@@ -41,7 +42,11 @@ public class EditActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		enableBackAction();
 
-		tid = getIntent().getIntExtra("thread_id", 0);
+
+		Intent intent = getIntent();
+
+		tid = intent.getIntExtra("tid", 0);
+		pid = intent.getIntExtra("pid", 0);
 
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 		getActionBar().setTitle(getIntent().getStringExtra("title"));
@@ -86,7 +91,15 @@ public class EditActivity extends BaseActivity {
 			final ProgressDialog progress = new ProgressDialog(this);
 			progress.setTitle("发送");
 			progress.show();
-			Core.sendReply(tid, contentInput.getText().toString(), attachIds, new Core.OnRequestListener() {
+
+			String content = contentInput.getText().toString();
+
+			if (pid != 0) {
+				Intent intent = getIntent();
+				content = "[b]回复 [url=http://www.hi-pda.com/forum/redirect.php?goto=findpost&pid=" + pid + "&ptid=" + tid + "]" + intent.getIntExtra("no", 0) + "#[/url] [i]" + intent.getStringExtra("userName") + "[/i] [/b]\n\n" + content;
+			}
+
+			Core.sendReply(tid, content, attachIds, new Core.OnRequestListener() {
 				@Override
 				public void onError(String error) {
 

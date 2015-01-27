@@ -1,25 +1,36 @@
 package com.ladjzero.uzlee;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 
 public class ImageActivity extends BaseActivity {
+
+	String url;
+	int tid;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_image);
+		enableBackAction();
 
 		ImageView imageView = (ImageView) findViewById(R.id.image_view);
-		String url = getIntent().getStringExtra("url");
+		url = getIntent().getStringExtra("url");
+		tid = getIntent().getIntExtra("tid", 0);
 		ImageLoader.getInstance().displayImage(url, imageView);
 	}
 
@@ -40,7 +51,18 @@ public class ImageActivity extends BaseActivity {
 		int id = item.getItemId();
 
 		//noinspection SimplifiableIfStatement
-		if (id == R.id.action_settings) {
+		if (id == R.id.image_save) {
+			ImageLoader.getInstance().loadImage(url, new SimpleImageLoadingListener() {
+				@Override
+				public void onLoadingComplete(String url, View v, Bitmap bitmap) {
+					String localUrl = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "tid_" + tid + "_" + System.currentTimeMillis(), "tid_" + tid);
+
+					Intent intent = new Intent();
+					intent.setAction(Intent.ACTION_VIEW);
+					intent.setDataAndType(Uri.parse(localUrl), "image/*");
+					startActivity(intent);
+				}
+			});
 			return true;
 		}
 

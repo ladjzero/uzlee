@@ -76,6 +76,32 @@ public class UserActivity extends BaseActivity {
 				startActivity(intent);
 			}
 		});
+		searchPosts.setBackgroundResource(R.color.dark_primary);
+
+		final Button ban = (Button) findViewById(R.id.user_btn_2);
+
+		if (Core.bans.contains(uid)) {
+			ban.setText("移除黑名单");
+			ban.setBackgroundResource(R.color.grass_primary);
+		} else {
+			ban.setText("加入黑名单");
+			ban.setBackgroundResource(R.color.blood_primary);
+		}
+
+		ban.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				if(Core.bans.contains(uid)) {
+					Core.removeFromBanList(uid);
+					ban.setText("加入黑名单");
+					ban.setBackgroundResource(R.color.blood_primary);
+				} else {
+					Core.addToBanList(uid);
+					ban.setText("移除黑名单");
+					ban.setBackgroundResource(R.color.grass_primary);
+				}
+			}
+		});
 	}
 
 	@Override

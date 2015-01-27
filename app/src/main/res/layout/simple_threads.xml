@@ -6,5 +6,6 @@
     <ListView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+		android:listSelector="@android:color/transparent"
         android:id="@+id/simple_thread_list" />
 </LinearLayout>

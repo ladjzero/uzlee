@@ -2,6 +2,7 @@ package com.ladjzero.uzlee;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -76,6 +77,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 			final Post post = getItem(position);
 			final User user = post.getAuthor();
+			int uid = user.getId();
 
 			String img = post.getAuthor().getImage();
 			if (img == null) {
@@ -102,56 +104,75 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 			holder.body.removeAllViews();
 
-			StringBuilder sb = new StringBuilder();
-			for (String bodySnippet : post.getNiceBody()) {
-				if (bodySnippet.startsWith("txt:")) {
-					LinearLayout postTextLayout = (LinearLayout) context
-							.getLayoutInflater().inflate(
-									R.layout.post_body_text_segment, null);
-					TextView tv = (TextView) postTextLayout
-							.findViewById(R.id.post_body_text_segment);
-					tv.setText(bodySnippet.substring(4));
-					// tv.setText(Html.fromHtml(bodySnippet.substring(4), new
-					// Html.ImageGetter() {
-					//
-					// @Override
-					// public Drawable getDrawable(String source) {
-					// Bitmap bitmap =
-					// ImageLoader.getInstance().loadImageSync("assets://emoticons/"
-					// + source + ".gif");
-					// Drawable d = new BitmapDrawable(bitmap);
-					//
-					// d.setBounds(0,0,40,40);
-					//
-					// return d;
-					// }
-					// }, null));
-					postTextLayout.removeAllViews();
-					holder.body.addView(tv);
-				} else if (bodySnippet.startsWith("emo:")) {
+			if (Core.bans.contains(uid)) {
+				LinearLayout postTextLayout = (LinearLayout) context
+						.getLayoutInflater().inflate(
+								R.layout.post_body_text_segment, null);
+				TextView tv = (TextView) postTextLayout
+						.findViewById(R.id.post_body_text_segment);
+				tv.setText("blocked");
+				postTextLayout.removeAllViews();
+				holder.body.addView(tv);
+			} else {
+				StringBuilder sb = new StringBuilder();
+				for (String bodySnippet : post.getNiceBody()) {
+					if (bodySnippet.startsWith("txt:")) {
+						LinearLayout postTextLayout = (LinearLayout) context
+								.getLayoutInflater().inflate(
+										R.layout.post_body_text_segment, null);
+						TextView tv = (TextView) postTextLayout
+								.findViewById(R.id.post_body_text_segment);
+						tv.setText(context.emojiUtils.getSmiledText(context, bodySnippet.substring(4)));
+						// tv.setText(Html.fromHtml(bodySnippet.substring(4), new
+						// Html.ImageGetter() {
+						//
+						// @Override
+						// public Drawable getDrawable(String source) {
+						// Bitmap bitmap =
+						// ImageLoader.getInstance().loadImageSync("assets://emoticons/"
+						// + source + ".gif");
+						// Drawable d = new BitmapDrawable(bitmap);
+						//
+						// d.setBounds(0,0,40,40);
+						//
+						// return d;
+						// }
+						// }, null));
+						postTextLayout.removeAllViews();
+						holder.body.addView(tv);
+					} else if (bodySnippet.startsWith("sig:")) {
+						LinearLayout postTextLayout = (LinearLayout) context
+								.getLayoutInflater().inflate(
+										R.layout.post_body_sig, null);
+						TextView tv = (TextView) postTextLayout
+								.findViewById(R.id.post_body_sig);
+						tv.setText(bodySnippet.substring(4));
+						postTextLayout.removeAllViews();
+						holder.body.addView(tv);
+					} else {
+						LinearLayout postImageLayout = (LinearLayout) context
+								.getLayoutInflater().inflate(R.layout.post_body_image_segment,
+										null);
+						final PostImageView iv = (PostImageView) postImageLayout
+								.findViewById(R.id.post_img);
+						postImageLayout.removeAllViews();
+						holder.body.addView(iv);
 
-				} else {
-					LinearLayout postImageLayout = (LinearLayout) context
-							.getLayoutInflater().inflate(R.layout.post_body_image_segment,
-									null);
-					final PostImageView iv = (PostImageView) postImageLayout
-							.findViewById(R.id.post_img);
-					postImageLayout.removeAllViews();
-					holder.body.addView(iv);
+						final String url = bodySnippet.substring(4);
 
-					final String url = bodySnippet.substring(4);
+						ImageLoader.getInstance().displayImage(
+								url, iv);
 
-					ImageLoader.getInstance().displayImage(
-							url, iv);
-
-					iv.setOnClickListener(new OnClickListener() {
-						@Override
-						public void onClick(View view) {
-							Intent intent = new Intent(context, ImageActivity.class);
-							intent.putExtra("url", url);
-							context.startActivity(intent);
-						}
-					});
+						iv.setOnClickListener(new OnClickListener() {
+							@Override
+							public void onClick(View view) {
+								Intent intent = new Intent(context, ImageActivity.class);
+								intent.putExtra("url", url);
+								intent.putExtra("tid", post.getTid());
+								context.startActivity(intent);
+							}
+						});
+					}
 				}
 			}
 
@@ -177,9 +198,16 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 				ImageLoader.getInstance().displayImage(
 						quote.getAuthor().getImage(), holder.quoteImg);
 				String bodySnippet0 = quote.getNiceBody()[0];
-				holder.quoteBody
-						.setText(bodySnippet0.indexOf("txt:") == 0 ? bodySnippet0
-								.substring(4) : "[image]");
+
+				int quid = quote.getAuthor().getId();
+
+				if (Core.bans.contains(quid)) {
+					holder.quoteBody.setText("blocked");
+				} else {
+					holder.quoteBody
+							.setText(bodySnippet0.indexOf("txt:") == 0 ? bodySnippet0
+									.substring(4) : "[image]");
+				}
 				holder.quotePostNo.setText("#" + (posts.indexOf(quote) + 1));
 			} else {
 				holder.quoteLayout.setVisibility(View.GONE);

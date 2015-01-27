@@ -9,13 +9,13 @@ import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.Toast;
 
-public class MainActivity extends BaseActivity implements
-		NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class MainActivity extends BaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
 	private NavigationDrawerFragment mNavigationDrawerFragment;
 
@@ -26,7 +26,6 @@ public class MainActivity extends BaseActivity implements
 		setContentView(R.layout.activity_main);
 		mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
-		Core.addOnMsgListener(mNavigationDrawerFragment);
 	}
 
 	@Override
@@ -52,21 +51,33 @@ public class MainActivity extends BaseActivity implements
 				startActivity(intent);
 				break;
 			case 4:
-				intent = new Intent(this, MyPostsActivity.class);
-				startActivity(intent);
+				if (Core.isOnline()) {
+					intent = new Intent(this, MyPostsActivity.class);
+					startActivity(intent);
+				} else {
+					onLogout();
+				}
 				break;
 			case 5:
 				intent = new Intent(this, SearchActivity.class);
 				startActivity(intent);
 				break;
+			case 7:
+				Core.logout(new Core.OnRequestListener() {
+
+
+					@Override
+					public void onError(String error) {
+						Toast.makeText(MainActivity.this, error, Toast.LENGTH_LONG).show();
+					}
+
+					@Override
+					public void onSuccess(String html) {}
+				});
+				break;
 			default:
 				actionBar.setTitle("Discovery");
 				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(D_ID)).commit();
-		}
-	}
-
-	public void onSectionAttached(int number) {
-		switch (number) {
 		}
 	}
 
@@ -104,6 +115,7 @@ public class MainActivity extends BaseActivity implements
 			return true;
 		}
 
+		// override finish
 		if (id == android.R.id.home) {
 			return false;
 		}
@@ -130,5 +142,23 @@ public class MainActivity extends BaseActivity implements
 				doubleBackToExitPressedOnce=false;
 			}
 		}, 2000);
+	}
+
+	@Override
+	public void onLogin(boolean silent) {
+		super.onLogin(silent);
+
+		if (!silent) {
+			onNavigationDrawerItemSelected(0);
+		}
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_MENU) {
+			mNavigationDrawerFragment.toggleDrawer();
+			return true;
+		}
+		return super.onKeyUp(keyCode, event);
 	}
 }

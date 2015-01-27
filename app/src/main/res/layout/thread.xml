@@ -5,7 +5,8 @@
     android:paddingBottom="6dp"
     android:paddingLeft="8dp"
     android:paddingRight="8dp"
-    android:paddingTop="8dp" >
+    android:paddingTop="8dp"
+	>
 
     <include layout="@layout/thread_user" />
 
@@ -16,6 +17,7 @@
         android:layout_marginTop="8dp"
         android:lineSpacingMultiplier="1.2"
         android:text="TextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextView"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+		/>
 
 </LinearLayout>
