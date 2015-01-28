@@ -129,7 +129,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 //		});
 
 		if (Core.bans.contains(uid)) {
-			holder.title.setText("blocked");
+			holder.title.setText(context.getString(R.string.blocked));
 		} else {
 			holder.title.setText(thread.getTitle());
 		}

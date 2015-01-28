@@ -1,5 +1,6 @@
 package com.ladjzero.uzlee;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -38,6 +39,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	PostsActivity context;
 	ArrayList<Post> posts;
 	HashMap<Integer, View> viewCache = new HashMap<Integer, View>();
+	HashMap<Integer, ArrayList<View>> niceBodyCache = new HashMap<Integer, ArrayList<View>>();
 
 	public PostsAdapter(Context context, ArrayList<Post> posts) {
 		super(context, R.layout.post, posts);
@@ -47,181 +49,119 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		View row = viewCache.get(position);
-		final PostHolder holder = row == null ? new PostHolder()
-				: (PostHolder) row.getTag();
+		View row = convertView;
+		final PostHolder holder = row == null ? new PostHolder() : (PostHolder) row.getTag();
 
 		if (row == null) {
-			LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-
-			row = inflater.inflate(R.layout.post, parent, false);
+			row = context.getLayoutInflater().inflate(R.layout.post, parent, false);
 
 			holder.quoteLayout = row.findViewById(R.id.post_quote);
-
 			holder.img = (ImageView) row.findViewById(R.id.user_mini_image);
-			holder.quoteImg = (ImageView) holder.quoteLayout
-					.findViewById(R.id.user_mini_image);
+			holder.quoteImg = (ImageView) holder.quoteLayout.findViewById(R.id.user_mini_image);
 			holder.name = (TextView) row.findViewById(R.id.user_mini_name);
-			holder.quoteName = (TextView) holder.quoteLayout
-					.findViewById(R.id.user_mini_name);
-			holder.body = (LinearLayout) row
-					.findViewById(R.id.post_body_layout);
-			holder.quoteBody = (TextView) holder.quoteLayout
-					.findViewById(R.id.post_quote_text);
+			holder.quoteName = (TextView) holder.quoteLayout.findViewById(R.id.user_mini_name);
+			holder.body = (LinearLayout) row.findViewById(R.id.post_body_layout);
+			holder.quoteBody = (TextView) holder.quoteLayout.findViewById(R.id.post_quote_text);
 			holder.postNo = (TextView) row.findViewById(R.id.post_no);
-			holder.quotePostNo = (TextView) holder.quoteLayout
-					.findViewById(R.id.post_no);
+			holder.quotePostNo = (TextView) holder.quoteLayout.findViewById(R.id.post_no);
 
 			row.setTag(holder);
-
-
-			final Post post = getItem(position);
-			final User user = post.getAuthor();
-			int uid = user.getId();
-
-			String img = post.getAuthor().getImage();
-			if (img == null) {
-				ImageLoader.getInstance().displayImage("", holder.img);
-			} else {
-				ImageLoader.getInstance().displayImage(user.getImage(), holder.img, new SimpleImageLoadingListener() {
-					@Override
-					public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
-						user.setImage(imageUri);
-					}
-
-					@Override
-					public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
-						user.setImage("");
-					}
-				});
-			}
-			holder.name.setText(post.getAuthor().getName());
-
-			holder.img.setTag(user);
-			holder.name.setTag(user);
-			holder.img.setOnClickListener(this);
-			holder.name.setOnClickListener(this);
-
-			holder.body.removeAllViews();
-
-			if (Core.bans.contains(uid)) {
-				LinearLayout postTextLayout = (LinearLayout) context
-						.getLayoutInflater().inflate(
-								R.layout.post_body_text_segment, null);
-				TextView tv = (TextView) postTextLayout
-						.findViewById(R.id.post_body_text_segment);
-				tv.setText("blocked");
-				postTextLayout.removeAllViews();
-				holder.body.addView(tv);
-			} else {
-				StringBuilder sb = new StringBuilder();
-				for (String bodySnippet : post.getNiceBody()) {
-					if (bodySnippet.startsWith("txt:")) {
-						LinearLayout postTextLayout = (LinearLayout) context
-								.getLayoutInflater().inflate(
-										R.layout.post_body_text_segment, null);
-						TextView tv = (TextView) postTextLayout
-								.findViewById(R.id.post_body_text_segment);
-						tv.setText(context.emojiUtils.getSmiledText(context, bodySnippet.substring(4)));
-						// tv.setText(Html.fromHtml(bodySnippet.substring(4), new
-						// Html.ImageGetter() {
-						//
-						// @Override
-						// public Drawable getDrawable(String source) {
-						// Bitmap bitmap =
-						// ImageLoader.getInstance().loadImageSync("assets://emoticons/"
-						// + source + ".gif");
-						// Drawable d = new BitmapDrawable(bitmap);
-						//
-						// d.setBounds(0,0,40,40);
-						//
-						// return d;
-						// }
-						// }, null));
-						postTextLayout.removeAllViews();
-						holder.body.addView(tv);
-					} else if (bodySnippet.startsWith("sig:")) {
-						LinearLayout postTextLayout = (LinearLayout) context
-								.getLayoutInflater().inflate(
-										R.layout.post_body_sig, null);
-						TextView tv = (TextView) postTextLayout
-								.findViewById(R.id.post_body_sig);
-						tv.setText(bodySnippet.substring(4));
-						postTextLayout.removeAllViews();
-						holder.body.addView(tv);
-					} else {
-						LinearLayout postImageLayout = (LinearLayout) context
-								.getLayoutInflater().inflate(R.layout.post_body_image_segment,
-										null);
-						final PostImageView iv = (PostImageView) postImageLayout
-								.findViewById(R.id.post_img);
-						postImageLayout.removeAllViews();
-						holder.body.addView(iv);
-
-						final String url = bodySnippet.substring(4);
-
-						ImageLoader.getInstance().displayImage(
-								url, iv);
-
-						iv.setOnClickListener(new OnClickListener() {
-							@Override
-							public void onClick(View view) {
-								Intent intent = new Intent(context, ImageActivity.class);
-								intent.putExtra("url", url);
-								intent.putExtra("tid", post.getTid());
-								context.startActivity(intent);
-							}
-						});
-					}
-				}
-			}
-
-			holder.postNo.setText("#" + (position + 1));
-
-			final int quoteId = post.getReplyTo();
-			if (quoteId > 0) {
-				Post quote = (Post) CollectionUtils.find(posts, new Predicate() {
-
-					@Override
-					public boolean evaluate(Object post) {
-						return ((Post) post).getId() == quoteId;
-					}
-
-				});
-
-				if (quote.getAuthor().getId() == Core.UGLEE_ID) {
-					holder.quoteLayout.setBackgroundResource(R.color.uglee);
-				}
-
-				holder.quoteLayout.setVisibility(View.VISIBLE);
-				holder.quoteName.setText(quote.getAuthor().getName());
-				ImageLoader.getInstance().displayImage(
-						quote.getAuthor().getImage(), holder.quoteImg);
-				String bodySnippet0 = quote.getNiceBody()[0];
-
-				int quid = quote.getAuthor().getId();
-
-				if (Core.bans.contains(quid)) {
-					holder.quoteBody.setText("blocked");
-				} else {
-					holder.quoteBody
-							.setText(bodySnippet0.indexOf("txt:") == 0 ? bodySnippet0
-									.substring(4) : "[image]");
-				}
-				holder.quotePostNo.setText("#" + (posts.indexOf(quote) + 1));
-			} else {
-				holder.quoteLayout.setVisibility(View.GONE);
-			}
-
-
-			if (user.getId() == Core.UGLEE_ID) {
-				row.setBackgroundResource(R.color.uglee);
-				holder.quoteLayout.setBackgroundResource(R.color.ugleeQuote);
-			}
-
-
-			viewCache.put(position, row);
 		}
+
+		final Post post = getItem(position);
+		final User author = post.getAuthor();
+		int uid = author.getId();
+
+		holder.name.setText(author.getName());
+		holder.name.setTag(author);
+		holder.name.setOnClickListener(this);
+		holder.img.setTag(author);
+		holder.img.setOnClickListener(this);
+
+		if (author.getImage() == null) {
+			ImageLoader.getInstance().displayImage("", holder.img);
+		} else {
+			ImageLoader.getInstance().displayImage(author.getImage(), holder.img, new SimpleImageLoadingListener() {
+				@Override
+				public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
+					author.setImage(imageUri);
+				}
+
+				@Override
+				public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
+					author.setImage("");
+				}
+			});
+		}
+
+		ArrayList<View> niceBody = niceBodyCache.get(position);
+
+		if (niceBody == null) {
+			niceBody = buildBody(post);
+			niceBodyCache.put(position, niceBody);
+		}
+
+		holder.body.removeAllViews();
+
+		if (Core.bans.contains(uid)) {
+			LinearLayout postTextLayout = (LinearLayout) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
+			TextView tv = (TextView) postTextLayout.findViewById(R.id.post_body_fa_text_segment);
+			tv.setText(context.getString(R.string.blocked));
+			postTextLayout.removeAllViews();
+			holder.body.addView(tv);
+		} else {
+			for (View view : niceBody) {
+				holder.body.addView(view);
+			}
+		}
+
+		holder.postNo.setText("#" + (position + 1));
+
+		final int quoteId = post.getReplyTo();
+		if (quoteId > 0) {
+			Post quote = (Post) CollectionUtils.find(posts, new Predicate() {
+
+				@Override
+				public boolean evaluate(Object post) {
+					return ((Post) post).getId() == quoteId;
+				}
+
+			});
+
+			if (quote.getAuthor().getId() == Core.UGLEE_ID) {
+				holder.quoteLayout.setBackgroundResource(R.color.uglee);
+			}
+
+			holder.quoteLayout.setVisibility(View.VISIBLE);
+			holder.quoteName.setText(quote.getAuthor().getName());
+			ImageLoader.getInstance().displayImage(quote.getAuthor().getImage(), holder.quoteImg);
+			String bodySnippet0 = quote.getNiceBody()[0];
+
+			int quid = quote.getAuthor().getId();
+
+			if (Core.bans.contains(quid)) {
+				holder.quoteBody.setText(context.getString(R.string.blocked));
+			} else {
+				holder.quoteBody
+						.setText(bodySnippet0.indexOf("txt:") == 0 ? bodySnippet0
+								.substring(4) : "[image]");
+			}
+			holder.quotePostNo.setText("#" + (posts.indexOf(quote) + 1));
+		} else {
+			holder.quoteLayout.setVisibility(View.GONE);
+		}
+
+
+		if (author.getId() == Core.UGLEE_ID) {
+			row.setBackgroundResource(R.color.uglee);
+			holder.quoteLayout.setBackgroundResource(R.color.ugleeQuote);
+		} else {
+			row.setBackgroundResource(android.R.color.white);
+			holder.quoteLayout.setBackgroundResource(R.color.backgroud);
+		}
+
+		viewCache.put(position, row);
+
 		return row;
 	}
 
@@ -244,5 +184,49 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		TextView postNo;
 		TextView quotePostNo;
 		View quoteLayout;
+	}
+
+	private ArrayList<View> buildBody(final Post post) {
+		ArrayList<View> views = new ArrayList<View>();
+
+		for (String bodySnippet : post.getNiceBody()) {
+			if (bodySnippet.startsWith("txt:")) {
+				LinearLayout postTextLayout = (LinearLayout) context.getLayoutInflater().inflate(R.layout.post_body_text_segment, null);
+				TextView textView = (TextView) postTextLayout.findViewById(R.id.post_body_text_segment);
+				textView.setText(context.emojiUtils.getSmiledText(context, bodySnippet.substring(4)));
+				postTextLayout.removeAllViews();
+
+				views.add(textView);
+			} else if (bodySnippet.startsWith("sig:")) {
+				LinearLayout postTextLayout = (LinearLayout) context.getLayoutInflater().inflate(R.layout.post_body_sig, null);
+				TextView textView = (TextView) postTextLayout.findViewById(R.id.post_body_sig);
+				textView.setText(bodySnippet.substring(4));
+				postTextLayout.removeAllViews();
+
+				views.add(textView);
+			} else {
+				LinearLayout postImageLayout = (LinearLayout) context.getLayoutInflater().inflate(R.layout.post_body_image_segment, null);
+				final PostImageView imageView = (PostImageView) postImageLayout.findViewById(R.id.post_img);
+				postImageLayout.removeAllViews();
+
+				views.add(imageView);
+
+				final String url = bodySnippet.substring(4);
+
+				ImageLoader.getInstance().displayImage(url, imageView);
+
+				imageView.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						Intent intent = new Intent(context, ImageActivity.class);
+						intent.putExtra("url", url);
+						intent.putExtra("tid", post.getTid());
+						context.startActivity(intent);
+					}
+				});
+			}
+		}
+
+		return views;
 	}
 }

@@ -4,15 +4,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/post_body_text_segment"
+    <android.widget.IconTextView
+        android:id="@+id/post_body_fa_text_segment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autoLink="web"
         android:text="TextView"
 		android:lineSpacingExtra="6dp"
 		android:paddingTop="6dp"
-        android:textColor="@color/postBody"
+        android:textColor="@color/dark"
         android:textSize="16sp" />
 
 </LinearLayout>

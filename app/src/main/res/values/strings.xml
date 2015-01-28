@@ -32,4 +32,6 @@
 
 	<string name="update_available">新的版本</string>
 	<string name="download">下载</string>
+
+	<string name="blocked">{fa-eye-slash} 被屏蔽了</string>
 </resources>

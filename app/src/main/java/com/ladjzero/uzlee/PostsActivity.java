@@ -94,6 +94,8 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		if (posts.size() == 0) {
 			fetch(1, this);
 		}
+
+		adapter.notifyDataSetChanged();
 	}
 
 	@Override

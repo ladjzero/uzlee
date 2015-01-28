@@ -10,15 +10,15 @@
 
     <include layout="@layout/quote_user" />
 
-    <TextView
+    <android.widget.IconTextView
         android:id="@+id/post_quote_text"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="7dp"
         android:ellipsize="end"
-        android:lineSpacingMultiplier="1.2"
         android:maxLines="8"
-        android:text="quote text quote text quote text quote text quote text quote text quote text quote text quote text quote text quote text quote text"
+		android:lineSpacingExtra="6dp"
+		android:paddingTop="6dp"
         android:textColor="@color/smallFont"
         android:textSize="14sp" />
 
