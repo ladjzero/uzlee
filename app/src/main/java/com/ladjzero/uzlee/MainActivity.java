@@ -18,6 +18,7 @@ import android.widget.Toast;
 public class MainActivity extends BaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
 	private NavigationDrawerFragment mNavigationDrawerFragment;
+	int fid;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,15 +35,17 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 		ActionBar actionBar = getActionBar();
 		Intent intent;
 		final int D_ID = 2;
-		final int BS_ID = 6;
+		final int BS_ID = 57;
 		final int EINK_ID = 59;
 
 		switch (position) {
 			case 1:
+				fid = BS_ID;
 				actionBar.setTitle("Buy & Sell");
 				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(BS_ID)).commit();
 				break;
 			case 2:
+				fid = EINK_ID;
 				actionBar.setTitle("E-INK");
 				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(EINK_ID)).commit();
 				break;
@@ -76,6 +79,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 				});
 				break;
 			default:
+				fid = D_ID;
 				actionBar.setTitle("Discovery");
 				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(D_ID)).commit();
 		}
@@ -111,6 +115,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 		if (id == R.id.thread_publish) {
 			Intent editIntent = new Intent(this, EditActivity.class);
 			editIntent.putExtra("title", "新主题");
+			editIntent.putExtra("fid", fid);
 			startActivity(editIntent);
 			return true;
 		}

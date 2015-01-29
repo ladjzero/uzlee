@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.balysv.materialmenu.MaterialMenuDrawable;
 import com.balysv.materialmenu.MaterialMenuIcon;
@@ -27,12 +28,13 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 
-
 public class EditActivity extends BaseActivity {
 
 	int tid;
 	int pid;
+	int fid;
 	String content;
+	TextView titleInput;
 	TextView contentInput;
 	private static final int SELECT_PHOTO = 100;
 	ArrayList<Integer> attachIds = new ArrayList<Integer>();
@@ -47,6 +49,7 @@ public class EditActivity extends BaseActivity {
 
 		tid = intent.getIntExtra("tid", 0);
 		pid = intent.getIntExtra("pid", 0);
+		fid = intent.getIntExtra("fid", 0);
 
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 		getActionBar().setTitle(getIntent().getStringExtra("title"));
@@ -58,7 +61,7 @@ public class EditActivity extends BaseActivity {
 	public void onStart() {
 		super.onStart();
 
-		View titleInput = findViewById(R.id.edit_title);
+		titleInput = (TextView) findViewById(R.id.edit_title);
 		contentInput = (TextView) findViewById(R.id.edit_body);
 		if (getIntent().getBooleanExtra("hideTitleInput", false)) {
 			titleInput.setVisibility(View.GONE);
@@ -88,36 +91,58 @@ public class EditActivity extends BaseActivity {
 
 		//noinspection SimplifiableIfStatement
 		if (id == R.id.reply_send) {
-			final ProgressDialog progress = new ProgressDialog(this);
-			progress.setTitle("发送");
-			progress.show();
+			if (fid != 0) {
 
-			String content = contentInput.getText().toString();
+				String subject = titleInput.getText().toString();
+				String content = contentInput.getText().toString();
 
-			if (pid != 0) {
-				Intent intent = getIntent();
-				content = "[b]回复 [url=http://www.hi-pda.com/forum/redirect.php?goto=findpost&pid=" + pid + "&ptid=" + tid + "]" + intent.getIntExtra("no", 0) + "#[/url] [i]" + intent.getStringExtra("userName") + "[/i] [/b]\n\n" + content;
+				if (subject.length() == 0) {
+					Toast.makeText(EditActivity.this, "标题不能为空", Toast.LENGTH_LONG).show();
+				} else if (content.length() == 0) {
+					Toast.makeText(EditActivity.this, "内容不能少于5字", Toast.LENGTH_LONG).show();
+				} else {
+					final ProgressDialog progress = new ProgressDialog(this);
+					progress.setTitle("发送");
+					progress.show();
+
+					Core.newThread(fid, subject, content, attachIds, new Core.OnRequestListener() {
+						@Override
+						public void onError(String error) {
+							Toast.makeText(EditActivity.this, error, Toast.LENGTH_LONG).show();
+						}
+
+						@Override
+						public void onSuccess(String html) {
+							progress.dismiss();
+							finish();
+						}
+					});
+				}
+			} else {
+				final ProgressDialog progress = new ProgressDialog(this);
+				progress.setTitle("发送");
+				progress.show();
+
+				String content = contentInput.getText().toString();
+
+				if (pid != 0) {
+					Intent intent = getIntent();
+					content = "[b]回复 [url=http://www.hi-pda.com/forum/redirect.php?goto=findpost&pid=" + pid + "&ptid=" + tid + "]" + intent.getIntExtra("no", 0) + "#[/url] [i]" + intent.getStringExtra("userName") + "[/i] [/b]\n\n" + content;
+				}
+
+				Core.sendReply(tid, content, attachIds, new Core.OnRequestListener() {
+					@Override
+					public void onError(String error) {
+						Toast.makeText(EditActivity.this, error, Toast.LENGTH_LONG).show();
+					}
+
+					@Override
+					public void onSuccess(String html) {
+						progress.dismiss();
+						finish();
+					}
+				});
 			}
-
-			Core.sendReply(tid, content, attachIds, new Core.OnRequestListener() {
-				@Override
-				public void onError(String error) {
-
-				}
-
-				@Override
-				public void onSuccess(String html) {
-					progress.dismiss();
-					finish();
-				}
-			});
-//			Core.uploadImage(new File("/mnt/sdcard/6.png"), new Core.OnUploadListener() {
-//
-//				@Override
-//				public void onUpload(String response) {
-//
-//				}
-//			});
 		} else if (id == R.id.reply_add_image) {
 			Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
 			photoPickerIntent.setType("image/*");
@@ -172,8 +197,8 @@ public class EditActivity extends BaseActivity {
 	private String getRealPathFromURI(Context context, Uri contentUri) {
 		Cursor cursor = null;
 		try {
-			String[] proj = { MediaStore.Images.Media.DATA };
-			cursor = context.getContentResolver().query(contentUri,  proj, null, null, null);
+			String[] proj = {MediaStore.Images.Media.DATA};
+			cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
 			int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
 			cursor.moveToFirst();
 			return cursor.getString(column_index);

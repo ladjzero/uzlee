@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -448,8 +449,16 @@ public class Core {
 				} else if (tag.equals("img")) {
 					String src = e.attr("src");
 
-					if (iconKeys.contains(src)) {
-						sb.append(icons.get(src));
+					final String finalSrc = src;
+					String iconKey = (String) CollectionUtils.find(iconKeys, new Predicate() {
+						@Override
+						public boolean evaluate(Object o) {
+							return StringUtils.endsWith(finalSrc, (String) o);
+						}
+					});
+
+					if (iconKey != null) {
+						sb.append(icons.get(iconKey));
 					} else {
 						if ((sbStr = sb.toString().trim()).length() != 0) {
 							temps.add("txt:" + sbStr);
@@ -483,6 +492,39 @@ public class Core {
 		}
 
 		return temps.toArray(new String[0]);
+	}
+
+	public static void newThread(int fid, String subject, String message, ArrayList<Integer> attachIds, final OnRequestListener onRequestListener) {
+		RequestParams params = new RequestParams();
+		params.setContentEncoding("GBK");
+		params.put("formhash", formhash);
+		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
+		params.put("wysiwyg", 1);
+		params.put("iconid", "");
+		params.put("tags", "");
+		params.put("attention_add", 1);
+		params.put("subject", subject);
+		params.put("message", message);
+
+		if (attachIds != null) {
+			for (Integer attachId : attachIds) {
+				params.put("attachnew[" + attachId + "][description]", "");
+			}
+		}
+
+		httpClient
+				.post("http://www.hi-pda.com/forum/post.php?action=newthread&fid=" + fid + "&extra=&topicsubmit=yes", params,
+						new TextHttpResponseHandler("GBK") {
+							@Override
+							public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+								onRequestListener.onError(s);
+							}
+
+							@Override
+							public void onSuccess(int i, Header[] headers, String s) {
+								onRequestListener.onSuccess(s);
+							}
+						});
 	}
 
 	public static void sendReply(int tid, String content, ArrayList<Integer> attachIds, final OnRequestListener onRequestListener) {

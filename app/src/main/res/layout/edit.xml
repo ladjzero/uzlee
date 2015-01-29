@@ -9,40 +9,53 @@
 			  android:paddingRight="12dp"
 			  android:paddingTop="12dp">
 
-	<com.cengalabs.flatui.views.FlatEditText
+	<EditText
 		android:id="@+id/edit_title"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginBottom="10dp"
+		android:background="@color/dark_primary"
 		android:ems="10"
 		android:hint="标题"
-		android:inputType="textMultiLine"
-		flatui:fl_theme="@array/dark"/>
+		android:inputType="text"
+		android:padding="8dp"
+		android:singleLine="true"
+		android:textColor="@color/snow_light"
+		android:textColorHint="@color/snow_primary"
+		android:textCursorDrawable="@null"
+		android:textSize="16sp"/>
 
 	<RelativeLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
-		<com.cengalabs.flatui.views.FlatEditText
+		<EditText
 			android:id="@+id/edit_body"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
+			android:background="@color/snow_primary"
 			android:ems="10"
+			android:gravity="top"
 			android:hint="内容"
 			android:inputType="textMultiLine"
-			flatui:fl_theme="@array/snow"
-			android:gravity="top"/>
+			android:padding="8dp"
+			android:textColor="@color/dark"
+			android:textColorHint="@color/dark_light"
+			android:textCursorDrawable="@null"
+			android:textSize="16sp"/>
 
 		<android.widget.IconTextView
 			android:id="@+id/edit_keyboard_emoticon_switch"
 			android:layout_width="30dp"
 			android:layout_height="30dp"
+			android:layout_alignParentBottom="true"
+			android:layout_alignParentEnd="false"
 			android:layout_alignParentRight="true"
+			android:lineSpacingExtra="6dp"
 			android:text="{fa-smile-o}"
 			android:textColor="@color/deep_primary"
 			android:textSize="30dp"
-			android:layout_alignParentEnd="false"
-			android:layout_alignParentBottom="true"/>
+			android:visibility="gone"/>
 
 	</RelativeLayout>
 

@@ -118,8 +118,11 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		holder.postNo.setText("#" + (position + 1));
 
 		final int quoteId = post.getReplyTo();
+
+		Post quote = null;
+
 		if (quoteId > 0) {
-			Post quote = (Post) CollectionUtils.find(posts, new Predicate() {
+			quote = (Post) CollectionUtils.find(posts, new Predicate() {
 
 				@Override
 				public boolean evaluate(Object post) {
@@ -127,7 +130,9 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 				}
 
 			});
+		}
 
+		if (quote != null) {
 			if (quote.getAuthor().getId() == Core.UGLEE_ID) {
 				holder.quoteLayout.setBackgroundResource(R.color.uglee);
 			}
