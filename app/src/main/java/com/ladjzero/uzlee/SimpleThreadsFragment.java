@@ -164,6 +164,7 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 		Intent intent = new Intent(getActivity(), PostsActivity.class);
 		intent.putExtra("tid", thread.getId());
 		intent.putExtra("title", thread.getTitle());
+		intent.putExtra("fid", thread.getFid());
 
 		startActivity(intent);
 	}

@@ -2,11 +2,8 @@ package com.ladjzero.uzlee;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Set;
 
-import android.app.ActionBar;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -18,9 +15,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.balysv.materialmenu.MaterialMenu;
-import com.balysv.materialmenu.MaterialMenuDrawable;
-import com.balysv.materialmenu.MaterialMenuIcon;
 import com.j256.ormlite.dao.Dao;
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
@@ -38,6 +32,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	Dao<Thread, Integer> threadDao;
 	Dao<Post, Integer> postDao;
 	Dao<User, Integer> userDao;
+	int fid;
 	int tid;
 	ArrayList<Post> posts = new ArrayList<Post>();
 	ListView listView;
@@ -53,6 +48,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 		this.setContentView(R.layout.posts);
 		db = this.getHelper();
+		fid = getIntent().getIntExtra("fid", 0);
 		tid = getIntent().getIntExtra("tid", 0);
 		setTitle(titleStr = getIntent().getStringExtra("title"));
 
@@ -142,18 +138,18 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	@Override
 	public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 		Post post = (Post) adapterView.getAdapter().getItem(i);
+		int uid = post.getAuthor().getId();
 
-		Intent replyIntent = new Intent(PostsActivity.this, EditActivity.class);
-		replyIntent.putExtra("title", "回复 " + post.getAuthor().getName() + " #" + (i + 1));
-		replyIntent.putExtra("hideTitleInput", true);
-		replyIntent.putExtra("pid", post.getId());
-		replyIntent.putExtra("tid", tid);
-		replyIntent.putExtra("no", i + 1);
-		replyIntent.putExtra("userName", post.getAuthor().getName());
-		replyIntent.putExtra("subject", post.getTitle());
-		replyIntent.putExtra("message", post.getBody());
-		replyIntent.putExtra("uid", post.getAuthor().getId());
-		startActivity(replyIntent);
+		Intent intent = new Intent(PostsActivity.this, EditActivity.class);
+		intent.putExtra("title", Core.getUid() == uid ? "编辑" : "回复#" + (i + 1));
+		intent.putExtra("fid", fid);
+		intent.putExtra("pid", post.getId());
+		intent.putExtra("tid", tid);
+		intent.putExtra("uid", uid);
+		intent.putExtra("no", i + 1);
+		intent.putExtra("userName", post.getAuthor().getName());
+		intent.putExtra("hideTitleInput", i != 0);
+		startActivity(intent);
 	}
 
 	private void fetch(int page, final Core.OnPostsListener onPostsListener) {
@@ -194,6 +190,8 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 	@Override
 	public void onRefresh() {
+		adapter.clearViewCache();
+
 		fetch(1, new Core.OnPostsListener() {
 			@Override
 			public void onPosts(ArrayList<Post> _posts, int page, boolean _hasNextPage) {

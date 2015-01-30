@@ -47,6 +47,10 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		this.posts = posts;
 	}
 
+	public void clearViewCache() {
+		niceBodyCache.clear();
+	}
+
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View row = convertView;

@@ -33,8 +33,8 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private final ArrayList<Thread> threads = new ArrayList<Thread>();
 	private ListView listView;
 	private ThreadsAdapter adapter;
-	private static HashMap<Integer, ThreadsFragment> fragmentsCache = new HashMap<Integer, ThreadsFragment>();
 	private boolean hasNextPage = false;
+	private int fid;
 
 	public static ThreadsFragment newInstance(int fid) {
 
@@ -42,7 +42,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		Bundle args = new Bundle();
 		args.putInt("fid", fid);
 		fragment.setArguments(args);
-		fragmentsCache.put(fid, fragment);
+		fragment.fid = fid;
 
 		return fragment;
 	}
@@ -127,6 +127,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		t.setNew(false);
 
 		Intent intent = new Intent(getActivity(), PostsActivity.class);
+		intent.putExtra("fid", fid);
 		intent.putExtra("tid", t.getId());
 		intent.putExtra("title", t.getTitle());
 

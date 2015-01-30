@@ -31,6 +31,7 @@ public class Post{
 	private String type;
 	private ArrayList<Post> comments;
 	private int replyTo;
+	private int fid;
 	
 	public User getAuthor() {
 		return author;
@@ -112,6 +113,15 @@ public class Post{
 	}
 	public Post setReplyTo(int replyTo) {
 		this.replyTo = replyTo;
+		return this;
+	}
+
+	public int getFid() {
+		return fid;
+	}
+
+	public Post setFid(int fid) {
+		this.fid = fid;
 		return this;
 	}
 }

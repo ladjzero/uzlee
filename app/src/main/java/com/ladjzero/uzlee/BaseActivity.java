@@ -41,6 +41,10 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> implements Core.
 		materialMenu.setState(MaterialMenuDrawable.IconState.ARROW);
 	}
 
+	public void showToast(String message) {
+		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

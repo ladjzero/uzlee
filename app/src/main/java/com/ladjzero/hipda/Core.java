@@ -531,7 +531,7 @@ public class Core {
 						});
 	}
 
-	public static void editPost(int fid, int tid, String subject, String message, ArrayList<Integer> attachIds, final OnRequestListener onRequestListener) {
+	public static void editPost(int fid, int tid, int pid, String subject, String message, ArrayList<Integer> attachIds, final OnRequestListener onRequestListener) {
 		RequestParams params = new RequestParams();
 		params.setContentEncoding("GBK");
 		params.put("formhash", formhash);
@@ -540,6 +540,7 @@ public class Core {
 		params.put("iconid", 0);
 		params.put("fid", fid);
 		params.put("tid", tid);
+		params.put("pid", pid);
 		params.put("page", 1);
 		params.put("tags", "");
 		params.put("editsubmit", "true");
@@ -679,10 +680,22 @@ public class Core {
 		String userId = eUser.attr("href").substring("space.php?uid=".length());
 		String commentNum = eThread.select("td.nums > strong").text().trim();
 
+		String forumLink = eThread.select(".forum a").attr("href");
+
+		String fid = null;
+
+
+
 		User user = new User().setId(Integer.valueOf(userId)).setName(userName);
 		Thread ret = new Thread();
 		ret.setId(Integer.valueOf(id)).setTitle(title).setNew(isNew)
 				.setCommentCount(Integer.valueOf(commentNum)).setAuthor(user);
+
+		if (forumLink.length() > 0) {
+			fid = forumLink.substring(forumLink.indexOf("fid=") + 4);
+			ret.setFid(Integer.valueOf(fid));
+		}
+
 		return ret;
 	}
 
@@ -751,6 +764,25 @@ public class Core {
 				boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
 
 				onThreadsListener.onThreads(threads, currPage, hasNextPage);
+			}
+		});
+	}
+
+	public static void getEditBody(int fid, int tid, int pid, final OnRequestListener onRequestListener, final OnRequestListener onRequestListener2) {
+		getHtml("http://www.hi-pda.com/forum/post.php?action=edit&fid=" + fid + "&tid=" + tid + "&pid=" + pid + "&page=1", new OnRequestListener() {
+			@Override
+			public void onError(String error) {
+				onRequestListener.onError(error);
+			}
+
+			@Override
+			public void onSuccess(String html) {
+				Document doc = getDoc(html);
+				String title = doc.select("#subject").val();
+				String editBody = doc.select("#e_textarea").text();
+
+				onRequestListener.onSuccess(title);
+				onRequestListener2.onSuccess(editBody);
 			}
 		});
 	}
@@ -858,12 +890,21 @@ public class Core {
 
 				for (Element eThread : eThreads) {
 					Elements eTitle = eThread.select("th a");
+					Elements eForum = eThread.select(".forum a");
 
 					if (eTitle.size() > 0) {
 						String href = eTitle.attr("href");
 						String id = href.substring(href.indexOf("tid=") + 4);
 						String title = eTitle.text();
+						String forumLink = eForum.attr("href");
+						String fid = null;
+						if (forumLink.length() > 0) {
+							fid = forumLink.substring(forumLink.indexOf("fid=") + 4);
+						}
 						Thread thread = new Thread().setTitle(title).setId(Integer.valueOf(id));
+						if (fid != null) {
+							thread.setFid(Integer.valueOf(fid));
+						}
 						threads.add(thread);
 					}
 				}
