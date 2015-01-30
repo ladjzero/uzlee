@@ -64,6 +64,10 @@ public class Core {
 		return isOnline;
 	}
 
+	public static int getUid() {
+		return uid;
+	}
+
 	public interface OnMessageListener {
 		public void onMsg(int count);
 	}
@@ -514,6 +518,42 @@ public class Core {
 
 		httpClient
 				.post("http://www.hi-pda.com/forum/post.php?action=newthread&fid=" + fid + "&extra=&topicsubmit=yes", params,
+						new TextHttpResponseHandler("GBK") {
+							@Override
+							public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+								onRequestListener.onError(s);
+							}
+
+							@Override
+							public void onSuccess(int i, Header[] headers, String s) {
+								onRequestListener.onSuccess(s);
+							}
+						});
+	}
+
+	public static void editPost(int fid, int tid, String subject, String message, ArrayList<Integer> attachIds, final OnRequestListener onRequestListener) {
+		RequestParams params = new RequestParams();
+		params.setContentEncoding("GBK");
+		params.put("formhash", formhash);
+		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
+		params.put("wysiwyg", 1);
+		params.put("iconid", 0);
+		params.put("fid", fid);
+		params.put("tid", tid);
+		params.put("page", 1);
+		params.put("tags", "");
+		params.put("editsubmit", "true");
+		params.put("subject", subject);
+		params.put("message", message);
+
+		if (attachIds != null) {
+			for (Integer attachId : attachIds) {
+				params.put("attachnew[" + attachId + "][description]", "");
+			}
+		}
+
+		httpClient
+				.post("http://www.hi-pda.com/forum/post.php?action=edit&extra=&editsubmit=yes&mod=", params,
 						new TextHttpResponseHandler("GBK") {
 							@Override
 							public void onFailure(int i, Header[] headers, String s, Throwable throwable) {

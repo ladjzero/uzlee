@@ -33,6 +33,7 @@ public class EditActivity extends BaseActivity {
 	int tid;
 	int pid;
 	int fid;
+	int uid;
 	String content;
 	TextView titleInput;
 	TextView contentInput;
@@ -50,10 +51,12 @@ public class EditActivity extends BaseActivity {
 		tid = intent.getIntExtra("tid", 0);
 		pid = intent.getIntExtra("pid", 0);
 		fid = intent.getIntExtra("fid", 0);
+		uid = intent.getIntExtra("uid", 0);
 
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 		getActionBar().setTitle(getIntent().getStringExtra("title"));
 		setContentView(R.layout.edit);
+
 
 	}
 
@@ -67,6 +70,11 @@ public class EditActivity extends BaseActivity {
 			titleInput.setVisibility(View.GONE);
 		} else {
 			titleInput.setVisibility(View.VISIBLE);
+		}
+
+		if (uid == Core.getUid()) {
+			titleInput.setText(getIntent().getStringExtra("subject"));
+			contentInput.setText(getIntent().getStringExtra("message"));
 		}
 	}
 
@@ -105,18 +113,33 @@ public class EditActivity extends BaseActivity {
 					progress.setTitle("发送");
 					progress.show();
 
-					Core.newThread(fid, subject, content, attachIds, new Core.OnRequestListener() {
-						@Override
-						public void onError(String error) {
-							Toast.makeText(EditActivity.this, error, Toast.LENGTH_LONG).show();
-						}
+					if (uid == Core.getUid()) {
+						Core.editPost(fid, tid, subject, content, attachIds, new Core.OnRequestListener() {
+							@Override
+							public void onError(String error) {
+								Toast.makeText(EditActivity.this, error, Toast.LENGTH_LONG).show();
+							}
 
-						@Override
-						public void onSuccess(String html) {
-							progress.dismiss();
-							finish();
-						}
-					});
+							@Override
+							public void onSuccess(String html) {
+								progress.dismiss();
+								finish();
+							}
+						});
+					} else {
+						Core.newThread(fid, subject, content, attachIds, new Core.OnRequestListener() {
+							@Override
+							public void onError(String error) {
+								Toast.makeText(EditActivity.this, error, Toast.LENGTH_LONG).show();
+							}
+
+							@Override
+							public void onSuccess(String html) {
+								progress.dismiss();
+								finish();
+							}
+						});
+					}
 				}
 			} else {
 				final ProgressDialog progress = new ProgressDialog(this);

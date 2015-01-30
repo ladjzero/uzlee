@@ -150,6 +150,9 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		replyIntent.putExtra("tid", tid);
 		replyIntent.putExtra("no", i + 1);
 		replyIntent.putExtra("userName", post.getAuthor().getName());
+		replyIntent.putExtra("subject", post.getTitle());
+		replyIntent.putExtra("message", post.getBody());
+		replyIntent.putExtra("uid", post.getAuthor().getId());
 		startActivity(replyIntent);
 	}
 
