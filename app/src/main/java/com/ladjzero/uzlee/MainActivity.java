@@ -116,7 +116,6 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 			Intent intent = new Intent(this, EditActivity.class);
 			intent.putExtra("title", "新主题");
 			intent.putExtra("fid", fid);
-			intent.putExtra("newThread", true);
 
 			startActivity(intent);
 			return true;

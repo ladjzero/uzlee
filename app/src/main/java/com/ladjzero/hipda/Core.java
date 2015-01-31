@@ -305,6 +305,9 @@ public class Core {
 				for (OnStatusChangeListener onStatusChangeListener : onStatusChangeListeners) {
 					onStatusChangeListener.onLogout();
 				}
+				for (OnMessageListener onMessageListener : onMessageListeners) {
+					onMessageListener.onMsg(0);
+				}
 				onRequestListener.onSuccess(html);
 			}
 		});
@@ -373,6 +376,13 @@ public class Core {
 			niceBody = postprocessPostBody(preprocessPostBody(eBody.get(0)), ePost.select("div.postattachlist"));
 		}
 
+		String timeStr = ePost.select(".authorinfo > em").text();
+
+		if (timeStr.startsWith("发表于")) {
+			timeStr = timeStr.substring(3);
+			timeStr = timeStr.trim();
+		}
+
 		Element eUser = ePost.select("td.postauthor").get(0);
 		Elements eUinfo = eUser.select("div.postinfo a");
 		String userId = eUinfo.attr("href").substring("space.php?uid=".length());
@@ -383,7 +393,7 @@ public class Core {
 				.setImage(userImg);
 
 		Post post = new Post().setId(Integer.valueOf(id)).setNiceBody(niceBody)
-				.setAuthor(user);
+				.setAuthor(user).setTimeStr(timeStr);
 		if (replyTo != null) {
 			post.setReplyTo(Integer.valueOf(replyTo));
 		}
@@ -434,7 +444,19 @@ public class Core {
 				Element e = (Element) node;
 				String tag = e.tagName();
 
-				if (tag.equals("br")) {
+				if (tag.equals("a") && e.attr("target").equals("_blank")) {
+					String href = e.attr("href");
+					if (StringUtils.endsWith(href, "tid=1408844")) {
+						if ((sbStr = sb.toString().trim()).length() != 0) {
+							temps.add("txt:" + sbStr);
+						}
+
+						temps.add("sig:{fa-android} HiPDA");
+						sb.delete(0, sb.length());
+					} else {
+						sb.append(e.attr("href"));
+					}
+				} else if (tag.equals("br")) {
 					sb.append("\r\n");
 				} else if (tag.equals("font") && e.attr("size").equals("1")) {
 					if ((sbStr = sb.toString().trim()).length() != 0) {
@@ -558,7 +580,7 @@ public class Core {
 						new TextHttpResponseHandler("GBK") {
 							@Override
 							public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
-								onRequestListener.onError(s);
+								onRequestListener.onError(throwable.toString());
 							}
 
 							@Override
@@ -589,18 +611,16 @@ public class Core {
 
 		httpClient
 				.post("http://www.hi-pda.com/forum/post.php?action=reply&fid=57&tid=" + tid + "&extra=&replysubmit=yes",
-						params, new AsyncHttpResponseHandler() {
-
+						params, new TextHttpResponseHandler("GBK") {
 							@Override
-							public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-								onRequestListener.onError(new String(responseBody));
+							public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+								onRequestListener.onError(s);
 							}
 
 							@Override
-							public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-								onRequestListener.onSuccess(new String(responseBody));
+							public void onSuccess(int i, Header[] headers, String s) {
+								onRequestListener.onSuccess(s);
 							}
-
 						});
 	}
 
@@ -802,15 +822,43 @@ public class Core {
 				ArrayList<Post> posts = new ArrayList<Post>();
 
 				for (Element eNotice : eNotices) {
-					String title = eNotice.select(">a").last().text();
+					String title;
 					Elements eSummary = eNotice.select(">dl.summary");
-					String body = eSummary.select("dt").last().text() + eSummary.select("dd").last().text();
-					String findPostLink = eNotice.select(">p>a").last().attr("href");
+					String body;
+					String tid;
+					String pid;
+					String fid = "0";
+					String findPostLink;
+					if (eSummary.size() > 0) {
+						title = eNotice.select(">a").last().text();
+						body = eSummary.select("dt").last().text() + eSummary.select("dd").last().text();
+
+						findPostLink = eNotice.select(">p>a").last().attr("href");
+						String viewPostLink = eNotice.select(">p>a").first().attr("href");
+
+						int fidIndex = viewPostLink.indexOf("&fid=");
+						fid = viewPostLink.substring(fidIndex + 5, viewPostLink.indexOf("&tid="));
+					} else {
+						// thread watched on
+						Element lastA = eNotice.select(">a").last();
+						findPostLink = lastA.attr("href");
+						lastA.remove();
+						lastA = eNotice.select(">a").last();
+						title = lastA.text();
+						lastA.remove();
+
+						eNotice.select(">em").last().remove();
+						eNotice.select("dfn").remove();
+						body = eNotice.text();
+					}
+
 					int ptidIndex = findPostLink.indexOf("&ptid=");
-					String tid = findPostLink.substring(ptidIndex + 6);
-					String pid = findPostLink.substring(findPostLink.indexOf("pid=") + 4, ptidIndex);
+					tid = findPostLink.substring(ptidIndex + 6);
+					pid = findPostLink.substring(findPostLink.indexOf("pid=") + 4, ptidIndex);
+
 					Post post = new Post().setId(Integer.valueOf(pid))
 							.setTid(Integer.valueOf(tid))
+							.setFid(Integer.valueOf(fid))
 							.setTitle(title).setBody(body);
 					posts.add(post);
 				}

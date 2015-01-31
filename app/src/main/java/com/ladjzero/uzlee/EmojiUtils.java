@@ -15,6 +15,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.style.ImageSpan;
+import android.util.TypedValue;
 
 import com.ladjzero.hipda.Core;
 
@@ -23,9 +24,11 @@ import com.ladjzero.hipda.Core;
  */
 public class EmojiUtils {
 	static Context context;
+	int px;
 
 	public EmojiUtils(Context context) {
 		this.context = context;
+		px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 26, context.getResources().getDisplayMetrics());
 
 		for (String iconKey : Core.iconKeys) {
 			addPattern(emoticons, Core.icons.get(iconKey), getEmojiResId(iconKey));
@@ -91,7 +94,7 @@ public class EmojiUtils {
 					hasChanges = true;
 					Bitmap icon = BitmapFactory.decodeResource(context.getResources(), entry.getValue());
 					spannable
-							.setSpan(new ImageSpan(context, Bitmap.createScaledBitmap(icon, 40, 40, true), ImageSpan.ALIGN_BASELINE),
+							.setSpan(new ImageSpan(context, Bitmap.createScaledBitmap(icon, px, px, true), ImageSpan.ALIGN_BASELINE),
 							matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				}
 			}

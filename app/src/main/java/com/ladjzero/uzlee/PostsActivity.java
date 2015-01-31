@@ -34,6 +34,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	Dao<User, Integer> userDao;
 	int fid;
 	int tid;
+	final int EDIT_CODE = 99;
 	ArrayList<Post> posts = new ArrayList<Post>();
 	ListView listView;
 	String titleStr;
@@ -115,7 +116,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 				replyIntent.putExtra("tid", tid);
 				replyIntent.putExtra("title", "回复：" + titleStr);
 				replyIntent.putExtra("hideTitleInput", true);
-				startActivity(replyIntent);
+				startActivityForResult(replyIntent, EDIT_CODE);
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -142,14 +143,16 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 		Intent intent = new Intent(PostsActivity.this, EditActivity.class);
 		intent.putExtra("title", Core.getUid() == uid ? "编辑" : "回复#" + (i + 1));
-		intent.putExtra("fid", fid);
+		if (Core.getUid() == uid) {
+			intent.putExtra("fid", fid);
+		}
 		intent.putExtra("pid", post.getId());
 		intent.putExtra("tid", tid);
 		intent.putExtra("uid", uid);
 		intent.putExtra("no", i + 1);
 		intent.putExtra("userName", post.getAuthor().getName());
 		intent.putExtra("hideTitleInput", i != 0);
-		startActivity(intent);
+		startActivityForResult(intent, EDIT_CODE);
 	}
 
 	private void fetch(int page, final Core.OnPostsListener onPostsListener) {
@@ -202,5 +205,22 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 				swipe.setRefreshing(false);
 			}
 		});
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
+		if (returnIntent != null) {
+			String html = returnIntent.getStringExtra("html");
+
+			if (html != null && html.length() > 0) {
+				Core.parsePosts(html, new Core.OnPostsListener() {
+					@Override
+					public void onPosts(ArrayList<Post> posts, int currPage, boolean hasNextPage) {
+						PostsActivity.this.posts.clear();
+						PostsActivity.this.posts.addAll(posts);
+					}
+				});
+			}
+		}
 	}
 }

@@ -89,7 +89,8 @@ public class NavigationDrawerFragment extends Fragment implements Core.OnMessage
 						getString(R.string.nav_my_posts),
 						getString(R.string.nav_search),
 						getString(R.string.nav_setting),
-						getString(R.string.nav_logout)
+						getString(R.string.nav_logout),
+						getString(R.string.nav_about)
 				});
 
 		mDrawerListView.setAdapter(adapter);

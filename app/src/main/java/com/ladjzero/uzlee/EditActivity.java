@@ -29,6 +29,7 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 	int fid;
 	int uid;
 	int no;
+	boolean isNewThread, isReplyToOne, isReply, isEdit;
 	String content;
 	TextView subjectInput;
 	TextView messageInput;
@@ -49,6 +50,10 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 		fid = intent.getIntExtra("fid", 0);
 		uid = intent.getIntExtra("uid", 0);
 		no = intent.getIntExtra("no", 0);
+		isNewThread = (tid == 0 && pid == 0);
+		isReplyToOne = (tid !=0 && pid != 0 && fid == 0);
+		isReply = (tid != 0 && pid == 0 && fid == 0);
+		isEdit = (tid != 0 && pid != 0 && fid != 0);
 
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 		getActionBar().setTitle(getIntent().getStringExtra("title"));
@@ -63,7 +68,7 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 		subjectInput = (TextView) findViewById(R.id.edit_title);
 		messageInput = (TextView) findViewById(R.id.edit_body);
 
-		if (intent.getBooleanExtra("newThread", false)) {
+		if (isNewThread) {
 			subjectInput.setVisibility(View.VISIBLE);
 		} else {
 			if (uid != Core.getUid()) {
@@ -78,26 +83,31 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 			}
 		}
 
-		if (uid == Core.getUid()) {
+		if (isEdit) {
+			progress.setTitle("载入中");
+			progress.show();
+
 			Core.getEditBody(fid, tid, pid, new Core.OnRequestListener() {
 				@Override
 				public void onError(String error) {
-
+					progress.dismiss();
 				}
 
 				@Override
 				public void onSuccess(String html) {
 					subjectInput.setText(html);
+					progress.dismiss();
 				}
 			}, new Core.OnRequestListener() {
 				@Override
 				public void onError(String error) {
-
+					progress.dismiss();
 				}
 
 				@Override
 				public void onSuccess(String html) {
 					messageInput.setText(html);
+					progress.dismiss();
 				}
 			});
 		}
@@ -120,11 +130,10 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 		int id = item.getItemId();
 
 		if (id == R.id.reply_send) {
-			if (fid != 0) {
-				// new thread or edit
-				String subject = subjectInput.getText().toString();
-				String message = messageInput.getText().toString();
+			String subject = subjectInput.getText().toString();
+			String message = messageInput.getText().toString();
 
+			if (isNewThread) {
 				if (subject.length() == 0) {
 					showToast("标题不能为空");
 				} else if (message.length() == 0) {
@@ -133,26 +142,67 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 					progress.setTitle("发送");
 					progress.show();
 
-					if (uid == Core.getUid()) {
-						Core.editPost(fid, tid, pid, subject, message, attachIds, this);
-					} else {
-						Core.newThread(fid, subject, message, attachIds, this);
-					}
+					message += "\t\t\t[size=1][color=Gray]有只梨[/color][/size]";
+
+					Core.newThread(fid, subject, message, attachIds, this);
 				}
-			} else {
-				// reply
+			} else if (isEdit) {
+				if (no == 1 && subject.length() == 0) {
+					showToast("标题不能为空");
+				} else if (message.length() == 0) {
+					showToast("内容不能少于5字");
+				} else {
+					progress.setTitle("发送");
+					progress.show();
+
+					Core.editPost(fid, tid, pid, subject, message, attachIds, this);
+				}
+			} else if (isReplyToOne) {
+				progress.setTitle("发送");
+				progress.show();
+				message = "[b]回复 [url=http://www.hi-pda.com/forum/redirect.php?goto=findpost&pid=" + pid + "&ptid=" + tid + "]" + intent.getIntExtra("no", 0) + "#[/url] [i]" + intent.getStringExtra("userName") + "[/i] [/b]\n\n" + message;
+				message += "\t\t\t[size=1][color=Gray]有只梨[/color][/size]";
+				Core.sendReply(tid, message, attachIds, this);
+			} else if (isReply) {
 				progress.setTitle("发送");
 				progress.show();
 
-				String content = messageInput.getText().toString();
-
-				if (pid != 0) {
-					Intent intent = getIntent();
-					content = "[b]回复 [url=http://www.hi-pda.com/forum/redirect.php?goto=findpost&pid=" + pid + "&ptid=" + tid + "]" + intent.getIntExtra("no", 0) + "#[/url] [i]" + intent.getStringExtra("userName") + "[/i] [/b]\n\n" + content;
-				}
-
-				Core.sendReply(tid, content, attachIds, this);
+				message += "\t\t\t[size=1][color=Gray]有只梨[/color][/size]";
+				Core.sendReply(tid, message, attachIds, this);
 			}
+//			if (fid != 0) {
+//				// new thread or edit
+//				String subject = subjectInput.getText().toString();
+//				String message = messageInput.getText().toString();
+//
+//				if (isNewThread && subject.length() == 0) {
+//					showToast("标题不能为空");
+//				} else if (message.length() == 0) {
+//					showToast("内容不能少于5字");
+//				} else {
+//					progress.setTitle("发送");
+//					progress.show();
+//
+//					if (uid == Core.getUid()) {
+//						Core.editPost(fid, tid, pid, subject, message, attachIds, this);
+//					} else {
+//						Core.newThread(fid, subject, message, attachIds, this);
+//					}
+//				}
+//			} else {
+//				// reply
+//				progress.setTitle("发送");
+//				progress.show();
+//
+//				String content = messageInput.getText().toString();
+//
+//				if (pid != 0) {
+//					Intent intent = getIntent();
+//					content = "[b]回复 [url=http://www.hi-pda.com/forum/redirect.php?goto=findpost&pid=" + pid + "&ptid=" + tid + "]" + intent.getIntExtra("no", 0) + "#[/url] [i]" + intent.getStringExtra("userName") + "[/i] [/b]\n\n" + content;
+//				}
+//
+//				Core.sendReply(tid, content, attachIds, this);
+//			}
 		} else if (id == R.id.reply_add_image) {
 			Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
 			photoPickerIntent.setType("image/*");
@@ -165,41 +215,43 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
-		Uri uri = imageReturnedIntent.getData();
-		File imageFile = new File(getRealPathFromURI(this, uri));
+		if (imageReturnedIntent != null) {
+			Uri uri = imageReturnedIntent.getData();
+			File imageFile = new File(getRealPathFromURI(this, uri));
 
-		progress.setTitle("图片压缩");
-		progress.show();
+			progress.setTitle("图片压缩");
+			progress.show();
 
-		Core.compressImage(imageFile, new Core.OnImageCompressed() {
-			@Override
-			public void onImage(File imageFile) {
+			Core.compressImage(imageFile, new Core.OnImageCompressed() {
+				@Override
+				public void onImage(File imageFile) {
 
-				progress.setTitle("图片上传");
+					progress.setTitle("图片上传");
 
-				Core.uploadImage(imageFile, new Core.OnUploadListener() {
-					@Override
-					public void onUpload(String response) {
-						progress.dismiss();
+					Core.uploadImage(imageFile, new Core.OnUploadListener() {
+						@Override
+						public void onUpload(String response) {
+							progress.dismiss();
 
-						if (response.startsWith("DISCUZUPLOAD")) {
-							int attachId = -1;
+							if (response.startsWith("DISCUZUPLOAD")) {
+								int attachId = -1;
 
-							try {
-								attachId = Integer.valueOf(response.split("\\|")[2]);
-							} catch (Exception e) {
+								try {
+									attachId = Integer.valueOf(response.split("\\|")[2]);
+								} catch (Exception e) {
 
-							}
+								}
 
-							if (attachId != -1) {
-								attachIds.add(attachId);
-								messageInput.setText(messageInput.getText() + "[attachimg]" + attachId + "[/attachimg]");
+								if (attachId != -1) {
+									attachIds.add(attachId);
+									messageInput.setText(messageInput.getText() + "[attachimg]" + attachId + "[/attachimg]");
+								}
 							}
 						}
-					}
-				});
-			}
-		});
+					});
+				}
+			});
+		}
 	}
 
 	private String getRealPathFromURI(Context context, Uri contentUri) {
@@ -219,12 +271,16 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 
 	@Override
 	public void onError(String error) {
+		progress.dismiss();
 		Toast.makeText(EditActivity.this, error, Toast.LENGTH_LONG).show();
 	}
 
 	@Override
 	public void onSuccess(String html) {
 		progress.dismiss();
+		Intent returnIntent = new Intent();
+		returnIntent.putExtra("html", html);
+		setResult(0, returnIntent);
 		finish();
 	}
 }

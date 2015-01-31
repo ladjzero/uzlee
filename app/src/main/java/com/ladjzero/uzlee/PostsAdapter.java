@@ -1,12 +1,18 @@
 package com.ladjzero.uzlee;
 
 import java.lang.reflect.Array;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -22,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -40,6 +47,8 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	ArrayList<Post> posts;
 	HashMap<Integer, View> viewCache = new HashMap<Integer, View>();
 	HashMap<Integer, ArrayList<View>> niceBodyCache = new HashMap<Integer, ArrayList<View>>();
+	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	Date now = new Date();
 
 	public PostsAdapter(Context context, ArrayList<Post> posts) {
 		super(context, R.layout.post, posts);
@@ -67,6 +76,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			holder.body = (LinearLayout) row.findViewById(R.id.post_body_layout);
 			holder.quoteBody = (TextView) holder.quoteLayout.findViewById(R.id.post_quote_text);
 			holder.postNo = (TextView) row.findViewById(R.id.post_no);
+			holder.postDate = (TextView) row.findViewById(R.id.post_date);
 			holder.quotePostNo = (TextView) holder.quoteLayout.findViewById(R.id.post_no);
 
 			row.setTag(holder);
@@ -115,6 +125,8 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			holder.body.addView(tv);
 		} else {
 			for (View view : niceBody) {
+				ViewParent vParent = view.getParent();
+				if (vParent != null) ((ViewGroup)vParent).removeView(view);
 				holder.body.addView(view);
 			}
 		}
@@ -134,6 +146,14 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 				}
 
 			});
+		}
+
+		if (author.getId() == Core.UGLEE_ID) {
+			row.setBackgroundResource(R.color.uglee);
+			holder.quoteLayout.setBackgroundResource(R.color.ugleeQuote);
+		} else {
+			row.setBackgroundResource(android.R.color.white);
+			holder.quoteLayout.setBackgroundResource(R.color.backgroud);
 		}
 
 		if (quote != null) {
@@ -160,15 +180,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			holder.quoteLayout.setVisibility(View.GONE);
 		}
 
-
-		if (author.getId() == Core.UGLEE_ID) {
-			row.setBackgroundResource(R.color.uglee);
-			holder.quoteLayout.setBackgroundResource(R.color.ugleeQuote);
-		} else {
-			row.setBackgroundResource(android.R.color.white);
-			holder.quoteLayout.setBackgroundResource(R.color.backgroud);
-		}
-
+		holder.postDate.setText(prettyTime(post.getTimeStr()));
 		viewCache.put(position, row);
 
 		return row;
@@ -191,8 +203,27 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		LinearLayout body;
 		TextView quoteBody;
 		TextView postNo;
+		TextView postDate;
 		TextView quotePostNo;
 		View quoteLayout;
+	}
+
+	private String prettyTime(String timeStr) {
+		try {
+			Date thatDate = dateFormat.parse(timeStr);
+
+			if (DateUtils.isSameDay(thatDate, now)) {
+				return DateFormatUtils.format(thatDate, "HH:mm");
+			} else if (now.getDay() - thatDate.getDay() == 1) {
+				return "昨天" + DateFormatUtils.format(thatDate, "HH:mm");
+			} else if (now.getYear() == thatDate.getYear()) {
+				return DateFormatUtils.format(thatDate, "MM-dd");
+			} else {
+				return DateFormatUtils.format(thatDate, "yyyy-MM-dd");
+			}
+		} catch (ParseException e) {
+			return timeStr;
+		}
 	}
 
 	private ArrayList<View> buildBody(final Post post) {
@@ -200,10 +231,20 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 		for (String bodySnippet : post.getNiceBody()) {
 			if (bodySnippet.startsWith("txt:")) {
-				LinearLayout postTextLayout = (LinearLayout) context.getLayoutInflater().inflate(R.layout.post_body_text_segment, null);
-				TextView textView = (TextView) postTextLayout.findViewById(R.id.post_body_text_segment);
-				textView.setText(context.emojiUtils.getSmiledText(context, bodySnippet.substring(4)));
-				postTextLayout.removeAllViews();
+				String content = bodySnippet.substring(4);
+				TextView textView;
+
+				if (content.equals("blocked!")) {
+					LinearLayout postTextLayout = (LinearLayout) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
+					textView = (TextView) postTextLayout.findViewById(R.id.post_body_fa_text_segment);
+					textView.setText(context.getString(R.string.blocked));
+					postTextLayout.removeAllViews();
+				} else {
+					LinearLayout postTextLayout = (LinearLayout) context.getLayoutInflater().inflate(R.layout.post_body_text_segment, null);
+					textView = (TextView) postTextLayout.findViewById(R.id.post_body_text_segment);
+					textView.setText(context.emojiUtils.getSmiledText(context, bodySnippet.substring(4)));
+					postTextLayout.removeAllViews();
+				}
 
 				views.add(textView);
 			} else if (bodySnippet.startsWith("sig:")) {

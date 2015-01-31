@@ -12,7 +12,7 @@
 		android:layout_height="wrap_content"
 		android:layout_alignParentRight="true"
 		android:layout_centerVertical="true"
-		android:background="@color/commentNoBg"
+		android:background="@color/blood_primary"
 		android:gravity="center_horizontal"
 		android:minWidth="24dp"
 		android:paddingBottom="2dp"
