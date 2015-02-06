@@ -69,8 +69,7 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> implements Core.
 				this).defaultDisplayImageOptions(ilOptions).build();
 		ImageLoader.getInstance().init(ilConfig);
 
-//			Long lastCheck = setting.getLong("last_update_check", 0);
-		Long lastCheck = 0L;
+		Long lastCheck = setting.getLong("last_update_check", 0);
 		Long now = System.currentTimeMillis();
 
 		if (now - lastCheck > 12 * 3600 * 1000) {
@@ -156,38 +155,47 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> implements Core.
 	}
 
 	@Override
-	public void onUpdateAvailable(final Core.UpdateInfo updateInfo) {
+	public boolean onUpdateAvailable(final Core.UpdateInfo updateInfo) {
 		if (updateInfo != null) {
-			try {
-				String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-				String newVersion = updateInfo.getVersion();
+			String version = getVersion();
+			String newVersion = updateInfo.getVersion();
 
-				if (new VersionComparator().compare(version, newVersion) < 0) {
-					AlertDialog.Builder alert = new AlertDialog.Builder(this);
-					alert.setTitle(getString(R.string.update_available) + " " + newVersion);
-					alert.setMessage(updateInfo.getInfo());
-					alert.setNegativeButton(getString(R.string.cancel), new OnClickListener() {
+			if (new VersionComparator().compare(version, newVersion) < 0) {
+				AlertDialog.Builder alert = new AlertDialog.Builder(this);
+				alert.setTitle(getString(R.string.update_available) + " " + newVersion);
+				alert.setMessage(updateInfo.getInfo());
+				alert.setNegativeButton(getString(R.string.cancel), new OnClickListener() {
 
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.cancel();
-						}
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
+					}
 
-					});
-					alert.setPositiveButton(getString(R.string.download), new OnClickListener() {
+				});
+				alert.setPositiveButton(getString(R.string.download), new OnClickListener() {
 
-						@Override
-						public void onClick(DialogInterface dialogInterface, int i) {
-							Uri uri = Uri.parse(updateInfo.getUri());
-							Intent downloadIntent = new Intent(Intent.ACTION_VIEW, uri);
-							startActivity(downloadIntent);
-						}
-					});
-					alert.show();
-				}
-			} catch (PackageManager.NameNotFoundException e) {
-				e.printStackTrace();
+					@Override
+					public void onClick(DialogInterface dialogInterface, int i) {
+						Uri uri = Uri.parse(updateInfo.getUri());
+						Intent downloadIntent = new Intent(Intent.ACTION_VIEW, uri);
+						startActivity(downloadIntent);
+					}
+				});
+				alert.show();
+				return true;
+			} else {
+				return false;
 			}
+		} else {
+			return false;
+		}
+	}
+
+	public String getVersion() {
+		try {
+			return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+		} catch (PackageManager.NameNotFoundException e) {
+			return "0.1";
 		}
 	}
 

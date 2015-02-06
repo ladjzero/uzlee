@@ -35,6 +35,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private ThreadsAdapter adapter;
 	private boolean hasNextPage = false;
 	private int fid;
+	private TextView hint;
 
 	public static ThreadsFragment newInstance(int fid) {
 
@@ -73,10 +74,15 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
 				if (hasNextPage) {
+					hint.setVisibility(View.VISIBLE);
 					fetch(page, ThreadsFragment.this);
 				}
 			}
 		});
+
+		hint = (TextView) rootView.findViewById(R.id.hint);
+		hint.setText("正在加载下一页");
+		hint.setVisibility(View.GONE);
 
 		return rootView;
 	}
@@ -90,7 +96,18 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 			@Override
 			public void onSuccess(String html) {
-				Core.parseThreads(html, onThreadsListener);
+				new AsyncTask<String, Void, Core.ThreadsRet>() {
+					@Override
+					protected Core.ThreadsRet doInBackground(String... strings) {
+						return Core.parseThreads(strings[0]);
+					}
+
+					@Override
+					protected void onPostExecute(Core.ThreadsRet ret) {
+						onThreadsListener.onThreads(ret.threads, ret.page, ret.hasNextPage);
+						hint.setVisibility(View.INVISIBLE);
+					}
+				}.execute(html);
 			}
 		});
 	}

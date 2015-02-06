@@ -39,18 +39,42 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+import android.os.Debug;
+import android.util.Log;
+
+import de.greenrobot.event.EventBus;
 
 public class Core {
+	private static final String TAG = "Core";
+
 	private static AsyncHttpClient httpClient = new AsyncHttpClient();
 	private static ArrayList<OnMessageListener> onMessageListeners = new ArrayList<OnMessageListener>();
 	private static ArrayList<OnStatusChangeListener> onStatusChangeListeners = new ArrayList<OnStatusChangeListener>();
 	private static String formhash;
+	private static String hash;
 	private static Context context;
 	private static int uid;
 	private final static int maxImageLength = 299 * 1024;
 	public final static int UGLEE_ID = 1261;
 	private static boolean isOnline = false;
 	public static final Set<Integer> bans = new HashSet<Integer>();
+
+	public static class MessageEvent{
+		public MessageEvent(int count) {
+			this.count = count;
+		}
+
+		public int count;
+	}
+
+	public static class StatusChangeEvent{
+		public StatusChangeEvent(boolean online) {
+			this.online = online;
+		}
+
+		public boolean online;
+	}
 
 	public static void setup(Context context) {
 		if (Core.context == null) {
@@ -119,7 +143,7 @@ public class Core {
 	}
 
 	public interface OnUpdateAvailableListener {
-		void onUpdateAvailable(UpdateInfo updateInfo);
+		boolean onUpdateAvailable(UpdateInfo updateInfo);
 	}
 
 	public static void requestUpdate(final OnUpdateAvailableListener onUpdateAvailableListener) {
@@ -150,29 +174,41 @@ public class Core {
 		void onUpload(String response);
 	}
 
-	public static void uploadImage(File imageFile, final OnUploadListener onUploadListener) {
-		try {
-			RequestParams params = new RequestParams();
-			params.setContentEncoding("GBK");
-			params.put("uid", uid);
-			params.put("hash", "ac62265abc8a56fa12705ceca76c46da");
-			params.put("Filedata", imageFile);
-			params.put("filename", imageFile.getName());
+	public static void uploadImage(final File imageFile, final OnUploadListener onUploadListener) {
+		httpClient.get("http://www.hi-pda.com/forum/post.php?action=newthread&fid=57", new TextHttpResponseHandler("GBK") {
+			@Override
+			public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
 
-			httpClient.post("http://www.hi-pda.com/forum/misc.php?action=swfupload&operation=upload&simple=1&type=image", params, new AsyncHttpResponseHandler() {
-				@Override
-				public void onSuccess(int i, Header[] headers, byte[] bytes) {
-					onUploadListener.onUpload(new String(bytes));
+			}
+
+			@Override
+			public void onSuccess(int i, Header[] headers, String s) {
+				getDoc(s);
+
+				try {
+					RequestParams params = new RequestParams();
+					params.setContentEncoding("GBK");
+					params.put("uid", uid);
+					params.put("hash", hash);
+					params.put("Filedata", imageFile);
+					params.put("filename", imageFile.getName());
+
+					httpClient.post("http://www.hi-pda.com/forum/misc.php?action=swfupload&operation=upload&simple=1&type=image", params, new AsyncHttpResponseHandler() {
+						@Override
+						public void onSuccess(int i, Header[] headers, byte[] bytes) {
+							onUploadListener.onUpload(new String(bytes));
+						}
+
+						@Override
+						public void onFailure(int i, Header[] headers, byte[] bytes, Throwable throwable) {
+
+						}
+					});
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
 				}
-
-				@Override
-				public void onFailure(int i, Header[] headers, byte[] bytes, Throwable throwable) {
-
-				}
-			});
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+			}
+		});
 	}
 
 	public static void getHtml(String url, final OnRequestListener onRequestListener) {
@@ -197,6 +233,8 @@ public class Core {
 	}
 
 	public static Document getDoc(String html) {
+		long time = System.currentTimeMillis();
+
 		Document doc = Jsoup.parse(html);
 
 		try {
@@ -214,9 +252,10 @@ public class Core {
 			}
 
 			if (msgCount > 0) {
-				for (OnMessageListener onMessageListener : onMessageListeners) {
-					onMessageListener.onMsg(msgCount);
-				}
+				EventBus.getDefault().post(new MessageEvent(msgCount));
+//				for (OnMessageListener onMessageListener : onMessageListeners) {
+//					onMessageListener.onMsg(msgCount);
+//				}
 			}
 
 			String uidHref = doc.select("#umenu > cite > a").attr("href");
@@ -224,25 +263,38 @@ public class Core {
 			if (uidHref.indexOf("uid=") > -1) {
 				isOnline = true;
 				uid = Integer.valueOf(uidHref.substring(uidHref.indexOf("uid=") + 4));
-				for (OnStatusChangeListener onStatusChangeListener : onStatusChangeListeners) {
-					onStatusChangeListener.onLogin(true);
-				}
+
+				EventBus.getDefault().post(new StatusChangeEvent(true));
+
+//				for (OnStatusChangeListener onStatusChangeListener : onStatusChangeListeners) {
+//					onStatusChangeListener.onLogin(true);
+//				}
 			} else {
 				isOnline = false;
-				for (OnStatusChangeListener onStatusChangeListener : onStatusChangeListeners) {
-					onStatusChangeListener.onLogout();
-				}
+
+				EventBus.getDefault().post(new StatusChangeEvent(false));
+
+//				for (OnStatusChangeListener onStatusChangeListener : onStatusChangeListeners) {
+//					onStatusChangeListener.onLogout();
+//				}
 			}
 		} catch (Error e) {
 
 		}
 
-		Elements hashInput = doc.select("input[name=formhash]");
+		Elements formHashInput = doc.select("input[name=formhash]");
 
-		if (hashInput.size() > 0) {
-			formhash = hashInput.val();
+		if (formHashInput.size() > 0) {
+			formhash = formHashInput.val();
 		}
 
+		Elements hashInput = doc.select("input[name=hash]");
+
+		if (hashInput.size() > 0){
+			hash = hashInput.val();
+		}
+
+		Log.i(TAG, "getDoc " + (System.currentTimeMillis() - time));
 		return doc;
 	}
 
@@ -313,7 +365,13 @@ public class Core {
 		});
 	}
 
-	public static ArrayList<Post> parsePosts(String html, OnPostsListener onPostsListener) {
+	public static class PostsRet {
+		public ArrayList<Post> posts;
+		public boolean hasNextPage;
+		public int page;
+	}
+
+	public static PostsRet parsePosts(String html, OnPostsListener onPostsListener) {
 		ArrayList<Post> posts = new ArrayList<Post>();
 		Document doc = getDoc(html);
 
@@ -336,10 +394,15 @@ public class Core {
 			onPostsListener.onPosts(posts, currPage, hasNextPage);
 		}
 
-		return posts;
+		PostsRet ret = new PostsRet();
+		ret.posts = posts;
+		ret.hasNextPage = hasNextPage;
+		ret.page = currPage;
+
+		return ret;
 	}
 
-	public static ArrayList<Post> parsePosts(String html) {
+	public static PostsRet parsePosts(String html) {
 		return parsePosts(html, null);
 	}
 
@@ -517,6 +580,10 @@ public class Core {
 			temps.add("img:" + (src.startsWith("http") ? src : "http://www.hi-pda.com/forum/" + src));
 		}
 
+		if (temps.size() == 0) {
+			temps.add("txt:(正文格式很奇怪，解析不了)");
+		}
+
 		return temps.toArray(new String[0]);
 	}
 
@@ -590,7 +657,68 @@ public class Core {
 						});
 	}
 
-	public static void sendReply(int tid, String content, ArrayList<Integer> attachIds, final OnRequestListener onRequestListener) {
+	public static void deletePost(int fid, int tid, int pid, final OnRequestListener onRequestListener) {
+		RequestParams params = new RequestParams();
+		params.setContentEncoding("GBK");
+		params.put("formhash", formhash);
+		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
+		params.put("wysiwyg", 1);
+		params.put("page", 1);
+		params.put("delete", 1);
+		params.put("editsubmit", "true");
+		params.put("subject", "");
+		params.put("message", "");
+		params.put("fid", fid);
+		params.put("tid", tid);
+		params.put("pid", pid);
+
+		httpClient
+				.post("http://www.hi-pda.com/forum/post.php?action=edit&extra=&editsubmit=yes&mod=",
+						params, new TextHttpResponseHandler("GBK") {
+							@Override
+							public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+								onRequestListener.onError(s);
+							}
+
+							@Override
+							public void onSuccess(int i, Header[] headers, String s) {
+								onRequestListener.onSuccess(s);
+							}
+						});
+	}
+
+	public static void getExistedAttach(final OnRequestListener onRequestListener) {
+		getHtml("http://www.hi-pda.com/forum/post.php?action=newthread&fid=57", new OnRequestListener() {
+
+			@Override
+			public void onError(String error) {
+
+			}
+
+			@Override
+			public void onSuccess(String html) {
+				Document doc = getDoc(html);
+
+				Elements tds = doc.select("td[id^=image_td_]");
+				ArrayList<Integer> attachIds = new ArrayList<Integer>();
+
+				for (Element td : tds) {
+					String id = td.id();
+					id = id.substring("image_td_".length());
+
+					try {
+						attachIds.add(Integer.valueOf(id));
+					} catch (Exception e) {
+
+					}
+				}
+
+				onRequestListener.onSuccess(StringUtils.join(attachIds, ","));
+			}
+		});
+	}
+
+	public static void sendReply(int tid, String content, ArrayList<Integer> attachIds, ArrayList<Integer> existedAttchIds, final OnRequestListener onRequestListener) {
 		RequestParams params = new RequestParams();
 		params.setContentEncoding("GBK");
 		params.put("formhash", formhash);
@@ -606,6 +734,12 @@ public class Core {
 		if (attachIds != null) {
 			for (Integer attachId : attachIds) {
 				params.put("attachnew[" + attachId + "][description]", "");
+			}
+		}
+
+		if (existedAttchIds != null) {
+			for (Integer id : existedAttchIds) {
+				params.put("attachdel[]", id);
 			}
 		}
 
@@ -646,7 +780,7 @@ public class Core {
 
 				@Override
 				public void onSuccess(String html) {
-					parseThreads(html, onThreadsListenerListener);
+//					parseThreads(html, onThreadsListenerListener);
 				}
 
 			});
@@ -656,7 +790,14 @@ public class Core {
 	}
 
 
-	public static ArrayList<Thread> parseThreads(String html, OnThreadsListener onThreadsListener) {
+	public static class ThreadsRet {
+		public ArrayList<Thread> threads;
+		public boolean hasNextPage;
+		public int page;
+	}
+
+
+	public static ThreadsRet parseThreads(String html) {
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 		Document doc = getDoc(html);
 
@@ -677,15 +818,12 @@ public class Core {
 
 		Elements nextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]");
 
-		if (onThreadsListener != null) {
-			onThreadsListener.onThreads(threads, currPage, nextPage.size() > 0);
-		}
+		ThreadsRet ret = new ThreadsRet();
+		ret.hasNextPage = nextPage.size() > 0;
+		ret.page = currPage;
+		ret.threads = threads;
 
-		return threads;
-	}
-
-	public static ArrayList<Thread> parseThreads(String html) {
-		return parseThreads(html, null);
+		return ret;
 	}
 
 	private static Thread toThreadObj(Element eThread) {
@@ -748,8 +886,8 @@ public class Core {
 		return new User().setId(Integer.valueOf(uid)).setImage(img).setName(name);
 	}
 
-	public static void getFavorites(final OnThreadsListener onThreadsListener) {
-		getHtml("http://www.hi-pda.com/forum/my.php?item=favorites&type=thread", new OnRequestListener() {
+	public static void getFavorites(int page, final OnThreadsListener onThreadsListener) {
+		getHtml("http://www.hi-pda.com/forum/my.php?item=favorites&type=thread&page=" + page, new OnRequestListener() {
 			@Override
 			public void onError(String error) {
 
@@ -922,8 +1060,8 @@ public class Core {
 		});
 	}
 
-	public static void getMyThreads(final OnThreadsListener onThreadsListener) {
-		getHtml("http://www.hi-pda.com/forum/my.php?item=threads", new OnRequestListener() {
+	public static void getMyThreads(int page, final OnThreadsListener onThreadsListener) {
+		getHtml("http://www.hi-pda.com/forum/my.php?item=threads&page" + page, new OnRequestListener() {
 			@Override
 			public void onError(String error) {
 
@@ -982,8 +1120,8 @@ public class Core {
 		getThreadsByUrl(url, onThreadsListener);
 	}
 
-	public static void getMyPosts(final OnThreadsListener onThreadsListener) {
-		getHtml("http://www.hi-pda.com/forum/my.php?item=posts", new OnRequestListener() {
+	public static void getMyPosts(int page, final OnThreadsListener onThreadsListener) {
+		getHtml("http://www.hi-pda.com/forum/my.php?item=posts&page=" + page, new OnRequestListener() {
 			@Override
 			public void onError(String error) {
 
@@ -1041,7 +1179,7 @@ public class Core {
 
 			@Override
 			public void onSuccess(String html) {
-				parseThreads(html, onThreadsListener);
+//				parseThreads(html, onThreadsListener);
 			}
 		});
 	}

@@ -69,7 +69,7 @@ public class NavAdapter extends ArrayAdapter<String> {
 				e.printStackTrace();
 			}
 
-			alert.setText("new");
+			alert.setText("{fa-angle-up}");
 			alertWrap.setVisibility(View.VISIBLE);
 		}
 

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,6 +27,8 @@ import com.ladjzero.hipda.User;
 
 public class PostsActivity extends BaseActivity implements AdapterView.OnItemClickListener, Core.OnPostsListener, SwipeRefreshLayout.OnRefreshListener {
 
+	private static final String TAG = "PostsActivity";
+
 	private SwipeRefreshLayout swipe;
 
 	DBHelper db;
@@ -40,6 +43,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	String titleStr;
 	PostsAdapter adapter;
 	boolean hasNextPage = false;
+	TextView hint;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +78,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
 				if (hasNextPage) {
+					hint.setVisibility(View.VISIBLE);
 					fetch(page, PostsActivity.this);
 				}
 			}
@@ -82,6 +87,9 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		swipe = (SwipeRefreshLayout) findViewById(R.id.post_swipe);
 		swipe.setOnRefreshListener(this);
 		swipe.setColorSchemeResources(R.color.deep_darker, R.color.deep_dark, R.color.deep_light, android.R.color.white);
+
+		hint = (TextView) findViewById(R.id.hint);
+		hint.setVisibility(View.GONE);
 	}
 
 	@Override
@@ -114,7 +122,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 			case R.id.post_reply:
 				Intent replyIntent = new Intent(this, EditActivity.class);
 				replyIntent.putExtra("tid", tid);
-				replyIntent.putExtra("title", "回复：" + titleStr);
+				replyIntent.putExtra("title", "回复主题");
 				replyIntent.putExtra("hideTitleInput", true);
 				startActivityForResult(replyIntent, EDIT_CODE);
 				return true;
@@ -155,7 +163,9 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		startActivityForResult(intent, EDIT_CODE);
 	}
 
-	private void fetch(int page, final Core.OnPostsListener onPostsListener) {
+	private void fetch(int page, final Core.OnPostsListener onPostsLitener) {
+		final long time = System.currentTimeMillis();
+
 		Core.getHtml("http://www.hi-pda.com/forum/viewthread.php?tid=" + tid + "&page=" + page, new Core.OnRequestListener() {
 			@Override
 			public void onError(String error) {
@@ -164,7 +174,18 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 			@Override
 			public void onSuccess(String html) {
-				Core.parsePosts(html, onPostsListener);
+				new AsyncTask<String, Void, Core.PostsRet>() {
+					@Override
+					protected Core.PostsRet doInBackground(String... strings) {
+						return Core.parsePosts(strings[0]);
+					}
+
+					@Override
+					protected void onPostExecute(Core.PostsRet ret) {
+						onPostsLitener.onPosts(ret.posts, ret.page, ret.hasNextPage);
+						hint.setVisibility(View.INVISIBLE);
+					}
+				}.execute(html);
 			}
 		});
 	}
@@ -218,6 +239,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 					public void onPosts(ArrayList<Post> posts, int currPage, boolean hasNextPage) {
 						PostsActivity.this.posts.clear();
 						PostsActivity.this.posts.addAll(posts);
+						adapter.notifyDataSetChanged();
 					}
 				});
 			}

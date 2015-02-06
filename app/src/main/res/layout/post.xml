@@ -4,7 +4,10 @@
 			  android:layout_height="match_parent"
 			  android:descendantFocusability="blocksDescendants"
 			  android:orientation="vertical"
-			  android:padding="8dp">
+			  android:paddingBottom="2dp"
+			  android:paddingLeft="8dp"
+			  android:paddingTop="8dp"
+			  android:paddingRight="8dp">
 
 	<include layout="@layout/post_user"/>
 

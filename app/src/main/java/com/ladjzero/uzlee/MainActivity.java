@@ -5,7 +5,10 @@ import com.joanzapata.android.iconify.Iconify;
 import com.ladjzero.hipda.Core;
 
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +16,10 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
+import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.Toast;
 
 public class MainActivity extends BaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -77,6 +84,41 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 					@Override
 					public void onSuccess(String html) {}
 				});
+				break;
+			case 8:
+				AlertDialog.Builder alert = new AlertDialog.Builder(this);
+				alert.setTitle("关于");
+
+				final View v = getLayoutInflater().inflate(R.layout.about, null);
+				WebView webView = (WebView) v.findViewById(R.id.about_webView);
+				webView.loadUrl("https://raw.githubusercontent.com/ladjzero/uzlee/master/release/readme.html");
+				webView.setWebViewClient(new WebViewClient() {
+					@Override
+					public boolean shouldOverrideUrlLoading(WebView view, String url) {
+						view.loadUrl(url);
+						return true;
+					}
+				});
+				alert.setView(v);
+				alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
+					}
+
+				});
+
+				alert.setNegativeButton(getString(R.string.check_update), new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Core.requestUpdate(MainActivity.this);
+						dialog.cancel();
+					}
+
+				});
+				alert.show();
 				break;
 			default:
 				fid = D_ID;
@@ -166,5 +208,16 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 			return true;
 		}
 		return super.onKeyUp(keyCode, event);
+	}
+
+	@Override
+	public boolean onUpdateAvailable(Core.UpdateInfo updateInfo) {
+		boolean hasUpdate = super.onUpdateAvailable(updateInfo);
+
+		if (!hasUpdate) {
+			showToast("已是最新版");
+		}
+
+		return false;
 	}
 }

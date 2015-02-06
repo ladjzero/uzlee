@@ -24,6 +24,8 @@ import com.balysv.materialmenu.MaterialMenuDrawable;
 import com.balysv.materialmenu.MaterialMenuIcon;
 import com.ladjzero.hipda.Core;
 
+import de.greenrobot.event.EventBus;
+
 public class NavigationDrawerFragment extends Fragment implements Core.OnMessageListener, Core.OnStatusChangeListener {
 	MaterialMenuIcon materialMenu;
 	boolean isDrawerOpened;
@@ -101,15 +103,21 @@ public class NavigationDrawerFragment extends Fragment implements Core.OnMessage
 	@Override
 	public void onResume() {
 		super.onResume();
-		Core.addOnMsgListener(this);
+//		Core.addOnMsgListener(this);
+		EventBus.getDefault().register(this);
 		Core.addOnStatusChangeListener(this);
 	}
 
 	@Override
 	public void onPause() {
-		Core.removeOnMsgListener(this);
+//		Core.removeOnMsgListener(this);
+		EventBus.getDefault().unregister(this);
 		Core.removeOnStatusChangeListener(this);
 		super.onPause();
+	}
+
+	public void onEventMainThread(Core.MessageEvent messageEvent) {
+		adapter.setAlert(messageEvent.count);
 	}
 
 	// menu key triggers this

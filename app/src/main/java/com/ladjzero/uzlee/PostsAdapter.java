@@ -39,7 +39,6 @@ import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener {
@@ -214,12 +213,12 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 			if (DateUtils.isSameDay(thatDate, now)) {
 				return DateFormatUtils.format(thatDate, "HH:mm");
-			} else if (now.getDay() - thatDate.getDay() == 1) {
-				return "昨天" + DateFormatUtils.format(thatDate, "HH:mm");
+			} else if (now.getTime() - thatDate.getTime() < 24 * 3600 *1000) {
+				return DateFormatUtils.format(thatDate, "M月d日 HH:mm");
 			} else if (now.getYear() == thatDate.getYear()) {
-				return DateFormatUtils.format(thatDate, "MM-dd");
+				return DateFormatUtils.format(thatDate, "M月d日");
 			} else {
-				return DateFormatUtils.format(thatDate, "yyyy-MM-dd");
+				return DateFormatUtils.format(thatDate, "yyyy年M月d日");
 			}
 		} catch (ParseException e) {
 			return timeStr;

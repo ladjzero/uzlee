@@ -1,7 +1,9 @@
 package com.ladjzero.uzlee;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -11,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +39,7 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 	Intent intent;
 	private static final int SELECT_PHOTO = 100;
 	ArrayList<Integer> attachIds = new ArrayList<Integer>();
+	ArrayList<Integer> existedAttachIds = new ArrayList<Integer>();
 	ProgressDialog progress;
 
 	@Override
@@ -59,6 +63,22 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 		getActionBar().setTitle(getIntent().getStringExtra("title"));
 		setContentView(R.layout.edit);
 		progress = new ProgressDialog(this);
+
+		Core.getExistedAttach(new Core.OnRequestListener() {
+			@Override
+			public void onError(String error) {
+
+			}
+
+			@Override
+			public void onSuccess(String html) {
+				String[] ids = html.split(",");
+
+				for (String id : ids) {
+					if (id.length() > 0) existedAttachIds.add(Integer.valueOf(id));
+				}
+			}
+		});
 	}
 
 	@Override
@@ -120,8 +140,11 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 
 		menu.findItem(R.id.reply_send).setIcon(new IconDrawable(this, Iconify.IconValue.fa_send).colorRes(android.R.color.white).actionBarSize());
 		menu.findItem(R.id.reply_add_image).setIcon(new IconDrawable(this, Iconify.IconValue.fa_image).colorRes(android.R.color.white).actionBarSize());
-//		menu.findItem(R.id.reply_add_emoji).setIcon(new IconDrawable(this, Iconify.IconValue.fa_smile_o).colorRes(android.R.color.white).actionBarSize());
 
+		if (fid != 0 && tid != 0 && pid != 0 && no != 1)
+			menu.findItem(R.id.delete_post).setIcon(new IconDrawable(this, Iconify.IconValue.fa_trash).colorRes(android.R.color.white).actionBarSize());
+		else
+			menu.findItem(R.id.delete_post).setVisible(false);
 		return true;
 	}
 
@@ -162,13 +185,13 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 				progress.show();
 				message = "[b]回复 [url=http://www.hi-pda.com/forum/redirect.php?goto=findpost&pid=" + pid + "&ptid=" + tid + "]" + intent.getIntExtra("no", 0) + "#[/url] [i]" + intent.getStringExtra("userName") + "[/i] [/b]\n\n" + message;
 				message += "\t\t\t[size=1][color=Gray]有只梨[/color][/size]";
-				Core.sendReply(tid, message, attachIds, this);
+				Core.sendReply(tid, message, attachIds, existedAttachIds, this);
 			} else if (isReply) {
 				progress.setTitle("发送");
 				progress.show();
 
 				message += "\t\t\t[size=1][color=Gray]有只梨[/color][/size]";
-				Core.sendReply(tid, message, attachIds, this);
+				Core.sendReply(tid, message, attachIds, existedAttachIds, this);
 			}
 //			if (fid != 0) {
 //				// new thread or edit
@@ -208,6 +231,33 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 			photoPickerIntent.setType("image/*");
 			photoPickerIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 			startActivityForResult(photoPickerIntent, SELECT_PHOTO);
+		} else if (id == R.id.delete_post) {
+			AlertDialog.Builder alert = new AlertDialog.Builder(this);
+			alert.setTitle("删除该回复？");
+
+
+			alert.setPositiveButton(getString(R.string.delete), new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+					progress.setTitle(getString(R.string.delete));
+					progress.show();
+					Core.deletePost(fid, tid, pid, EditActivity.this);
+				}
+
+			});
+
+			alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+				}
+
+			});
+
+			alert.show();
 		}
 
 		return super.onOptionsItemSelected(item);

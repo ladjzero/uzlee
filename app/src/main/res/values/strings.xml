@@ -6,7 +6,7 @@
 	<string name="title_section2">{fa-shopping-cart}|Buy &amp; Sell</string>
 	<string name="title_section3">{fa-book}|E-INK</string>
 	<string name="nav_alert">{fa-bell}|消息</string>
-	<string name="nav_my_posts">{fa-bookmark}|我的帖子</string>
+	<string name="nav_my_posts">{fa-bookmark}|我的主题</string>
 	<string name="nav_search">{fa-search}|搜索</string>
 	<string name="nav_setting">{fa-gear}|设置</string>
 	<string name="nav_logout">{fa-sign-out}|登出</string>
@@ -21,7 +21,7 @@
 	<string name="action_settings">Settings</string>
 	<string name="title_activity_reply">ReplyActivity</string>
 	<string name="hello_world">Hello world!</string>
-	<string name="title_activity_my_posts">我的帖子</string>
+	<string name="title_activity_my_posts">我的主题</string>
 	<string name="title_activity_search">搜索</string>
 	<string name="title_activity_user">UserActivity</string>
 	<string name="title_activity_threads">ThreadsActivity</string>
@@ -36,4 +36,7 @@
 	<string name="download">下载</string>
 
 	<string name="blocked">{fa-eye-slash} 被屏蔽了</string>
+	<string name="ok">确定</string>
+	<string name="check_update">检查更新</string>
+	<string name="delete">删除</string>
 </resources>
