@@ -64,7 +64,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 		swipe = (SwipeRefreshLayout) rootView.findViewById(R.id.thread_swipe);
 		swipe.setOnRefreshListener(this);
-		swipe.setColorSchemeResources(R.color.deep_darker, R.color.deep_dark, R.color.deep_light, android.R.color.white);
+		swipe.setColorSchemeResources(R.color.dark_primary, R.color.grape_primary, R.color.deep_primary, R.color.snow_dark);
 
 		listView = (ListView) rootView.findViewById(R.id.threads);
 		adapter = new ThreadsAdapter(getActivity(), threads);
@@ -91,7 +91,8 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid") + "&page=" + page, new Core.OnRequestListener() {
 			@Override
 			public void onError(String error) {
-
+				onThreadsListener.onError();
+				hint.setVisibility(View.GONE);
 			}
 
 			@Override
@@ -158,6 +159,11 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		adapter.notifyDataSetChanged();
 	}
 
+	@Override
+	public void onError() {
+		((MainActivity) getActivity()).showToast("请求错误");
+	}
+
 	class SaveData extends AsyncTask<String, Void, String> {
 
 		@Override
@@ -178,6 +184,12 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 				ThreadsFragment.this.threads.addAll(threads);
 				adapter.notifyDataSetChanged();
 				swipe.setRefreshing(false);
+			}
+
+			@Override
+			public void onError() {
+				swipe.setRefreshing(false);
+				((MainActivity) getActivity()).showToast("请求错误");
 			}
 		});
 	}

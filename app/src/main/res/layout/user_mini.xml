@@ -4,17 +4,24 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal" >
 
-    <ImageView
-        android:id="@+id/user_mini_image"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_gravity="center_vertical"
-        android:layout_marginRight="12dp"
-        android:accessibilityLiveRegion="polite"
-        android:scaleType="centerCrop"
-        android:src="@color/actionBar" />
+	<FrameLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginRight="12dp"
+		android:padding="1px"
+		android:background="@color/snow_primary">
 
-    <TextView
+		<ImageView
+			android:id="@+id/user_mini_image"
+			android:layout_width="36dp"
+			android:layout_height="36dp"
+			android:layout_gravity="center_vertical"
+			android:accessibilityLiveRegion="polite"
+			android:scaleType="centerCrop"
+			/>
+	</FrameLayout>
+
+	<TextView
         android:id="@+id/user_mini_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -22,7 +29,7 @@
         android:gravity="center_horizontal"
         android:maxLines="1"
         android:text="一二三四"
-        android:textColor="@color/smallFont"
+        android:textColor="#ff686868"
         android:textSize="15sp" />
 
 </LinearLayout>

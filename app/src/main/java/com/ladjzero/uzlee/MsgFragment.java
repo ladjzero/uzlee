@@ -88,6 +88,11 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 					public void onPosts(ArrayList<Post> posts, int page, boolean hasNextPage) {
 						mAdapter.addAll(posts);
 					}
+
+					@Override
+					public void onError() {
+						((MainActivity) getActivity()).showToast("请求错误");
+					}
 				});
 				break;
 
@@ -117,6 +122,11 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 					public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
 						mAdapter.addAll(threads);
 					}
+
+					@Override
+					public void onError() {
+						((MainActivity) getActivity()).showToast("请求错误");
+					}
 				});
 
 				break;
@@ -134,6 +144,8 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 
 		// Set OnItemClickListener so we can be notified on item clicks
 		mListView.setOnItemClickListener(this);
+
+		view.findViewById(R.id.hint).setVisibility(View.GONE);
 
 		return view;
 	}

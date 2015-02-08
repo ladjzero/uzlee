@@ -233,7 +233,7 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 			startActivityForResult(photoPickerIntent, SELECT_PHOTO);
 		} else if (id == R.id.delete_post) {
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
-			alert.setTitle("删除该回复？");
+			alert.setTitle("删除该回复？(实验性)");
 
 
 			alert.setPositiveButton(getString(R.string.delete), new DialogInterface.OnClickListener() {

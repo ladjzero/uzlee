@@ -30,11 +30,14 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
+import de.greenrobot.event.EventBus;
 
-public class BaseActivity extends OrmLiteBaseActivity<DBHelper> implements Core.OnStatusChangeListener, Core.OnUpdateAvailableListener {
+
+public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 
 	SharedPreferences setting;
 	EmojiUtils emojiUtils;
+	AlertDialog alert;
 
 	public void enableBackAction() {
 		MaterialMenuIcon materialMenu = new MaterialMenuIcon(this, Color.WHITE, MaterialMenuDrawable.Stroke.THIN);
@@ -73,12 +76,45 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> implements Core.
 		Long now = System.currentTimeMillis();
 
 		if (now - lastCheck > 12 * 3600 * 1000) {
-			Core.requestUpdate(this);
+			Core.requestUpdate();
 
 			SharedPreferences.Editor editor = setting.edit();
 			editor.putLong("last_update_check", now);
 			editor.commit();
 		}
+
+		final View alertView = getLayoutInflater().inflate(R.layout.login_dialog, null);
+		alert = new AlertDialog.Builder(this)
+				.setTitle(getString(R.string.login_hipda))
+				.setView(alertView)
+				.setPositiveButton(getString(R.string.login), new OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
+						String username = ((EditText) alertView.findViewById(R.id.user_name))
+								.getText().toString();
+						String password = ((EditText) alertView
+								.findViewById(R.id.user_password)).getText().toString();
+						final ProgressDialog progress = ProgressDialog.show(
+								BaseActivity.this, "", getString(R.string.login) + "...", true);
+						Core.login(username, password, new Core.OnRequestListener() {
+
+							@Override
+							public void onError(String error) {
+								progress.dismiss();
+								Toast.makeText(BaseActivity.this, error, Toast.LENGTH_LONG).show();
+							}
+
+							@Override
+							public void onSuccess(String html) {
+								progress.dismiss();
+								Toast.makeText(BaseActivity.this, getString(R.string.login_succeed), Toast.LENGTH_LONG).show();
+							}
+						});
+					}
+
+				}).create();
 	}
 
 	@Override
@@ -95,67 +131,27 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> implements Core.
 	@Override
 	public void onResume() {
 		super.onResume();
-		Core.addOnStatusChangeListener(this);
+		EventBus.getDefault().register(this);
 	}
 
 	@Override
 	public void onPause() {
-		Core.removeOnStatusChangeListener(this);
+		EventBus.getDefault().unregister(this);
 		super.onPause();
 	}
 
-	@Override
-	public void onLogin(boolean silent) {
-
-	}
-
-	@Override
-	public void onLogout() {
-		AlertDialog.Builder alert = new AlertDialog.Builder(this);
-		alert.setTitle(getString(R.string.login_hipda));
-		final View v = getLayoutInflater().inflate(R.layout.login_dialog, null);
-		alert.setView(v);
-		alert.setPositiveButton(getString(R.string.login), new OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
-				String username = ((EditText) v.findViewById(R.id.user_name))
-						.getText().toString();
-				String password = ((EditText) v
-						.findViewById(R.id.user_password)).getText().toString();
-				final ProgressDialog progress = ProgressDialog.show(
-						BaseActivity.this, "", getString(R.string.login) + "...", true);
-				Core.login(username, password, new Core.OnRequestListener() {
-
-					@Override
-					public void onError(String error) {
-						progress.dismiss();
-						Toast.makeText(BaseActivity.this, error, Toast.LENGTH_LONG).show();
-					}
-
-					@Override
-					public void onSuccess(String html) {
-						progress.dismiss();
-						Toast.makeText(BaseActivity.this, getString(R.string.login_succeed), Toast.LENGTH_LONG).show();
-					}
-				});
-			}
-
-		});
-//		alert.setNegativeButton(getString(R.string.cancel), new OnClickListener() {
-//
-//			@Override
-//			public void onClick(DialogInterface dialog, int which) {
-//				dialog.cancel();
-//			}
-//
-//		});
+	public void showLogin() {
+		alert.dismiss();
 		alert.show();
 	}
 
-	@Override
-	public boolean onUpdateAvailable(final Core.UpdateInfo updateInfo) {
+	public void onEventMainThread(Core.StatusChangeEvent statusChangeEvent) {
+		if (!statusChangeEvent.online) {
+			showLogin();
+		}
+	}
+
+	public void onEventMainThread(final Core.UpdateInfo updateInfo) {
 		if (updateInfo != null) {
 			String version = getVersion();
 			String newVersion = updateInfo.getVersion();
@@ -182,14 +178,13 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> implements Core.
 					}
 				});
 				alert.show();
-				return true;
 			} else {
-				return false;
+				showToast("已是最新版");
 			}
-		} else {
-			return false;
 		}
 	}
+
+
 
 	public String getVersion() {
 		try {

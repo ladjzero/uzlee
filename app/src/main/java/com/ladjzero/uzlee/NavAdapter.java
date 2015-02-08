@@ -18,6 +18,7 @@ import com.ladjzero.hipda.Core;
 public class NavAdapter extends ArrayAdapter<String> {
 	private int alertCount = 0;
 	Context context;
+	boolean hasUpdate = false;
 
 	public NavAdapter(Context context, int resource, String[] navs) {
 		super(context, resource, navs);
@@ -26,6 +27,11 @@ public class NavAdapter extends ArrayAdapter<String> {
 
 	public void setAlert(int count) {
 		alertCount = count;
+		notifyDataSetChanged();
+	}
+
+	public void setUpdate(boolean hasUpdate) {
+		this.hasUpdate = hasUpdate;
 		notifyDataSetChanged();
 	}
 
@@ -43,12 +49,18 @@ public class NavAdapter extends ArrayAdapter<String> {
 		icon.setText(iconAndText[0]);
 		text.setText(iconAndText[1]);
 
+		if ("{fa-shopping-cart}".equals(iconAndText[0]) || "{fa-book}".equals(iconAndText[0]) || "{fa-gear}".equals(iconAndText[0])) {
+			icon.setTextColor(context.getResources().getColor(R.color.dark_primary));
+			text.setTextColor(context.getResources().getColor(R.color.dark_primary));
+		}
+
 		if ("{fa-bell}".equals(iconAndText[0]) && alertCount != 0) {
 			alert.setText(alertCount + "");
 			alertWrap.setVisibility(View.VISIBLE);
 		} else {
 			alertWrap.setVisibility(View.INVISIBLE);
 		}
+
 
 		if ("{fa-sign-out}".equals(iconAndText[0]) || "{fa-sign-in}".equals(iconAndText[0])) {
 			if (Core.isOnline()) {
@@ -69,8 +81,10 @@ public class NavAdapter extends ArrayAdapter<String> {
 				e.printStackTrace();
 			}
 
-			alert.setText("{fa-angle-up}");
-			alertWrap.setVisibility(View.VISIBLE);
+			if (hasUpdate) {
+				alert.setText("{fa-angle-up}");
+				alertWrap.setVisibility(View.VISIBLE);
+			}
 		}
 
 		return row;

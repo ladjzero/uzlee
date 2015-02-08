@@ -152,7 +152,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			holder.quoteLayout.setBackgroundResource(R.color.ugleeQuote);
 		} else {
 			row.setBackgroundResource(android.R.color.white);
-			holder.quoteLayout.setBackgroundResource(R.color.backgroud);
+			holder.quoteLayout.setBackgroundResource(R.color.snow_light);
 		}
 
 		if (quote != null) {
@@ -246,7 +246,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 				}
 
 				views.add(textView);
-			} else if (bodySnippet.startsWith("sig:")) {
+			} else if (bodySnippet.startsWith("sig:") && bodySnippet.length() > 4) {
 				LinearLayout postTextLayout = (LinearLayout) context.getLayoutInflater().inflate(R.layout.post_body_sig, null);
 				TextView textView = (TextView) postTextLayout.findViewById(R.id.post_body_sig);
 				textView.setText(bodySnippet.substring(4));

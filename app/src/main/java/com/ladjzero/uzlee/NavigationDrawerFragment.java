@@ -2,8 +2,12 @@ package com.ladjzero.uzlee;
 
 import android.app.Activity;
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.content.SharedPreferences;
@@ -18,15 +22,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.balysv.materialmenu.MaterialMenuDrawable;
 import com.balysv.materialmenu.MaterialMenuIcon;
+import com.j256.ormlite.dao.Dao;
 import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.User;
+import com.nostra13.universalimageloader.core.ImageLoader;
+
+import java.sql.SQLException;
 
 import de.greenrobot.event.EventBus;
 
-public class NavigationDrawerFragment extends Fragment implements Core.OnMessageListener, Core.OnStatusChangeListener {
+public class NavigationDrawerFragment extends Fragment {
 	MaterialMenuIcon materialMenu;
 	boolean isDrawerOpened;
 	private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
@@ -42,6 +53,12 @@ public class NavigationDrawerFragment extends Fragment implements Core.OnMessage
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
 	NavAdapter adapter;
+	ImageView imageView;
+	TextView userName;
+	User user;
+	Dao<User, Integer> userDao;
+	View userLayout;
+	String title;
 
 	public NavigationDrawerFragment() {
 	}
@@ -62,6 +79,12 @@ public class NavigationDrawerFragment extends Fragment implements Core.OnMessage
 
 		// Select either the default item (0) or the last selected item.
 		selectItem(mCurrentSelectedPosition);
+
+		try {
+			userDao = ((MainActivity) getActivity()).getHelper().getUserDao();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -73,7 +96,9 @@ public class NavigationDrawerFragment extends Fragment implements Core.OnMessage
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		mDrawerListView = (ListView) inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
+		View layout = inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
+		mDrawerListView = (ListView) layout.findViewById(R.id.nav_list);
+//		mDrawerListView = (ListView) inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
 		mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -97,7 +122,14 @@ public class NavigationDrawerFragment extends Fragment implements Core.OnMessage
 
 		mDrawerListView.setAdapter(adapter);
 		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
-		return mDrawerListView;
+
+		userLayout = layout.findViewById(R.id.nav_user);
+		imageView = (ImageView) layout.findViewById(R.id.nav_user_image);
+		userName = (TextView) layout.findViewById(R.id.nav_user_name);
+
+		userLayout.setVisibility(View.GONE);
+
+		return layout;
 	}
 
 	@Override
@@ -105,19 +137,76 @@ public class NavigationDrawerFragment extends Fragment implements Core.OnMessage
 		super.onResume();
 //		Core.addOnMsgListener(this);
 		EventBus.getDefault().register(this);
-		Core.addOnStatusChangeListener(this);
+		if (Core.getUid() > 0) setUser();
 	}
 
 	@Override
 	public void onPause() {
 //		Core.removeOnMsgListener(this);
 		EventBus.getDefault().unregister(this);
-		Core.removeOnStatusChangeListener(this);
 		super.onPause();
 	}
 
 	public void onEventMainThread(Core.MessageEvent messageEvent) {
 		adapter.setAlert(messageEvent.count);
+	}
+
+	public void setUser() {
+		if (user != null && user.getId() == Core.getUid()) {
+			userLayout.setVisibility(View.VISIBLE);
+
+			ImageLoader.getInstance().displayImage(user.getImage(), imageView);
+			userName.setText(user.getName());
+		} else {
+			try {
+				user = userDao.queryForId(Core.getUid());
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+			if (user == null) {
+				Core.getUser(Core.getUid(), new Core.OnUserListener() {
+					@Override
+					public void onUser(User u) {
+						try {
+							userDao.createOrUpdate(u);
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+
+						userLayout.setVisibility(View.VISIBLE);
+						ImageLoader.getInstance().displayImage(u.getImage(), imageView);
+						userName.setText(u.getName());
+					}
+				});
+			} else {
+				userLayout.setVisibility(View.VISIBLE);
+
+				ImageLoader.getInstance().displayImage(user.getImage(), imageView);
+				userName.setText(user.getName());
+			}
+		}
+	}
+
+	public void onEventMainThread(Core.StatusChangeEvent statusChangeEvent) {
+		adapter.notifyDataSetChanged();
+
+		if (statusChangeEvent.online) {
+			setUser();
+		} else {
+			userLayout.setVisibility(View.GONE);
+		}
+	}
+
+	public void onEventMainThread(final Core.UpdateInfo updateInfo) {
+		if (updateInfo != null) {
+			String version = ((MainActivity) getActivity()).getVersion();
+			String newVersion = updateInfo.getVersion();
+
+			if (new BaseActivity.VersionComparator().compare(version, newVersion) < 0) {
+				adapter.setUpdate(true);
+			}
+		}
 	}
 
 	// menu key triggers this
@@ -127,6 +216,10 @@ public class NavigationDrawerFragment extends Fragment implements Core.OnMessage
 		} else {
 			mDrawerLayout.openDrawer(Gravity.LEFT);
 		}
+	}
+
+	public void onUpdate(boolean hasUpdate) {
+		adapter.setUpdate(hasUpdate);
 	}
 
 	public void onMsg(int count) {
@@ -227,6 +320,7 @@ public class NavigationDrawerFragment extends Fragment implements Core.OnMessage
 		}
 	}
 
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -289,16 +383,6 @@ public class NavigationDrawerFragment extends Fragment implements Core.OnMessage
 
 	private ActionBar getActionBar() {
 		return getActivity().getActionBar();
-	}
-
-	@Override
-	public void onLogin(boolean silent) {
-		adapter.notifyDataSetChanged();
-	}
-
-	@Override
-	public void onLogout() {
-		adapter.notifyDataSetChanged();
 	}
 
 	public static interface NavigationDrawerCallbacks {

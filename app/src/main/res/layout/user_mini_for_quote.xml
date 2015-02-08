@@ -22,7 +22,7 @@
         android:gravity="center_horizontal"
         android:maxLines="1"
         android:text="一二三四"
-        android:textColor="@color/smallFont"
+        android:textColor="@color/dark_light"
         android:textSize="13sp" />
 
 </LinearLayout>

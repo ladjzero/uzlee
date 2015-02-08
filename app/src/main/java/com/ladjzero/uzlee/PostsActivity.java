@@ -47,11 +47,13 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		this.setContentView(R.layout.posts);
+
+
 		super.onCreate(savedInstanceState);
 
 		enableBackAction();
 
-		this.setContentView(R.layout.posts);
 		db = this.getHelper();
 		fid = getIntent().getIntExtra("fid", 0);
 		tid = getIntent().getIntExtra("tid", 0);
@@ -163,13 +165,12 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		startActivityForResult(intent, EDIT_CODE);
 	}
 
-	private void fetch(int page, final Core.OnPostsListener onPostsLitener) {
-		final long time = System.currentTimeMillis();
-
+	private void fetch(int page, final Core.OnPostsListener onPostsListener) {
 		Core.getHtml("http://www.hi-pda.com/forum/viewthread.php?tid=" + tid + "&page=" + page, new Core.OnRequestListener() {
 			@Override
 			public void onError(String error) {
-
+				onPostsListener.onError();
+				hint.setVisibility(View.GONE);
 			}
 
 			@Override
@@ -182,7 +183,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 					@Override
 					protected void onPostExecute(Core.PostsRet ret) {
-						onPostsLitener.onPosts(ret.posts, ret.page, ret.hasNextPage);
+						onPostsListener.onPosts(ret.posts, ret.page, ret.hasNextPage);
 						hint.setVisibility(View.INVISIBLE);
 					}
 				}.execute(html);
@@ -213,6 +214,11 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	}
 
 	@Override
+	public void onError() {
+		showToast("请求错误");
+	}
+
+	@Override
 	public void onRefresh() {
 		adapter.clearViewCache();
 
@@ -225,6 +231,12 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 				adapter.notifyDataSetChanged();
 				swipe.setRefreshing(false);
 			}
+
+			@Override
+			public void onError() {
+				swipe.setRefreshing(false);
+				showToast("请求错误");
+			}
 		});
 	}
 
@@ -234,14 +246,20 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 			String html = returnIntent.getStringExtra("html");
 
 			if (html != null && html.length() > 0) {
-				Core.parsePosts(html, new Core.OnPostsListener() {
+				new AsyncTask<String, Void, Core.PostsRet>() {
 					@Override
-					public void onPosts(ArrayList<Post> posts, int currPage, boolean hasNextPage) {
+					protected Core.PostsRet doInBackground(String... strings) {
+						return Core.parsePosts(strings[0]);
+					}
+
+					@Override
+					protected void onPostExecute(Core.PostsRet ret) {
 						PostsActivity.this.posts.clear();
-						PostsActivity.this.posts.addAll(posts);
+						PostsActivity.this.posts.addAll(ret.posts);
+						hasNextPage = ret.hasNextPage;
 						adapter.notifyDataSetChanged();
 					}
-				});
+				}.execute(html);
 			}
 		}
 	}

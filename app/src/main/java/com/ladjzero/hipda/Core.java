@@ -35,12 +35,10 @@ import com.loopj.android.http.TextHttpResponseHandler;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.os.Debug;
 import android.util.Log;
 
 import de.greenrobot.event.EventBus;
@@ -49,8 +47,6 @@ public class Core {
 	private static final String TAG = "Core";
 
 	private static AsyncHttpClient httpClient = new AsyncHttpClient();
-	private static ArrayList<OnMessageListener> onMessageListeners = new ArrayList<OnMessageListener>();
-	private static ArrayList<OnStatusChangeListener> onStatusChangeListeners = new ArrayList<OnStatusChangeListener>();
 	private static String formhash;
 	private static String hash;
 	private static Context context;
@@ -60,7 +56,7 @@ public class Core {
 	private static boolean isOnline = false;
 	public static final Set<Integer> bans = new HashSet<Integer>();
 
-	public static class MessageEvent{
+	public static class MessageEvent {
 		public MessageEvent(int count) {
 			this.count = count;
 		}
@@ -68,7 +64,7 @@ public class Core {
 		public int count;
 	}
 
-	public static class StatusChangeEvent{
+	public static class StatusChangeEvent {
 		public StatusChangeEvent(boolean online) {
 			this.online = online;
 		}
@@ -90,26 +86,6 @@ public class Core {
 
 	public static int getUid() {
 		return uid;
-	}
-
-	public interface OnMessageListener {
-		public void onMsg(int count);
-	}
-
-	public static void addOnMsgListener(OnMessageListener onMessageListener) {
-		onMessageListeners.add(onMessageListener);
-	}
-
-	public static void removeOnMsgListener(OnMessageListener onMessageListener) {
-		onMessageListeners.remove(onMessageListener);
-	}
-
-	public static void addOnStatusChangeListener(OnStatusChangeListener onStatusChangeListener) {
-		onStatusChangeListeners.add(onStatusChangeListener);
-	}
-
-	public static void removeOnStatusChangeListener(OnStatusChangeListener onStatusChangeListener) {
-		onStatusChangeListeners.remove(onStatusChangeListener);
 	}
 
 	public static class UpdateInfo {
@@ -142,24 +118,19 @@ public class Core {
 		}
 	}
 
-	public interface OnUpdateAvailableListener {
-		boolean onUpdateAvailable(UpdateInfo updateInfo);
-	}
-
-	public static void requestUpdate(final OnUpdateAvailableListener onUpdateAvailableListener) {
+	public static void requestUpdate() {
 		httpClient.get(
 				context,
 				"https://raw.githubusercontent.com/ladjzero/uzlee/master/release/update.json",
 				new TextHttpResponseHandler() {
 					@Override
 					public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
-						onUpdateAvailableListener.onUpdateAvailable(null);
 					}
 
 					@Override
 					public void onSuccess(int i, Header[] headers, String s) {
 						UpdateInfo updateInfo = JSON.parseObject(s, UpdateInfo.class);
-						onUpdateAvailableListener.onUpdateAvailable(updateInfo);
+						EventBus.getDefault().post(updateInfo);
 					}
 				});
 	}
@@ -226,12 +197,6 @@ public class Core {
 		});
 	}
 
-	public interface OnStatusChangeListener {
-		void onLogin(boolean silent);
-
-		void onLogout();
-	}
-
 	public static Document getDoc(String html) {
 		long time = System.currentTimeMillis();
 
@@ -253,9 +218,6 @@ public class Core {
 
 			if (msgCount > 0) {
 				EventBus.getDefault().post(new MessageEvent(msgCount));
-//				for (OnMessageListener onMessageListener : onMessageListeners) {
-//					onMessageListener.onMsg(msgCount);
-//				}
 			}
 
 			String uidHref = doc.select("#umenu > cite > a").attr("href");
@@ -263,20 +225,10 @@ public class Core {
 			if (uidHref.indexOf("uid=") > -1) {
 				isOnline = true;
 				uid = Integer.valueOf(uidHref.substring(uidHref.indexOf("uid=") + 4));
-
-				EventBus.getDefault().post(new StatusChangeEvent(true));
-
-//				for (OnStatusChangeListener onStatusChangeListener : onStatusChangeListeners) {
-//					onStatusChangeListener.onLogin(true);
-//				}
 			} else {
 				isOnline = false;
 
 				EventBus.getDefault().post(new StatusChangeEvent(false));
-
-//				for (OnStatusChangeListener onStatusChangeListener : onStatusChangeListeners) {
-//					onStatusChangeListener.onLogout();
-//				}
 			}
 		} catch (Error e) {
 
@@ -290,7 +242,7 @@ public class Core {
 
 		Elements hashInput = doc.select("input[name=hash]");
 
-		if (hashInput.size() > 0){
+		if (hashInput.size() > 0) {
 			hash = hashInput.val();
 		}
 
@@ -322,22 +274,19 @@ public class Core {
 							public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
 								isOnline = true;
 
-								for (OnStatusChangeListener onStatusChangeListener : onStatusChangeListeners) {
-									onStatusChangeListener.onLogin(false);
-								}
-
 								String html;
 								try {
 									html = new String(responseBody, "GBK");
 									if (html.contains("欢迎您回来")) {
+										EventBus.getDefault().post(new StatusChangeEvent(true));
 										onRequestListener.onSuccess("");
 									} else if (html.contains("密码错误次数过多，请 15 分钟后重新登录")) {
 										onRequestListener.onError("密码错误次数过多，请 15 分钟后重新登录");
 									} else {
-										onRequestListener.onError("error");
+										onRequestListener.onError("登录错误");
 									}
 								} catch (UnsupportedEncodingException e) {
-									onRequestListener.onError("error");
+									onRequestListener.onError(e.toString());
 								}
 							}
 						});
@@ -354,12 +303,9 @@ public class Core {
 			@Override
 			public void onSuccess(String html) {
 				isOnline = false;
-				for (OnStatusChangeListener onStatusChangeListener : onStatusChangeListeners) {
-					onStatusChangeListener.onLogout();
-				}
-				for (OnMessageListener onMessageListener : onMessageListeners) {
-					onMessageListener.onMsg(0);
-				}
+				EventBus.getDefault().post(new StatusChangeEvent(false));
+				EventBus.getDefault().post(new MessageEvent(0));
+
 				onRequestListener.onSuccess(html);
 			}
 		});
@@ -371,7 +317,7 @@ public class Core {
 		public int page;
 	}
 
-	public static PostsRet parsePosts(String html, OnPostsListener onPostsListener) {
+	public static PostsRet parsePosts(String html) {
 		ArrayList<Post> posts = new ArrayList<Post>();
 		Document doc = getDoc(html);
 
@@ -390,20 +336,12 @@ public class Core {
 
 		boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
 
-		if (onPostsListener != null) {
-			onPostsListener.onPosts(posts, currPage, hasNextPage);
-		}
-
 		PostsRet ret = new PostsRet();
 		ret.posts = posts;
 		ret.hasNextPage = hasNextPage;
 		ret.page = currPage;
 
 		return ret;
-	}
-
-	public static PostsRet parsePosts(String html) {
-		return parsePosts(html, null);
 	}
 
 	private static Post toPostObj(Element ePost) {
@@ -758,7 +696,7 @@ public class Core {
 						});
 	}
 
-	public static void search(String query, int page, final OnThreadsListener onThreadsListenerListener) {
+	public static void search(String query, int page, final OnThreadsListener onThreadsListener) {
 		try {
 			getHtml("http://www.hi-pda.com/forum/search.php?srchtxt=" + URLEncoder.encode(query, "GBK")
 					+ "&srchtype=title&"
@@ -775,12 +713,22 @@ public class Core {
 
 				@Override
 				public void onError(String error) {
-
+					onThreadsListener.onError();
 				}
 
 				@Override
 				public void onSuccess(String html) {
-//					parseThreads(html, onThreadsListenerListener);
+					new AsyncTask<String, Void, Core.ThreadsRet>() {
+						@Override
+						protected Core.ThreadsRet doInBackground(String... strings) {
+							return Core.parseThreads(strings[0]);
+						}
+
+						@Override
+						protected void onPostExecute(Core.ThreadsRet ret) {
+							onThreadsListener.onThreads(ret.threads, ret.page, ret.hasNextPage);
+						}
+					}.execute(html);
 				}
 
 			});
@@ -804,9 +752,9 @@ public class Core {
 		Elements eThreads = doc.select("body#search").size() == 0 ? doc.select("tbody[id^=normalthread_]") : doc.select("div.searchlist tbody");
 
 		for (Element eThread : eThreads) {
-			threads.add(toThreadObj(eThread));
+			Thread thread = toThreadObj(eThread);
+			if (thread != null) threads.add(toThreadObj(eThread));
 		}
-
 
 		int currPage = 1;
 
@@ -835,13 +783,19 @@ public class Core {
 		boolean isNew = eThread.select("th.subject").hasClass("new");
 		Elements eUser = eThread.select("td.author a");
 		String userName = eUser.text();
-		String userId = eUser.attr("href").substring("space.php?uid=".length());
+		// if userHref.length() == 0, this thread is closed for some reason.
+		String userHref = eUser.attr("href");
+
+		if (userHref.length() == 0) {
+			return null;
+		}
+
+		String userId = userHref.substring("space.php?uid=".length());
 		String commentNum = eThread.select("td.nums > strong").text().trim();
 
 		String forumLink = eThread.select(".forum a").attr("href");
 
 		String fid = null;
-
 
 
 		User user = new User().setId(Integer.valueOf(userId)).setName(userName);
@@ -890,7 +844,7 @@ public class Core {
 		getHtml("http://www.hi-pda.com/forum/my.php?item=favorites&type=thread&page=" + page, new OnRequestListener() {
 			@Override
 			public void onError(String error) {
-
+				onThreadsListener.onError();
 			}
 
 			@Override
@@ -949,7 +903,7 @@ public class Core {
 		getHtml("http://www.hi-pda.com/forum/notice.php", new OnRequestListener() {
 			@Override
 			public void onError(String error) {
-
+				onPostsListener.onError();
 			}
 
 			@Override
@@ -1015,11 +969,11 @@ public class Core {
 		});
 	}
 
-	public static void getMessages(final OnThreadsListener onThreadsListenerListener) {
+	public static void getMessages(final OnThreadsListener onThreadsListener) {
 		getHtml("http://www.hi-pda.com/forum/pm.php?filter=privatepm", new OnRequestListener() {
 			@Override
 			public void onError(String error) {
-
+				onThreadsListener.onError();
 			}
 
 			@Override
@@ -1055,7 +1009,7 @@ public class Core {
 
 				boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
 
-				onThreadsListenerListener.onThreads(threads, currPage, hasNextPage);
+				onThreadsListener.onThreads(threads, currPage, hasNextPage);
 			}
 		});
 	}
@@ -1064,7 +1018,7 @@ public class Core {
 		getHtml("http://www.hi-pda.com/forum/my.php?item=threads&page" + page, new OnRequestListener() {
 			@Override
 			public void onError(String error) {
-
+				onThreadsListener.onError();
 			}
 
 			@Override
@@ -1124,7 +1078,7 @@ public class Core {
 		getHtml("http://www.hi-pda.com/forum/my.php?item=posts&page=" + page, new OnRequestListener() {
 			@Override
 			public void onError(String error) {
-
+				onThreadsListener.onError();
 			}
 
 			@Override
@@ -1163,10 +1117,12 @@ public class Core {
 
 	public interface OnPostsListener {
 		void onPosts(ArrayList<Post> posts, int currPage, boolean hasNextPage);
+		void onError();
 	}
 
 	public interface OnThreadsListener {
 		void onThreads(ArrayList<Thread> threads, int currPage, boolean hasNextPage);
+		void onError();
 	}
 
 	public static void getThreadsByUrl(String url, final OnThreadsListener onThreadsListener) {
@@ -1174,12 +1130,22 @@ public class Core {
 
 			@Override
 			public void onError(String error) {
-				onThreadsListener.onThreads(null, 1, false);
+				onThreadsListener.onError();
 			}
 
 			@Override
 			public void onSuccess(String html) {
-//				parseThreads(html, onThreadsListener);
+				new AsyncTask<String, Void, Core.ThreadsRet>() {
+					@Override
+					protected Core.ThreadsRet doInBackground(String... strings) {
+						return Core.parseThreads(strings[0]);
+					}
+
+					@Override
+					protected void onPostExecute(Core.ThreadsRet ret) {
+						onThreadsListener.onThreads(ret.threads, ret.page, ret.hasNextPage);
+					}
+				}.execute(html);
 			}
 		});
 	}

@@ -18,22 +18,15 @@
 		android:layout_centerHorizontal="true"
 		android:src="@color/blossom_light"/>
 
-	<ListView
-		android:id="@+id/user_info_list"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true"
-		android:layout_below="@+id/user_info_img"
-		android:layout_marginTop="14dp"
-		android:layout_marginBottom="20dp"
-		android:dividerHeight="0dp"/>
+
 
 	<LinearLayout
+		android:id="@+id/_user_linearlayout"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true"
-		android:layout_below="@+id/user_info_list"
-		android:orientation="horizontal">
+		android:layout_alignParentLeft="false"
+		android:orientation="horizontal"
+		android:layout_alignParentBottom="true">
 
 		<com.cengalabs.flatui.views.FlatButton
 			android:id="@+id/user_btn_1"
@@ -55,5 +48,30 @@
 			android:textSize="16sp"
 			flatui:fl_theme="@array/blood"/>
 	</LinearLayout>
+
+	<!--<ListView-->
+		<!--android:id="@+id/user_info_list"-->
+		<!--android:layout_width="wrap_content"-->
+		<!--android:layout_height="wrap_content"-->
+		<!--android:layout_alignParentLeft="true"-->
+		<!--android:layout_below="@+id/user_info_img"-->
+		<!--android:layout_marginTop="14dp"-->
+		<!--android:layout_marginBottom="14dp"-->
+		<!--android:dividerHeight="0dp"-->
+		<!--android:layout_above="@+id/_user_linearlayout"/>-->
+
+	<TextView
+		android:id="@+id/user_info_list"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/user_info_img"
+		android:layout_marginTop="14dp"
+		android:text="NO DATA"
+		android:layout_marginBottom="14dp"
+		android:layout_above="@+id/_user_linearlayout"
+		android:gravity="center"
+		android:textStyle="italic"
+		android:background="@color/snow_primary"
+		android:textColor="@color/snow_darker"/>
 
 </RelativeLayout>
