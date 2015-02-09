@@ -19,6 +19,7 @@ import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
+import org.apache.http.cookie.Cookie;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -35,27 +36,49 @@ import com.loopj.android.http.TextHttpResponseHandler;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+import android.util.Log;
+
+import de.greenrobot.event.EventBus;
 
 public class Core {
+	private static final String TAG = "Core";
+
 	private static AsyncHttpClient httpClient = new AsyncHttpClient();
-	private static ArrayList<OnMessageListener> onMessageListeners = new ArrayList<OnMessageListener>();
-	private static ArrayList<OnStatusChangeListener> onStatusChangeListeners = new ArrayList<OnStatusChangeListener>();
 	private static String formhash;
+	private static String hash;
 	private static Context context;
 	private static int uid;
 	private final static int maxImageLength = 299 * 1024;
 	public final static int UGLEE_ID = 1261;
 	private static boolean isOnline = false;
 	public static final Set<Integer> bans = new HashSet<Integer>();
+	private static PersistentCookieStore cookieStore;
+
+	public static class MessageEvent {
+		public MessageEvent(int count) {
+			this.count = count;
+		}
+
+		public int count;
+	}
+
+	public static class StatusChangeEvent {
+		public StatusChangeEvent(boolean online) {
+			this.online = online;
+		}
+
+		public boolean online;
+	}
 
 	public static void setup(Context context) {
 		if (Core.context == null) {
 			Core.context = context;
-			httpClient.setCookieStore(new PersistentCookieStore(context));
+			cookieStore = new PersistentCookieStore(context);
+			httpClient.setCookieStore(cookieStore);
 			bans.addAll(getBanList());
 		}
 	}
@@ -64,24 +87,8 @@ public class Core {
 		return isOnline;
 	}
 
-	public interface OnMessageListener {
-		public void onMsg(int count);
-	}
-
-	public static void addOnMsgListener(OnMessageListener onMessageListener) {
-		onMessageListeners.add(onMessageListener);
-	}
-
-	public static void removeOnMsgListener(OnMessageListener onMessageListener) {
-		onMessageListeners.remove(onMessageListener);
-	}
-
-	public static void addOnStatusChangeListener(OnStatusChangeListener onStatusChangeListener) {
-		onStatusChangeListeners.add(onStatusChangeListener);
-	}
-
-	public static void removeOnStatusChangeListener(OnStatusChangeListener onStatusChangeListener) {
-		onStatusChangeListeners.remove(onStatusChangeListener);
+	public static int getUid() {
+		return uid;
 	}
 
 	public static class UpdateInfo {
@@ -114,24 +121,19 @@ public class Core {
 		}
 	}
 
-	public interface OnUpdateAvailableListener {
-		void onUpdateAvailable(UpdateInfo updateInfo);
-	}
-
-	public static void requestUpdate(final OnUpdateAvailableListener onUpdateAvailableListener) {
+	public static void requestUpdate() {
 		httpClient.get(
 				context,
 				"https://raw.githubusercontent.com/ladjzero/uzlee/master/release/update.json",
 				new TextHttpResponseHandler() {
 					@Override
 					public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
-						onUpdateAvailableListener.onUpdateAvailable(null);
 					}
 
 					@Override
 					public void onSuccess(int i, Header[] headers, String s) {
 						UpdateInfo updateInfo = JSON.parseObject(s, UpdateInfo.class);
-						onUpdateAvailableListener.onUpdateAvailable(updateInfo);
+						EventBus.getDefault().post(updateInfo);
 					}
 				});
 	}
@@ -146,29 +148,41 @@ public class Core {
 		void onUpload(String response);
 	}
 
-	public static void uploadImage(File imageFile, final OnUploadListener onUploadListener) {
-		try {
-			RequestParams params = new RequestParams();
-			params.setContentEncoding("GBK");
-			params.put("uid", uid);
-			params.put("hash", "ac62265abc8a56fa12705ceca76c46da");
-			params.put("Filedata", imageFile);
-			params.put("filename", imageFile.getName());
+	public static void uploadImage(final File imageFile, final OnUploadListener onUploadListener) {
+		httpClient.get("http://www.hi-pda.com/forum/post.php?action=newthread&fid=57", new TextHttpResponseHandler("GBK") {
+			@Override
+			public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
 
-			httpClient.post("http://www.hi-pda.com/forum/misc.php?action=swfupload&operation=upload&simple=1&type=image", params, new AsyncHttpResponseHandler() {
-				@Override
-				public void onSuccess(int i, Header[] headers, byte[] bytes) {
-					onUploadListener.onUpload(new String(bytes));
+			}
+
+			@Override
+			public void onSuccess(int i, Header[] headers, String s) {
+				getDoc(s);
+
+				try {
+					RequestParams params = new RequestParams();
+					params.setContentEncoding("GBK");
+					params.put("uid", uid);
+					params.put("hash", hash);
+					params.put("Filedata", imageFile);
+					params.put("filename", imageFile.getName());
+
+					httpClient.post("http://www.hi-pda.com/forum/misc.php?action=swfupload&operation=upload&simple=1&type=image", params, new AsyncHttpResponseHandler() {
+						@Override
+						public void onSuccess(int i, Header[] headers, byte[] bytes) {
+							onUploadListener.onUpload(new String(bytes));
+						}
+
+						@Override
+						public void onFailure(int i, Header[] headers, byte[] bytes, Throwable throwable) {
+
+						}
+					});
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
 				}
-
-				@Override
-				public void onFailure(int i, Header[] headers, byte[] bytes, Throwable throwable) {
-
-				}
-			});
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+			}
+		});
 	}
 
 	public static void getHtml(String url, final OnRequestListener onRequestListener) {
@@ -186,13 +200,9 @@ public class Core {
 		});
 	}
 
-	public interface OnStatusChangeListener {
-		void onLogin(boolean silent);
-
-		void onLogout();
-	}
-
 	public static Document getDoc(String html) {
+		long time = System.currentTimeMillis();
+
 		Document doc = Jsoup.parse(html);
 
 		try {
@@ -210,9 +220,7 @@ public class Core {
 			}
 
 			if (msgCount > 0) {
-				for (OnMessageListener onMessageListener : onMessageListeners) {
-					onMessageListener.onMsg(msgCount);
-				}
+				EventBus.getDefault().post(new MessageEvent(msgCount));
 			}
 
 			String uidHref = doc.select("#umenu > cite > a").attr("href");
@@ -220,30 +228,34 @@ public class Core {
 			if (uidHref.indexOf("uid=") > -1) {
 				isOnline = true;
 				uid = Integer.valueOf(uidHref.substring(uidHref.indexOf("uid=") + 4));
-				for (OnStatusChangeListener onStatusChangeListener : onStatusChangeListeners) {
-					onStatusChangeListener.onLogin(true);
-				}
 			} else {
 				isOnline = false;
-				for (OnStatusChangeListener onStatusChangeListener : onStatusChangeListeners) {
-					onStatusChangeListener.onLogout();
-				}
+
+				EventBus.getDefault().post(new StatusChangeEvent(false));
 			}
 		} catch (Error e) {
 
 		}
 
-		Elements hashInput = doc.select("input[name=formhash]");
+		Elements formHashInput = doc.select("input[name=formhash]");
 
-		if (hashInput.size() > 0) {
-			formhash = hashInput.val();
+		if (formHashInput.size() > 0) {
+			formhash = formHashInput.val();
 		}
 
+		Elements hashInput = doc.select("input[name=hash]");
+
+		if (hashInput.size() > 0) {
+			hash = hashInput.val();
+		}
+
+		Log.i(TAG, "getDoc " + (System.currentTimeMillis() - time));
 		return doc;
 	}
 
 	public static void login(String username, String password, final OnRequestListener onRequestListener) {
 		RequestParams params = new RequestParams();
+		params.setContentEncoding("GBK");
 		params.put("sid", "fa6m4o");
 		params.put("formhash", "ad793a3f");
 		params.put("loginfield", "username");
@@ -266,22 +278,19 @@ public class Core {
 							public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
 								isOnline = true;
 
-								for (OnStatusChangeListener onStatusChangeListener : onStatusChangeListeners) {
-									onStatusChangeListener.onLogin(false);
-								}
-
 								String html;
 								try {
 									html = new String(responseBody, "GBK");
 									if (html.contains("欢迎您回来")) {
+										EventBus.getDefault().post(new StatusChangeEvent(true));
 										onRequestListener.onSuccess("");
 									} else if (html.contains("密码错误次数过多，请 15 分钟后重新登录")) {
 										onRequestListener.onError("密码错误次数过多，请 15 分钟后重新登录");
 									} else {
-										onRequestListener.onError("error");
+										onRequestListener.onError("登录错误");
 									}
 								} catch (UnsupportedEncodingException e) {
-									onRequestListener.onError("error");
+									onRequestListener.onError(e.toString());
 								}
 							}
 						});
@@ -298,15 +307,26 @@ public class Core {
 			@Override
 			public void onSuccess(String html) {
 				isOnline = false;
-				for (OnStatusChangeListener onStatusChangeListener : onStatusChangeListeners) {
-					onStatusChangeListener.onLogout();
-				}
+				uid = -1;
+				EventBus.getDefault().post(new StatusChangeEvent(false));
+				EventBus.getDefault().post(new MessageEvent(0));
+
 				onRequestListener.onSuccess(html);
+
+				for (Cookie cookie : cookieStore.getCookies()) {
+					cookieStore.deleteCookie(cookie);
+				}
 			}
 		});
 	}
 
-	public static ArrayList<Post> parsePosts(String html, OnPostsListener onPostsListener) {
+	public static class PostsRet {
+		public ArrayList<Post> posts;
+		public boolean hasNextPage;
+		public int page;
+	}
+
+	public static PostsRet parsePosts(String html) {
 		ArrayList<Post> posts = new ArrayList<Post>();
 		Document doc = getDoc(html);
 
@@ -325,15 +345,12 @@ public class Core {
 
 		boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
 
-		if (onPostsListener != null) {
-			onPostsListener.onPosts(posts, currPage, hasNextPage);
-		}
+		PostsRet ret = new PostsRet();
+		ret.posts = posts;
+		ret.hasNextPage = hasNextPage;
+		ret.page = currPage;
 
-		return posts;
-	}
-
-	public static ArrayList<Post> parsePosts(String html) {
-		return parsePosts(html, null);
+		return ret;
 	}
 
 	private static Post toPostObj(Element ePost) {
@@ -369,6 +386,13 @@ public class Core {
 			niceBody = postprocessPostBody(preprocessPostBody(eBody.get(0)), ePost.select("div.postattachlist"));
 		}
 
+		String timeStr = ePost.select(".authorinfo > em").text();
+
+		if (timeStr.startsWith("发表于")) {
+			timeStr = timeStr.substring(3);
+			timeStr = timeStr.trim();
+		}
+
 		Element eUser = ePost.select("td.postauthor").get(0);
 		Elements eUinfo = eUser.select("div.postinfo a");
 		String userId = eUinfo.attr("href").substring("space.php?uid=".length());
@@ -379,7 +403,7 @@ public class Core {
 				.setImage(userImg);
 
 		Post post = new Post().setId(Integer.valueOf(id)).setNiceBody(niceBody)
-				.setAuthor(user);
+				.setAuthor(user).setTimeStr(timeStr);
 		if (replyTo != null) {
 			post.setReplyTo(Integer.valueOf(replyTo));
 		}
@@ -430,7 +454,19 @@ public class Core {
 				Element e = (Element) node;
 				String tag = e.tagName();
 
-				if (tag.equals("br")) {
+				if (tag.equals("a") && e.attr("target").equals("_blank")) {
+					String href = e.attr("href");
+					if (StringUtils.endsWith(href, "tid=1408844")) {
+						if ((sbStr = sb.toString().trim()).length() != 0) {
+							temps.add("txt:" + sbStr);
+						}
+
+						temps.add("sig:{fa-android} HiPDA");
+						sb.delete(0, sb.length());
+					} else {
+						sb.append(e.attr("href"));
+					}
+				} else if (tag.equals("br")) {
 					sb.append("\r\n");
 				} else if (tag.equals("font") && e.attr("size").equals("1")) {
 					if ((sbStr = sb.toString().trim()).length() != 0) {
@@ -491,6 +527,10 @@ public class Core {
 			temps.add("img:" + (src.startsWith("http") ? src : "http://www.hi-pda.com/forum/" + src));
 		}
 
+		if (temps.size() == 0) {
+			temps.add("txt:(正文格式很奇怪，解析不了)");
+		}
+
 		return temps.toArray(new String[0]);
 	}
 
@@ -527,7 +567,105 @@ public class Core {
 						});
 	}
 
-	public static void sendReply(int tid, String content, ArrayList<Integer> attachIds, final OnRequestListener onRequestListener) {
+	public static void editPost(int fid, int tid, int pid, String subject, String message, ArrayList<Integer> attachIds, final OnRequestListener onRequestListener) {
+		RequestParams params = new RequestParams();
+		params.setContentEncoding("GBK");
+		params.put("formhash", formhash);
+		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
+		params.put("wysiwyg", 1);
+		params.put("iconid", 0);
+		params.put("fid", fid);
+		params.put("tid", tid);
+		params.put("pid", pid);
+		params.put("page", 1);
+		params.put("tags", "");
+		params.put("editsubmit", "true");
+		params.put("subject", subject);
+		params.put("message", message);
+
+		if (attachIds != null) {
+			for (Integer attachId : attachIds) {
+				params.put("attachnew[" + attachId + "][description]", "");
+			}
+		}
+
+		httpClient
+				.post("http://www.hi-pda.com/forum/post.php?action=edit&extra=&editsubmit=yes&mod=", params,
+						new TextHttpResponseHandler("GBK") {
+							@Override
+							public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+								onRequestListener.onError(throwable.toString());
+							}
+
+							@Override
+							public void onSuccess(int i, Header[] headers, String s) {
+								onRequestListener.onSuccess(s);
+							}
+						});
+	}
+
+	public static void deletePost(int fid, int tid, int pid, final OnRequestListener onRequestListener) {
+		RequestParams params = new RequestParams();
+		params.setContentEncoding("GBK");
+		params.put("formhash", formhash);
+		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
+		params.put("wysiwyg", 1);
+		params.put("page", 1);
+		params.put("delete", 1);
+		params.put("editsubmit", "true");
+		params.put("subject", "");
+		params.put("message", "");
+		params.put("fid", fid);
+		params.put("tid", tid);
+		params.put("pid", pid);
+
+		httpClient
+				.post("http://www.hi-pda.com/forum/post.php?action=edit&extra=&editsubmit=yes&mod=",
+						params, new TextHttpResponseHandler("GBK") {
+							@Override
+							public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+								onRequestListener.onError(s);
+							}
+
+							@Override
+							public void onSuccess(int i, Header[] headers, String s) {
+								onRequestListener.onSuccess(s);
+							}
+						});
+	}
+
+	public static void getExistedAttach(final OnRequestListener onRequestListener) {
+		getHtml("http://www.hi-pda.com/forum/post.php?action=newthread&fid=57", new OnRequestListener() {
+
+			@Override
+			public void onError(String error) {
+
+			}
+
+			@Override
+			public void onSuccess(String html) {
+				Document doc = getDoc(html);
+
+				Elements tds = doc.select("td[id^=image_td_]");
+				ArrayList<Integer> attachIds = new ArrayList<Integer>();
+
+				for (Element td : tds) {
+					String id = td.id();
+					id = id.substring("image_td_".length());
+
+					try {
+						attachIds.add(Integer.valueOf(id));
+					} catch (Exception e) {
+
+					}
+				}
+
+				onRequestListener.onSuccess(StringUtils.join(attachIds, ","));
+			}
+		});
+	}
+
+	public static void sendReply(int tid, String content, ArrayList<Integer> attachIds, ArrayList<Integer> existedAttchIds, final OnRequestListener onRequestListener) {
 		RequestParams params = new RequestParams();
 		params.setContentEncoding("GBK");
 		params.put("formhash", formhash);
@@ -546,24 +684,28 @@ public class Core {
 			}
 		}
 
+		if (existedAttchIds != null) {
+			for (Integer id : existedAttchIds) {
+				params.put("attachdel[]", id);
+			}
+		}
+
 		httpClient
 				.post("http://www.hi-pda.com/forum/post.php?action=reply&fid=57&tid=" + tid + "&extra=&replysubmit=yes",
-						params, new AsyncHttpResponseHandler() {
-
+						params, new TextHttpResponseHandler("GBK") {
 							@Override
-							public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-								onRequestListener.onError(new String(responseBody));
+							public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+								onRequestListener.onError(s);
 							}
 
 							@Override
-							public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-								onRequestListener.onSuccess(new String(responseBody));
+							public void onSuccess(int i, Header[] headers, String s) {
+								onRequestListener.onSuccess(s);
 							}
-
 						});
 	}
 
-	public static void search(String query, int page, final OnThreadsListener onThreadsListenerListener) {
+	public static void search(String query, int page, final OnThreadsListener onThreadsListener) {
 		try {
 			getHtml("http://www.hi-pda.com/forum/search.php?srchtxt=" + URLEncoder.encode(query, "GBK")
 					+ "&srchtype=title&"
@@ -580,12 +722,22 @@ public class Core {
 
 				@Override
 				public void onError(String error) {
-
+					onThreadsListener.onError();
 				}
 
 				@Override
 				public void onSuccess(String html) {
-					parseThreads(html, onThreadsListenerListener);
+					new AsyncTask<String, Void, Core.ThreadsRet>() {
+						@Override
+						protected Core.ThreadsRet doInBackground(String... strings) {
+							return Core.parseThreads(strings[0]);
+						}
+
+						@Override
+						protected void onPostExecute(Core.ThreadsRet ret) {
+							onThreadsListener.onThreads(ret.threads, ret.page, ret.hasNextPage);
+						}
+					}.execute(html);
 				}
 
 			});
@@ -595,16 +747,23 @@ public class Core {
 	}
 
 
-	public static ArrayList<Thread> parseThreads(String html, OnThreadsListener onThreadsListener) {
+	public static class ThreadsRet {
+		public ArrayList<Thread> threads;
+		public boolean hasNextPage;
+		public int page;
+	}
+
+
+	public static ThreadsRet parseThreads(String html) {
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 		Document doc = getDoc(html);
 
 		Elements eThreads = doc.select("body#search").size() == 0 ? doc.select("tbody[id^=normalthread_]") : doc.select("div.searchlist tbody");
 
 		for (Element eThread : eThreads) {
-			threads.add(toThreadObj(eThread));
+			Thread thread = toThreadObj(eThread);
+			if (thread != null) threads.add(toThreadObj(eThread));
 		}
-
 
 		int currPage = 1;
 
@@ -616,15 +775,12 @@ public class Core {
 
 		Elements nextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]");
 
-		if (onThreadsListener != null) {
-			onThreadsListener.onThreads(threads, currPage, nextPage.size() > 0);
-		}
+		ThreadsRet ret = new ThreadsRet();
+		ret.hasNextPage = nextPage.size() > 0;
+		ret.page = currPage;
+		ret.threads = threads;
 
-		return threads;
-	}
-
-	public static ArrayList<Thread> parseThreads(String html) {
-		return parseThreads(html, null);
+		return ret;
 	}
 
 	private static Thread toThreadObj(Element eThread) {
@@ -636,13 +792,37 @@ public class Core {
 		boolean isNew = eThread.select("th.subject").hasClass("new");
 		Elements eUser = eThread.select("td.author a");
 		String userName = eUser.text();
-		String userId = eUser.attr("href").substring("space.php?uid=".length());
+		// if userHref.length() == 0, this thread is closed for some reason.
+		String userHref = eUser.attr("href");
+
+		if (userHref.length() == 0) {
+			return null;
+		}
+
+		String userId = userHref.substring("space.php?uid=".length());
 		String commentNum = eThread.select("td.nums > strong").text().trim();
 
-		User user = new User().setId(Integer.valueOf(userId)).setName(userName);
+		String forumLink = eThread.select(".forum a").attr("href");
+
+		String fid = null;
+
+		int uid = Integer.valueOf(userId);
+
+		int avatar0 = uid / 10000;
+		int avatar1 = (uid % 10000) / 100;
+		int avatar2 = uid % 100;
+
+		User user = new User().setId(uid).setName(userName)
+				.setImage("http://www.hi-pda.com/forum/uc_server/data/avatar/000/" + String.format("%02d", avatar0) + "/" + String.format("%02d", avatar1) + "/" + String.format("%02d", avatar2) + "_avatar_middle.jpg");
 		Thread ret = new Thread();
 		ret.setId(Integer.valueOf(id)).setTitle(title).setNew(isNew)
 				.setCommentCount(Integer.valueOf(commentNum)).setAuthor(user);
+
+		if (forumLink.length() > 0) {
+			fid = forumLink.substring(forumLink.indexOf("fid=") + 4);
+			ret.setFid(Integer.valueOf(fid));
+		}
+
 		return ret;
 	}
 
@@ -675,11 +855,11 @@ public class Core {
 		return new User().setId(Integer.valueOf(uid)).setImage(img).setName(name);
 	}
 
-	public static void getFavorites(final OnThreadsListener onThreadsListener) {
-		getHtml("http://www.hi-pda.com/forum/my.php?item=favorites&type=thread", new OnRequestListener() {
+	public static void getFavorites(int page, final OnThreadsListener onThreadsListener) {
+		getHtml("http://www.hi-pda.com/forum/my.php?item=favorites&type=thread&page=" + page, new OnRequestListener() {
 			@Override
 			public void onError(String error) {
-
+				onThreadsListener.onError();
 			}
 
 			@Override
@@ -715,11 +895,30 @@ public class Core {
 		});
 	}
 
+	public static void getEditBody(int fid, int tid, int pid, final OnRequestListener onRequestListener, final OnRequestListener onRequestListener2) {
+		getHtml("http://www.hi-pda.com/forum/post.php?action=edit&fid=" + fid + "&tid=" + tid + "&pid=" + pid + "&page=1", new OnRequestListener() {
+			@Override
+			public void onError(String error) {
+				onRequestListener.onError(error);
+			}
+
+			@Override
+			public void onSuccess(String html) {
+				Document doc = getDoc(html);
+				String title = doc.select("#subject").val();
+				String editBody = doc.select("#e_textarea").text();
+
+				onRequestListener.onSuccess(title);
+				onRequestListener2.onSuccess(editBody);
+			}
+		});
+	}
+
 	public static void getAlerts(final OnPostsListener onPostsListener) {
 		getHtml("http://www.hi-pda.com/forum/notice.php", new OnRequestListener() {
 			@Override
 			public void onError(String error) {
-
+				onPostsListener.onError();
 			}
 
 			@Override
@@ -730,15 +929,43 @@ public class Core {
 				ArrayList<Post> posts = new ArrayList<Post>();
 
 				for (Element eNotice : eNotices) {
-					String title = eNotice.select(">a").last().text();
+					String title;
 					Elements eSummary = eNotice.select(">dl.summary");
-					String body = eSummary.select("dt").last().text() + eSummary.select("dd").last().text();
-					String findPostLink = eNotice.select(">p>a").last().attr("href");
+					String body;
+					String tid;
+					String pid;
+					String fid = "0";
+					String findPostLink;
+					if (eSummary.size() > 0) {
+						title = eNotice.select(">a").last().text();
+						body = eSummary.select("dt").last().text() + eSummary.select("dd").last().text();
+
+						findPostLink = eNotice.select(">p>a").last().attr("href");
+						String viewPostLink = eNotice.select(">p>a").first().attr("href");
+
+						int fidIndex = viewPostLink.indexOf("&fid=");
+						fid = viewPostLink.substring(fidIndex + 5, viewPostLink.indexOf("&tid="));
+					} else {
+						// thread watched on
+						Element lastA = eNotice.select(">a").last();
+						findPostLink = lastA.attr("href");
+						lastA.remove();
+						lastA = eNotice.select(">a").last();
+						title = lastA.text();
+						lastA.remove();
+
+						eNotice.select(">em").last().remove();
+						eNotice.select("dfn").remove();
+						body = eNotice.text();
+					}
+
 					int ptidIndex = findPostLink.indexOf("&ptid=");
-					String tid = findPostLink.substring(ptidIndex + 6);
-					String pid = findPostLink.substring(findPostLink.indexOf("pid=") + 4, ptidIndex);
+					tid = findPostLink.substring(ptidIndex + 6);
+					pid = findPostLink.substring(findPostLink.indexOf("pid=") + 4, ptidIndex);
+
 					Post post = new Post().setId(Integer.valueOf(pid))
 							.setTid(Integer.valueOf(tid))
+							.setFid(Integer.valueOf(fid))
 							.setTitle(title).setBody(body);
 					posts.add(post);
 				}
@@ -757,11 +984,11 @@ public class Core {
 		});
 	}
 
-	public static void getMessages(final OnThreadsListener onThreadsListenerListener) {
+	public static void getMessages(final OnThreadsListener onThreadsListener) {
 		getHtml("http://www.hi-pda.com/forum/pm.php?filter=privatepm", new OnRequestListener() {
 			@Override
 			public void onError(String error) {
-
+				onThreadsListener.onError();
 			}
 
 			@Override
@@ -797,16 +1024,16 @@ public class Core {
 
 				boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
 
-				onThreadsListenerListener.onThreads(threads, currPage, hasNextPage);
+				onThreadsListener.onThreads(threads, currPage, hasNextPage);
 			}
 		});
 	}
 
-	public static void getMyThreads(final OnThreadsListener onThreadsListener) {
-		getHtml("http://www.hi-pda.com/forum/my.php?item=threads", new OnRequestListener() {
+	public static void getMyThreads(int page, final OnThreadsListener onThreadsListener) {
+		getHtml("http://www.hi-pda.com/forum/my.php?item=threads&page" + page, new OnRequestListener() {
 			@Override
 			public void onError(String error) {
-
+				onThreadsListener.onError();
 			}
 
 			@Override
@@ -818,12 +1045,21 @@ public class Core {
 
 				for (Element eThread : eThreads) {
 					Elements eTitle = eThread.select("th a");
+					Elements eForum = eThread.select(".forum a");
 
 					if (eTitle.size() > 0) {
 						String href = eTitle.attr("href");
 						String id = href.substring(href.indexOf("tid=") + 4);
 						String title = eTitle.text();
+						String forumLink = eForum.attr("href");
+						String fid = null;
+						if (forumLink.length() > 0) {
+							fid = forumLink.substring(forumLink.indexOf("fid=") + 4);
+						}
 						Thread thread = new Thread().setTitle(title).setId(Integer.valueOf(id));
+						if (fid != null) {
+							thread.setFid(Integer.valueOf(fid));
+						}
 						threads.add(thread);
 					}
 				}
@@ -853,11 +1089,11 @@ public class Core {
 		getThreadsByUrl(url, onThreadsListener);
 	}
 
-	public static void getMyPosts(final OnThreadsListener onThreadsListener) {
-		getHtml("http://www.hi-pda.com/forum/my.php?item=posts", new OnRequestListener() {
+	public static void getMyPosts(int page, final OnThreadsListener onThreadsListener) {
+		getHtml("http://www.hi-pda.com/forum/my.php?item=posts&page=" + page, new OnRequestListener() {
 			@Override
 			public void onError(String error) {
-
+				onThreadsListener.onError();
 			}
 
 			@Override
@@ -896,10 +1132,12 @@ public class Core {
 
 	public interface OnPostsListener {
 		void onPosts(ArrayList<Post> posts, int currPage, boolean hasNextPage);
+		void onError();
 	}
 
 	public interface OnThreadsListener {
 		void onThreads(ArrayList<Thread> threads, int currPage, boolean hasNextPage);
+		void onError();
 	}
 
 	public static void getThreadsByUrl(String url, final OnThreadsListener onThreadsListener) {
@@ -907,12 +1145,22 @@ public class Core {
 
 			@Override
 			public void onError(String error) {
-				onThreadsListener.onThreads(null, 1, false);
+				onThreadsListener.onError();
 			}
 
 			@Override
 			public void onSuccess(String html) {
-				parseThreads(html, onThreadsListener);
+				new AsyncTask<String, Void, Core.ThreadsRet>() {
+					@Override
+					protected Core.ThreadsRet doInBackground(String... strings) {
+						return Core.parseThreads(strings[0]);
+					}
+
+					@Override
+					protected void onPostExecute(Core.ThreadsRet ret) {
+						onThreadsListener.onThreads(ret.threads, ret.page, ret.hasNextPage);
+					}
+				}.execute(html);
 			}
 		});
 	}

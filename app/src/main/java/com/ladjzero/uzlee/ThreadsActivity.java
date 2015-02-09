@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.os.Build;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.ladjzero.hipda.*;
 import com.ladjzero.hipda.Thread;
@@ -26,6 +27,7 @@ public class ThreadsActivity extends BaseActivity implements Core.OnThreadsListe
 	ArrayList<Thread> threads;
 	ThreadsAdapter adapter;
 	boolean hasNextPage;
+	TextView hint;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,7 @@ public class ThreadsActivity extends BaseActivity implements Core.OnThreadsListe
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
 				if (hasNextPage) {
+					hint.setVisibility(View.VISIBLE);
 					Core.getUserThreadsAtPage(userName, page, ThreadsActivity.this);
 				}
 			}
@@ -55,6 +58,9 @@ public class ThreadsActivity extends BaseActivity implements Core.OnThreadsListe
 
 		setTitle(getIntent().getStringExtra("name") + "的主题");
 		Core.getUserThreadsAtPage(userName, 1, ThreadsActivity.this);
+
+		hint = (TextView) findViewById(R.id.hint);
+		hint.setVisibility(View.GONE);
 	}
 
 	@Override
@@ -81,9 +87,15 @@ public class ThreadsActivity extends BaseActivity implements Core.OnThreadsListe
 
 	@Override
 	public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
+		hint.setVisibility(View.GONE);
 		this.hasNextPage = hasNextPage;
 		this.threads.addAll(threads);
 		adapter.notifyDataSetChanged();
+	}
+
+	@Override
+	public void onError() {
+		showToast("请求错误");
 	}
 
 	@Override

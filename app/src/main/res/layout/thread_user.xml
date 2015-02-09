@@ -9,11 +9,10 @@
 	<TextView
 		android:id="@+id/thread_comment_count"
 		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
+		android:layout_height="24dp"
 		android:layout_alignParentRight="true"
 		android:layout_centerVertical="true"
-		android:background="@color/commentNoBg"
-		android:gravity="center_horizontal"
+		android:background="@color/blood_primary"
 		android:minWidth="24dp"
 		android:paddingBottom="2dp"
 		android:paddingLeft="4dp"
@@ -21,6 +20,7 @@
 		android:paddingTop="2dp"
 		android:text="50"
 		android:textColor="@android:color/white"
-		android:textSize="12sp" />
+		android:textSize="12sp"
+		android:gravity="center"/>
 
 </RelativeLayout>

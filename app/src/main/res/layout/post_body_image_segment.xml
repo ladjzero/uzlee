@@ -10,8 +10,7 @@
         android:layout_height="wrap_content"
         android:maxHeight="500dp"
         android:scaleType="fitXY"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginBottom="8dp"
         android:src="@android:drawable/toast_frame" />
 
 </LinearLayout>

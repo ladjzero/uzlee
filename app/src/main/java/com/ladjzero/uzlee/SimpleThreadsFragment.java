@@ -19,19 +19,14 @@ import com.ladjzero.hipda.Thread;
 
 import java.util.ArrayList;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Large screen devices (such as tablets) are supported by replacing the ListView
- * with a GridView.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
- * interface.
- */
-public class SimpleThreadsFragment extends Fragment implements AbsListView.OnItemClickListener {
+public class SimpleThreadsFragment extends Fragment implements AbsListView.OnItemClickListener, Core.OnThreadsListener {
 
 	Core core;
+	int tabIndex;
+	boolean hasNextPage = false;
 	private OnFragmentInteractionListener mListener;
+	ArrayList<Thread> threads = new ArrayList<Thread>();
+	TextView hint;
 
 	/**
 	 * The fragment's ListView/GridView.
@@ -64,22 +59,15 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		int tabIndex = getArguments().getInt("tab_index");
+		tabIndex = getArguments().getInt("tab_index");
 
 		switch (tabIndex) {
 			case 0:
-				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_thread, R.id.simple_thread_text);
-
-				Core.getMyThreads(new Core.OnThreadsListener() {
-					@Override
-					public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
-						mAdapter.addAll(threads);
-					}
-				});
+				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_thread, R.id.simple_thread_text, threads);
 				break;
 
 			case 1:
-				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_post, R.id.simple_thread_text) {
+				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_post, R.id.simple_thread_text, threads) {
 					@Override
 					public View getView(int position, View convertView, ViewGroup parent) {
 						View row = super.getView(position, convertView, parent);
@@ -102,25 +90,10 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 					}
 				};
 
-				Core.getMyPosts(new Core.OnThreadsListener() {
-					@Override
-					public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
-						mAdapter.addAll(threads);
-					}
-				});
-
 				break;
 
 			case 2:
-				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_thread, R.id.simple_thread_text);
-
-				Core.getFavorites(new Core.OnThreadsListener() {
-					@Override
-					public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
-						mAdapter.addAll(threads);
-					}
-				});
-
+				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_thread, R.id.simple_thread_text, threads);
 				break;
 		}
 	}
@@ -130,13 +103,49 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 							 Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.simple_threads, container, false);
 
+		hint = (TextView) view.findViewById(R.id.hint);
+		hint.setVisibility(View.GONE);
+
 		// Set the adapter
 		mListView = (AbsListView) view.findViewById(R.id.simple_thread_list);
-		((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
 
 		// Set OnItemClickListener so we can be notified on item clicks
 		mListView.setOnItemClickListener(this);
+		mListView.setOnScrollListener(new EndlessScrollListener() {
+			@Override
+			public void onLoadMore(int page, int totalItemsCount) {
+				if (hasNextPage) {
+					hint.setVisibility(View.VISIBLE);
 
+					switch (tabIndex) {
+						case 0:
+							Core.getMyThreads(page, SimpleThreadsFragment.this);
+							break;
+						case 1:
+							Core.getMyPosts(page, SimpleThreadsFragment.this);
+							break;
+						case 2:
+							Core.getFavorites(page, SimpleThreadsFragment.this);
+							break;
+					}
+				}
+			}
+		});
+
+
+		switch (tabIndex) {
+			case 0:
+				Core.getMyThreads(1, this);
+				break;
+			case 1:
+				Core.getMyPosts(1, this);
+				break;
+			case 2:
+				Core.getFavorites(1, this);
+				break;
+		}
+
+		mListView.setAdapter(mAdapter);
 		return view;
 	}
 
@@ -164,6 +173,7 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 		Intent intent = new Intent(getActivity(), PostsActivity.class);
 		intent.putExtra("tid", thread.getId());
 		intent.putExtra("title", thread.getTitle());
+		intent.putExtra("fid", thread.getFid());
 
 		startActivity(intent);
 	}
@@ -179,6 +189,20 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 		if (emptyView instanceof TextView) {
 			((TextView) emptyView).setText(emptyText);
 		}
+	}
+
+	@Override
+	public void onThreads(ArrayList<Thread> threads, int currPage, boolean hasNextPage) {
+		this.threads.addAll(threads);
+		mAdapter.notifyDataSetChanged();
+		this.hasNextPage = hasNextPage;
+		if (hint != null) hint.setVisibility(View.GONE);
+	}
+
+	@Override
+	public void onError() {
+		if (hint != null) hint.setVisibility(View.GONE);
+		((MainActivity) getActivity()).showToast("请求错误");
 	}
 
 	/**

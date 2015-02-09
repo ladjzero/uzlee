@@ -5,7 +5,9 @@ import com.joanzapata.android.iconify.Iconify;
 import com.ladjzero.hipda.Core;
 
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,12 +15,18 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
+import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Toast;
+
+import de.greenrobot.event.EventBus;
 
 public class MainActivity extends BaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
 	private NavigationDrawerFragment mNavigationDrawerFragment;
 	int fid;
+	String title = "";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,16 +47,22 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 		final int EINK_ID = 59;
 
 		switch (position) {
-			case 1:
-				fid = BS_ID;
-				actionBar.setTitle("Buy & Sell");
-				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(BS_ID)).commit();
+			case 0:
+				fid = D_ID;
+				title = "Discovery";
+				actionBar.setTitle(title);
+				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(D_ID)).commit();
 				break;
-			case 2:
-				fid = EINK_ID;
-				actionBar.setTitle("E-INK");
-				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(EINK_ID)).commit();
-				break;
+//			case 1:
+//				fid = BS_ID;
+//				actionBar.setTitle("Buy & Sell");
+//				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(BS_ID)).commit();
+//				break;
+//			case 2:
+//				fid = EINK_ID;
+//				actionBar.setTitle("E-INK");
+//				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(EINK_ID)).commit();
+//				break;
 			case 3:
 				intent = new Intent(this, MsgActivity.class);
 				startActivity(intent);
@@ -58,7 +72,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 					intent = new Intent(this, MyPostsActivity.class);
 					startActivity(intent);
 				} else {
-					onLogout();
+					showLogin();
 				}
 				break;
 			case 5:
@@ -75,13 +89,56 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 					}
 
 					@Override
-					public void onSuccess(String html) {}
+					public void onSuccess(String html) {
+					}
 				});
 				break;
+			case 8:
+				AlertDialog.Builder alert = new AlertDialog.Builder(this);
+				alert.setTitle("关于");
+
+				final View v = getLayoutInflater().inflate(R.layout.about, null);
+				WebView webView = (WebView) v.findViewById(R.id.about_webView);
+				webView.loadUrl("https://raw.githubusercontent.com/ladjzero/uzlee/master/release/readme.html");
+				webView.setWebViewClient(new WebViewClient() {
+					@Override
+					public boolean shouldOverrideUrlLoading(WebView view, String url) {
+						view.loadUrl(url);
+						return true;
+					}
+				});
+				alert.setView(v);
+				alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
+					}
+
+				});
+
+				alert.setNegativeButton(getString(R.string.check_update), new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Core.requestUpdate();
+						dialog.cancel();
+					}
+
+				});
+				alert.show();
+				break;
 			default:
-				fid = D_ID;
-				actionBar.setTitle("Discovery");
-				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(D_ID)).commit();
+				showToast("暂不可用");
+		}
+	}
+
+	@Override
+	public void onEventMainThread(Core.StatusChangeEvent statusChangeEvent) {
+		super.onEventMainThread(statusChangeEvent);
+
+		if (statusChangeEvent.online) {
+			onNavigationDrawerItemSelected(0);
 		}
 	}
 
@@ -89,6 +146,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 		ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setDisplayShowTitleEnabled(true);
+		actionBar.setTitle(title);
 	}
 
 	@Override
@@ -113,10 +171,11 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 		}
 
 		if (id == R.id.thread_publish) {
-			Intent editIntent = new Intent(this, EditActivity.class);
-			editIntent.putExtra("title", "新主题");
-			editIntent.putExtra("fid", fid);
-			startActivity(editIntent);
+			Intent intent = new Intent(this, EditActivity.class);
+			intent.putExtra("title", "新主题");
+			intent.putExtra("fid", fid);
+
+			startActivity(intent);
 			return true;
 		}
 
@@ -144,18 +203,9 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 
 			@Override
 			public void run() {
-				doubleBackToExitPressedOnce=false;
+				doubleBackToExitPressedOnce = false;
 			}
 		}, 2000);
-	}
-
-	@Override
-	public void onLogin(boolean silent) {
-		super.onLogin(silent);
-
-		if (!silent) {
-			onNavigationDrawerItemSelected(0);
-		}
 	}
 
 	@Override

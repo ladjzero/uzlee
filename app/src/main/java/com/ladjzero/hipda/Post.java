@@ -31,6 +31,9 @@ public class Post{
 	private String type;
 	private ArrayList<Post> comments;
 	private int replyTo;
+	private int fid;
+	private String timeStr;
+	private String editTimeStr;
 	
 	public User getAuthor() {
 		return author;
@@ -112,6 +115,33 @@ public class Post{
 	}
 	public Post setReplyTo(int replyTo) {
 		this.replyTo = replyTo;
+		return this;
+	}
+
+	public int getFid() {
+		return fid;
+	}
+
+	public Post setFid(int fid) {
+		this.fid = fid;
+		return this;
+	}
+
+	public String getTimeStr() {
+		return timeStr;
+	}
+
+	public Post setTimeStr(String timeStr) {
+		this.timeStr = timeStr;
+		return this;
+	}
+
+	public String getEditTimeStr() {
+		return editTimeStr;
+	}
+
+	public Post setEditTimeStr(String editTimeStr) {
+		this.editTimeStr = editTimeStr;
 		return this;
 	}
 }

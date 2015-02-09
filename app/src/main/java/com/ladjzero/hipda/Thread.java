@@ -27,6 +27,7 @@ public class Thread {
 	private ArrayList<Post> comments;
 	private int replyTo;
 	private String dateStr;
+	private int fid;
 
 	public User getAuthor() {
 		return author;
@@ -130,5 +131,14 @@ public class Thread {
 	@Override
 	public String toString() {
 		return this.getTitle();
+	}
+
+	public int getFid() {
+		return fid;
+	}
+
+	public Thread setFid(int fid) {
+		this.fid = fid;
+		return this;
 	}
 }

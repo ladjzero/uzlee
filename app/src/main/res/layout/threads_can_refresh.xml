@@ -1,20 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.SwipeRefreshLayout
-	android:id="@+id/thread_swipe"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
+<RelativeLayout
 	android:layout_height="match_parent"
-	android:background="@color/snow_dark"
-	android:orientation="vertical">
+	android:layout_width="match_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<ListView
-		android:id="@+id/threads"
+	<android.support.v4.widget.SwipeRefreshLayout
+		android:id="@+id/thread_swipe"
+		xmlns:android="http://schemas.android.com/apk/res/android"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:background="@android:color/white"
-		android:divider="@color/border"
-		android:dividerHeight="1px"
-		android:listSelector="@android:color/transparent">
-	</ListView>
+		android:background="@color/snow_dark"
+		android:orientation="vertical">
 
-</android.support.v4.widget.SwipeRefreshLayout>
+		<ListView
+			android:id="@+id/threads"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="@android:color/white"
+			android:divider="@color/snow_primary"
+			android:dividerHeight="1px"
+			android:listSelector="@android:color/transparent">
+		</ListView>
+
+	</android.support.v4.widget.SwipeRefreshLayout>
+
+	<include layout="@layout/top_hint" />
+
+</RelativeLayout>

@@ -1,5 +1,5 @@
 {
-	"version": "0.1",
-	"uri": "http://img.t.sinajs.cn/t6/style/images/global_nav/WB_logo.png",
-	"info": "1. haha\n2. yoyo"
+	"version": "0.1.1",
+	"uri": "http://pan.baidu.com/s/1bnjfFpt",
+	"info": "1. 修复中文登录\n2. 修复主题列表的头像显示（感谢geka）"
 }

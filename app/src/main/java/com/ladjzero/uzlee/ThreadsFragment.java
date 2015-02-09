@@ -33,8 +33,9 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private final ArrayList<Thread> threads = new ArrayList<Thread>();
 	private ListView listView;
 	private ThreadsAdapter adapter;
-	private static HashMap<Integer, ThreadsFragment> fragmentsCache = new HashMap<Integer, ThreadsFragment>();
 	private boolean hasNextPage = false;
+	private int fid;
+	private TextView hint;
 
 	public static ThreadsFragment newInstance(int fid) {
 
@@ -42,7 +43,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		Bundle args = new Bundle();
 		args.putInt("fid", fid);
 		fragment.setArguments(args);
-		fragmentsCache.put(fid, fragment);
+		fragment.fid = fid;
 
 		return fragment;
 	}
@@ -63,7 +64,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 		swipe = (SwipeRefreshLayout) rootView.findViewById(R.id.thread_swipe);
 		swipe.setOnRefreshListener(this);
-		swipe.setColorSchemeResources(R.color.deep_darker, R.color.deep_dark, R.color.deep_light, android.R.color.white);
+		swipe.setColorSchemeResources(R.color.dark_primary, R.color.grape_primary, R.color.deep_primary, R.color.snow_dark);
 
 		listView = (ListView) rootView.findViewById(R.id.threads);
 		adapter = new ThreadsAdapter(getActivity(), threads);
@@ -73,10 +74,15 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
 				if (hasNextPage) {
+					hint.setVisibility(View.VISIBLE);
 					fetch(page, ThreadsFragment.this);
 				}
 			}
 		});
+
+		hint = (TextView) rootView.findViewById(R.id.hint);
+		hint.setText("正在加载下一页");
+		hint.setVisibility(View.GONE);
 
 		return rootView;
 	}
@@ -85,12 +91,24 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid") + "&page=" + page, new Core.OnRequestListener() {
 			@Override
 			public void onError(String error) {
-
+				onThreadsListener.onError();
+				hint.setVisibility(View.GONE);
 			}
 
 			@Override
 			public void onSuccess(String html) {
-				Core.parseThreads(html, onThreadsListener);
+				new AsyncTask<String, Void, Core.ThreadsRet>() {
+					@Override
+					protected Core.ThreadsRet doInBackground(String... strings) {
+						return Core.parseThreads(strings[0]);
+					}
+
+					@Override
+					protected void onPostExecute(Core.ThreadsRet ret) {
+						onThreadsListener.onThreads(ret.threads, ret.page, ret.hasNextPage);
+						hint.setVisibility(View.INVISIBLE);
+					}
+				}.execute(html);
 			}
 		});
 	}
@@ -127,6 +145,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		t.setNew(false);
 
 		Intent intent = new Intent(getActivity(), PostsActivity.class);
+		intent.putExtra("fid", fid);
 		intent.putExtra("tid", t.getId());
 		intent.putExtra("title", t.getTitle());
 
@@ -138,6 +157,11 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		this.hasNextPage = hasNextPage;
 		this.threads.addAll(threads);
 		adapter.notifyDataSetChanged();
+	}
+
+	@Override
+	public void onError() {
+		((MainActivity) getActivity()).showToast("请求错误");
 	}
 
 	class SaveData extends AsyncTask<String, Void, String> {
@@ -160,6 +184,12 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 				ThreadsFragment.this.threads.addAll(threads);
 				adapter.notifyDataSetChanged();
 				swipe.setRefreshing(false);
+			}
+
+			@Override
+			public void onError() {
+				swipe.setRefreshing(false);
+				((MainActivity) getActivity()).showToast("请求错误");
 			}
 		});
 	}

@@ -25,6 +25,7 @@ public class SearchActivity extends BaseActivity implements Core.OnThreadsListen
 	EditText searchInput;
 	TextView close;
 	boolean hasNextPage;
+	TextView hint;
 	String query;
 
 	@Override
@@ -44,6 +45,7 @@ public class SearchActivity extends BaseActivity implements Core.OnThreadsListen
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
 				if (hasNextPage && query != null) {
+					hint.setVisibility(View.VISIBLE);
 					Core.search(query, page, SearchActivity.this);
 				}
 			}
@@ -71,6 +73,9 @@ public class SearchActivity extends BaseActivity implements Core.OnThreadsListen
 		}
 
 		searchInput.setOnKeyListener(this);
+
+		hint = (TextView) findViewById(R.id.hint);
+		hint.setVisibility(View.GONE);
 	}
 
 
@@ -100,8 +105,15 @@ public class SearchActivity extends BaseActivity implements Core.OnThreadsListen
 
 	@Override
 	public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
+		hint.setVisibility(View.GONE);
 		this.hasNextPage = hasNextPage;
 		this.threads.addAll(threads);
 		adapter.notifyDataSetChanged();
+	}
+
+	@Override
+	public void onError() {
+		hint.setVisibility(View.GONE);
+		showToast("请求错误");
 	}
 }

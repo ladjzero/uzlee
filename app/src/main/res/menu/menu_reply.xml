@@ -1,17 +1,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" tools:context="com.ladjzero.uzlee.EditActivity">
+	  xmlns:tools="http://schemas.android.com/tools"
+	  tools:context="com.ladjzero.uzlee.EditActivity">
 	<item
-		android:id="@+id/reply_add_emoji"
+		android:id="@+id/reply_add_image"
 		android:showAsAction="always"
-		android:title="表情"/>
+		android:title="图片"/>
 
 	<item
-        android:id="@+id/reply_add_image"
-        android:showAsAction="always"
-        android:title="图片"/>
+		android:id="@+id/delete_post"
+		android:showAsAction="always"
+		android:title="删除"/>
 
-    <item
-        android:id="@+id/reply_send"
-        android:showAsAction="always"
-        android:title="回复"/>
+	<item
+		android:id="@+id/reply_send"
+		android:showAsAction="always"
+		android:title="回复"/>
 </menu>

@@ -2,14 +2,12 @@ package com.ladjzero.uzlee;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Set;
 
-import android.app.ActionBar;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,9 +16,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.balysv.materialmenu.MaterialMenu;
-import com.balysv.materialmenu.MaterialMenuDrawable;
-import com.balysv.materialmenu.MaterialMenuIcon;
 import com.j256.ormlite.dao.Dao;
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
@@ -32,27 +27,35 @@ import com.ladjzero.hipda.User;
 
 public class PostsActivity extends BaseActivity implements AdapterView.OnItemClickListener, Core.OnPostsListener, SwipeRefreshLayout.OnRefreshListener {
 
+	private static final String TAG = "PostsActivity";
+
 	private SwipeRefreshLayout swipe;
 
 	DBHelper db;
 	Dao<Thread, Integer> threadDao;
 	Dao<Post, Integer> postDao;
 	Dao<User, Integer> userDao;
+	int fid;
 	int tid;
+	final int EDIT_CODE = 99;
 	ArrayList<Post> posts = new ArrayList<Post>();
 	ListView listView;
 	String titleStr;
 	PostsAdapter adapter;
 	boolean hasNextPage = false;
+	TextView hint;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		this.setContentView(R.layout.posts);
+
+
 		super.onCreate(savedInstanceState);
 
 		enableBackAction();
 
-		this.setContentView(R.layout.posts);
 		db = this.getHelper();
+		fid = getIntent().getIntExtra("fid", 0);
 		tid = getIntent().getIntExtra("tid", 0);
 		setTitle(titleStr = getIntent().getStringExtra("title"));
 
@@ -77,6 +80,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
 				if (hasNextPage) {
+					hint.setVisibility(View.VISIBLE);
 					fetch(page, PostsActivity.this);
 				}
 			}
@@ -85,6 +89,9 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		swipe = (SwipeRefreshLayout) findViewById(R.id.post_swipe);
 		swipe.setOnRefreshListener(this);
 		swipe.setColorSchemeResources(R.color.deep_darker, R.color.deep_dark, R.color.deep_light, android.R.color.white);
+
+		hint = (TextView) findViewById(R.id.hint);
+		hint.setVisibility(View.GONE);
 	}
 
 	@Override
@@ -117,9 +124,9 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 			case R.id.post_reply:
 				Intent replyIntent = new Intent(this, EditActivity.class);
 				replyIntent.putExtra("tid", tid);
-				replyIntent.putExtra("title", "回复：" + titleStr);
+				replyIntent.putExtra("title", "回复主题");
 				replyIntent.putExtra("hideTitleInput", true);
-				startActivity(replyIntent);
+				startActivityForResult(replyIntent, EDIT_CODE);
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -142,27 +149,44 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	@Override
 	public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 		Post post = (Post) adapterView.getAdapter().getItem(i);
+		int uid = post.getAuthor().getId();
 
-		Intent replyIntent = new Intent(PostsActivity.this, EditActivity.class);
-		replyIntent.putExtra("title", "回复 " + post.getAuthor().getName() + " #" + (i + 1));
-		replyIntent.putExtra("hideTitleInput", true);
-		replyIntent.putExtra("pid", post.getId());
-		replyIntent.putExtra("tid", tid);
-		replyIntent.putExtra("no", i + 1);
-		replyIntent.putExtra("userName", post.getAuthor().getName());
-		startActivity(replyIntent);
+		Intent intent = new Intent(PostsActivity.this, EditActivity.class);
+		intent.putExtra("title", Core.getUid() == uid ? "编辑" : "回复#" + (i + 1));
+		if (Core.getUid() == uid) {
+			intent.putExtra("fid", fid);
+		}
+		intent.putExtra("pid", post.getId());
+		intent.putExtra("tid", tid);
+		intent.putExtra("uid", uid);
+		intent.putExtra("no", i + 1);
+		intent.putExtra("userName", post.getAuthor().getName());
+		intent.putExtra("hideTitleInput", i != 0);
+		startActivityForResult(intent, EDIT_CODE);
 	}
 
 	private void fetch(int page, final Core.OnPostsListener onPostsListener) {
 		Core.getHtml("http://www.hi-pda.com/forum/viewthread.php?tid=" + tid + "&page=" + page, new Core.OnRequestListener() {
 			@Override
 			public void onError(String error) {
-
+				onPostsListener.onError();
+				hint.setVisibility(View.GONE);
 			}
 
 			@Override
 			public void onSuccess(String html) {
-				Core.parsePosts(html, onPostsListener);
+				new AsyncTask<String, Void, Core.PostsRet>() {
+					@Override
+					protected Core.PostsRet doInBackground(String... strings) {
+						return Core.parsePosts(strings[0]);
+					}
+
+					@Override
+					protected void onPostExecute(Core.PostsRet ret) {
+						onPostsListener.onPosts(ret.posts, ret.page, ret.hasNextPage);
+						hint.setVisibility(View.INVISIBLE);
+					}
+				}.execute(html);
 			}
 		});
 	}
@@ -190,7 +214,14 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	}
 
 	@Override
+	public void onError() {
+		showToast("请求错误");
+	}
+
+	@Override
 	public void onRefresh() {
+		adapter.clearViewCache();
+
 		fetch(1, new Core.OnPostsListener() {
 			@Override
 			public void onPosts(ArrayList<Post> _posts, int page, boolean _hasNextPage) {
@@ -200,6 +231,36 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 				adapter.notifyDataSetChanged();
 				swipe.setRefreshing(false);
 			}
+
+			@Override
+			public void onError() {
+				swipe.setRefreshing(false);
+				showToast("请求错误");
+			}
 		});
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
+		if (returnIntent != null) {
+			String html = returnIntent.getStringExtra("html");
+
+			if (html != null && html.length() > 0) {
+				new AsyncTask<String, Void, Core.PostsRet>() {
+					@Override
+					protected Core.PostsRet doInBackground(String... strings) {
+						return Core.parsePosts(strings[0]);
+					}
+
+					@Override
+					protected void onPostExecute(Core.PostsRet ret) {
+						PostsActivity.this.posts.clear();
+						PostsActivity.this.posts.addAll(ret.posts);
+						hasNextPage = ret.hasNextPage;
+						adapter.notifyDataSetChanged();
+					}
+				}.execute(html);
+			}
+		}
 	}
 }

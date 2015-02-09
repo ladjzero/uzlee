@@ -24,6 +24,7 @@ import java.util.ArrayList;
 public class MsgFragment extends Fragment implements AbsListView.OnItemClickListener {
 	Core core;
 	private OnFragmentInteractionListener mListener;
+	int tabIndex = -1;
 
 	/**
 	 * The fragment's ListView/GridView.
@@ -56,7 +57,7 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		int tabIndex = getArguments().getInt("tab_index");
+		tabIndex = getArguments().getInt("tab_index");
 
 		switch (tabIndex) {
 			case 0:
@@ -88,6 +89,11 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 					public void onPosts(ArrayList<Post> posts, int page, boolean hasNextPage) {
 						mAdapter.addAll(posts);
 					}
+
+					@Override
+					public void onError() {
+						((MainActivity) getActivity()).showToast("请求错误");
+					}
 				});
 				break;
 
@@ -117,6 +123,11 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 					public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
 						mAdapter.addAll(threads);
 					}
+
+					@Override
+					public void onError() {
+						((MainActivity) getActivity()).showToast("请求错误");
+					}
 				});
 
 				break;
@@ -134,6 +145,8 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 
 		// Set OnItemClickListener so we can be notified on item clicks
 		mListView.setOnItemClickListener(this);
+
+		view.findViewById(R.id.hint).setVisibility(View.GONE);
 
 		return view;
 	}
@@ -158,11 +171,15 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		Thread thread = (Thread) parent.getAdapter().getItem(position);
-		Intent intent = new Intent(getActivity(), PostsActivity.class);
-		intent.putExtra("tid", thread.getId());
+		if (tabIndex == 0) {
+			Post post = (Post) parent.getAdapter().getItem(position);
+			Intent intent = new Intent(getActivity(), PostsActivity.class);
+			intent.putExtra("tid", post.getTid());
+			intent.putExtra("fid", post.getFid());
+			intent.putExtra("title", post.getTitle());
 
-		startActivity(intent);
+			startActivity(intent);
+		}
 	}
 
 	/**
