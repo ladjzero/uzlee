@@ -24,6 +24,7 @@ import java.util.ArrayList;
 public class MsgFragment extends Fragment implements AbsListView.OnItemClickListener {
 	Core core;
 	private OnFragmentInteractionListener mListener;
+	int tabIndex = -1;
 
 	/**
 	 * The fragment's ListView/GridView.
@@ -56,7 +57,7 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		int tabIndex = getArguments().getInt("tab_index");
+		tabIndex = getArguments().getInt("tab_index");
 
 		switch (tabIndex) {
 			case 0:
@@ -170,13 +171,15 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		Post post = (Post) parent.getAdapter().getItem(position);
-		Intent intent = new Intent(getActivity(), PostsActivity.class);
-		intent.putExtra("tid", post.getTid());
-		intent.putExtra("fid", post.getFid());
-		intent.putExtra("title", post.getTitle());
+		if (tabIndex == 0) {
+			Post post = (Post) parent.getAdapter().getItem(position);
+			Intent intent = new Intent(getActivity(), PostsActivity.class);
+			intent.putExtra("tid", post.getTid());
+			intent.putExtra("fid", post.getFid());
+			intent.putExtra("title", post.getTitle());
 
-		startActivity(intent);
+			startActivity(intent);
+		}
 	}
 
 	/**

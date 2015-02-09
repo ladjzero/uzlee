@@ -157,7 +157,7 @@ public class NavigationDrawerFragment extends Fragment {
 
 			ImageLoader.getInstance().displayImage(user.getImage(), imageView);
 			userName.setText(user.getName());
-		} else {
+		} else if (Core.getUid() > 0) {
 			try {
 				user = userDao.queryForId(Core.getUid());
 			} catch (SQLException e) {
@@ -185,6 +185,8 @@ public class NavigationDrawerFragment extends Fragment {
 				ImageLoader.getInstance().displayImage(user.getImage(), imageView);
 				userName.setText(user.getName());
 			}
+		} else {
+			userLayout.setVisibility(View.GONE);
 		}
 	}
 

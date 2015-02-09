@@ -19,6 +19,7 @@ import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
+import org.apache.http.cookie.Cookie;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -55,6 +56,7 @@ public class Core {
 	public final static int UGLEE_ID = 1261;
 	private static boolean isOnline = false;
 	public static final Set<Integer> bans = new HashSet<Integer>();
+	private static PersistentCookieStore cookieStore;
 
 	public static class MessageEvent {
 		public MessageEvent(int count) {
@@ -75,7 +77,8 @@ public class Core {
 	public static void setup(Context context) {
 		if (Core.context == null) {
 			Core.context = context;
-			httpClient.setCookieStore(new PersistentCookieStore(context));
+			cookieStore = new PersistentCookieStore(context);
+			httpClient.setCookieStore(cookieStore);
 			bans.addAll(getBanList());
 		}
 	}
@@ -252,6 +255,7 @@ public class Core {
 
 	public static void login(String username, String password, final OnRequestListener onRequestListener) {
 		RequestParams params = new RequestParams();
+		params.setContentEncoding("GBK");
 		params.put("sid", "fa6m4o");
 		params.put("formhash", "ad793a3f");
 		params.put("loginfield", "username");
@@ -303,10 +307,15 @@ public class Core {
 			@Override
 			public void onSuccess(String html) {
 				isOnline = false;
+				uid = -1;
 				EventBus.getDefault().post(new StatusChangeEvent(false));
 				EventBus.getDefault().post(new MessageEvent(0));
 
 				onRequestListener.onSuccess(html);
+
+				for (Cookie cookie : cookieStore.getCookies()) {
+					cookieStore.deleteCookie(cookie);
+				}
 			}
 		});
 	}
@@ -797,8 +806,14 @@ public class Core {
 
 		String fid = null;
 
+		int uid = Integer.valueOf(userId);
 
-		User user = new User().setId(Integer.valueOf(userId)).setName(userName);
+		int avatar0 = uid / 10000;
+		int avatar1 = (uid % 10000) / 100;
+		int avatar2 = uid % 100;
+
+		User user = new User().setId(uid).setName(userName)
+				.setImage("http://www.hi-pda.com/forum/uc_server/data/avatar/000/" + String.format("%02d", avatar0) + "/" + String.format("%02d", avatar1) + "/" + String.format("%02d", avatar2) + "_avatar_middle.jpg");
 		Thread ret = new Thread();
 		ret.setId(Integer.valueOf(id)).setTitle(title).setNew(isNew)
 				.setCommentCount(Integer.valueOf(commentNum)).setAuthor(user);

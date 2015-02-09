@@ -60,8 +60,9 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		}
 
 		final Thread thread = getItem(position);
-		String img = thread.getAuthor().getImage();
-		User user = thread.getAuthor();
+		final User user = thread.getAuthor();
+		String image = user.getImage();
+
 		final int uid = user.getId();
 
 		if (uid == Core.UGLEE_ID) {
@@ -72,7 +73,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 
 		final String userName = user.getName();
 
-		if (img == null) {
+		if (image == null) {
 			try {
 				User u = userDao.queryForId(uid);
 
@@ -81,12 +82,12 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 
 						@Override
 						public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
-							thread.getAuthor().setImage(imageUri);
+							user.setImage(imageUri);
 						}
 
 						@Override
 						public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
-							thread.getAuthor().setImage("");
+							user.setImage("");
 						}
 					});
 				} else {
@@ -98,7 +99,17 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 				e.printStackTrace();
 			}
 		} else {
-			ImageLoader.getInstance().displayImage(img, holder.img);
+			ImageLoader.getInstance().displayImage(image, holder.img, new SimpleImageLoadingListener() {
+				@Override
+				public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
+					user.setImage(imageUri);
+				}
+
+				@Override
+				public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
+					user.setImage("");
+				}
+			});
 		}
 
 		holder.img.setTag(user);
