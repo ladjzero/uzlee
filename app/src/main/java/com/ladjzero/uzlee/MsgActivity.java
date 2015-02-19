@@ -1,6 +1,5 @@
 package com.ladjzero.uzlee;
 
-import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
@@ -12,41 +11,74 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 
+import java.util.HashMap;
 import java.util.Locale;
 
 /**
  * Created by ladjzero on 2015/1/1.
  */
-public class MsgActivity extends BaseActivity implements MsgFragment.OnFragmentInteractionListener{
+public class MsgActivity extends SwipeActivity implements MsgFragment.OnFragmentInteractionListener, ViewPager.OnPageChangeListener {
 	SectionsPagerAdapter mSectionsPagerAdapter;
 
 	ViewPager mViewPager;
+	int page = 0;
+	float x = -1;
+	float xDelta = 0;
+	HashMap<Integer, Fragment> fragmentCache;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		enableBackAction();
-
-
+//		enableBackAction();
+		getActionBar().hide();
 		setContentView(R.layout.activity_my_posts);
+		fragmentCache = new HashMap<Integer, Fragment>();
+
 
 		mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
 
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
+		mViewPager.setOnPageChangeListener(this);
+//        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+//
+//        });
 
 		PagerTabStrip tabs = (PagerTabStrip) findViewById(R.id.tabs);
 
 		TypedValue tv = new TypedValue();
-		if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true))
-		{
-			int actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+		if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+			int actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
 			ViewGroup.LayoutParams params = tabs.getLayoutParams();
 			params.height = actionBarHeight;
 			tabs.setLayoutParams(params);
 		}
 	}
 
+	@Override
+	protected void onDestroy() {
+		fragmentCache.clear();
+		super.onDestroy();
+	}
+
+//	@Override
+//	public boolean dispatchTouchEvent(MotionEvent e) {
+//		if (page > 0) {
+//			setEnableSwipe(false);
+//			return false;
+//		} else {
+//			if (x < 0) {
+//				x = e.getX();
+//				return true;
+//			} else {
+//				xDelta = e.getX() - x;
+//				setEnableSwipe(xDelta > 0);
+//				x = -1;
+//				return false;
+//			}
+//		}
+//	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -75,6 +107,21 @@ public class MsgActivity extends BaseActivity implements MsgFragment.OnFragmentI
 
 	}
 
+	@Override
+	public void onPageScrolled(int i, float v, int i2) {
+//		setEnableSwipe(i == 0 && i2 <= 0);
+	}
+
+	@Override
+	public void onPageSelected(int i) {
+		setEnableSwipe(i == 0);
+	}
+
+	@Override
+	public void onPageScrollStateChanged(int i) {
+
+	}
+
 	/**
 	 * A {@link android.support.v13.app.FragmentPagerAdapter} that returns a fragment corresponding to
 	 * one of the sections/tabs/pages.
@@ -87,7 +134,14 @@ public class MsgActivity extends BaseActivity implements MsgFragment.OnFragmentI
 
 		@Override
 		public Fragment getItem(int position) {
-			return MsgFragment.newInstance(position);
+			Fragment ret = fragmentCache.get(position);
+
+			if (ret == null) {
+				ret = MsgFragment.newInstance(position);
+				fragmentCache.put(position, ret);
+			}
+
+			return ret;
 		}
 
 		@Override

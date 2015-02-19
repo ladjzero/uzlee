@@ -4,6 +4,8 @@
 		<item name="android:windowAnimationStyle">@style/AppBaseTheme.WindowAnimation</item>
 		<!--remove action bar shadow-->
 		<item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
 	</style>
 
 	<style name="AppBaseTheme.WindowAnimation">
@@ -14,5 +16,8 @@
 	</style>
 
 	<style name="AppTheme" parent="AppBaseTheme"></style>
+
+
+
 
 </resources>

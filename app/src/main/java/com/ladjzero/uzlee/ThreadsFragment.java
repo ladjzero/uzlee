@@ -1,36 +1,46 @@
 package com.ladjzero.uzlee;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.j256.ormlite.dao.Dao;
-import com.ladjzero.hipda.Core;
-import com.ladjzero.hipda.Core.OnThreadsListener;
-import com.ladjzero.hipda.DBHelper;
-import com.ladjzero.hipda.Thread;
-import com.ladjzero.hipda.User;
-
 import android.app.Fragment;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.j256.ormlite.dao.Dao;
+import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.Core.OnThreadsListener;
+import com.ladjzero.hipda.DBHelper;
+import com.ladjzero.hipda.Post;
+import com.ladjzero.hipda.Thread;
+import com.ladjzero.hipda.User;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.Transformer;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+
 public class ThreadsFragment extends Fragment implements OnRefreshListener, AdapterView.OnItemClickListener, OnThreadsListener {
 
+	private final ArrayList<Thread> threads = new ArrayList<Thread>();
 	private SwipeRefreshLayout swipe;
 	private DBHelper db;
 	private Dao<Thread, Integer> threadDao;
 	private Dao<User, Integer> userDao;
-	private final ArrayList<Thread> threads = new ArrayList<Thread>();
 	private ListView listView;
 	private ThreadsAdapter adapter;
 	private boolean hasNextPage = false;
@@ -84,6 +94,8 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		hint.setText("正在加载下一页");
 		hint.setVisibility(View.GONE);
 
+		registerForContextMenu(listView);
+
 		return rootView;
 	}
 
@@ -114,13 +126,10 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	}
 
 	@Override
-	public void onStart() {
-		super.onStart();
+	public void onResume() {
+		super.onResume();
 
-		if (threads.size() == 0) {
-			fetch(1, this);
-		}
-
+		if (threads.size() == 0) fetch(1, this);
 		adapter.notifyDataSetChanged();
 	}
 
@@ -155,6 +164,21 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	@Override
 	public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
 		this.hasNextPage = hasNextPage;
+
+		final Collection<Integer> ids = CollectionUtils.collect(this.threads, new Transformer() {
+			@Override
+			public Object transform(Object o) {
+				return ((Thread) o).getId();
+			}
+		});
+
+		threads = (ArrayList<Thread>) CollectionUtils.selectRejected(threads, new Predicate() {
+			@Override
+			public boolean evaluate(Object o) {
+				return ids.contains(((Thread) o).getId());
+			}
+		});
+
 		this.threads.addAll(threads);
 		adapter.notifyDataSetChanged();
 	}
@@ -162,16 +186,6 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	@Override
 	public void onError() {
 		((MainActivity) getActivity()).showToast("请求错误");
-	}
-
-	class SaveData extends AsyncTask<String, Void, String> {
-
-		@Override
-		protected String doInBackground(String... params) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
 	}
 
 	@Override
@@ -192,5 +206,34 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 				((MainActivity) getActivity()).showToast("请求错误");
 			}
 		});
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+		menu.add(0, 1, 0, "复制标题");
+		super.onCreateContextMenu(menu, v, menuInfo);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+		Thread thread = adapter.getItem(info.position);
+		ClipboardManager clipboardManager = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+		StringBuilder builder = new StringBuilder();
+
+		ClipData clipData = ClipData.newPlainText("post content", thread.getTitle());
+		clipboardManager.setPrimaryClip(clipData);
+		((BaseActivity) getActivity()).showToast("复制到剪切版");
+		return super.onContextItemSelected(item);
+	}
+
+	class SaveData extends AsyncTask<String, Void, String> {
+
+		@Override
+		protected String doInBackground(String... params) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 	}
 }

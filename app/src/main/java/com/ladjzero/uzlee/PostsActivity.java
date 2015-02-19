@@ -1,13 +1,13 @@
 package com.ladjzero.uzlee;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,29 +21,35 @@ import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.DBHelper;
-import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.Post;
+import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
 
-public class PostsActivity extends BaseActivity implements AdapterView.OnItemClickListener, Core.OnPostsListener, SwipeRefreshLayout.OnRefreshListener {
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.Transformer;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+
+public class PostsActivity extends SwipeActivity implements AdapterView.OnItemClickListener, Core.OnPostsListener, SwipeRefreshLayout.OnRefreshListener {
 
 	private static final String TAG = "PostsActivity";
-
-	private SwipeRefreshLayout swipe;
-
+	final int EDIT_CODE = 99;
 	DBHelper db;
 	Dao<Thread, Integer> threadDao;
 	Dao<Post, Integer> postDao;
 	Dao<User, Integer> userDao;
 	int fid;
 	int tid;
-	final int EDIT_CODE = 99;
 	ArrayList<Post> posts = new ArrayList<Post>();
 	ListView listView;
 	String titleStr;
 	PostsAdapter adapter;
 	boolean hasNextPage = false;
 	TextView hint;
+	private SwipeRefreshLayout swipe;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +58,8 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 		super.onCreate(savedInstanceState);
 
-		enableBackAction();
+//		enableBackAction();
+		getActionBar().setIcon(null);
 
 		db = this.getHelper();
 		fid = getIntent().getIntExtra("fid", 0);
@@ -92,16 +99,14 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 		hint = (TextView) findViewById(R.id.hint);
 		hint.setVisibility(View.GONE);
+		registerForContextMenu(listView);
 	}
 
 	@Override
-	public void onStart() {
-		super.onStart();
+	public void onResume() {
+		super.onResume();
 
-		if (posts.size() == 0) {
-			fetch(1, this);
-		}
-
+		if (posts.size() == 0) fetch(1, this);
 		adapter.notifyDataSetChanged();
 	}
 
@@ -144,6 +149,32 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 			outState.putIntegerArrayList("ids", ids);
 		}
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+		menu.add(0, 1, 0, "复制正文");
+		super.onCreateContextMenu(menu, v, menuInfo);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+		Post post = adapter.getItem(info.position);
+		ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+		StringBuilder builder = new StringBuilder();
+
+		for (String str : post.getNiceBody()) {
+			if (str.startsWith("txt:")) {
+				if (builder.length() > 0) builder.append("\n");
+				builder.append(str.substring(4));
+			}
+		}
+
+		ClipData clipData = ClipData.newPlainText("post content", builder.toString());
+		clipboardManager.setPrimaryClip(clipData);
+		showToast("复制到剪切版");
+		return super.onContextItemSelected(item);
 	}
 
 	@Override
@@ -254,7 +285,22 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 					@Override
 					protected void onPostExecute(Core.PostsRet ret) {
-						PostsActivity.this.posts.clear();
+						final Collection<Integer> ids = CollectionUtils.collect(PostsActivity.this.posts, new Transformer() {
+							@Override
+							public Object transform(Object o) {
+								return ((Post) o).getId();
+							}
+						});
+
+						ret.posts = (ArrayList<Post>) CollectionUtils.select(ret.posts, new Predicate() {
+							@Override
+							public boolean evaluate(Object o) {
+								Post post = (Post) o;
+
+								return !ids.contains(post.getId());
+							}
+						});
+
 						PostsActivity.this.posts.addAll(ret.posts);
 						hasNextPage = ret.hasNextPage;
 						adapter.notifyDataSetChanged();

@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 			  android:layout_width="match_parent"
 			  android:layout_height="match_parent"
+              android:clickable="true"
 			  android:orientation="vertical">
 
 	<RelativeLayout
@@ -36,5 +37,5 @@
 
 	</RelativeLayout>
 
-	<include layout="@layout/threads_can_refresh"/>
+	<include layout="@layout/threads"/>
 </LinearLayout>

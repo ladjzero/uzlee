@@ -192,6 +192,7 @@ public class NavigationDrawerFragment extends Fragment {
 
 	public void onEventMainThread(Core.StatusChangeEvent statusChangeEvent) {
 		adapter.notifyDataSetChanged();
+		getView().invalidate();
 
 		if (statusChangeEvent.online) {
 			setUser();

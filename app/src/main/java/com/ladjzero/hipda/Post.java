@@ -34,6 +34,8 @@ public class Post{
 	private int fid;
 	private String timeStr;
 	private String editTimeStr;
+	private int postIndex;
+	private Post quote;
 	
 	public User getAuthor() {
 		return author;
@@ -142,6 +144,24 @@ public class Post{
 
 	public Post setEditTimeStr(String editTimeStr) {
 		this.editTimeStr = editTimeStr;
+		return this;
+	}
+
+	public int getPostIndex() {
+		return postIndex;
+	}
+
+	public Post setPostIndex(int postIndex) {
+		this.postIndex = postIndex;
+		return this;
+	}
+
+	public Post getQuote() {
+		return quote;
+	}
+
+	public Post setQuote(Post quote) {
+		this.quote = quote;
 		return this;
 	}
 }

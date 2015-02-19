@@ -3,8 +3,12 @@ package com.ladjzero.uzlee;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,7 +25,7 @@ import com.ladjzero.hipda.Thread;
 import java.util.ArrayList;
 
 
-public class ThreadsActivity extends BaseActivity implements Core.OnThreadsListener, AdapterView.OnItemClickListener {
+public class ThreadsActivity extends SwipeActivity implements Core.OnThreadsListener, AdapterView.OnItemClickListener {
 
 	ListView listView;
 	ArrayList<Thread> threads;
@@ -33,7 +37,7 @@ public class ThreadsActivity extends BaseActivity implements Core.OnThreadsListe
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		enableBackAction();
+//		enableBackAction();
 
 		setContentView(R.layout.threads);
 
@@ -61,6 +65,27 @@ public class ThreadsActivity extends BaseActivity implements Core.OnThreadsListe
 
 		hint = (TextView) findViewById(R.id.hint);
 		hint.setVisibility(View.GONE);
+
+		registerForContextMenu(listView);
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+		menu.add(0, 1, 0, "复制标题");
+		super.onCreateContextMenu(menu, v, menuInfo);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+		Thread thread = adapter.getItem(info.position);
+		ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+		StringBuilder builder = new StringBuilder();
+
+		ClipData clipData = ClipData.newPlainText("post content", thread.getTitle());
+		clipboardManager.setPrimaryClip(clipData);
+		showToast("复制到剪切版");
+		return super.onContextItemSelected(item);
 	}
 
 	@Override

@@ -130,22 +130,9 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			}
 		}
 
-		holder.postNo.setText("#" + (position + 1));
+		holder.postNo.setText("#" + post.getPostIndex());
 
-		final int quoteId = post.getReplyTo();
-
-		Post quote = null;
-
-		if (quoteId > 0) {
-			quote = (Post) CollectionUtils.find(posts, new Predicate() {
-
-				@Override
-				public boolean evaluate(Object post) {
-					return ((Post) post).getId() == quoteId;
-				}
-
-			});
-		}
+		Post quote = post.getQuote();
 
 		if (author.getId() == Core.UGLEE_ID) {
 			row.setBackgroundResource(R.color.uglee);
@@ -156,25 +143,50 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		}
 
 		if (quote != null) {
-			if (quote.getAuthor().getId() == Core.UGLEE_ID) {
-				holder.quoteLayout.setBackgroundResource(R.color.uglee);
-			}
+			final int quoteId = quote.getId();
 
-			holder.quoteLayout.setVisibility(View.VISIBLE);
-			holder.quoteName.setText(quote.getAuthor().getName());
-			ImageLoader.getInstance().displayImage(quote.getAuthor().getImage(), holder.quoteImg);
-			String bodySnippet0 = quote.getNiceBody()[0];
+			Post betterQuote = (Post) CollectionUtils.find(posts, new Predicate() {
 
-			int quid = quote.getAuthor().getId();
+				@Override
+				public boolean evaluate(Object post) {
+					return ((Post) post).getId() == quoteId;
+				}
 
-			if (Core.bans.contains(quid)) {
-				holder.quoteBody.setText(context.getString(R.string.blocked));
+			});
+
+			if (betterQuote != null) {
+				User quoteUser = betterQuote.getAuthor();
+
+				if (quoteUser.getId() == Core.UGLEE_ID) {
+					holder.quoteLayout.setBackgroundResource(R.color.uglee);
+				}
+
+				holder.quoteLayout.setVisibility(View.VISIBLE);
+				holder.quoteName.setText(quoteUser.getName());
+				ImageLoader.getInstance().displayImage(quoteUser.getImage(), holder.quoteImg);
+				String bodySnippet0 = betterQuote.getNiceBody()[0];
+
+				int quid = quoteUser.getId();
+
+				if (Core.bans.contains(quid)) {
+					holder.quoteBody.setText(context.getString(R.string.blocked));
+				} else {
+					holder.quoteBody
+							.setText(bodySnippet0.indexOf("txt:") == 0 ? bodySnippet0
+									.substring(4) : "[image]");
+				}
+				holder.quotePostNo.setText("#" + betterQuote.getPostIndex());
 			} else {
-				holder.quoteBody
-						.setText(bodySnippet0.indexOf("txt:") == 0 ? bodySnippet0
-								.substring(4) : "[image]");
+				holder.quoteLayout.setVisibility(View.VISIBLE);
+				holder.quoteName.setText(quote.getAuthor().getName());
+				holder.quoteBody.setText(quote.getBody());
+
+				if (quote.getPostIndex() > 0) {
+					holder.quotePostNo.setText("#" + quote.getPostIndex());
+				} else {
+					holder.quotePostNo.setText("");
+				}
 			}
-			holder.quotePostNo.setText("#" + (posts.indexOf(quote) + 1));
 		} else {
 			holder.quoteLayout.setVisibility(View.GONE);
 		}
@@ -253,7 +265,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 				postTextLayout.removeAllViews();
 
 				views.add(textView);
-			} else {
+			} else if (bodySnippet.startsWith("img:")) {
 				LinearLayout postImageLayout = (LinearLayout) context.getLayoutInflater().inflate(R.layout.post_body_image_segment, null);
 				final PostImageView imageView = (PostImageView) postImageLayout.findViewById(R.id.post_img);
 				postImageLayout.removeAllViews();
@@ -271,6 +283,13 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 						intent.putExtra("url", url);
 						intent.putExtra("tid", post.getTid());
 						context.startActivity(intent);
+					}
+				});
+
+				imageView.setOnLongClickListener(new View.OnLongClickListener() {
+					@Override
+					public boolean onLongClick(View view) {
+						return false;
 					}
 				});
 			}

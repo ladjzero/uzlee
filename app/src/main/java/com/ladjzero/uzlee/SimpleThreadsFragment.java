@@ -1,20 +1,18 @@
 package com.ladjzero.uzlee;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
-
-import com.ladjzero.hipda.*;
+import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Thread;
 
 import java.util.ArrayList;
@@ -24,10 +22,10 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 	Core core;
 	int tabIndex;
 	boolean hasNextPage = false;
-	private OnFragmentInteractionListener mListener;
 	ArrayList<Thread> threads = new ArrayList<Thread>();
 	TextView hint;
-
+	int pageToLoad = 1;
+	private OnFragmentInteractionListener mListener;
 	/**
 	 * The fragment's ListView/GridView.
 	 */
@@ -39,6 +37,13 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 	 */
 	private ArrayAdapter mAdapter;
 
+	/**
+	 * Mandatory empty constructor for the fragment manager to instantiate the
+	 * fragment (e.g. upon screen orientation changes).
+	 */
+	public SimpleThreadsFragment() {
+	}
+
 	// TODO: Rename and change types of parameters
 	public static SimpleThreadsFragment newInstance(int position) {
 		SimpleThreadsFragment fragment = new SimpleThreadsFragment();
@@ -46,13 +51,6 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 		args.putInt("tab_index", position);
 		fragment.setArguments(args);
 		return fragment;
-	}
-
-	/**
-	 * Mandatory empty constructor for the fragment manager to instantiate the
-	 * fragment (e.g. upon screen orientation changes).
-	 */
-	public SimpleThreadsFragment() {
 	}
 
 	@Override
@@ -119,30 +117,31 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 
 					switch (tabIndex) {
 						case 0:
-							Core.getMyThreads(page, SimpleThreadsFragment.this);
+							Core.getMyThreads(pageToLoad, SimpleThreadsFragment.this);
 							break;
 						case 1:
-							Core.getMyPosts(page, SimpleThreadsFragment.this);
+							Core.getMyPosts(pageToLoad, SimpleThreadsFragment.this);
 							break;
 						case 2:
-							Core.getFavorites(page, SimpleThreadsFragment.this);
+							Core.getFavorites(pageToLoad, SimpleThreadsFragment.this);
 							break;
 					}
 				}
 			}
 		});
 
-
-		switch (tabIndex) {
-			case 0:
-				Core.getMyThreads(1, this);
-				break;
-			case 1:
-				Core.getMyPosts(1, this);
-				break;
-			case 2:
-				Core.getFavorites(1, this);
-				break;
+		if (pageToLoad == 1) {
+			switch (tabIndex) {
+				case 0:
+					Core.getMyThreads(pageToLoad, this);
+					break;
+				case 1:
+					Core.getMyPosts(pageToLoad, this);
+					break;
+				case 2:
+					Core.getFavorites(pageToLoad, this);
+					break;
+			}
 		}
 
 		mListView.setAdapter(mAdapter);
@@ -193,6 +192,7 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 
 	@Override
 	public void onThreads(ArrayList<Thread> threads, int currPage, boolean hasNextPage) {
+		pageToLoad = currPage + 1;
 		this.threads.addAll(threads);
 		mAdapter.notifyDataSetChanged();
 		this.hasNextPage = hasNextPage;

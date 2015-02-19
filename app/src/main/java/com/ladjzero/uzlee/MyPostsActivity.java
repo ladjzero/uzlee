@@ -1,25 +1,23 @@
 package com.ladjzero.uzlee;
 
-import java.util.Locale;
-
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.support.v13.app.FragmentPagerAdapter;
 import android.os.Bundle;
+import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.HashMap;
+import java.util.Locale;
 
 
-public class MyPostsActivity extends BaseActivity implements ActionBar.TabListener, SimpleThreadsFragment.OnFragmentInteractionListener {
+public class MyPostsActivity extends SwipeActivity implements ActionBar.TabListener, SimpleThreadsFragment.OnFragmentInteractionListener, ViewPager.OnPageChangeListener {
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -35,12 +33,15 @@ public class MyPostsActivity extends BaseActivity implements ActionBar.TabListen
 	 * The {@link ViewPager} that will host the section contents.
 	 */
 	ViewPager mViewPager;
+	HashMap<Integer, Fragment> fragmentCache;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		enableBackAction();
+//		enableBackAction();
+		getActionBar().hide();
 
+		fragmentCache = new HashMap<Integer, Fragment>();
 		setContentView(R.layout.activity_my_posts);
 
 		// Set up the action bar.
@@ -56,6 +57,7 @@ public class MyPostsActivity extends BaseActivity implements ActionBar.TabListen
 		// Set up the ViewPager with the sections adapter.
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
+		mViewPager.setOnPageChangeListener(this);
 
 //		PagerTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
 //		tabs.setViewPager(mViewPager);
@@ -74,9 +76,8 @@ public class MyPostsActivity extends BaseActivity implements ActionBar.TabListen
 		PagerTabStrip tabs = (PagerTabStrip) findViewById(R.id.tabs);
 
 		TypedValue tv = new TypedValue();
-		if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true))
-		{
-			int actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+		if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+			int actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
 			ViewGroup.LayoutParams params = tabs.getLayoutParams();
 			params.height = actionBarHeight;
 			tabs.setLayoutParams(params);
@@ -96,6 +97,11 @@ public class MyPostsActivity extends BaseActivity implements ActionBar.TabListen
 //		}
 	}
 
+	@Override
+	public void onDestroy() {
+		fragmentCache.clear();
+		super.onDestroy();
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -139,6 +145,21 @@ public class MyPostsActivity extends BaseActivity implements ActionBar.TabListen
 
 	}
 
+	@Override
+	public void onPageScrolled(int i, float v, int i2) {
+		setEnableSwipe(i == 0 && i2 <= 0);
+	}
+
+	@Override
+	public void onPageSelected(int i) {
+		setEnableSwipe(i == 0);
+	}
+
+	@Override
+	public void onPageScrollStateChanged(int i) {
+
+	}
+
 	/**
 	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
 	 * one of the sections/tabs/pages.
@@ -151,7 +172,14 @@ public class MyPostsActivity extends BaseActivity implements ActionBar.TabListen
 
 		@Override
 		public Fragment getItem(int position) {
-			return SimpleThreadsFragment.newInstance(position);
+			Fragment ret = fragmentCache.get(position);
+
+			if (ret == null) {
+				ret = SimpleThreadsFragment.newInstance(position);
+				fragmentCache.put(position, ret);
+			}
+
+			return ret;
 		}
 
 		@Override

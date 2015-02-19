@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -15,7 +16,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.sql.SQLException;
 
-public class UserActivity extends BaseActivity {
+public class UserActivity extends SwipeActivity {
 
 	private Dao<User, Integer> userDao;
 
@@ -23,7 +24,7 @@ public class UserActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		enableBackAction();
+//		enableBackAction();
 
 		setContentView(R.layout.activity_user);
 
@@ -102,6 +103,10 @@ public class UserActivity extends BaseActivity {
 				}
 			}
 		});
+	}
+
+	public boolean onTouchEvent(MotionEvent e) {
+		return true;
 	}
 
 	@Override

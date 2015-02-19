@@ -17,6 +17,7 @@ import com.ladjzero.hipda.*;
 import com.ladjzero.hipda.Thread;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by ladjzero on 2015/1/1.
@@ -25,11 +26,13 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 	Core core;
 	private OnFragmentInteractionListener mListener;
 	int tabIndex = -1;
+	int pageToLoad = 1;
 
 	/**
 	 * The fragment's ListView/GridView.
 	 */
 	private AbsListView mListView;
+
 
 	/**
 	 * The Adapter which will be used to populate the ListView/GridView with
@@ -84,17 +87,6 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 					}
 				};
 
-				Core.getAlerts(new Core.OnPostsListener() {
-					@Override
-					public void onPosts(ArrayList<Post> posts, int page, boolean hasNextPage) {
-						mAdapter.addAll(posts);
-					}
-
-					@Override
-					public void onError() {
-						((MainActivity) getActivity()).showToast("请求错误");
-					}
-				});
 				break;
 
 			case 1:
@@ -118,21 +110,10 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 					}
 				};
 
-				Core.getMessages(new Core.OnThreadsListener() {
-					@Override
-					public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
-						mAdapter.addAll(threads);
-					}
-
-					@Override
-					public void onError() {
-						((MainActivity) getActivity()).showToast("请求错误");
-					}
-				});
-
 				break;
 		}
 	}
+
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -147,6 +128,37 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 		mListView.setOnItemClickListener(this);
 
 		view.findViewById(R.id.hint).setVisibility(View.GONE);
+
+		switch (tabIndex) {
+			case 0:
+				Core.getAlerts(new Core.OnPostsListener() {
+					@Override
+					public void onPosts(ArrayList<Post> posts, int page, boolean hasNextPage) {
+						mAdapter.addAll(posts);
+					}
+
+					@Override
+					public void onError() {
+						((MainActivity) getActivity()).showToast("请求错误");
+					}
+				});
+				break;
+
+			case 1:
+				Core.getMessages(new Core.OnThreadsListener() {
+					@Override
+					public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
+						mAdapter.addAll(threads);
+					}
+
+					@Override
+					public void onError() {
+						((MainActivity) getActivity()).showToast("请求错误");
+					}
+				});
+
+				break;
+		}
 
 		return view;
 	}

@@ -1,18 +1,20 @@
 package com.ladjzero.hipda;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.util.Log;
+
+import com.alibaba.fastjson.JSON;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.PersistentCookieStore;
+import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.TextHttpResponseHandler;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -27,52 +29,106 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
-import com.alibaba.fastjson.JSON;
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.PersistentCookieStore;
-import com.loopj.android.http.RequestParams;
-import com.loopj.android.http.TextHttpResponseHandler;
-
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-import android.util.Log;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import de.greenrobot.event.EventBus;
 
 public class Core {
-	private static final String TAG = "Core";
+	public final static int UGLEE_ID = 1261;
+	public static final Set<Integer> bans = new HashSet<Integer>();
+	public static final HashMap<String, String> icons = new HashMap<String, String>();
+	public static final Set<String> iconKeys;
+	public static final Collection<String> iconValues;
 
+	static {
+		icons.put("images/smilies/default/smile.gif", ":)");
+		icons.put("images/smilies/default/sweat.gif", ":sweat:");
+		icons.put("images/smilies/default/huffy.gif", ":huffy:");
+		icons.put("images/smilies/default/cry.gif", ":cry:");
+		icons.put("images/smilies/default/titter.gif", ":titter:");
+		icons.put("images/smilies/default/handshake.gif", ":handshake:");
+		icons.put("images/smilies/default/victory.gif", ":victory:");
+		icons.put("images/smilies/default/curse.gif", ":curse:");
+		icons.put("images/smilies/default/dizzy.gif", ":dizzy:");
+		icons.put("images/smilies/default/shutup.gif", ":shutup:");
+		icons.put("images/smilies/default/funk.gif", ":funk:");
+		icons.put("images/smilies/default/loveliness.gif", ":loveliness:");
+		icons.put("images/smilies/default/sad.gif", ":(");
+		icons.put("images/smilies/default/biggrin.gif", ":D");
+		icons.put("images/smilies/default/cool.gif", ":cool:");
+		icons.put("images/smilies/default/mad.gif", ":mad:");
+		icons.put("images/smilies/default/shocked.gif", ":o");
+		icons.put("images/smilies/default/tongue.gif", ":P");
+		icons.put("images/smilies/default/lol.gif", ":lol:");
+		icons.put("images/smilies/default/shy.gif", ":shy:");
+		icons.put("images/smilies/default/sleepy.gif", ":sleepy:");
+
+		icons.put("images/smilies/coolmonkey/01.gif", "{:2_41:}");
+		icons.put("images/smilies/coolmonkey/02.gif", "{:2_42:}");
+		icons.put("images/smilies/coolmonkey/03.gif", "{:2_43:}");
+		icons.put("images/smilies/coolmonkey/04.gif", "{:2_44:}");
+		icons.put("images/smilies/coolmonkey/05.gif", "{:2_45:}");
+		icons.put("images/smilies/coolmonkey/06.gif", "{:2_46:}");
+		icons.put("images/smilies/coolmonkey/07.gif", "{:2_47:}");
+		icons.put("images/smilies/coolmonkey/08.gif", "{:2_48:}");
+		icons.put("images/smilies/coolmonkey/09.gif", "{:2_49:}");
+		icons.put("images/smilies/coolmonkey/10.gif", "{:2_50:}");
+		icons.put("images/smilies/coolmonkey/11.gif", "{:2_51:}");
+		icons.put("images/smilies/coolmonkey/12.gif", "{:2_52:}");
+		icons.put("images/smilies/coolmonkey/13.gif", "{:2_53:}");
+		icons.put("images/smilies/coolmonkey/14.gif", "{:2_54:}");
+		icons.put("images/smilies/coolmonkey/15.gif", "{:2_55:}");
+		icons.put("images/smilies/coolmonkey/16.gif", "{:2_56:}");
+
+		icons.put("images/smilies/grapeman/01.gif", "{:3_57:}");
+		icons.put("images/smilies/grapeman/02.gif", "{:3_58:}");
+		icons.put("images/smilies/grapeman/03.gif", "{:3_59:}");
+		icons.put("images/smilies/grapeman/04.gif", "{:3_60:}");
+		icons.put("images/smilies/grapeman/05.gif", "{:3_61:}");
+		icons.put("images/smilies/grapeman/06.gif", "{:3_62:}");
+		icons.put("images/smilies/grapeman/07.gif", "{:3_63:}");
+		icons.put("images/smilies/grapeman/08.gif", "{:3_64:}");
+		icons.put("images/smilies/grapeman/09.gif", "{:3_65:}");
+		icons.put("images/smilies/grapeman/10.gif", "{:3_66:}");
+		icons.put("images/smilies/grapeman/11.gif", "{:3_67:}");
+		icons.put("images/smilies/grapeman/12.gif", "{:3_68:}");
+		icons.put("images/smilies/grapeman/13.gif", "{:3_69:}");
+		icons.put("images/smilies/grapeman/14.gif", "{:3_70:}");
+		icons.put("images/smilies/grapeman/15.gif", "{:3_71:}");
+		icons.put("images/smilies/grapeman/16.gif", "{:3_72:}");
+		icons.put("images/smilies/grapeman/17.gif", "{:3_73:}");
+		icons.put("images/smilies/grapeman/18.gif", "{:3_74:}");
+		icons.put("images/smilies/grapeman/19.gif", "{:3_75:}");
+		icons.put("images/smilies/grapeman/20.gif", "{:3_76:}");
+		icons.put("images/smilies/grapeman/21.gif", "{:3_77:}");
+		icons.put("images/smilies/grapeman/22.gif", "{:3_78:}");
+		icons.put("images/smilies/grapeman/23.gif", "{:3_79:}");
+		icons.put("images/smilies/grapeman/24.gif", "{:3_80:}");
+
+		iconKeys = icons.keySet();
+		iconValues = icons.values();
+	}
+
+	private static final String TAG = "Core";
+	private final static int maxImageLength = 299 * 1024;
 	private static AsyncHttpClient httpClient = new AsyncHttpClient();
 	private static String formhash;
 	private static String hash;
 	private static Context context;
 	private static int uid;
-	private final static int maxImageLength = 299 * 1024;
-	public final static int UGLEE_ID = 1261;
 	private static boolean isOnline = false;
-	public static final Set<Integer> bans = new HashSet<Integer>();
 	private static PersistentCookieStore cookieStore;
-
-	public static class MessageEvent {
-		public MessageEvent(int count) {
-			this.count = count;
-		}
-
-		public int count;
-	}
-
-	public static class StatusChangeEvent {
-		public StatusChangeEvent(boolean online) {
-			this.online = online;
-		}
-
-		public boolean online;
-	}
 
 	public static void setup(Context context) {
 		if (Core.context == null) {
@@ -91,36 +147,6 @@ public class Core {
 		return uid;
 	}
 
-	public static class UpdateInfo {
-		private String version;
-		private String uri;
-		private String info;
-
-		public String getVersion() {
-			return version;
-		}
-
-		public void setVersion(String version) {
-			this.version = version;
-		}
-
-		public String getUri() {
-			return uri;
-		}
-
-		public void setUri(String uri) {
-			this.uri = uri;
-		}
-
-		public String getInfo() {
-			return info;
-		}
-
-		public void setInfo(String info) {
-			this.info = info;
-		}
-	}
-
 	public static void requestUpdate() {
 		httpClient.get(
 				context,
@@ -136,16 +162,6 @@ public class Core {
 						EventBus.getDefault().post(updateInfo);
 					}
 				});
-	}
-
-	public interface OnRequestListener {
-		void onError(String error);
-
-		void onSuccess(String html);
-	}
-
-	public interface OnUploadListener {
-		void onUpload(String response);
 	}
 
 	public static void uploadImage(final File imageFile, final OnUploadListener onUploadListener) {
@@ -224,10 +240,12 @@ public class Core {
 			}
 
 			String uidHref = doc.select("#umenu > cite > a").attr("href");
+			Uri uri = Uri.parse(uidHref);
+			String uid = uri.getQueryParameter("uid");
 
-			if (uidHref.indexOf("uid=") > -1) {
+			if (uid != null && uid.length() > 0) {
 				isOnline = true;
-				uid = Integer.valueOf(uidHref.substring(uidHref.indexOf("uid=") + 4));
+				Core.uid = Integer.valueOf(uid);
 			} else {
 				isOnline = false;
 
@@ -282,6 +300,7 @@ public class Core {
 								try {
 									html = new String(responseBody, "GBK");
 									if (html.contains("欢迎您回来")) {
+										getDoc(html);
 										EventBus.getDefault().post(new StatusChangeEvent(true));
 										onRequestListener.onSuccess("");
 									} else if (html.contains("密码错误次数过多，请 15 分钟后重新登录")) {
@@ -320,12 +339,6 @@ public class Core {
 		});
 	}
 
-	public static class PostsRet {
-		public ArrayList<Post> posts;
-		public boolean hasNextPage;
-		public int page;
-	}
-
 	public static PostsRet parsePosts(String html) {
 		ArrayList<Post> posts = new ArrayList<Post>();
 		Document doc = getDoc(html);
@@ -356,25 +369,14 @@ public class Core {
 	private static Post toPostObj(Element ePost) {
 		int idPrefixLength = "pid".length();
 
+		Post post = new Post();
+
 		String id = ePost.attr("id").substring(idPrefixLength);
-		Elements eReply = ePost
-				.select("strong a[href^=http://www.hi-pda.com/forum/redirect.php?goto=findpost]");
-		if (eReply.size() == 0) {
-			eReply = ePost
-					.select("div.quote blockquote a[href^=http://www.hi-pda.com/forum/redirect.php?goto=findpost]");
-		}
 
-		String replyTo = null;
-		if (eReply.size() != 0) {
-			replyTo = eReply.attr("href");
+		Post quote = findQuote(ePost);
 
-			if (replyTo
-					.matches("http://www.hi-pda.com/forum/redirect.php\\?goto=findpost&pid=\\d+&ptid=\\d+")) {
-				replyTo = replyTo.substring(replyTo.indexOf("pid=") + 4,
-						replyTo.indexOf("&ptid="));
-			} else {
-				replyTo = null;
-			}
+		if (quote != null) {
+			post.setQuote(quote);
 		}
 
 		Elements eBody = ePost.select("td.t_msgfont");
@@ -393,6 +395,9 @@ public class Core {
 			timeStr = timeStr.trim();
 		}
 
+		String postIndex = ePost.select("a[id^=postnum] > em").text();
+		postIndex = postIndex.trim();
+
 		Element eUser = ePost.select("td.postauthor").get(0);
 		Elements eUinfo = eUser.select("div.postinfo a");
 		String userId = eUinfo.attr("href").substring("space.php?uid=".length());
@@ -402,13 +407,68 @@ public class Core {
 		User user = new User().setId(Integer.valueOf(userId)).setName(userName)
 				.setImage(userImg);
 
-		Post post = new Post().setId(Integer.valueOf(id)).setNiceBody(niceBody)
-				.setAuthor(user).setTimeStr(timeStr);
-		if (replyTo != null) {
-			post.setReplyTo(Integer.valueOf(replyTo));
-		}
+		post.setId(Integer.valueOf(id)).setNiceBody(niceBody)
+				.setAuthor(user).setTimeStr(timeStr).setPostIndex(Integer.valueOf(postIndex));
 
 		return post;
+	}
+
+	private static Post findQuote(Element ePost) {
+		Elements eBlockQuote = ePost.select(".quote > blockquote"),
+				eSimpleReply = ePost.select("strong > a[href^=http://www.hi-pda.com/forum/redirect.php?goto=findpost]");
+
+		if (eBlockQuote.size() > 0) {
+			Elements eId = eBlockQuote.select("font[size=2] > a[href^=http://www.hi-pda.com/forum/redirect.php?goto=findpost]");
+
+			if (eId.size() > 0) {
+				Uri uri = Uri.parse(eId.attr("href"));
+				String id = uri.getQueryParameter("pid");
+
+				if (id != null && id.length() > 0) {
+					Post quote = new Post().setId(Integer.valueOf(id));
+
+					String userName = eBlockQuote.select("font[size=2] > font").text();
+					int _ = userName.indexOf("发表于");
+
+					if (_ > 0) {
+						userName = userName.substring(0, _).trim();
+						quote.setAuthor(new User().setName(userName));
+					} else {
+						quote.setAuthor(new User().setName(""));
+					}
+
+					eBlockQuote.get(0).child(0).remove();
+					eBlockQuote.select("font[size=2]").remove();
+
+					String content = eBlockQuote.text().trim();
+					quote.setBody(content);
+
+					return quote;
+				}
+			}
+		} else if (eSimpleReply.size() > 0) {
+			Uri uri = Uri.parse(eSimpleReply.attr("href"));
+			String id = uri.getQueryParameter("pid");
+
+			if (id != null && id.length() > 0) {
+				Post quote = new Post().setId(Integer.valueOf(id));
+
+				String quoteIndex = eSimpleReply.text().trim();
+
+				if (quoteIndex.endsWith("#")) {
+					quoteIndex = quoteIndex.substring(0, quoteIndex.length() - 1);
+					quote.setPostIndex(Integer.valueOf(quoteIndex));
+				}
+
+				String userName = eSimpleReply.get(0).parent().select("> i").text().trim();
+				quote.setAuthor(new User().setName(userName))
+						.setBody("");
+
+				return quote;
+			}
+		}
+
+		return null;
 	}
 
 	@SuppressLint("DefaultLocale")
@@ -473,6 +533,7 @@ public class Core {
 						temps.add("txt:" + sbStr);
 					}
 
+					// Remove bad spaces of sig. (some bad people sign it)
 					temps.add("sig:" + e.text().replaceAll("\u00a0", " ").trim());
 					sb.delete(0, sb.length());
 				} else if (tag.equals("img") && e.attr("width").equals("16") && e.attr("height").equals("16")) {
@@ -746,14 +807,6 @@ public class Core {
 		}
 	}
 
-
-	public static class ThreadsRet {
-		public ArrayList<Thread> threads;
-		public boolean hasNextPage;
-		public int page;
-	}
-
-
 	public static ThreadsRet parseThreads(String html) {
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 		Document doc = getDoc(html);
@@ -786,48 +839,49 @@ public class Core {
 	private static Thread toThreadObj(Element eThread) {
 		Elements eLastPost = eThread.select("td.lastpost em a");
 		String lastHref = eLastPost.attr("href");
-		String id = lastHref.substring(lastHref.indexOf("tid=") + 4, lastHref.indexOf("&goto"));
 
-		String title = eThread.select("th.subject span a, th.subject a").first().text();
-		boolean isNew = eThread.select("th.subject").hasClass("new");
-		Elements eUser = eThread.select("td.author a");
-		String userName = eUser.text();
-		// if userHref.length() == 0, this thread is closed for some reason.
-		String userHref = eUser.attr("href");
+		if (lastHref != null && lastHref.length() > 0) {
+			String id = lastHref.substring(lastHref.indexOf("tid=") + 4, lastHref.indexOf("&goto"));
 
-		if (userHref.length() == 0) {
+			String title = eThread.select("th.subject span a, th.subject a").first().text();
+			boolean isNew = eThread.select("th.subject").hasClass("new");
+			Elements eUser = eThread.select("td.author a");
+			String userName = eUser.text();
+			// if userHref.length() == 0, this thread is closed for some reason.
+			String userHref = eUser.attr("href");
+
+			if (userHref.length() == 0) {
+				return null;
+			}
+
+			String userId = userHref.substring("space.php?uid=".length());
+			String commentNum = eThread.select("td.nums > strong").text().trim();
+
+			String forumLink = eThread.select(".forum a").attr("href");
+
+			String fid = null;
+
+			int uid = Integer.valueOf(userId);
+
+			int avatar0 = uid / 10000;
+			int avatar1 = (uid % 10000) / 100;
+			int avatar2 = uid % 100;
+
+			User user = new User().setId(uid).setName(userName)
+					.setImage("http://www.hi-pda.com/forum/uc_server/data/avatar/000/" + String.format("%02d", avatar0) + "/" + String.format("%02d", avatar1) + "/" + String.format("%02d", avatar2) + "_avatar_middle.jpg");
+			Thread ret = new Thread();
+			ret.setId(Integer.valueOf(id)).setTitle(title).setNew(isNew)
+					.setCommentCount(Integer.valueOf(commentNum)).setAuthor(user);
+
+			if (forumLink.length() > 0) {
+				fid = forumLink.substring(forumLink.indexOf("fid=") + 4);
+				ret.setFid(Integer.valueOf(fid));
+			}
+
+			return ret;
+		} else {
 			return null;
 		}
-
-		String userId = userHref.substring("space.php?uid=".length());
-		String commentNum = eThread.select("td.nums > strong").text().trim();
-
-		String forumLink = eThread.select(".forum a").attr("href");
-
-		String fid = null;
-
-		int uid = Integer.valueOf(userId);
-
-		int avatar0 = uid / 10000;
-		int avatar1 = (uid % 10000) / 100;
-		int avatar2 = uid % 100;
-
-		User user = new User().setId(uid).setName(userName)
-				.setImage("http://www.hi-pda.com/forum/uc_server/data/avatar/000/" + String.format("%02d", avatar0) + "/" + String.format("%02d", avatar1) + "/" + String.format("%02d", avatar2) + "_avatar_middle.jpg");
-		Thread ret = new Thread();
-		ret.setId(Integer.valueOf(id)).setTitle(title).setNew(isNew)
-				.setCommentCount(Integer.valueOf(commentNum)).setAuthor(user);
-
-		if (forumLink.length() > 0) {
-			fid = forumLink.substring(forumLink.indexOf("fid=") + 4);
-			ret.setFid(Integer.valueOf(fid));
-		}
-
-		return ret;
-	}
-
-	public interface OnUserListener {
-		void onUser(User u);
 	}
 
 	public static void getUser(int uid, final OnUserListener onUserListener) {
@@ -1130,16 +1184,6 @@ public class Core {
 		});
 	}
 
-	public interface OnPostsListener {
-		void onPosts(ArrayList<Post> posts, int currPage, boolean hasNextPage);
-		void onError();
-	}
-
-	public interface OnThreadsListener {
-		void onThreads(ArrayList<Thread> threads, int currPage, boolean hasNextPage);
-		void onError();
-	}
-
 	public static void getThreadsByUrl(String url, final OnThreadsListener onThreadsListener) {
 		getHtml(url, new OnRequestListener() {
 
@@ -1207,83 +1251,6 @@ public class Core {
 		editor.commit();
 	}
 
-	public static final HashMap<String, String> icons = new HashMap<String, String>();
-	public static final Set<String> iconKeys;
-	public static final Collection<String> iconValues;
-
-	static {
-		icons.put("images/smilies/default/smile.gif", ":)");
-		icons.put("images/smilies/default/sweat.gif", ":sweat:");
-		icons.put("images/smilies/default/huffy.gif", ":huffy:");
-		icons.put("images/smilies/default/cry.gif", ":cry:");
-		icons.put("images/smilies/default/titter.gif", ":titter:");
-		icons.put("images/smilies/default/handshake.gif", ":handshake:");
-		icons.put("images/smilies/default/victory.gif", ":victory:");
-		icons.put("images/smilies/default/curse.gif", ":curse:");
-		icons.put("images/smilies/default/dizzy.gif", ":dizzy:");
-		icons.put("images/smilies/default/shutup.gif", ":shutup:");
-		icons.put("images/smilies/default/funk.gif", ":funk:");
-		icons.put("images/smilies/default/loveliness.gif", ":loveliness:");
-		icons.put("images/smilies/default/sad.gif", ":(");
-		icons.put("images/smilies/default/biggrin.gif", ":D");
-		icons.put("images/smilies/default/cool.gif", ":cool:");
-		icons.put("images/smilies/default/mad.gif", ":mad:");
-		icons.put("images/smilies/default/shocked.gif", ":o");
-		icons.put("images/smilies/default/tongue.gif", ":P");
-		icons.put("images/smilies/default/lol.gif", ":lol:");
-		icons.put("images/smilies/default/shy.gif", ":shy:");
-		icons.put("images/smilies/default/sleepy.gif", ":sleepy:");
-
-		icons.put("images/smilies/coolmonkey/01.gif", "{:2_41:}");
-		icons.put("images/smilies/coolmonkey/02.gif", "{:2_42:}");
-		icons.put("images/smilies/coolmonkey/03.gif", "{:2_43:}");
-		icons.put("images/smilies/coolmonkey/04.gif", "{:2_44:}");
-		icons.put("images/smilies/coolmonkey/05.gif", "{:2_45:}");
-		icons.put("images/smilies/coolmonkey/06.gif", "{:2_46:}");
-		icons.put("images/smilies/coolmonkey/07.gif", "{:2_47:}");
-		icons.put("images/smilies/coolmonkey/08.gif", "{:2_48:}");
-		icons.put("images/smilies/coolmonkey/09.gif", "{:2_49:}");
-		icons.put("images/smilies/coolmonkey/10.gif", "{:2_50:}");
-		icons.put("images/smilies/coolmonkey/11.gif", "{:2_51:}");
-		icons.put("images/smilies/coolmonkey/12.gif", "{:2_52:}");
-		icons.put("images/smilies/coolmonkey/13.gif", "{:2_53:}");
-		icons.put("images/smilies/coolmonkey/14.gif", "{:2_54:}");
-		icons.put("images/smilies/coolmonkey/15.gif", "{:2_55:}");
-		icons.put("images/smilies/coolmonkey/16.gif", "{:2_56:}");
-
-		icons.put("images/smilies/grapeman/01.gif", "{:3_57:}");
-		icons.put("images/smilies/grapeman/02.gif", "{:3_58:}");
-		icons.put("images/smilies/grapeman/03.gif", "{:3_59:}");
-		icons.put("images/smilies/grapeman/04.gif", "{:3_60:}");
-		icons.put("images/smilies/grapeman/05.gif", "{:3_61:}");
-		icons.put("images/smilies/grapeman/06.gif", "{:3_62:}");
-		icons.put("images/smilies/grapeman/07.gif", "{:3_63:}");
-		icons.put("images/smilies/grapeman/08.gif", "{:3_64:}");
-		icons.put("images/smilies/grapeman/09.gif", "{:3_65:}");
-		icons.put("images/smilies/grapeman/10.gif", "{:3_66:}");
-		icons.put("images/smilies/grapeman/11.gif", "{:3_67:}");
-		icons.put("images/smilies/grapeman/12.gif", "{:3_68:}");
-		icons.put("images/smilies/grapeman/13.gif", "{:3_69:}");
-		icons.put("images/smilies/grapeman/14.gif", "{:3_70:}");
-		icons.put("images/smilies/grapeman/15.gif", "{:3_71:}");
-		icons.put("images/smilies/grapeman/16.gif", "{:3_72:}");
-		icons.put("images/smilies/grapeman/17.gif", "{:3_73:}");
-		icons.put("images/smilies/grapeman/18.gif", "{:3_74:}");
-		icons.put("images/smilies/grapeman/19.gif", "{:3_75:}");
-		icons.put("images/smilies/grapeman/20.gif", "{:3_76:}");
-		icons.put("images/smilies/grapeman/21.gif", "{:3_77:}");
-		icons.put("images/smilies/grapeman/22.gif", "{:3_78:}");
-		icons.put("images/smilies/grapeman/23.gif", "{:3_79:}");
-		icons.put("images/smilies/grapeman/24.gif", "{:3_80:}");
-
-		iconKeys = icons.keySet();
-		iconValues = icons.values();
-	}
-
-	public interface OnImageCompressed {
-		void onImage(File imageFile);
-	}
-
 	public static void compressImage(final File imgFile, final OnImageCompressed onImageCompressed) {
 //		new AsyncTask<Void, Void, Void>() {
 //			@Override
@@ -1338,5 +1305,93 @@ public class Core {
 //				return null;
 //			}
 //		}.execute();
+	}
+
+	public interface OnRequestListener {
+		void onError(String error);
+
+		void onSuccess(String html);
+	}
+
+	public interface OnUploadListener {
+		void onUpload(String response);
+	}
+
+	public interface OnUserListener {
+		void onUser(User u);
+	}
+
+	public interface OnPostsListener {
+		void onPosts(ArrayList<Post> posts, int currPage, boolean hasNextPage);
+
+		void onError();
+	}
+
+	public interface OnThreadsListener {
+		void onThreads(ArrayList<Thread> threads, int currPage, boolean hasNextPage);
+
+		void onError();
+	}
+
+	public interface OnImageCompressed {
+		void onImage(File imageFile);
+	}
+
+	public static class MessageEvent {
+		public int count;
+
+		public MessageEvent(int count) {
+			this.count = count;
+		}
+	}
+
+	public static class StatusChangeEvent {
+		public boolean online;
+
+		public StatusChangeEvent(boolean online) {
+			this.online = online;
+		}
+	}
+
+	public static class UpdateInfo {
+		private String version;
+		private String uri;
+		private String info;
+
+		public String getVersion() {
+			return version;
+		}
+
+		public void setVersion(String version) {
+			this.version = version;
+		}
+
+		public String getUri() {
+			return uri;
+		}
+
+		public void setUri(String uri) {
+			this.uri = uri;
+		}
+
+		public String getInfo() {
+			return info;
+		}
+
+		public void setInfo(String info) {
+			this.info = info;
+		}
+	}
+
+	public static class PostsRet {
+		public ArrayList<Post> posts;
+		public boolean hasNextPage;
+		public int page;
+	}
+
+	public static class ThreadsRet {
+		public ArrayList<Thread> threads;
+		public boolean hasNextPage;
+		public int page;
 	}
 }

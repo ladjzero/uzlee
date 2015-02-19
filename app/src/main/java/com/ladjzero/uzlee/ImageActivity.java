@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -16,8 +17,10 @@ import com.joanzapata.android.iconify.Iconify;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
+import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 
-public class ImageActivity extends BaseActivity {
+
+public class ImageActivity extends SwipeActivity implements SwipeActivity.OnSwipeToggle{
 
 	String url;
 	int tid;
@@ -26,12 +29,25 @@ public class ImageActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_image);
-		enableBackAction();
+//		enableBackAction();
+		final MyImageView imageView = (MyImageView) findViewById(R.id.image_view);
+		imageView.setSwipeToggle(this);
+//		imageView.setOnTouchListener(new View.OnTouchListener() {
+//			@Override
+//			public boolean onTouch(View view, MotionEvent motionEvent) {
+//				if (imageView.canScroll(-1)) {
+//					setEnableSwipe(false);
+//					return false;
+//				} else {
+//					setEnableSwipe(true);
+//					return true;
+//				}
+//			}
+//		});
 
-		ImageView imageView = (ImageView) findViewById(R.id.image_view);
 		url = getIntent().getStringExtra("url");
 		tid = getIntent().getIntExtra("tid", 0);
-		ImageLoader.getInstance().displayImage(url, imageView);
+		ImageLoader.getInstance().displayImage(url, imageView, displayImageOptions_no_scale);
 	}
 
 

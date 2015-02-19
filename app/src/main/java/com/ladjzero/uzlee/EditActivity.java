@@ -25,7 +25,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 
-public class EditActivity extends BaseActivity implements Core.OnRequestListener {
+public class EditActivity extends SwipeActivity implements Core.OnRequestListener {
 
 	int tid;
 	int pid;
@@ -45,7 +45,7 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		enableBackAction();
+//		enableBackAction();
 
 		intent = getIntent();
 
@@ -61,6 +61,7 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 		getActionBar().setTitle(getIntent().getStringExtra("title"));
+		getActionBar().setIcon(null);
 		setContentView(R.layout.edit);
 		progress = new ProgressDialog(this);
 

@@ -1,10 +1,15 @@
 package com.ladjzero.uzlee;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.TypedValue;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -16,7 +21,7 @@ import com.ladjzero.hipda.Thread;
 
 import java.util.ArrayList;
 
-public class SearchActivity extends BaseActivity implements Core.OnThreadsListener, View.OnKeyListener, AdapterView.OnItemClickListener {
+public class SearchActivity extends SwipeActivity implements Core.OnThreadsListener, View.OnKeyListener, AdapterView.OnItemClickListener {
 
 	Menu menu;
 	ThreadsAdapter adapter;
@@ -76,12 +81,14 @@ public class SearchActivity extends BaseActivity implements Core.OnThreadsListen
 
 		hint = (TextView) findViewById(R.id.hint);
 		hint.setVisibility(View.GONE);
+
+		registerForContextMenu(listView);
 	}
 
 
 	@Override
 	public boolean onKey(View view, int i, KeyEvent keyEvent) {
-		if (i == KeyEvent.KEYCODE_SEARCH || i == KeyEvent.KEYCODE_ENTER) {
+		if (keyEvent.getAction() == KeyEvent.ACTION_UP && (i == KeyEvent.KEYCODE_SEARCH || i == KeyEvent.KEYCODE_ENTER)) {
 			query = searchInput.getText().toString();
 			query = query.trim();
 
@@ -92,6 +99,25 @@ public class SearchActivity extends BaseActivity implements Core.OnThreadsListen
 		}
 
 		return false;
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+		menu.add(0, 1, 0, "复制标题");
+		super.onCreateContextMenu(menu, v, menuInfo);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+		Thread thread = adapter.getItem(info.position);
+		ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+		StringBuilder builder = new StringBuilder();
+
+		ClipData clipData = ClipData.newPlainText("post content", thread.getTitle());
+		clipboardManager.setPrimaryClip(clipData);
+		showToast("复制到剪切版");
+		return super.onContextItemSelected(item);
 	}
 
 	@Override

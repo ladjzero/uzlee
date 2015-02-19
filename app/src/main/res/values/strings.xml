@@ -39,4 +39,6 @@
 	<string name="ok">确定</string>
 	<string name="check_update">检查更新</string>
 	<string name="delete">删除</string>
+
+    <string name="crash_report">uzlee遇到了错误\n正在准备一封报告邮件</string>
 </resources>
