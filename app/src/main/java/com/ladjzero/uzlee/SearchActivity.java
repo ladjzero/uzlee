@@ -85,6 +85,11 @@ public class SearchActivity extends SwipeActivity implements Core.OnThreadsListe
 		registerForContextMenu(listView);
 	}
 
+	@Override
+	public void onResume() {
+		adapter.notifyDataSetChanged();
+		super.onResume();
+	}
 
 	@Override
 	public boolean onKey(View view, int i, KeyEvent keyEvent) {

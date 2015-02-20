@@ -261,6 +261,16 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 				posts.addAll(_posts);
 				adapter.notifyDataSetChanged();
 				swipe.setRefreshing(false);
+				listView.setOnScrollListener(null);
+				listView.setOnScrollListener(new EndlessScrollListener() {
+					@Override
+					public void onLoadMore(int page, int totalItemsCount) {
+						if (hasNextPage) {
+							hint.setVisibility(View.VISIBLE);
+							fetch(page, PostsActivity.this);
+						}
+					}
+				});
 			}
 
 			@Override

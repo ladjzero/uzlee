@@ -56,11 +56,11 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 				actionBar.setTitle(title);
 				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(D_ID)).commit();
 				break;
-			case 1:
-				fid = BS_ID;
-				actionBar.setTitle("Buy & Sell");
-				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(BS_ID)).commit();
-				break;
+//			case 1:
+//				fid = BS_ID;
+//				actionBar.setTitle("Buy & Sell");
+//				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(BS_ID)).commit();
+//				break;
 //			case 2:
 //				fid = EINK_ID;
 //				actionBar.setTitle("E-INK");
