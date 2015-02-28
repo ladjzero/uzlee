@@ -6,8 +6,8 @@
 
     <ImageView
         android:id="@+id/user_mini_image"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
         android:layout_gravity="center_vertical"
         android:layout_marginRight="12dp"
         android:accessibilityLiveRegion="polite"
@@ -23,6 +23,6 @@
         android:maxLines="1"
         android:text="一二三四"
         android:textColor="@color/dark_light"
-        android:textSize="13sp" />
+        android:textSize="12sp" />
 
 </LinearLayout>

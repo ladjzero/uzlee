@@ -13,8 +13,8 @@
 
 		<ImageView
 			android:id="@+id/user_mini_image"
-			android:layout_width="36dp"
-			android:layout_height="36dp"
+			android:layout_width="30dp"
+			android:layout_height="30dp"
 			android:layout_gravity="center_vertical"
 			android:accessibilityLiveRegion="polite"
 			android:scaleType="centerCrop"
@@ -30,6 +30,6 @@
         android:maxLines="1"
         android:text="一二三四"
         android:textColor="#ff686868"
-        android:textSize="15sp" />
+        android:textSize="12sp" />
 
 </LinearLayout>

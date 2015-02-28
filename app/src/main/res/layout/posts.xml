@@ -1,31 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:background="@android:color/white"
-				android:orientation="vertical">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/white"
+                android:orientation="vertical">
 
-	<android.support.v4.widget.SwipeRefreshLayout
-		android:id="@+id/post_swipe"
-		xmlns:android="http://schemas.android.com/apk/res/android"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:orientation="vertical">
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/post_swipe"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-		<ListView
-			android:id="@+id/posts"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:background="@android:color/white"
-			android:divider="@color/snow_primary"
-			android:dividerHeight="1px"
-			android:fadeScrollbars="true"
-			android:fastScrollAlwaysVisible="false"
-			android:fastScrollEnabled="true"
-			android:listSelector="@android:color/transparent"/>
-	</android.support.v4.widget.SwipeRefreshLayout>
+        <ListView
+            android:id="@+id/posts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:divider="@color/snow_primary"
+            android:dividerHeight="1px"
+            android:fadeScrollbars="true"
+            android:fastScrollAlwaysVisible="false"
+            android:fastScrollEnabled="true"
+            android:listSelector="@android:color/transparent"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
-	<include layout="@layout/top_hint" />
+    <include layout="@layout/top_hint"/>
 
+    <include layout="@layout/posts_actions"/>
 
 </RelativeLayout>

@@ -114,6 +114,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 
 		holder.img.setTag(user);
 		holder.name.setTag(user);
+		holder.name.getPaint().setFakeBoldText(true);
 		holder.img.setOnClickListener(this);
 		holder.name.setOnClickListener(this);
 

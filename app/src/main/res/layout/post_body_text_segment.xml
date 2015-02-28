@@ -14,7 +14,7 @@
 		android:focusableInTouchMode="false"
 		android:lineSpacingExtra="6dp"
 		android:text="TextView"
-		android:textColor="@color/postBody"
+		android:textColor="@color/smallFont"
 		android:textSize="16sp"/>
 
 </LinearLayout>

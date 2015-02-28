@@ -64,7 +64,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		db = this.getHelper();
 		fid = getIntent().getIntExtra("fid", 0);
 		tid = getIntent().getIntExtra("tid", 0);
-		setTitle(titleStr = getIntent().getStringExtra("title"));
+		titleStr = getIntent().getStringExtra("title");
 
 		try {
 			threadDao = db.getThreadDao();
@@ -76,7 +76,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 		posts = new ArrayList<Post>();
 		listView = (ListView) this.findViewById(R.id.posts);
-		adapter = new PostsAdapter(this, posts);
+		adapter = new PostsAdapter(this, posts, titleStr);
 		listView.setOnItemClickListener(this);
 		ViewGroup title = ((ViewGroup) getLayoutInflater().inflate(R.layout.posts_header, listView, false));
 		TextView titleView = (TextView) title.findViewById(R.id.posts_header);
@@ -99,6 +99,18 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 		hint = (TextView) findViewById(R.id.hint);
 		hint.setVisibility(View.GONE);
+
+		findViewById(R.id.posts_action_reply).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Intent replyIntent = new Intent(PostsActivity.this, EditActivity.class);
+				replyIntent.putExtra("tid", tid);
+				replyIntent.putExtra("title", "回复主题");
+				replyIntent.putExtra("hideTitleInput", true);
+				startActivityForResult(replyIntent, EDIT_CODE);
+			}
+		});
+
 		registerForContextMenu(listView);
 	}
 
@@ -108,34 +120,6 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 		if (posts.size() == 0) fetch(1, this);
 		adapter.notifyDataSetChanged();
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.posts, menu);
-
-		menu.findItem(R.id.post_reply).setIcon(
-				new IconDrawable(this, Iconify.IconValue.fa_comment_o)
-						.colorRes(android.R.color.white)
-						.actionBarSize()
-		);
-
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.post_reply:
-				Intent replyIntent = new Intent(this, EditActivity.class);
-				replyIntent.putExtra("tid", tid);
-				replyIntent.putExtra("title", "回复主题");
-				replyIntent.putExtra("hideTitleInput", true);
-				startActivityForResult(replyIntent, EDIT_CODE);
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
-		}
 	}
 
 	@Override
@@ -226,6 +210,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	public void onPosts(final ArrayList<Post> posts, int page, boolean hasNextPage) {
 		this.hasNextPage = hasNextPage;
 		this.posts.addAll(posts);
+		if (this.posts.size() > 0) this.posts.get(0).setTitle(titleStr);
 		adapter.notifyDataSetChanged();
 
 		new AsyncTask<Void, Void, Void>() {

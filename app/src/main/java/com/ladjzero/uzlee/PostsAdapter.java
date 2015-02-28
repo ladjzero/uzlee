@@ -48,11 +48,13 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	HashMap<Integer, ArrayList<View>> niceBodyCache = new HashMap<Integer, ArrayList<View>>();
 	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	Date now = new Date();
+	String title;
 
-	public PostsAdapter(Context context, ArrayList<Post> posts) {
+	public PostsAdapter(Context context, ArrayList<Post> posts, String title) {
 		super(context, R.layout.post, posts);
 		this.context = (PostsActivity) context;
 		this.posts = posts;
+		this.title = title;
 	}
 
 	public void clearViewCache() {
@@ -70,6 +72,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			holder.quoteLayout = row.findViewById(R.id.post_quote);
 			holder.img = (ImageView) row.findViewById(R.id.user_mini_image);
 			holder.quoteImg = (ImageView) holder.quoteLayout.findViewById(R.id.user_mini_image);
+			holder.title = (TextView) row.findViewById(R.id.post_title);
 			holder.name = (TextView) row.findViewById(R.id.user_mini_name);
 			holder.quoteName = (TextView) holder.quoteLayout.findViewById(R.id.user_mini_name);
 			holder.body = (LinearLayout) row.findViewById(R.id.post_body_layout);
@@ -85,7 +88,13 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		final User author = post.getAuthor();
 		int uid = author.getId();
 
+		holder.title.setVisibility(position == 0 ? View.VISIBLE : View.GONE);
+		if (position == 0) {
+			holder.title.setText(title);
+//			holder.title.getPaint().setFakeBoldText(true);
+		}
 		holder.name.setText(author.getName());
+		holder.name.getPaint().setFakeBoldText(true);
 		holder.name.setTag(author);
 		holder.name.setOnClickListener(this);
 		holder.img.setTag(author);
@@ -209,6 +218,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	static class PostHolder {
 		ImageView img;
 		ImageView quoteImg;
+		TextView title;
 		TextView name;
 		TextView quoteName;
 		LinearLayout body;
