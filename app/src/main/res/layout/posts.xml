@@ -35,14 +35,14 @@
         android:divider="@color/snow_primary"
         android:dividerHeight="1px"
         android:listSelector="@android:color/transparent"
+        ptr:ptrAnimationStyle="flip"
         ptr:ptrMode="both"
         ptr:ptrOverScroll="false"
-        ptr:ptrShowIndicator="false"
-        ptr:ptrAnimationStyle="flip"/>
+        ptr:ptrShowIndicator="false"/>
 
     <include layout="@layout/top_hint"/>
 
-    <include layout="@layout/posts_actions"/>
+    <include layout="@layout/posts_actions" />
 
     <include layout="@layout/shadow_under_actionbar"/>
 
