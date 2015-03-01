@@ -1,12 +1,12 @@
 <LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="50dp"
+    android:layout_height="260dp"
     android:layout_alignParentBottom="true"
     android:layout_alignParentEnd="false"
     android:alpha="0.95"
     android:background="@drawable/up_border"
-    android:orientation="horizontal"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:orientation="horizontal">
 
     <LinearLayout
         android:id="@+id/posts_action_favorite"
@@ -16,8 +16,9 @@
         android:orientation="vertical">
 
         <android.widget.IconTextView
-            android:layout_width="fill_parent"
-            android:layout_height="25dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:background="@drawable/post_action_bg"
             android:gravity="center"
             android:paddingTop="8dp"
             android:text="{fa-bookmark}"
@@ -35,115 +36,115 @@
     </LinearLayout>
 
 
-    <LinearLayout
-        android:id="@+id/posts_action_pages"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_weight="1"
-        android:orientation="vertical">
+    <!--<LinearLayout-->
+    <!--android:id="@+id/posts_action_pages"-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="fill_parent"-->
+    <!--android:layout_weight="1"-->
+    <!--android:orientation="vertical">-->
 
-        <android.widget.IconTextView
-            android:layout_width="fill_parent"
-            android:layout_height="25dp"
-            android:gravity="center"
-            android:text="{fa-arrows-h}"
-            android:paddingTop="8dp"
-            android:textColor="@color/dark_light"
-            android:textSize="16sp"/>
+    <!--<android.widget.IconTextView-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="25dp"-->
+    <!--android:gravity="center"-->
+    <!--android:text="{fa-arrows-h}"-->
+    <!--android:paddingTop="8dp"-->
+    <!--android:textColor="@color/dark_light"-->
+    <!--android:textSize="16sp"/>-->
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="25dp"
-            android:gravity="center"
-            android:lineSpacingExtra="6dp"
-            android:text="页码"
-            android:paddingBottom="8dp"
-            android:textColor="@color/dark_light"
-            android:textSize="12sp"/>
-    </LinearLayout>
+    <!--<TextView-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="25dp"-->
+    <!--android:gravity="center"-->
+    <!--android:lineSpacingExtra="6dp"-->
+    <!--android:text="页码"-->
+    <!--android:paddingBottom="8dp"-->
+    <!--android:textColor="@color/dark_light"-->
+    <!--android:textSize="12sp"/>-->
+    <!--</LinearLayout>-->
 
-    <LinearLayout
-        android:id="@+id/posts_action_top"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_weight="1"
-        android:orientation="vertical">
+    <!--<LinearLayout-->
+    <!--android:id="@+id/posts_action_top"-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="fill_parent"-->
+    <!--android:layout_weight="1"-->
+    <!--android:orientation="vertical">-->
 
-        <android.widget.IconTextView
-            android:layout_width="fill_parent"
-            android:layout_height="25dp"
-            android:gravity="center"
-            android:lineSpacingExtra="6dp"
-            android:paddingTop="8dp"
-            android:text="{fa-chevron-up}"
-            android:textColor="@color/dark_light"
-            android:textSize="16sp"/>
+    <!--<android.widget.IconTextView-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="25dp"-->
+    <!--android:gravity="center"-->
+    <!--android:lineSpacingExtra="6dp"-->
+    <!--android:paddingTop="8dp"-->
+    <!--android:text="{fa-chevron-up}"-->
+    <!--android:textColor="@color/dark_light"-->
+    <!--android:textSize="16sp"/>-->
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="25dp"
-            android:gravity="center"
-            android:paddingBottom="8dp"
-            android:lineSpacingExtra="6dp"
-            android:text="回到顶部"
-            android:textColor="@color/dark_light"
-            android:textSize="12sp"/>
-    </LinearLayout>
+    <!--<TextView-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="25dp"-->
+    <!--android:gravity="center"-->
+    <!--android:paddingBottom="8dp"-->
+    <!--android:lineSpacingExtra="6dp"-->
+    <!--android:text="回到顶部"-->
+    <!--android:textColor="@color/dark_light"-->
+    <!--android:textSize="12sp"/>-->
+    <!--</LinearLayout>-->
 
 
-    <LinearLayout
-        android:id="@+id/posts_action_refresh"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_weight="1"
-        android:orientation="vertical">
+    <!--<LinearLayout-->
+    <!--android:id="@+id/posts_action_refresh"-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="fill_parent"-->
+    <!--android:layout_weight="1"-->
+    <!--android:orientation="vertical">-->
 
-        <android.widget.IconTextView
-            android:layout_width="fill_parent"
-            android:layout_height="25dp"
-            android:gravity="center"
-            android:text="{fa-refresh}"
-            android:paddingTop="8dp"
-            android:textColor="@color/dark_light"
-            android:textSize="16sp"/>
+    <!--<android.widget.IconTextView-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="25dp"-->
+    <!--android:gravity="center"-->
+    <!--android:text="{fa-refresh}"-->
+    <!--android:paddingTop="8dp"-->
+    <!--android:textColor="@color/dark_light"-->
+    <!--android:textSize="16sp"/>-->
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="25dp"
-            android:gravity="center"
-            android:lineSpacingExtra="6dp"
-            android:text="刷新"
-            android:paddingBottom="8dp"
-            android:textColor="@color/dark_light"
-            android:textSize="12sp"/>
-    </LinearLayout>
+    <!--<TextView-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="25dp"-->
+    <!--android:gravity="center"-->
+    <!--android:lineSpacingExtra="6dp"-->
+    <!--android:text="刷新"-->
+    <!--android:paddingBottom="8dp"-->
+    <!--android:textColor="@color/dark_light"-->
+    <!--android:textSize="12sp"/>-->
+    <!--</LinearLayout>-->
 
-    <LinearLayout
-        android:id="@+id/posts_action_reply"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_weight="1"
-        android:orientation="vertical">
+    <!--<LinearLayout-->
+    <!--android:id="@+id/posts_action_reply"-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="fill_parent"-->
+    <!--android:layout_weight="1"-->
+    <!--android:orientation="vertical">-->
 
-        <android.widget.IconTextView
-            android:layout_width="fill_parent"
-            android:paddingTop="8dp"
-            android:layout_height="25dp"
-            android:gravity="center"
-            android:lineSpacingExtra="6dp"
-            android:text="{fa-comment}"
-            android:textColor="@color/dark_light"
-            android:textSize="16sp"/>
+    <!--<android.widget.IconTextView-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:paddingTop="8dp"-->
+    <!--android:layout_height="25dp"-->
+    <!--android:gravity="center"-->
+    <!--android:lineSpacingExtra="6dp"-->
+    <!--android:text="{fa-comment}"-->
+    <!--android:textColor="@color/dark_light"-->
+    <!--android:textSize="16sp"/>-->
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="25dp"
-            android:gravity="center"
-            android:lineSpacingExtra="6dp"
-            android:text="回复"
-            android:textColor="@color/dark_light"
-            android:paddingBottom="8dp"
-            android:textSize="12sp"/>
-    </LinearLayout>
+    <!--<TextView-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="25dp"-->
+    <!--android:gravity="center"-->
+    <!--android:lineSpacingExtra="6dp"-->
+    <!--android:text="回复"-->
+    <!--android:textColor="@color/dark_light"-->
+    <!--android:paddingBottom="8dp"-->
+    <!--android:textSize="12sp"/>-->
+    <!--</LinearLayout>-->
 
 </LinearLayout>

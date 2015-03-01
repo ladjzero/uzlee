@@ -1,23 +1,25 @@
 <resources>
 
-	<style name="AppBaseTheme" parent="android:Theme.Holo.Light.DarkActionBar">
-		<item name="android:windowAnimationStyle">@style/AppBaseTheme.WindowAnimation</item>
-		<!--remove action bar shadow-->
-		<item name="android:windowContentOverlay">@null</item>
+    <style name="AppBaseTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+        <item name="android:windowAnimationStyle">@style/AppBaseTheme.WindowAnimation</item>
+        <!--remove action bar shadow-->
+        <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>
-	</style>
+        <!--<item name="android:actionOverflowButtonStyle">@style/AppBaseTheme.OverFlow</item>-->
+    </style>
 
-	<style name="AppBaseTheme.WindowAnimation">
-		<item name="android:activityOpenEnterAnimation">@anim/pull_right_in</item>
-		<item name="android:activityOpenExitAnimation">@anim/push_left_out</item>
-		<item name="android:activityCloseEnterAnimation">@anim/pull_left_in</item>
-		<item name="android:activityCloseExitAnimation">@anim/push_right_out</item>
-	</style>
+    <style name="AppBaseTheme.WindowAnimation">
+        <item name="android:activityOpenEnterAnimation">@anim/pull_right_in</item>
+        <item name="android:activityOpenExitAnimation">@anim/push_left_out</item>
+        <item name="android:activityCloseEnterAnimation">@anim/pull_left_in</item>
+        <item name="android:activityCloseExitAnimation">@anim/push_right_out</item>
+    </style>
 
-	<style name="AppTheme" parent="AppBaseTheme"></style>
+    <!--<style name="AppBaseTheme.OverFlow">-->
+        <!--<item name="android:src">@drawable/icon25</item>-->
+    <!--</style>-->
 
-
-
+    <style name="AppTheme" parent="AppBaseTheme"></style>
 
 </resources>

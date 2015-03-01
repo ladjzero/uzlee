@@ -157,7 +157,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 		if (!mNavigationDrawerFragment.isDrawerOpen()) {
 			getMenuInflater().inflate(R.menu.threads, menu);
 			restoreActionBar();
-			menu.findItem(R.id.thread_publish).setIcon(new IconDrawable(this, Iconify.IconValue.fa_comment_o).colorRes(android.R.color.white).actionBarSize());
+//			menu.findItem(R.id.thread_publish).setIcon(new IconDrawable(this, Iconify.IconValue.fa_comment_o).colorRes(android.R.color.white).actionBarSize());
 			return true;
 		}
 		return super.onCreateOptionsMenu(menu);

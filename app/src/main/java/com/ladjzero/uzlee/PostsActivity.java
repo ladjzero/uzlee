@@ -16,6 +16,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.j256.ormlite.dao.Dao;
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
@@ -44,12 +46,12 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	int fid;
 	int tid;
 	ArrayList<Post> posts = new ArrayList<Post>();
-	ListView listView;
+	PullToRefreshListView listView;
 	String titleStr;
 	PostsAdapter adapter;
 	boolean hasNextPage = false;
 	TextView hint;
-	private SwipeRefreshLayout swipe;
+//	private SwipeRefreshLayout swipe;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +62,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 //		enableBackAction();
 		getActionBar().setIcon(null);
+//		getActionBar().hide();
 
 		db = this.getHelper();
 		fid = getIntent().getIntExtra("fid", 0);
@@ -75,7 +78,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		}
 
 		posts = new ArrayList<Post>();
-		listView = (ListView) this.findViewById(R.id.posts);
+		listView = (PullToRefreshListView) this.findViewById(R.id.posts);
 		adapter = new PostsAdapter(this, posts, titleStr);
 		listView.setOnItemClickListener(this);
 		ViewGroup title = ((ViewGroup) getLayoutInflater().inflate(R.layout.posts_header, listView, false));
@@ -83,33 +86,33 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		titleView.setText(titleStr);
 //		listView.addHeaderView(title, null, false);
 		listView.setAdapter(adapter);
-		listView.setOnScrollListener(new EndlessScrollListener() {
-			@Override
-			public void onLoadMore(int page, int totalItemsCount) {
-				if (hasNextPage) {
-					hint.setVisibility(View.VISIBLE);
-					fetch(page, PostsActivity.this);
-				}
-			}
-		});
+//		listView.setOnScrollListener(new EndlessScrollListener() {
+//			@Override
+//			public void onLoadMore(int page, int totalItemsCount) {
+//				if (hasNextPage) {
+//					hint.setVisibility(View.VISIBLE);
+//					fetch(page, PostsActivity.this);
+//				}
+//			}
+//		});
 
-		swipe = (SwipeRefreshLayout) findViewById(R.id.post_swipe);
-		swipe.setOnRefreshListener(this);
-		swipe.setColorSchemeResources(R.color.deep_darker, R.color.deep_dark, R.color.deep_light, android.R.color.white);
+//		swipe = (SwipeRefreshLayout) findViewById(R.id.post_swipe);
+//		swipe.setOnRefreshListener(this);
+//		swipe.setColorSchemeResources(R.color.deep_darker, R.color.deep_dark, R.color.deep_light, android.R.color.white);
 
 		hint = (TextView) findViewById(R.id.hint);
 		hint.setVisibility(View.GONE);
 
-		findViewById(R.id.posts_action_reply).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				Intent replyIntent = new Intent(PostsActivity.this, EditActivity.class);
-				replyIntent.putExtra("tid", tid);
-				replyIntent.putExtra("title", "回复主题");
-				replyIntent.putExtra("hideTitleInput", true);
-				startActivityForResult(replyIntent, EDIT_CODE);
-			}
-		});
+//		findViewById(R.id.posts_action_reply).setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View view) {
+//				Intent replyIntent = new Intent(PostsActivity.this, EditActivity.class);
+//				replyIntent.putExtra("tid", tid);
+//				replyIntent.putExtra("title", "回复主题");
+//				replyIntent.putExtra("hideTitleInput", true);
+//				startActivityForResult(replyIntent, EDIT_CODE);
+//			}
+//		});
 
 		registerForContextMenu(listView);
 	}
@@ -245,7 +248,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 				posts.clear();
 				posts.addAll(_posts);
 				adapter.notifyDataSetChanged();
-				swipe.setRefreshing(false);
+//				swipe.setRefreshing(false);
 				listView.setOnScrollListener(null);
 				listView.setOnScrollListener(new EndlessScrollListener() {
 					@Override
@@ -260,7 +263,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 			@Override
 			public void onError() {
-				swipe.setRefreshing(false);
+//				swipe.setRefreshing(false);
 				showToast("请求错误");
 			}
 		});
@@ -303,5 +306,15 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 				}.execute(html);
 			}
 		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.posts, menu);
+		menu.findItem(R.id.more).setIcon(new IconDrawable(this, Iconify.IconValue.fa_ellipsis_h).colorRes(android.R.color.white).actionBarSize());
+		menu.findItem(R.id.reply).setIcon(new IconDrawable(this, Iconify.IconValue.fa_comment_o).colorRes(android.R.color.white).actionBarSize());
+		menu.findItem(R.id.page).setIcon(new IconDrawable(this, Iconify.IconValue.fa_columns).colorRes(android.R.color.white).actionBarSize());
+
+		return super.onCreateOptionsMenu(menu);
 	}
 }

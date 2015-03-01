@@ -36,9 +36,12 @@ dependencies {
     compile files('libs/universal-image-loader-1.9.3.jar')
     compile files('libs/acra-4.5.0.jar')
     compile files('libs/eventbus-2.4.0.jar')
+    compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
     compile 'com.android.support:support-v4:21.0.3'
     compile 'com.android.support:support-v13:21.0.3'
+    compile 'com.getbase:floatingactionbutton:1.8.0'
     compile 'com.github.eluleci:flatui:3.0.0'
     compile 'it.sephiroth.android.library.imagezoom:imagezoom:+'
     compile 'com.balysv.materialmenu:material-menu:1.5.0'
+    compile project(':PullToRefresh')
 }

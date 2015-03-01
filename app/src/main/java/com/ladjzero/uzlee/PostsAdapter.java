@@ -34,6 +34,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.amulyakhare.textdrawable.TextDrawable;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.User;
@@ -47,6 +48,10 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	HashMap<Integer, View> viewCache = new HashMap<Integer, View>();
 	HashMap<Integer, ArrayList<View>> niceBodyCache = new HashMap<Integer, ArrayList<View>>();
 	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	TextDrawable.IShapeBuilder textBuilder = TextDrawable.builder()
+			.beginConfig()
+				.bold()
+			.endConfig();
 	Date now = new Date();
 	String title;
 
@@ -100,8 +105,8 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		holder.img.setTag(author);
 		holder.img.setOnClickListener(this);
 
-		if (author.getImage() == null) {
-			ImageLoader.getInstance().displayImage("", holder.img);
+		if (author.getImage() == null || author.getImage().length() == 0) {
+			holder.img.setImageDrawable(textBuilder.buildRect(Utils.getFirstChar(author.getName()), Utils.getColor(context, R.color.snow_dark)));
 		} else {
 			ImageLoader.getInstance().displayImage(author.getImage(), holder.img, new SimpleImageLoadingListener() {
 				@Override
@@ -112,6 +117,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 				@Override
 				public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
 					author.setImage("");
+					((ImageView) view).setImageDrawable(textBuilder.buildRect(Utils.getFirstChar(author.getName()), Utils.getColor(context, R.color.snow_dark)));
 				}
 			});
 		}

@@ -15,5 +15,6 @@
         android:listSelector="@android:color/transparent" />
 
     <include layout="@layout/top_hint" />
+    <include layout="@layout/shadow_under_actionbar" />
 
 </RelativeLayout>

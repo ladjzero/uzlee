@@ -9,7 +9,7 @@
 		android:layout_height="wrap_content"
 		android:layout_marginRight="12dp"
 		android:padding="1px"
-		android:background="@color/snow_primary">
+		android:background="@color/dark_light">
 
 		<ImageView
 			android:id="@+id/user_mini_image"

@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Set;
 
+import com.amulyakhare.textdrawable.TextDrawable;
 import com.j256.ormlite.dao.Dao;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.DBHelper;
@@ -29,6 +30,10 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 	Core core;
 	DBHelper db;
 	Dao<User, Integer> userDao;
+	TextDrawable.IShapeBuilder textBuilder = TextDrawable.builder()
+			.beginConfig()
+			.bold()
+			.endConfig();
 
 	public ThreadsAdapter(Context context, ArrayList<Thread> threads) {
 		super(context, R.layout.thread, threads);
@@ -73,7 +78,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 
 		final String userName = user.getName();
 
-		if (image == null) {
+		if (image == null || image.length() == 0) {
 			try {
 				User u = userDao.queryForId(uid);
 
@@ -88,11 +93,11 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 						@Override
 						public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
 							user.setImage("");
+							((ImageView) view).setImageDrawable(textBuilder.buildRect(Utils.getFirstChar(user.getName()), Utils.getColor(context, R.color.snow_dark)));
 						}
 					});
 				} else {
-					// TODO replace default image
-					ImageLoader.getInstance().displayImage("", holder.img);
+					holder.img.setImageDrawable(textBuilder.buildRect(Utils.getFirstChar(user.getName()), Utils.getColor(context, R.color.snow_dark)));
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -108,6 +113,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 				@Override
 				public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
 					user.setImage("");
+					((ImageView) view).setImageDrawable(textBuilder.buildRect(Utils.getFirstChar(user.getName()), Utils.getColor(context, R.color.snow_dark)));
 				}
 			});
 		}

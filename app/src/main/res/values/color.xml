@@ -9,4 +9,5 @@
     <color name="postBody">#FF535353</color>
 	<color name="ugleeQuote">@color/snow_light</color>
 	<color name="uglee">@color/sand_light</color>
+
 </resources>

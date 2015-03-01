@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pull_to_refresh_pull_label">下拉载入上一页</string>
+    <string name="pull_to_refresh_release_label">放开以加载</string>
+    <string name="pull_to_refresh_refreshing_label">正在加载</string>
+
+    <string name="pull_to_refresh_from_bottom_pull_label">上拉载入下一页</string>
+
+</resources>
