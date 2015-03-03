@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.ContextMenu;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +17,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.j256.ormlite.dao.Dao;
@@ -26,7 +29,9 @@ import com.ladjzero.hipda.DBHelper;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
+import com.nineoldandroids.animation.Animator;
 
+import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
@@ -51,6 +56,9 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	PostsAdapter adapter;
 	boolean hasNextPage = false;
 	TextView hint;
+	View actions;
+	boolean isAnimating = false;
+	DiscreteSeekBar seekbar;
 //	private SwipeRefreshLayout swipe;
 
 	@Override
@@ -102,6 +110,13 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 		hint = (TextView) findViewById(R.id.hint);
 		hint.setVisibility(View.GONE);
+
+		actions = findViewById(R.id.posts_actions);
+		actions.setVisibility(View.GONE);
+
+		seekbar = (DiscreteSeekBar) findViewById(R.id.seekbar);
+		seekbar.setMin(2);
+		seekbar.setMax(10);
 
 //		findViewById(R.id.posts_action_reply).setOnClickListener(new View.OnClickListener() {
 //			@Override
@@ -316,5 +331,83 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		menu.findItem(R.id.page).setIcon(new IconDrawable(this, Iconify.IconValue.fa_columns).colorRes(android.R.color.white).actionBarSize());
 
 		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
+
+		if (id == R.id.more) {
+			onKeyDown(KeyEvent.KEYCODE_MENU, null);
+			return true;
+		}
+
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent ev) {
+		if (keyCode == KeyEvent.KEYCODE_MENU && !isAnimating) {
+			int visibility = actions.getVisibility();
+
+			if (visibility == View.GONE) {
+				YoYo.with(Techniques.SlideInUp)
+						.duration(200)
+						.withListener(new Animator.AnimatorListener() {
+							@Override
+							public void onAnimationStart(Animator animation) {
+								actions.setVisibility(View.VISIBLE);
+								isAnimating = true;
+							}
+
+							@Override
+							public void onAnimationEnd(Animator animation) {
+								isAnimating = false;
+							}
+
+							@Override
+							public void onAnimationCancel(Animator animation) {
+
+							}
+
+							@Override
+							public void onAnimationRepeat(Animator animation) {
+
+							}
+						})
+						.playOn(actions);
+			} else {
+				YoYo.with(Techniques.SlideOutDown)
+						.duration(200)
+						.withListener(new Animator.AnimatorListener() {
+							@Override
+							public void onAnimationStart(Animator animation) {
+								isAnimating = true;
+							}
+
+							@Override
+							public void onAnimationEnd(Animator animation) {
+								actions.setVisibility(View.GONE);
+								isAnimating = false;
+							}
+
+							@Override
+							public void onAnimationCancel(Animator animation) {
+
+							}
+
+							@Override
+							public void onAnimationRepeat(Animator animation) {
+
+							}
+						})
+						.playOn(actions);
+			}
+
+
+			return true;
+		}
+
+		return super.onKeyDown(keyCode, ev);
 	}
 }

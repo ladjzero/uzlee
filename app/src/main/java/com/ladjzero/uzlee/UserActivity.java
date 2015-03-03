@@ -14,11 +14,14 @@ import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
+
 import java.sql.SQLException;
 
 public class UserActivity extends SwipeActivity {
 
 	private Dao<User, Integer> userDao;
+	DiscreteSeekBar seekbar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +106,10 @@ public class UserActivity extends SwipeActivity {
 				}
 			}
 		});
+
+		seekbar = (DiscreteSeekBar) findViewById(R.id.seekbar);
+		seekbar.setMin(2);
+		seekbar.setMax(10);
 	}
 
 	public boolean onTouchEvent(MotionEvent e) {

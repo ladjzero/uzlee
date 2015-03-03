@@ -26,6 +26,7 @@ import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
 
+import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
@@ -46,6 +47,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private boolean hasNextPage = false;
 	private int fid;
 	private TextView hint;
+	DiscreteSeekBar seekbar;
 
 	public static ThreadsFragment newInstance(int fid) {
 
@@ -95,7 +97,9 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		hint.setVisibility(View.GONE);
 
 		registerForContextMenu(listView);
-
+		seekbar = (DiscreteSeekBar) rootView.findViewById(R.id.seekbar);
+		seekbar.setMin(2);
+		seekbar.setMax(10);
 		return rootView;
 	}
 
