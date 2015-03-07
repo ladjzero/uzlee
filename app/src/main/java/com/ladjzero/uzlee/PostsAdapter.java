@@ -54,6 +54,8 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			.endConfig();
 	Date now = new Date();
 	String title;
+	private int mFrom = 1;
+	private int mTo = 51;
 
 	public PostsAdapter(Context context, ArrayList<Post> posts, String title) {
 		super(context, R.layout.post, posts);
@@ -64,6 +66,27 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 	public void clearViewCache() {
 		niceBodyCache.clear();
+	}
+
+	public void setWindow(int from, int to) {
+		mFrom = from;
+		mTo = to;
+	}
+
+	@Override
+	public int getCount() {
+		int size = posts.size();
+		return size == 0 ? 0 : Math.min(mTo, posts.get(size - 1).getPostIndex() + 1) - mFrom;
+	}
+
+	@Override
+	public Post getItem(final int position) {
+		return (Post) CollectionUtils.find(posts, new Predicate() {
+			@Override
+			public boolean evaluate(Object o) {
+				return ((Post) o).getPostIndex() == mFrom + position;
+			}
+		});
 	}
 
 	@Override
@@ -94,9 +117,10 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		int uid = author.getId();
 
 		holder.title.setVisibility(position == 0 ? View.VISIBLE : View.GONE);
-		if (position == 0) {
+		if (post.getPostIndex() == 1) {
 			holder.title.setText(title);
-//			holder.title.getPaint().setFakeBoldText(true);
+		} else {
+			holder.title.setVisibility(View.GONE);
 		}
 		holder.name.setText(author.getName());
 		holder.name.getPaint().setFakeBoldText(true);

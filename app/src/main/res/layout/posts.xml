@@ -42,12 +42,21 @@
 
     <include layout="@layout/top_hint"/>
 
-    <include layout="@layout/posts_actions" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.3">
+
+        <TextView
+            android:id="@+id/mask"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/dark"/>
+    </FrameLayout>
+
+
+    <include layout="@layout/posts_actions"/>
 
     <include layout="@layout/shadow_under_actionbar"/>
-    <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
-        android:id="@+id/seekbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
+
 </RelativeLayout>

@@ -11,6 +11,7 @@ import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -39,6 +40,9 @@ import org.apache.commons.collections.Transformer;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+
 
 public class PostsActivity extends SwipeActivity implements AdapterView.OnItemClickListener, Core.OnPostsListener, SwipeRefreshLayout.OnRefreshListener {
 
@@ -50,15 +54,31 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	Dao<User, Integer> userDao;
 	int fid;
 	int tid;
-	ArrayList<Post> posts = new ArrayList<Post>();
+	int mPage;
+	private ArrayList<Post> mPosts = new ArrayList<Post>();
 	PullToRefreshListView listView;
 	String titleStr;
 	PostsAdapter adapter;
-	boolean hasNextPage = false;
+	boolean mHasNextPage = false;
 	TextView hint;
 	View actions;
+	View mask;
 	boolean isAnimating = false;
 	DiscreteSeekBar seekbar;
+	boolean mActionsVisibility = false;
+	private Comparator<Post> mComparator = new Comparator<Post>() {
+		@Override
+		public int compare(Post post1, Post post2) {
+			return post1.getPostIndex() - post2.getPostIndex();
+		}
+	};
+	private Transformer mGetId = new Transformer() {
+		@Override
+		public Object transform(Object o) {
+			return ((Post) o).getId();
+		}
+	};
+
 //	private SwipeRefreshLayout swipe;
 
 	@Override
@@ -85,19 +105,31 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 			e1.printStackTrace();
 		}
 
-		posts = new ArrayList<Post>();
+		mPosts = new ArrayList<Post>();
 		listView = (PullToRefreshListView) this.findViewById(R.id.posts);
-		adapter = new PostsAdapter(this, posts, titleStr);
+		adapter = new PostsAdapter(this, mPosts, titleStr);
 		listView.setOnItemClickListener(this);
 		ViewGroup title = ((ViewGroup) getLayoutInflater().inflate(R.layout.posts_header, listView, false));
 		TextView titleView = (TextView) title.findViewById(R.id.posts_header);
 		titleView.setText(titleStr);
 //		listView.addHeaderView(title, null, false);
 		listView.setAdapter(adapter);
+		listView.setMode(PullToRefreshBase.Mode.DISABLED);
+		listView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<ListView>() {
+			@Override
+			public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
+				fetch(mPage - 1, PostsActivity.this);
+			}
+
+			@Override
+			public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
+				fetch(mPage + 1, PostsActivity.this);
+			}
+		});
 //		listView.setOnScrollListener(new EndlessScrollListener() {
 //			@Override
 //			public void onLoadMore(int page, int totalItemsCount) {
-//				if (hasNextPage) {
+//				if (mHasNextPage) {
 //					hint.setVisibility(View.VISIBLE);
 //					fetch(page, PostsActivity.this);
 //				}
@@ -110,6 +142,19 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 		hint = (TextView) findViewById(R.id.hint);
 		hint.setVisibility(View.GONE);
+
+		mask = findViewById(R.id.mask);
+		mask.setVisibility(View.GONE);
+		mask.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View view, MotionEvent motionEvent) {
+				if (motionEvent.getAction() == MotionEvent.ACTION_DOWN &&
+						mask.getVisibility() == View.VISIBLE)
+					onKeyDown(KeyEvent.KEYCODE_MENU, null);
+
+				return mActionsVisibility;
+			}
+		});
 
 		actions = findViewById(R.id.posts_actions);
 		actions.setVisibility(View.GONE);
@@ -136,16 +181,16 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	public void onResume() {
 		super.onResume();
 
-		if (posts.size() == 0) fetch(1, this);
+		if (mPosts.size() == 0) fetch(1, this);
 		adapter.notifyDataSetChanged();
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		if (posts != null) {
+		if (mPosts != null) {
 			ArrayList<Integer> ids = new ArrayList<Integer>();
-			for (Post p : posts) {
+			for (Post p : mPosts) {
 				ids.add(p.getId());
 			}
 
@@ -226,10 +271,33 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 	@Override
 	public void onPosts(final ArrayList<Post> posts, int page, boolean hasNextPage) {
-		this.hasNextPage = hasNextPage;
-		this.posts.addAll(posts);
-		if (this.posts.size() > 0) this.posts.get(0).setTitle(titleStr);
+		listView.onRefreshComplete();
+		adapter.clearViewCache();
+
+		mHasNextPage = hasNextPage;
+		mPage = page;
+
+		if (mHasNextPage) {
+			listView.setMode(page == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
+		} else {
+			listView.setMode(page == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
+		}
+
+		for (final Object id : CollectionUtils.collect(posts, mGetId)) {
+			mPosts.remove(CollectionUtils.find(mPosts, new Predicate() {
+				@Override
+				public boolean evaluate(Object o) {
+					return ((Post) o).getId() == id;
+				}
+			}));
+		}
+		this.mPosts.addAll(posts);
+		Collections.sort(this.mPosts, mComparator);
+		adapter.setWindow(posts.get(0).getPostIndex(), posts.get(posts.size() - 1).getPostIndex() + 1);
+		if (this.mPosts.size() > 0) this.mPosts.get(0).setTitle(titleStr);
 		adapter.notifyDataSetChanged();
+		listView.getRefreshableView().setSelection(0);
+
 
 		new AsyncTask<Void, Void, Void>() {
 			@Override
@@ -258,17 +326,17 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 		fetch(1, new Core.OnPostsListener() {
 			@Override
-			public void onPosts(ArrayList<Post> _posts, int page, boolean _hasNextPage) {
-				hasNextPage = _hasNextPage;
-				posts.clear();
-				posts.addAll(_posts);
+			public void onPosts(ArrayList<Post> _posts, int page, boolean hasNextPage) {
+				mHasNextPage = hasNextPage;
+				mPosts.clear();
+				mPosts.addAll(_posts);
 				adapter.notifyDataSetChanged();
 //				swipe.setRefreshing(false);
 				listView.setOnScrollListener(null);
 				listView.setOnScrollListener(new EndlessScrollListener() {
 					@Override
 					public void onLoadMore(int page, int totalItemsCount) {
-						if (hasNextPage) {
+						if (mHasNextPage) {
 							hint.setVisibility(View.VISIBLE);
 							fetch(page, PostsActivity.this);
 						}
@@ -298,7 +366,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 					@Override
 					protected void onPostExecute(Core.PostsRet ret) {
-						final Collection<Integer> ids = CollectionUtils.collect(PostsActivity.this.posts, new Transformer() {
+						final Collection<Integer> ids = CollectionUtils.collect(PostsActivity.this.mPosts, new Transformer() {
 							@Override
 							public Object transform(Object o) {
 								return ((Post) o).getId();
@@ -314,8 +382,8 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 							}
 						});
 
-						PostsActivity.this.posts.addAll(ret.posts);
-						hasNextPage = ret.hasNextPage;
+						PostsActivity.this.mPosts.addAll(ret.posts);
+						mHasNextPage = ret.hasNextPage;
 						adapter.notifyDataSetChanged();
 					}
 				}.execute(html);
@@ -357,6 +425,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 							@Override
 							public void onAnimationStart(Animator animation) {
 								actions.setVisibility(View.VISIBLE);
+								mActionsVisibility = true;
 								isAnimating = true;
 							}
 
@@ -376,6 +445,30 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 							}
 						})
 						.playOn(actions);
+
+				YoYo.with(Techniques.FadeIn)
+						.duration(200)
+						.withListener(new Animator.AnimatorListener() {
+							@Override
+							public void onAnimationStart(Animator animation) {
+								mask.setVisibility(View.VISIBLE);
+							}
+
+							@Override
+							public void onAnimationEnd(Animator animation) {
+							}
+
+							@Override
+							public void onAnimationCancel(Animator animation) {
+
+							}
+
+							@Override
+							public void onAnimationRepeat(Animator animation) {
+
+							}
+						})
+						.playOn(mask);
 			} else {
 				YoYo.with(Techniques.SlideOutDown)
 						.duration(200)
@@ -388,6 +481,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 							@Override
 							public void onAnimationEnd(Animator animation) {
 								actions.setVisibility(View.GONE);
+								mActionsVisibility = false;
 								isAnimating = false;
 							}
 
@@ -402,6 +496,29 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 							}
 						})
 						.playOn(actions);
+
+				YoYo.with(Techniques.FadeOut)
+						.duration(200)
+						.withListener(new Animator.AnimatorListener() {
+							@Override
+							public void onAnimationStart(Animator animation) {
+							}
+
+							@Override
+							public void onAnimationEnd(Animator animation) {
+								mask.setVisibility(View.GONE);
+							}
+
+							@Override
+							public void onAnimationCancel(Animator animation) {
+
+							}
+
+							@Override
+							public void onAnimationRepeat(Animator animation) {
+							}
+						})
+						.playOn(mask);
 			}
 
 
