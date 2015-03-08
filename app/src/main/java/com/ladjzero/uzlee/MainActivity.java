@@ -28,15 +28,10 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 	private NavigationDrawerFragment mNavigationDrawerFragment;
 	int fid;
 	String title = "";
-    private boolean enableSwipe() {
-        return false;
-    };
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.activity_main);
 		mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
