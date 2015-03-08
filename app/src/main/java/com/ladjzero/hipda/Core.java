@@ -206,7 +206,7 @@ public class Core {
 
 			@Override
 			public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
-				onRequestListener.onError(throwable.toString());
+				onRequestListener.onError(throwable == null ? "error" : throwable.toString());
 			}
 
 			@Override
@@ -991,14 +991,17 @@ public class Core {
 					String fid = "0";
 					String findPostLink;
 					if (eSummary.size() > 0) {
+						findPostLink = eNotice.select(">p>a").last().attr("href");
 						title = eNotice.select(">a").last().text();
 						body = eSummary.select("dt").last().text() + eSummary.select("dd").last().text();
-
-						findPostLink = eNotice.select(">p>a").last().attr("href");
 						String viewPostLink = eNotice.select(">p>a").first().attr("href");
 
 						int fidIndex = viewPostLink.indexOf("&fid=");
 						fid = viewPostLink.substring(fidIndex + 5, viewPostLink.indexOf("&tid="));
+//					} else if (findPostLink == null || findPostLink.length() == 0) {
+//						// other alerts, like thread being highlighted
+//						title = eNotice.text();
+//						body = "";
 					} else {
 						// thread watched on
 						Element lastA = eNotice.select(">a").last();
@@ -1013,9 +1016,12 @@ public class Core {
 						body = eNotice.text();
 					}
 
-					int ptidIndex = findPostLink.indexOf("&ptid=");
-					tid = findPostLink.substring(ptidIndex + 6);
-					pid = findPostLink.substring(findPostLink.indexOf("pid=") + 4, ptidIndex);
+					Uri findPostUri = Uri.parse(findPostLink);
+
+					tid = findPostUri.getQueryParameter("ptid");
+					pid = findPostUri.getQueryParameter("pid");
+					if (tid == null) tid = "0";
+					if (pid == null) pid = "0";
 
 					Post post = new Post().setId(Integer.valueOf(pid))
 							.setTid(Integer.valueOf(tid))
