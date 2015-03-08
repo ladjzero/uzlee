@@ -1,35 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-	android:layout_height="match_parent"
-	android:layout_width="match_parent"
-	xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-	<android.support.v4.widget.SwipeRefreshLayout
-		android:id="@+id/thread_swipe"
-		xmlns:android="http://schemas.android.com/apk/res/android"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:background="@color/snow_dark"
-		android:orientation="vertical">
-
-		<ListView
-			android:id="@+id/threads"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:background="@android:color/white"
-			android:divider="@color/snow_primary"
-			android:dividerHeight="1px"
-			android:listSelector="@android:color/transparent">
-		</ListView>
-
-	</android.support.v4.widget.SwipeRefreshLayout>
-
-	<include layout="@layout/top_hint" />
-    <include layout="@layout/shadow_under_actionbar" />
-
-    <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
-        android:id="@+id/seekbar"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/thread_swipe"
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
+        android:layout_height="match_parent"
+        android:background="@color/snow_dark"
+        android:orientation="vertical">
+
+        <ListView
+            android:id="@+id/threads"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/white"
+            android:divider="@color/snow_primary"
+            android:dividerHeight="1px"
+            android:listSelector="@android:color/transparent">
+        </ListView>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <include layout="@layout/top_hint"/>
+
+    <include layout="@layout/shadow_under_actionbar"/>
+
+    <include layout="@layout/go_top"/>
+
 </RelativeLayout>

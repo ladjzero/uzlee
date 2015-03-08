@@ -2,6 +2,7 @@ package com.ladjzero.uzlee;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 
 import com.amulyakhare.textdrawable.TextDrawable;
@@ -17,6 +18,8 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +37,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 			.beginConfig()
 			.bold()
 			.endConfig();
+	private HashMap<Integer, Drawable> mUserImageCache = new HashMap<Integer, Drawable>();
 
 	public ThreadsAdapter(Context context, ArrayList<Thread> threads) {
 		super(context, R.layout.thread, threads);
@@ -78,42 +82,24 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 
 		final String userName = user.getName();
 
-		if (image == null || image.length() == 0) {
-			try {
-				User u = userDao.queryForId(uid);
+		Drawable userImage = mUserImageCache.get(uid);
 
-				if (u != null && u.getImage() != null) {
-					ImageLoader.getInstance().displayImage(u.getImage(), holder.img, new SimpleImageLoadingListener() {
-
-						@Override
-						public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
-							user.setImage(imageUri);
-						}
-
-						@Override
-						public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
-							user.setImage("");
-							((ImageView) view).setImageDrawable(textBuilder.buildRect(Utils.getFirstChar(user.getName()), Utils.getColor(context, R.color.snow_dark)));
-						}
-					});
-				} else {
-					holder.img.setImageDrawable(textBuilder.buildRect(Utils.getFirstChar(user.getName()), Utils.getColor(context, R.color.snow_dark)));
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		if (userImage != null) {
+			holder.img.setImageDrawable(userImage);
 		} else {
 			ImageLoader.getInstance().displayImage(image, holder.img, new SimpleImageLoadingListener() {
 				@Override
 				public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
 					user.setImage(imageUri);
+					mUserImageCache.put(uid, new BitmapDrawable(loadedImage));
 				}
 
 				@Override
 				public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
 					user.setImage("");
-					((ImageView) view).setImageDrawable(textBuilder.buildRect(Utils.getFirstChar(user.getName()), Utils.getColor(context, R.color.snow_dark)));
+					Drawable charDrawable = textBuilder.buildRect(Utils.getFirstChar(user.getName()), Utils.getColor(context, R.color.dark_light));
+					mUserImageCache.put(uid, charDrawable);
+					((ImageView) view).setImageDrawable(charDrawable);
 				}
 			});
 		}

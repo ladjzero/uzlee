@@ -1,20 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:descendantFocusability="blocksDescendants"
-			  android:orientation="vertical">
-
-	<android.widget.IconTextView
-		android:id="@+id/post_body_fa_text_segment"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:autoLink="web"
-		android:focusable="false"
-		android:focusableInTouchMode="false"
-		android:lineSpacingExtra="6dp"
-		android:text="TextView"
-		android:textColor="@color/dark"
-		android:textSize="16sp"/>
-
-</LinearLayout>
+<android.widget.IconTextView
+    android:id="@+id/post_body_fa_text_segment"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:autoLink="web"
+    android:focusable="false"
+    android:focusableInTouchMode="false"
+    android:lineSpacingExtra="6dp"
+    android:text="TextView"
+    android:textColor="@color/dark"
+    android:textSize="16sp"/>

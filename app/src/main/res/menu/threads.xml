@@ -1,22 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	tools:context="com.ladjzero.uzlee.MainActivity">
-
-	<item
-		android:id="@+id/thread_publish"
-		android:showAsAction="ifRoom"
-		android:title="new thread" />
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="com.ladjzero.uzlee.MainActivity">
 
     <item
-        android:id="@+id/thread_publish1"
+        android:id="@+id/thread_publish"
         android:showAsAction="ifRoom"
-        android:title="new thread1" />
-    <item
-        android:id="@+id/thread_publish2"
-        android:showAsAction="ifRoom"
-        android:title="new thread2" />
-    <item
-        android:id="@+id/thread_publish3"
-        android:showAsAction="ifRoom"
-        android:title="new thread3" />
+        android:title="new thread"/>
+
 </menu>

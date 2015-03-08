@@ -1,19 +1,21 @@
 package com.ladjzero.uzlee;
 
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -36,6 +38,7 @@ import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -44,28 +47,31 @@ import java.util.Collections;
 import java.util.Comparator;
 
 
-public class PostsActivity extends SwipeActivity implements AdapterView.OnItemClickListener, Core.OnPostsListener, SwipeRefreshLayout.OnRefreshListener {
+public class PostsActivity extends SwipeActivity implements AdapterView.OnItemClickListener,
+		Core.OnPostsListener,
+		DiscreteSeekBar.OnProgressChangeListener {
 
 	private static final String TAG = "PostsActivity";
-	final int EDIT_CODE = 99;
-	DBHelper db;
-	Dao<Thread, Integer> threadDao;
-	Dao<Post, Integer> postDao;
-	Dao<User, Integer> userDao;
-	int fid;
-	int tid;
-	int mPage;
+	private final int EDIT_CODE = 99;
+	private DBHelper db;
+	private Dao<Thread, Integer> threadDao;
+	private Dao<Post, Integer> postDao;
+	private Dao<User, Integer> userDao;
+	private int mFid;
+	private int mTid;
+	private int mPage;
 	private ArrayList<Post> mPosts = new ArrayList<Post>();
-	PullToRefreshListView listView;
-	String titleStr;
-	PostsAdapter adapter;
-	boolean mHasNextPage = false;
-	TextView hint;
-	View actions;
-	View mask;
-	boolean isAnimating = false;
-	DiscreteSeekBar seekbar;
-	boolean mActionsVisibility = false;
+	private PullToRefreshListView mListView;
+	private String titleStr;
+	private PostsAdapter mAdapter;
+	private boolean mHasNextPage = false;
+	private TextView mHint;
+	private View mActions;
+	private View mMask;
+	private boolean mIsAnimating = false;
+	private DiscreteSeekBar mSeekBar;
+	private View mSeekBarContainer;
+	private boolean mActionsVisibility = false;
 	private Comparator<Post> mComparator = new Comparator<Post>() {
 		@Override
 		public int compare(Post post1, Post post2) {
@@ -79,22 +85,17 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		}
 	};
 
-//	private SwipeRefreshLayout swipe;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		this.setContentView(R.layout.posts);
-
-
 		super.onCreate(savedInstanceState);
 
-//		enableBackAction();
 		getActionBar().setIcon(null);
-//		getActionBar().hide();
 
 		db = this.getHelper();
-		fid = getIntent().getIntExtra("fid", 0);
-		tid = getIntent().getIntExtra("tid", 0);
+		mFid = getIntent().getIntExtra("fid", 0);
+		mTid = getIntent().getIntExtra("tid", 0);
 		titleStr = getIntent().getStringExtra("title");
 
 		try {
@@ -105,17 +106,12 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 			e1.printStackTrace();
 		}
 
-		mPosts = new ArrayList<Post>();
-		listView = (PullToRefreshListView) this.findViewById(R.id.posts);
-		adapter = new PostsAdapter(this, mPosts, titleStr);
-		listView.setOnItemClickListener(this);
-		ViewGroup title = ((ViewGroup) getLayoutInflater().inflate(R.layout.posts_header, listView, false));
-		TextView titleView = (TextView) title.findViewById(R.id.posts_header);
-		titleView.setText(titleStr);
-//		listView.addHeaderView(title, null, false);
-		listView.setAdapter(adapter);
-		listView.setMode(PullToRefreshBase.Mode.DISABLED);
-		listView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<ListView>() {
+		mListView = (PullToRefreshListView) this.findViewById(R.id.posts);
+		mAdapter = new PostsAdapter(this, mPosts, titleStr);
+		mListView.setOnItemClickListener(this);
+		mListView.setAdapter(mAdapter);
+		mListView.setMode(PullToRefreshBase.Mode.DISABLED);
+		mListView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<ListView>() {
 			@Override
 			public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
 				fetch(mPage - 1, PostsActivity.this);
@@ -126,55 +122,125 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 				fetch(mPage + 1, PostsActivity.this);
 			}
 		});
-//		listView.setOnScrollListener(new EndlessScrollListener() {
-//			@Override
-//			public void onLoadMore(int page, int totalItemsCount) {
-//				if (mHasNextPage) {
-//					hint.setVisibility(View.VISIBLE);
-//					fetch(page, PostsActivity.this);
-//				}
-//			}
-//		});
 
-//		swipe = (SwipeRefreshLayout) findViewById(R.id.post_swipe);
-//		swipe.setOnRefreshListener(this);
-//		swipe.setColorSchemeResources(R.color.deep_darker, R.color.deep_dark, R.color.deep_light, android.R.color.white);
+		mHint = (TextView) findViewById(R.id.hint);
+		mHint.setVisibility(View.GONE);
 
-		hint = (TextView) findViewById(R.id.hint);
-		hint.setVisibility(View.GONE);
-
-		mask = findViewById(R.id.mask);
-		mask.setVisibility(View.GONE);
-		mask.setOnTouchListener(new View.OnTouchListener() {
+		mMask = findViewById(R.id.mask);
+		mMask.setVisibility(View.GONE);
+		mMask.setOnTouchListener(new View.OnTouchListener() {
 			@Override
 			public boolean onTouch(View view, MotionEvent motionEvent) {
 				if (motionEvent.getAction() == MotionEvent.ACTION_DOWN &&
-						mask.getVisibility() == View.VISIBLE)
+						mMask.getVisibility() == View.VISIBLE)
 					onKeyDown(KeyEvent.KEYCODE_MENU, null);
 
 				return mActionsVisibility;
 			}
 		});
 
-		actions = findViewById(R.id.posts_actions);
-		actions.setVisibility(View.GONE);
+		mActions = findViewById(R.id.posts_actions);
+		mActions.setVisibility(View.GONE);
 
-		seekbar = (DiscreteSeekBar) findViewById(R.id.seekbar);
-		seekbar.setMin(2);
-		seekbar.setMax(10);
+		mSeekBarContainer = findViewById(R.id.seekbar_container);
+		mSeekBar = (DiscreteSeekBar) findViewById(R.id.seekbar);
+		mSeekBar.setMin(1);
+		mSeekBar.setOnProgressChangeListener(this);
+		mSeekBarContainer.setVisibility(View.GONE);
 
-//		findViewById(R.id.posts_action_reply).setOnClickListener(new View.OnClickListener() {
-//			@Override
-//			public void onClick(View view) {
-//				Intent replyIntent = new Intent(PostsActivity.this, EditActivity.class);
-//				replyIntent.putExtra("tid", tid);
-//				replyIntent.putExtra("title", "回复主题");
-//				replyIntent.putExtra("hideTitleInput", true);
-//				startActivityForResult(replyIntent, EDIT_CODE);
-//			}
-//		});
+		registerForContextMenu(mListView);
 
-		registerForContextMenu(listView);
+		findViewById(R.id.posts_action_share).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				showToast("暂不可用");
+				onKeyDown(KeyEvent.KEYCODE_MENU, null);
+			}
+		});
+
+		findViewById(R.id.posts_action_favorite).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Core.addToFavorite(mTid, new Core.OnRequestListener() {
+					@Override
+					public void onError(String error) {
+						showToast(error);
+					}
+
+					@Override
+					public void onSuccess(String html) {
+						if (html.contains("此主题已成功添加到收藏夹中")) {
+							showToast("收藏成功");
+						} else {
+							if (html.contains("您曾经收藏过这个主题")) {
+								AlertDialog.Builder alert = new AlertDialog.Builder(PostsActivity.this);
+								alert.setTitle("提醒");
+								alert.setMessage("已经收藏过该主题");
+								alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										dialog.cancel();
+									}
+
+								});
+								alert.setPositiveButton("移除收藏", new DialogInterface.OnClickListener() {
+
+									@Override
+									public void onClick(DialogInterface dialogInterface, int i) {
+										Core.removeFromFavoriate(mTid, new Core.OnRequestListener() {
+											@Override
+											public void onError(String error) {
+												showToast(error);
+											}
+
+											@Override
+											public void onSuccess(String html) {
+												if (html.contains("此主题已成功从您的收藏夹中移除")) {
+													showToast("移除成功");
+												} else {
+													showToast("移除失败");
+												}
+											}
+										});
+									}
+								});
+								alert.show();
+							} else {
+								showToast("收藏失败");
+							}
+						}
+					}
+				});
+				onKeyDown(KeyEvent.KEYCODE_MENU, null);
+			}
+		});
+
+		findViewById(R.id.posts_action_link).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+				ClipData clipData = ClipData.newPlainText("post url", getUri());
+				clipboardManager.setPrimaryClip(clipData);
+				showToast("复制到剪切版");
+				onKeyDown(KeyEvent.KEYCODE_MENU, null);
+			}
+		});
+
+		findViewById(R.id.posts_action_browser).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Intent intent = new Intent(Intent.ACTION_VIEW);
+				intent.setData(Uri.parse(getUri()));
+				startActivity(intent);
+				onKeyDown(KeyEvent.KEYCODE_MENU, null);
+			}
+		});
+	}
+
+	private String getUri() {
+		return StringUtils.join(
+				new String[]{"http://www.hi-pda.com/forum/viewthread.php?", "tid=" + mTid, "&page=" + mPage});
 	}
 
 	@Override
@@ -182,7 +248,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		super.onResume();
 
 		if (mPosts.size() == 0) fetch(1, this);
-		adapter.notifyDataSetChanged();
+		mAdapter.notifyDataSetChanged();
 	}
 
 	@Override
@@ -207,7 +273,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-		Post post = adapter.getItem(info.position);
+		Post post = mAdapter.getItem(info.position);
 		ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 		StringBuilder builder = new StringBuilder();
 
@@ -230,12 +296,13 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		int uid = post.getAuthor().getId();
 
 		Intent intent = new Intent(PostsActivity.this, EditActivity.class);
-		intent.putExtra("title", Core.getUid() == uid ? "编辑" : "回复#" + (i + 1));
+		int postIndex = post.getPostIndex();
+		intent.putExtra("title", Core.getUid() == uid ? "编辑" : "回复" + (postIndex == 1 ? "楼主" : postIndex + "楼"));
 		if (Core.getUid() == uid) {
-			intent.putExtra("fid", fid);
+			intent.putExtra("fid", mFid);
 		}
 		intent.putExtra("pid", post.getId());
-		intent.putExtra("tid", tid);
+		intent.putExtra("tid", mTid);
 		intent.putExtra("uid", uid);
 		intent.putExtra("no", i + 1);
 		intent.putExtra("userName", post.getAuthor().getName());
@@ -244,15 +311,21 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	}
 
 	private void fetch(int page, final Core.OnPostsListener onPostsListener) {
-		Core.getHtml("http://www.hi-pda.com/forum/viewthread.php?tid=" + tid + "&page=" + page, new Core.OnRequestListener() {
+		setProgressBarIndeterminateVisibility(true);
+
+		Core.getHtml("http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + page, new Core.OnRequestListener() {
 			@Override
 			public void onError(String error) {
+				setProgressBarIndeterminateVisibility(false);
+
+
 				onPostsListener.onError();
-				hint.setVisibility(View.GONE);
+				mHint.setVisibility(View.GONE);
 			}
 
 			@Override
 			public void onSuccess(String html) {
+
 				new AsyncTask<String, Void, Core.PostsRet>() {
 					@Override
 					protected Core.PostsRet doInBackground(String... strings) {
@@ -261,8 +334,9 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 					@Override
 					protected void onPostExecute(Core.PostsRet ret) {
-						onPostsListener.onPosts(ret.posts, ret.page, ret.hasNextPage);
-						hint.setVisibility(View.INVISIBLE);
+						setProgressBarIndeterminateVisibility(false);
+						onPostsListener.onPosts(ret.posts, ret.page, Math.max(ret.totalPage, ret.page));
+						mHint.setVisibility(View.INVISIBLE);
 					}
 				}.execute(html);
 			}
@@ -270,17 +344,21 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	}
 
 	@Override
-	public void onPosts(final ArrayList<Post> posts, int page, boolean hasNextPage) {
-		listView.onRefreshComplete();
-		adapter.clearViewCache();
+	public void onPosts(final ArrayList<Post> posts, int currPage, int totalPage) {
+		mListView.onRefreshComplete();
+		mAdapter.clearViewCache();
 
-		mHasNextPage = hasNextPage;
-		mPage = page;
+		if (totalPage > 1) mSeekBarContainer.setVisibility(View.VISIBLE);
+		mSeekBar.setMax(totalPage);
+		mSeekBar.setProgress(currPage);
+
+		mHasNextPage = totalPage > currPage;
+		mPage = currPage;
 
 		if (mHasNextPage) {
-			listView.setMode(page == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
+			mListView.setMode(currPage == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
 		} else {
-			listView.setMode(page == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
+			mListView.setMode(currPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
 		}
 
 		for (final Object id : CollectionUtils.collect(posts, mGetId)) {
@@ -293,10 +371,10 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		}
 		this.mPosts.addAll(posts);
 		Collections.sort(this.mPosts, mComparator);
-		adapter.setWindow(posts.get(0).getPostIndex(), posts.get(posts.size() - 1).getPostIndex() + 1);
+		mAdapter.setWindow(posts.get(0).getPostIndex(), posts.get(posts.size() - 1).getPostIndex() + 1);
 		if (this.mPosts.size() > 0) this.mPosts.get(0).setTitle(titleStr);
-		adapter.notifyDataSetChanged();
-		listView.getRefreshableView().setSelection(0);
+		mAdapter.notifyDataSetChanged();
+		mListView.getRefreshableView().setSelection(0);
 
 
 		new AsyncTask<Void, Void, Void>() {
@@ -318,38 +396,6 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	@Override
 	public void onError() {
 		showToast("请求错误");
-	}
-
-	@Override
-	public void onRefresh() {
-		adapter.clearViewCache();
-
-		fetch(1, new Core.OnPostsListener() {
-			@Override
-			public void onPosts(ArrayList<Post> _posts, int page, boolean hasNextPage) {
-				mHasNextPage = hasNextPage;
-				mPosts.clear();
-				mPosts.addAll(_posts);
-				adapter.notifyDataSetChanged();
-//				swipe.setRefreshing(false);
-				listView.setOnScrollListener(null);
-				listView.setOnScrollListener(new EndlessScrollListener() {
-					@Override
-					public void onLoadMore(int page, int totalItemsCount) {
-						if (mHasNextPage) {
-							hint.setVisibility(View.VISIBLE);
-							fetch(page, PostsActivity.this);
-						}
-					}
-				});
-			}
-
-			@Override
-			public void onError() {
-//				swipe.setRefreshing(false);
-				showToast("请求错误");
-			}
-		});
 	}
 
 	@Override
@@ -384,7 +430,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 						PostsActivity.this.mPosts.addAll(ret.posts);
 						mHasNextPage = ret.hasNextPage;
-						adapter.notifyDataSetChanged();
+						mAdapter.notifyDataSetChanged();
 					}
 				}.execute(html);
 			}
@@ -396,8 +442,6 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		getMenuInflater().inflate(R.menu.posts, menu);
 		menu.findItem(R.id.more).setIcon(new IconDrawable(this, Iconify.IconValue.fa_ellipsis_h).colorRes(android.R.color.white).actionBarSize());
 		menu.findItem(R.id.reply).setIcon(new IconDrawable(this, Iconify.IconValue.fa_comment_o).colorRes(android.R.color.white).actionBarSize());
-		menu.findItem(R.id.page).setIcon(new IconDrawable(this, Iconify.IconValue.fa_columns).colorRes(android.R.color.white).actionBarSize());
-
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -415,23 +459,23 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent ev) {
-		if (keyCode == KeyEvent.KEYCODE_MENU && !isAnimating) {
-			int visibility = actions.getVisibility();
+		if (keyCode == KeyEvent.KEYCODE_MENU && !mIsAnimating) {
+			int visibility = mActions.getVisibility();
 
 			if (visibility == View.GONE) {
-				YoYo.with(Techniques.SlideInUp)
+				YoYo.with(Techniques.FadeIn)
 						.duration(200)
 						.withListener(new Animator.AnimatorListener() {
 							@Override
 							public void onAnimationStart(Animator animation) {
-								actions.setVisibility(View.VISIBLE);
+								mActions.setVisibility(View.VISIBLE);
 								mActionsVisibility = true;
-								isAnimating = true;
+								mIsAnimating = true;
 							}
 
 							@Override
 							public void onAnimationEnd(Animator animation) {
-								isAnimating = false;
+								mIsAnimating = false;
 							}
 
 							@Override
@@ -444,14 +488,14 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 							}
 						})
-						.playOn(actions);
+						.playOn(mActions);
 
 				YoYo.with(Techniques.FadeIn)
 						.duration(200)
 						.withListener(new Animator.AnimatorListener() {
 							@Override
 							public void onAnimationStart(Animator animation) {
-								mask.setVisibility(View.VISIBLE);
+								mMask.setVisibility(View.VISIBLE);
 							}
 
 							@Override
@@ -468,21 +512,21 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 							}
 						})
-						.playOn(mask);
+						.playOn(mMask);
 			} else {
-				YoYo.with(Techniques.SlideOutDown)
+				YoYo.with(Techniques.FadeOut)
 						.duration(200)
 						.withListener(new Animator.AnimatorListener() {
 							@Override
 							public void onAnimationStart(Animator animation) {
-								isAnimating = true;
+								mIsAnimating = true;
 							}
 
 							@Override
 							public void onAnimationEnd(Animator animation) {
-								actions.setVisibility(View.GONE);
+								mActions.setVisibility(View.GONE);
 								mActionsVisibility = false;
-								isAnimating = false;
+								mIsAnimating = false;
 							}
 
 							@Override
@@ -495,7 +539,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 							}
 						})
-						.playOn(actions);
+						.playOn(mActions);
 
 				YoYo.with(Techniques.FadeOut)
 						.duration(200)
@@ -506,7 +550,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 							@Override
 							public void onAnimationEnd(Animator animation) {
-								mask.setVisibility(View.GONE);
+								mMask.setVisibility(View.GONE);
 							}
 
 							@Override
@@ -518,7 +562,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 							public void onAnimationRepeat(Animator animation) {
 							}
 						})
-						.playOn(mask);
+						.playOn(mMask);
 			}
 
 
@@ -526,5 +570,23 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		}
 
 		return super.onKeyDown(keyCode, ev);
+	}
+
+	@Override
+	public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
+
+	}
+
+	@Override
+	public void onStartTrackingTouch(DiscreteSeekBar seekBar) {
+
+	}
+
+	@Override
+	public void onStopTrackingTouch(DiscreteSeekBar seekBar) {
+		if (mPage != seekBar.getProgress()) {
+			fetch(seekBar.getProgress(), PostsActivity.this);
+			onKeyDown(KeyEvent.KEYCODE_MENU, null);
+		}
 	}
 }

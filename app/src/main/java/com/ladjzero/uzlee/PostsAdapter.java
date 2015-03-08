@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -45,12 +46,13 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
 public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener {
 	PostsActivity context;
 	ArrayList<Post> posts;
+	private HashMap<Integer, Drawable> mUserImageCache = new HashMap<Integer, Drawable>();
 	HashMap<Integer, View> viewCache = new HashMap<Integer, View>();
 	HashMap<Integer, ArrayList<View>> niceBodyCache = new HashMap<Integer, ArrayList<View>>();
 	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	TextDrawable.IShapeBuilder textBuilder = TextDrawable.builder()
 			.beginConfig()
-				.bold()
+			.bold()
 			.endConfig();
 	Date now = new Date();
 	String title;
@@ -114,7 +116,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 		final Post post = getItem(position);
 		final User author = post.getAuthor();
-		int uid = author.getId();
+		final int uid = author.getId();
 
 		holder.title.setVisibility(position == 0 ? View.VISIBLE : View.GONE);
 		if (post.getPostIndex() == 1) {
@@ -129,21 +131,32 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		holder.img.setTag(author);
 		holder.img.setOnClickListener(this);
 
-		if (author.getImage() == null || author.getImage().length() == 0) {
-			holder.img.setImageDrawable(textBuilder.buildRect(Utils.getFirstChar(author.getName()), Utils.getColor(context, R.color.snow_dark)));
-		} else {
-			ImageLoader.getInstance().displayImage(author.getImage(), holder.img, new SimpleImageLoadingListener() {
-				@Override
-				public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
-					author.setImage(imageUri);
-				}
+		Drawable userImage = mUserImageCache.get(uid);
 
-				@Override
-				public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
-					author.setImage("");
-					((ImageView) view).setImageDrawable(textBuilder.buildRect(Utils.getFirstChar(author.getName()), Utils.getColor(context, R.color.snow_dark)));
-				}
-			});
+		if (userImage != null) {
+			holder.img.setImageDrawable(userImage);
+		} else {
+			if (author.getImage() == null || author.getImage().length() == 0) {
+				Drawable charDrawable = textBuilder.buildRect(Utils.getFirstChar(author.getName()), Utils.getColor(context, R.color.dark_light));
+				mUserImageCache.put(uid, charDrawable);
+				holder.img.setImageDrawable(charDrawable);
+			} else {
+				ImageLoader.getInstance().displayImage(author.getImage(), holder.img, new SimpleImageLoadingListener() {
+					@Override
+					public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
+						author.setImage(imageUri);
+						mUserImageCache.put(uid, new BitmapDrawable(loadedImage));
+					}
+
+					@Override
+					public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
+						author.setImage("");
+						Drawable charDrawable = textBuilder.buildRect(Utils.getFirstChar(author.getName()), Utils.getColor(context, R.color.dark_light));
+						mUserImageCache.put(uid, charDrawable);
+						((ImageView) view).setImageDrawable(charDrawable);
+					}
+				});
+			}
 		}
 
 		ArrayList<View> niceBody = niceBodyCache.get(position);
@@ -164,12 +177,13 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		} else {
 			for (View view : niceBody) {
 				ViewParent vParent = view.getParent();
-				if (vParent != null) ((ViewGroup)vParent).removeView(view);
+				if (vParent != null) ((ViewGroup) vParent).removeView(view);
 				holder.body.addView(view);
 			}
 		}
 
-		holder.postNo.setText("#" + post.getPostIndex());
+		int index = post.getPostIndex();
+		holder.postNo.setText(index == 1 ? "楼主" : index + "楼");
 
 		Post quote = post.getQuote();
 
@@ -200,12 +214,13 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 					holder.quoteLayout.setBackgroundResource(R.color.uglee);
 				}
 
+				int quid = quoteUser.getId();
+
 				holder.quoteLayout.setVisibility(View.VISIBLE);
 				holder.quoteName.setText(quoteUser.getName());
-				ImageLoader.getInstance().displayImage(quoteUser.getImage(), holder.quoteImg);
+				holder.quoteImg.setImageDrawable(mUserImageCache.get(quid));
 				String bodySnippet0 = betterQuote.getNiceBody()[0];
 
-				int quid = quoteUser.getId();
 
 				if (Core.bans.contains(quid)) {
 					holder.quoteBody.setText(context.getString(R.string.blocked));
@@ -214,7 +229,9 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 							.setText(bodySnippet0.indexOf("txt:") == 0 ? bodySnippet0
 									.substring(4) : "[image]");
 				}
-				holder.quotePostNo.setText("#" + betterQuote.getPostIndex());
+
+				int qIndex = betterQuote.getPostIndex();
+				holder.quotePostNo.setText(qIndex == 1 ? "楼主" : index + "楼");
 			} else {
 				holder.quoteLayout.setVisibility(View.VISIBLE);
 				holder.quoteName.setText(quote.getAuthor().getName());
@@ -265,7 +282,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 			if (DateUtils.isSameDay(thatDate, now)) {
 				return DateFormatUtils.format(thatDate, "HH:mm");
-			} else if (now.getTime() - thatDate.getTime() < 24 * 3600 *1000) {
+			} else if (now.getTime() - thatDate.getTime() < 24 * 3600 * 1000) {
 				return DateFormatUtils.format(thatDate, "M月d日 HH:mm");
 			} else if (now.getYear() == thatDate.getYear()) {
 				return DateFormatUtils.format(thatDate, "M月d日");
@@ -286,31 +303,25 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 				TextView textView;
 
 				if (content.equals("blocked!")) {
-					LinearLayout postTextLayout = (LinearLayout) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
-					textView = (TextView) postTextLayout.findViewById(R.id.post_body_fa_text_segment);
+					textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
 					textView.setText(context.getString(R.string.blocked));
-					postTextLayout.removeAllViews();
 				} else {
-					LinearLayout postTextLayout = (LinearLayout) context.getLayoutInflater().inflate(R.layout.post_body_text_segment, null);
-					textView = (TextView) postTextLayout.findViewById(R.id.post_body_text_segment);
+					textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_text_segment, null);
 					textView.setText(context.emojiUtils.getSmiledText(context, bodySnippet.substring(4)));
-					postTextLayout.removeAllViews();
 				}
 
 				views.add(textView);
 			} else if (bodySnippet.startsWith("sig:") && bodySnippet.length() > 4) {
-				LinearLayout postTextLayout = (LinearLayout) context.getLayoutInflater().inflate(R.layout.post_body_sig, null);
-				TextView textView = (TextView) postTextLayout.findViewById(R.id.post_body_sig);
+				View sigContainer = context.getLayoutInflater().inflate(R.layout.post_body_sig, null);
+				TextView textView = (TextView) sigContainer.findViewById(R.id.post_body_sig);
 				textView.setText(bodySnippet.substring(4));
-				postTextLayout.removeAllViews();
 
-				views.add(textView);
+				views.add(sigContainer);
 			} else if (bodySnippet.startsWith("img:")) {
-				LinearLayout postImageLayout = (LinearLayout) context.getLayoutInflater().inflate(R.layout.post_body_image_segment, null);
-				final PostImageView imageView = (PostImageView) postImageLayout.findViewById(R.id.post_img);
-				postImageLayout.removeAllViews();
+				View imageContainer = context.getLayoutInflater().inflate(R.layout.post_body_image_segment, null);
+				PostImageView imageView = (PostImageView) imageContainer.findViewById(R.id.post_img);
 
-				views.add(imageView);
+				views.add(imageContainer);
 
 				final String url = bodySnippet.substring(4);
 

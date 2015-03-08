@@ -1,26 +1,27 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="155dp"
+    android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
     android:alpha="0.96">
 
     <LinearLayout
         android:id="@+id/posts_actions"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:clickable="true"
         android:orientation="vertical">
 
-        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:layout_width="match_parent"
-                  android:layout_height="10px"
-                  android:layout_marginTop="-10px"
-                  android:background="@drawable/shadow_over_post_actionbar_repeat"
-                  android:orientation="vertical"/>
+        <!--<TextView xmlns:android="http://schemas.android.com/apk/res/android"-->
+                  <!--android:layout_width="match_parent"-->
+                  <!--android:layout_height="10px"-->
+                  <!--android:layout_marginTop="-10px"-->
+                  <!--android:background="@drawable/shadow_over_post_actionbar_repeat"-->
+                  <!--android:orientation="vertical"/>-->
 
         <RelativeLayout
+            android:id="@+id/seekbar_container"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginLeft="10dp"
@@ -52,7 +53,7 @@
             android:orientation="horizontal">
 
             <RelativeLayout
-                android:id="@+id/posts_action_favorite"
+                android:id="@+id/posts_action_share"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_weight="1">
@@ -81,7 +82,7 @@
 
 
             <RelativeLayout
-                android:id="@+id/posts_action_pages"
+                android:id="@+id/posts_action_favorite"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
@@ -110,7 +111,7 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/posts_action_refresh"
+                android:id="@+id/posts_action_link"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
@@ -139,7 +140,7 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/posts_action_reply"
+                android:id="@+id/posts_action_browser"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"

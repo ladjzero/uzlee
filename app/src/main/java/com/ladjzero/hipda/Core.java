@@ -271,7 +271,7 @@ public class Core {
 		return doc;
 	}
 
-	public static void login(String username, String password, final OnRequestListener onRequestListener) {
+	public static void login(String username, String password, int questionId, String answer, final OnRequestListener onRequestListener) {
 		RequestParams params = new RequestParams();
 		params.setContentEncoding("GBK");
 		params.put("sid", "fa6m4o");
@@ -279,8 +279,8 @@ public class Core {
 		params.put("loginfield", "username");
 		params.put("username", username);
 		params.put("password", password);
-		params.put("questionid", "0");
-		params.put("answer", "");
+		params.put("questionid", questionId);
+		params.put("answer", answer);
 		params.put("loginsubmit", "true");
 
 		httpClient
@@ -343,6 +343,30 @@ public class Core {
 		ArrayList<Post> posts = new ArrayList<Post>();
 		Document doc = getDoc(html);
 
+		Elements pages = doc.select("div.pages");
+		int totalPage = 1;
+
+		if (pages.size() == 2) {
+			Elements lastPage = pages.select("a.last");
+			if (lastPage.size() > 0) {
+				try {
+					totalPage = Integer.valueOf(Uri.parse(lastPage.attr("href")).getQueryParameter("page"));
+				} catch (Exception e) {
+
+				}
+			} else {
+				lastPage = pages.select("a:not(.next)");
+
+				if (lastPage.size() > 0) {
+					try {
+						totalPage = Integer.valueOf(Uri.parse(lastPage.last().attr("href")).getQueryParameter("page"));
+					} catch (Exception e) {
+
+					}
+				}
+			}
+		}
+
 		Elements ePosts = doc.select("table[id^=pid]");
 
 		for (Element ePost : ePosts) {
@@ -362,6 +386,7 @@ public class Core {
 		ret.posts = posts;
 		ret.hasNextPage = hasNextPage;
 		ret.page = currPage;
+		ret.totalPage = totalPage;
 
 		return ret;
 	}
@@ -457,7 +482,11 @@ public class Core {
 
 				if (quoteIndex.endsWith("#")) {
 					quoteIndex = quoteIndex.substring(0, quoteIndex.length() - 1);
-					quote.setPostIndex(Integer.valueOf(quoteIndex));
+					try {
+						quote.setPostIndex(Integer.valueOf(quoteIndex));
+					} catch (Exception e) {
+
+					}
 				}
 
 				String userName = eSimpleReply.get(0).parent().select("> i").text().trim();
@@ -1033,7 +1062,8 @@ public class Core {
 
 				boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
 
-				onPostsListener.onPosts(posts, currPage, hasNextPage);
+				// TO-DO
+				onPostsListener.onPosts(posts, currPage, 10);
 			}
 		});
 	}
@@ -1322,8 +1352,7 @@ public class Core {
 	}
 
 	public interface OnPostsListener {
-		void onPosts(ArrayList<Post> posts, int currPage, boolean hasNextPage);
-
+		void onPosts(ArrayList<Post> posts, int currPage, int totalPage);
 		void onError();
 	}
 
@@ -1387,11 +1416,42 @@ public class Core {
 		public ArrayList<Post> posts;
 		public boolean hasNextPage;
 		public int page;
+		public int totalPage;
 	}
 
 	public static class ThreadsRet {
 		public ArrayList<Thread> threads;
 		public boolean hasNextPage;
 		public int page;
+	}
+
+	public static void addToFavorite(int tid, final OnRequestListener onRequestListener) {
+		httpClient.get("http://www.hi-pda.com/forum/my.php?item=favorites&tid=" + tid + "&inajax=1&ajaxtarget=favorite_msg",
+				new TextHttpResponseHandler("GBK") {
+					@Override
+					public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+						onRequestListener.onError("收藏失败");
+					}
+
+					@Override
+					public void onSuccess(int i, Header[] headers, String s) {
+						onRequestListener.onSuccess(s);
+					}
+				});
+	}
+
+	public static void removeFromFavoriate(int tid, final OnRequestListener onRequestListener) {
+		httpClient.get("http://www.hi-pda.com/forum/my.php?item=favorites&action=remove&tid=" + tid + "&inajax=1&ajaxtarget=favorite_msg",
+				new TextHttpResponseHandler("GBK") {
+					@Override
+					public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+						onRequestListener.onError("删除失败");
+					}
+
+					@Override
+					public void onSuccess(int i, Header[] headers, String s) {
+						onRequestListener.onSuccess(s);
+					}
+				});
 	}
 }

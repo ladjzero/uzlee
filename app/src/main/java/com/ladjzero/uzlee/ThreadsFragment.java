@@ -14,10 +14,13 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.j256.ormlite.dao.Dao;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Core.OnThreadsListener;
@@ -25,6 +28,7 @@ import com.ladjzero.hipda.DBHelper;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
+import com.nineoldandroids.animation.Animator;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import org.apache.commons.collections.CollectionUtils;
@@ -47,7 +51,11 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private boolean hasNextPage = false;
 	private int fid;
 	private TextView hint;
-	DiscreteSeekBar seekbar;
+	private View mGoTop;
+	private boolean mIsAnimating = false;
+	private boolean mGoTopVisible = false;
+	private int mPage = 1;
+	private boolean mIsFetching = true;
 
 	public static ThreadsFragment newInstance(int fid) {
 
@@ -82,6 +90,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		adapter = new ThreadsAdapter(getActivity(), threads);
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(this);
+
 		listView.setOnScrollListener(new EndlessScrollListener() {
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
@@ -90,23 +99,93 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 					fetch(page, ThreadsFragment.this);
 				}
 			}
+
+			@Override
+			public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+				super.onScroll(absListView, firstVisibleItem, visibleItemCount, totalItemCount);
+
+				if (firstVisibleItem > 10 && !mGoTopVisible) {
+					YoYo.with(Techniques.FadeIn)
+							.duration(200)
+							.withListener(new Animator.AnimatorListener() {
+								@Override
+								public void onAnimationStart(Animator animation) {
+									mGoTop.setVisibility(View.VISIBLE);
+									mGoTopVisible = true;
+									mIsAnimating = true;
+								}
+
+								@Override
+								public void onAnimationEnd(Animator animation) {
+									mIsAnimating = false;
+								}
+
+								@Override
+								public void onAnimationCancel(Animator animation) {
+
+								}
+
+								@Override
+								public void onAnimationRepeat(Animator animation) {
+
+								}
+							})
+							.playOn(mGoTop);
+				} else if (firstVisibleItem <= 10 && mGoTopVisible) {
+					YoYo.with(Techniques.FadeOut)
+							.duration(200)
+							.withListener(new Animator.AnimatorListener() {
+								@Override
+								public void onAnimationStart(Animator animation) {
+									mIsAnimating = true;
+								}
+
+								@Override
+								public void onAnimationEnd(Animator animation) {
+									mGoTop.setVisibility(View.GONE);
+									mGoTopVisible = false;
+									mIsAnimating = false;
+								}
+
+								@Override
+								public void onAnimationCancel(Animator animation) {
+
+								}
+
+								@Override
+								public void onAnimationRepeat(Animator animation) {
+
+								}
+							})
+							.playOn(mGoTop);
+				}
+			}
 		});
 
 		hint = (TextView) rootView.findViewById(R.id.hint);
 		hint.setText("正在加载下一页");
 		hint.setVisibility(View.GONE);
 
+		mGoTop = rootView.findViewById(R.id.go_top);
+		mGoTop.setVisibility(View.GONE);
+		mGoTop.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				if (mGoTopVisible) listView.setSelection(0);
+			}
+		});
+
 		registerForContextMenu(listView);
-		seekbar = (DiscreteSeekBar) rootView.findViewById(R.id.seekbar);
-		seekbar.setMin(2);
-		seekbar.setMax(10);
 		return rootView;
 	}
 
 	private void fetch(int page, final OnThreadsListener onThreadsListener) {
+		getActivity().setProgressBarIndeterminateVisibility(true);
+
 		Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid") + "&page=" + page, new Core.OnRequestListener() {
 			@Override
 			public void onError(String error) {
+				getActivity().setProgressBarIndeterminateVisibility(false);
 				onThreadsListener.onError();
 				hint.setVisibility(View.GONE);
 			}
@@ -121,6 +200,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 					@Override
 					protected void onPostExecute(Core.ThreadsRet ret) {
+						getActivity().setProgressBarIndeterminateVisibility(false);
 						onThreadsListener.onThreads(ret.threads, ret.page, ret.hasNextPage);
 						hint.setVisibility(View.INVISIBLE);
 					}
@@ -168,6 +248,8 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	@Override
 	public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
 		this.hasNextPage = hasNextPage;
+		mPage = page;
+		mIsFetching = false;
 
 		final Collection<Integer> ids = CollectionUtils.collect(this.threads, new Transformer() {
 			@Override
