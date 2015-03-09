@@ -1,31 +1,23 @@
 package com.ladjzero.uzlee;
 
-import java.lang.reflect.Array;
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
-import android.app.Activity;
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.text.Html;
-import android.text.Layout;
-import android.view.LayoutInflater;
+import android.util.LruCache;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -44,11 +36,24 @@ import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener {
-	PostsActivity context;
-	ArrayList<Post> posts;
+	private PostsActivity context;
+	private ArrayList<Post> mPosts;
+
+	private LruCache<Integer, ArrayList<View>> mViewCache = new LruCache<Integer, ArrayList<View>>(110) {
+		@Override
+		protected int sizeOf(Integer key, ArrayList<View> value) {
+			int weight = 0;
+
+			for (View v : value) {
+				weight += (Integer) v.getTag();
+			}
+
+			return weight;
+		}
+	};
+
 	private HashMap<Integer, Drawable> mUserImageCache = new HashMap<Integer, Drawable>();
-	HashMap<Integer, View> viewCache = new HashMap<Integer, View>();
-	HashMap<Integer, ArrayList<View>> niceBodyCache = new HashMap<Integer, ArrayList<View>>();
+	private HashMap<String, Double> mImageWidthHeight = new HashMap<String, Double>();
 	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	TextDrawable.IShapeBuilder textBuilder = TextDrawable.builder()
 			.beginConfig()
@@ -62,12 +67,12 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	public PostsAdapter(Context context, ArrayList<Post> posts, String title) {
 		super(context, R.layout.post, posts);
 		this.context = (PostsActivity) context;
-		this.posts = posts;
+		this.mPosts = posts;
 		this.title = title;
 	}
 
 	public void clearViewCache() {
-		niceBodyCache.clear();
+		mViewCache.evictAll();
 	}
 
 	public void setWindow(int from, int to) {
@@ -77,13 +82,13 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 	@Override
 	public int getCount() {
-		int size = posts.size();
-		return size == 0 ? 0 : Math.min(mTo, posts.get(size - 1).getPostIndex() + 1) - mFrom;
+		int size = mPosts.size();
+		return size == 0 ? 0 : Math.min(mTo, mPosts.get(size - 1).getPostIndex() + 1) - mFrom;
 	}
 
 	@Override
 	public Post getItem(final int position) {
-		return (Post) CollectionUtils.find(posts, new Predicate() {
+		return (Post) CollectionUtils.find(mPosts, new Predicate() {
 			@Override
 			public boolean evaluate(Object o) {
 				return ((Post) o).getPostIndex() == mFrom + position;
@@ -159,11 +164,11 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			}
 		}
 
-		ArrayList<View> niceBody = niceBodyCache.get(position);
+		ArrayList<View> niceBody = mViewCache.get(position);
 
 		if (niceBody == null) {
 			niceBody = buildBody(post);
-			niceBodyCache.put(position, niceBody);
+			mViewCache.put(position, niceBody);
 		}
 
 		holder.body.removeAllViews();
@@ -198,7 +203,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		if (quote != null) {
 			final int quoteId = quote.getId();
 
-			Post betterQuote = (Post) CollectionUtils.find(posts, new Predicate() {
+			Post betterQuote = (Post) CollectionUtils.find(mPosts, new Predicate() {
 
 				@Override
 				public boolean evaluate(Object post) {
@@ -248,7 +253,6 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		}
 
 		holder.postDate.setText(prettyTime(post.getTimeStr()));
-		viewCache.put(position, row);
 
 		return row;
 	}
@@ -310,22 +314,34 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 					textView.setText(context.emojiUtils.getSmiledText(context, bodySnippet.substring(4)));
 				}
 
+				//CacheWeight
+				textView.setTag(Integer.valueOf(1));
 				views.add(textView);
 			} else if (bodySnippet.startsWith("sig:") && bodySnippet.length() > 4) {
 				View sigContainer = context.getLayoutInflater().inflate(R.layout.post_body_sig, null);
 				TextView textView = (TextView) sigContainer.findViewById(R.id.post_body_sig);
 				textView.setText(bodySnippet.substring(4));
 
+				sigContainer.setTag(Integer.valueOf(0));
 				views.add(sigContainer);
 			} else if (bodySnippet.startsWith("img:")) {
 				View imageContainer = context.getLayoutInflater().inflate(R.layout.post_body_image_segment, null);
 				PostImageView imageView = (PostImageView) imageContainer.findViewById(R.id.post_img);
 
+				imageContainer.setTag(Integer.valueOf(10));
 				views.add(imageContainer);
 
 				final String url = bodySnippet.substring(4);
+				Double widthHeight = mImageWidthHeight.get(url);
+				if (widthHeight != null) imageView.setWidthHeight(widthHeight);
 
-				ImageLoader.getInstance().displayImage(url, imageView);
+				ImageLoader.getInstance().displayImage(url, imageView, new SimpleImageLoadingListener() {
+					@Override
+					public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
+						if (mImageWidthHeight.get(url) == null)
+							mImageWidthHeight.put(url, 1.0 * loadedImage.getWidth() / loadedImage.getHeight());
+					}
+				});
 
 				imageView.setOnClickListener(new OnClickListener() {
 					@Override

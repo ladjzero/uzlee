@@ -252,6 +252,12 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	}
 
 	@Override
+	public void onPause() {
+		mAdapter.clearViewCache();
+		super.onPause();
+	}
+
+	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		if (mPosts != null) {

@@ -12,6 +12,8 @@ import android.widget.LinearLayout;
 
 public class PostImageView extends ImageView {
 
+	private double widthHeight = -1;
+
 	public PostImageView(final Context context) {
 		super(context);
 	}
@@ -24,6 +26,10 @@ public class PostImageView extends ImageView {
 		super(context, attrs);
 	}
 
+	public void setWidthHeight(double widthHeight) {
+		this.widthHeight = widthHeight;
+	}
+
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		Drawable d = getDrawable();
@@ -32,14 +38,21 @@ public class PostImageView extends ImageView {
 			// ceil not round - avoid thin vertical gaps along the left/right
 			// edges
 			int width = MeasureSpec.getSize(widthMeasureSpec);
-			int height = (int) Math.ceil((float) width
-					* (float) d.getIntrinsicHeight()
-					/ (float) d.getIntrinsicWidth());
+			int height;
+
+			if (widthHeight < 0) {
+				height = (int) Math.ceil((float) width
+						* (float) d.getIntrinsicHeight()
+						/ (float) d.getIntrinsicWidth());
+			} else {
+				height = (int) Math.ceil((float) width / widthHeight);
+			}
+
 			setMeasuredDimension(width, height);
 		} else {
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		}
 	}
-	
-	
+
+
 }
