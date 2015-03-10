@@ -435,6 +435,13 @@ public class Core {
 		post.setId(Integer.valueOf(id)).setNiceBody(niceBody)
 				.setAuthor(user).setTimeStr(timeStr).setPostIndex(Integer.valueOf(postIndex));
 
+		for (String body : niceBody) {
+			if (body.startsWith("sig")) {
+				post.setSig(body.substring(4));
+				break;
+			}
+		}
+
 		return post;
 	}
 

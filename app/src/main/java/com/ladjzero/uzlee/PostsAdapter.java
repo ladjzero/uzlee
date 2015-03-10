@@ -111,6 +111,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			holder.name = (TextView) row.findViewById(R.id.user_mini_name);
 			holder.quoteName = (TextView) holder.quoteLayout.findViewById(R.id.user_mini_name);
 			holder.body = (LinearLayout) row.findViewById(R.id.post_body_layout);
+			holder.sig = (TextView) row.findViewById(R.id.post_body_sig);
 			holder.quoteBody = (TextView) holder.quoteLayout.findViewById(R.id.post_quote_text);
 			holder.postNo = (TextView) row.findViewById(R.id.post_no);
 			holder.postDate = (TextView) row.findViewById(R.id.post_date);
@@ -130,11 +131,19 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			holder.title.setVisibility(View.GONE);
 		}
 		holder.name.setText(author.getName());
-		holder.name.getPaint().setFakeBoldText(true);
+//		holder.name.getPaint().setFakeBoldText(true);
 		holder.name.setTag(author);
 		holder.name.setOnClickListener(this);
 		holder.img.setTag(author);
 		holder.img.setOnClickListener(this);
+
+		String sig = post.getSig();
+
+		if (sig != null && sig.length() > 0) {
+			holder.sig.setText(sig);
+		} else {
+			holder.sig.setVisibility(View.GONE);
+		};
 
 		Drawable userImage = mUserImageCache.get(uid);
 
@@ -236,7 +245,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 				}
 
 				int qIndex = betterQuote.getPostIndex();
-				holder.quotePostNo.setText(qIndex == 1 ? "楼主" : index + "楼");
+				holder.quotePostNo.setText(qIndex == 1 ? "楼主" : qIndex + "楼");
 			} else {
 				holder.quoteLayout.setVisibility(View.VISIBLE);
 				holder.quoteName.setText(quote.getAuthor().getName());
@@ -273,6 +282,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		TextView name;
 		TextView quoteName;
 		LinearLayout body;
+		TextView sig;
 		TextView quoteBody;
 		TextView postNo;
 		TextView postDate;
@@ -317,13 +327,13 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 				//CacheWeight
 				textView.setTag(Integer.valueOf(1));
 				views.add(textView);
-			} else if (bodySnippet.startsWith("sig:") && bodySnippet.length() > 4) {
-				View sigContainer = context.getLayoutInflater().inflate(R.layout.post_body_sig, null);
-				TextView textView = (TextView) sigContainer.findViewById(R.id.post_body_sig);
-				textView.setText(bodySnippet.substring(4));
-
-				sigContainer.setTag(Integer.valueOf(0));
-				views.add(sigContainer);
+//			} else if (bodySnippet.startsWith("sig:") && bodySnippet.length() > 4) {
+//				View sigContainer = context.getLayoutInflater().inflate(R.layout.post_body_sig, null);
+//				TextView textView = (TextView) sigContainer.findViewById(R.id.post_body_sig);
+//				textView.setText(bodySnippet.substring(4));
+//
+//				sigContainer.setTag(Integer.valueOf(0));
+//				views.add(sigContainer);
 			} else if (bodySnippet.startsWith("img:")) {
 				View imageContainer = context.getLayoutInflater().inflate(R.layout.post_body_image_segment, null);
 				PostImageView imageView = (PostImageView) imageContainer.findViewById(R.id.post_img);

@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:descendantFocusability="blocksDescendants"
-			  android:orientation="vertical"
-			  android:paddingBottom="6dp"
-			  android:paddingLeft="12dp"
-			  android:paddingTop="12dp"
-			  android:paddingRight="12dp">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:descendantFocusability="blocksDescendants"
+              android:orientation="vertical"
+              android:paddingBottom="6dp"
+              android:paddingLeft="12dp"
+              android:paddingRight="12dp"
+              android:paddingTop="12dp">
 
 
     <TextView
+        android:id="@+id/post_title"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="New Text"
-        android:id="@+id/post_title"
+        android:layout_marginBottom="16dp"
         android:lineSpacingExtra="8sp"
-        android:textSize="22sp"
-        android:layout_marginBottom="16dp"/>
+        android:text="New Text"
+        android:textSize="22sp"/>
 
-    <include layout="@layout/post_user"/>
+    <include layout="@layout/user_mini_for_post"/>
 
     <include layout="@layout/post_body"/>
 

@@ -24,8 +24,6 @@
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <include layout="@layout/top_hint"/>
-
     <include layout="@layout/shadow_under_actionbar"/>
 
     <include layout="@layout/go_top"/>

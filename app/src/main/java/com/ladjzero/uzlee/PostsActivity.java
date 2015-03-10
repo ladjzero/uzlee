@@ -97,6 +97,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		mFid = getIntent().getIntExtra("fid", 0);
 		mTid = getIntent().getIntExtra("tid", 0);
 		titleStr = getIntent().getStringExtra("title");
+		setTitle(titleStr);
 
 		try {
 			threadDao = db.getThreadDao();

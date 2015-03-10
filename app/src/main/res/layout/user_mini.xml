@@ -5,21 +5,28 @@
     android:orientation="horizontal" >
 
 	<FrameLayout
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginRight="12dp"
-		android:padding="1px"
-		android:background="@color/dark_light">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="12dp"
+        android:padding="1px"
+        android:background="@color/snow_light">
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="1.5dp"
+            android:background="@android:color/white">
 
-		<ImageView
-			android:id="@+id/user_mini_image"
-			android:layout_width="30dp"
-			android:layout_height="30dp"
-			android:layout_gravity="center_vertical"
-			android:accessibilityLiveRegion="polite"
-			android:scaleType="centerCrop"
-			/>
-	</FrameLayout>
+            <ImageView
+                android:id="@+id/user_mini_image"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_gravity="center_vertical"
+                android:accessibilityLiveRegion="polite"
+                android:scaleType="centerCrop"
+                />
+        </FrameLayout>
+        </FrameLayout>
+
 
 	<TextView
         android:id="@+id/user_mini_name"

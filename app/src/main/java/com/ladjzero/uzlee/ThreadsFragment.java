@@ -34,6 +34,7 @@ import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
+import org.jsoup.Connection;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import java.util.Collection;
 
 public class ThreadsFragment extends Fragment implements OnRefreshListener, AdapterView.OnItemClickListener, OnThreadsListener {
 
+	private BaseActivity mActivity;
 	private final ArrayList<Thread> threads = new ArrayList<Thread>();
 	private SwipeRefreshLayout swipe;
 	private DBHelper db;
@@ -50,7 +52,6 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private ThreadsAdapter adapter;
 	private boolean hasNextPage = false;
 	private int fid;
-	private TextView hint;
 	private View mGoTop;
 	private boolean mIsAnimating = false;
 	private boolean mGoTopVisible = false;
@@ -58,7 +59,6 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private boolean mIsFetching = true;
 
 	public static ThreadsFragment newInstance(int fid) {
-
 		ThreadsFragment fragment = new ThreadsFragment();
 		Bundle args = new Bundle();
 		args.putInt("fid", fid);
@@ -70,6 +70,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		mActivity = (BaseActivity) getActivity();
 
 		if (db == null) db = ((BaseActivity) getActivity()).getHelper();
 
@@ -95,7 +96,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
 				if (hasNextPage) {
-					hint.setVisibility(View.VISIBLE);
+					mActivity.showToast("载入下一页");
 					fetch(page, ThreadsFragment.this);
 				}
 			}
@@ -162,10 +163,6 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 			}
 		});
 
-		hint = (TextView) rootView.findViewById(R.id.hint);
-		hint.setText("正在加载下一页");
-		hint.setVisibility(View.GONE);
-
 		mGoTop = rootView.findViewById(R.id.go_top);
 		mGoTop.setVisibility(View.GONE);
 		mGoTop.setOnClickListener(new View.OnClickListener() {
@@ -180,14 +177,19 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	}
 
 	private void fetch(int page, final OnThreadsListener onThreadsListener) {
-		getActivity().setProgressBarIndeterminateVisibility(true);
+		// Hack. http://stackoverflow.com/questions/26858692/swiperefreshlayout-setrefreshing-not-showing-indicator-initially
+		swipe.post(new Runnable() {
+			@Override
+			public void run() {
+				swipe.setRefreshing(true);
+			}
+		});
 
 		Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid") + "&page=" + page, new Core.OnRequestListener() {
 			@Override
 			public void onError(String error) {
-				getActivity().setProgressBarIndeterminateVisibility(false);
 				onThreadsListener.onError();
-				hint.setVisibility(View.GONE);
+				swipe.setRefreshing(false);
 			}
 
 			@Override
@@ -200,9 +202,9 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 					@Override
 					protected void onPostExecute(Core.ThreadsRet ret) {
-						getActivity().setProgressBarIndeterminateVisibility(false);
+						swipe.setRefreshing(false);
+
 						onThreadsListener.onThreads(ret.threads, ret.page, ret.hasNextPage);
-						hint.setVisibility(View.INVISIBLE);
 					}
 				}.execute(html);
 			}
