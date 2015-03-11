@@ -1,9 +1,12 @@
 package com.ladjzero.uzlee;
 
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Set;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.j256.ormlite.dao.Dao;
@@ -27,7 +30,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClickListener{
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
+
+public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClickListener {
 
 	Context context;
 	Core core;
@@ -38,6 +44,9 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 			.bold()
 			.endConfig();
 	private HashMap<Integer, Drawable> mUserImageCache = new HashMap<Integer, Drawable>();
+	private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+	private final Date NOW = new Date();
+
 
 	public ThreadsAdapter(Context context, ArrayList<Thread> threads) {
 		super(context, R.layout.thread, threads);
@@ -62,6 +71,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 			holder.img = (ImageView) row.findViewById(R.id.user_mini_image);
 			holder.name = (TextView) row.findViewById(R.id.user_mini_name);
 			holder.title = (TextView) row.findViewById(R.id.thread_title);
+			holder.date = (TextView) row.findViewById(R.id.thread_date);
 			holder.commentCount = (TextView) row
 					.findViewById(R.id.thread_comment_count);
 
@@ -106,9 +116,11 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 
 		holder.img.setTag(user);
 		holder.name.setTag(user);
-		holder.name.getPaint().setFakeBoldText(true);
+//		holder.name.getPaint().setFakeBoldText(true);
 		holder.img.setOnClickListener(this);
 		holder.name.setOnClickListener(this);
+
+		holder.date.setText(prettyTime(thread.getDateStr()));
 
 //		holder.img.setOnClickListener(new View.OnClickListener() {
 //			@Override
@@ -163,5 +175,23 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		TextView date;
 		TextView title;
 		TextView commentCount;
+	}
+
+	private String prettyTime(String timeStr) {
+		try {
+			Date thatDate = DATE_FORMAT.parse(timeStr);
+
+			if (DateUtils.isSameDay(thatDate, NOW)) {
+				return "今天";
+			} else if (DateUtils.isSameDay(DateUtils.addDays(thatDate, 1), NOW)) {
+				return "昨天";
+			} else if (NOW.getYear() == thatDate.getYear()) {
+				return DateFormatUtils.format(thatDate, "M月d日");
+			} else {
+				return DateFormatUtils.format(thatDate, "yyyy年M月d日");
+			}
+		} catch (ParseException e) {
+			return timeStr;
+		}
 	}
 }

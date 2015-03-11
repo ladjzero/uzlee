@@ -28,7 +28,6 @@
         </FrameLayout>
     </FrameLayout>
 
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -41,50 +40,42 @@
                 android:id="@+id/user_mini_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
                 android:layout_gravity="center_vertical"
                 android:gravity="center_horizontal"
                 android:maxLines="1"
                 android:text="一二三四"
                 android:textColor="#ff686868"
-                android:textSize="14sp"
-                android:layout_alignParentTop="true"/>
+                android:textSize="14sp"/>
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/thread_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_alignParentBottom="true">
-
-                <android.widget.IconTextView
-                    android:id="@+id/post_body_sig"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
-                    android:text="TextView"
-                    android:textColor="@color/snow_darker"
-                    android:textSize="10sp"/>
-
-                <TextView
-                    android:id="@+id/post_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_toLeftOf="@+id/post_no"
-                    android:text="50"
-                    android:textColor="@color/snow_darker"
-                    android:textSize="10sp"/>
-            </LinearLayout>
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/post_no"
+                android:text="50"
+                android:textColor="@color/snow_darker"
+                android:textSize="10sp"
+                android:layout_alignParentBottom="true"/>
         </RelativeLayout>
 
         <TextView
-            android:id="@+id/post_no"
+            android:id="@+id/thread_comment_count"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="24dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:background="@color/blood_primary"
+            android:gravity="center"
+            android:minWidth="24dp"
+            android:paddingBottom="2dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:paddingTop="2dp"
             android:text="50"
-            android:textColor="@color/snow_darker"
-            android:textSize="14sp"/>
+            android:textColor="@android:color/white"
+            android:textSize="12sp"/>
     </RelativeLayout>
 
 </LinearLayout>

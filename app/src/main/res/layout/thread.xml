@@ -7,7 +7,7 @@
 			  android:paddingRight="12dp"
 			  android:paddingTop="12dp">
 
-	<include layout="@layout/thread_user"/>
+	<include layout="@layout/user_mini_for_thread"/>
 
 	<android.widget.IconTextView
 		android:id="@+id/thread_title"

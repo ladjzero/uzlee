@@ -56,7 +56,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private boolean mIsAnimating = false;
 	private boolean mGoTopVisible = false;
 	private int mPage = 1;
-	private boolean mIsFetching = true;
+	private boolean mIsFetching = false;
 
 	public static ThreadsFragment newInstance(int fid) {
 		ThreadsFragment fragment = new ThreadsFragment();
@@ -177,6 +177,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	}
 
 	private void fetch(int page, final OnThreadsListener onThreadsListener) {
+		mIsFetching = true;
 		// Hack. http://stackoverflow.com/questions/26858692/swiperefreshlayout-setrefreshing-not-showing-indicator-initially
 		swipe.post(new Runnable() {
 			@Override
@@ -190,6 +191,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 			public void onError(String error) {
 				onThreadsListener.onError();
 				swipe.setRefreshing(false);
+				mIsFetching = false;
 			}
 
 			@Override
@@ -217,6 +219,8 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 		if (threads.size() == 0) fetch(1, this);
 		adapter.notifyDataSetChanged();
+
+		swipe.setRefreshing(false);
 	}
 
 	@Override
@@ -281,6 +285,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		fetch(1, new OnThreadsListener() {
 			@Override
 			public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
+				mIsFetching = false;
 				ThreadsFragment.this.hasNextPage = hasNextPage;
 				ThreadsFragment.this.threads.clear();
 				ThreadsFragment.this.threads.addAll(threads);
@@ -290,6 +295,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 			@Override
 			public void onError() {
+				mIsFetching = false;
 				swipe.setRefreshing(false);
 				((MainActivity) getActivity()).showToast("请求错误");
 			}

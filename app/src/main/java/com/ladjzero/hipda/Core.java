@@ -877,15 +877,16 @@ public class Core {
 		String lastHref = eLastPost.attr("href");
 
 		if (lastHref != null && lastHref.length() > 0) {
-			String id = lastHref.substring(lastHref.indexOf("tid=") + 4, lastHref.indexOf("&goto"));
+			String id = Uri.parse(lastHref).getQueryParameter("tid");
 
 			String title = eThread.select("th.subject span a, th.subject a").first().text();
 			boolean isNew = eThread.select("th.subject").hasClass("new");
-			Elements eUser = eThread.select("td.author a");
+			Elements eAuthor = eThread.select("td.author");
+			Elements eUser = eAuthor.select("a");
 			String userName = eUser.text();
+			String dateStr = eAuthor.select("em").text().trim();
 			// if userHref.length() == 0, this thread is closed for some reason.
 			String userHref = eUser.attr("href");
-
 			if (userHref.length() == 0) {
 				return null;
 			}
@@ -907,7 +908,7 @@ public class Core {
 					.setImage("http://www.hi-pda.com/forum/uc_server/data/avatar/000/" + String.format("%02d", avatar0) + "/" + String.format("%02d", avatar1) + "/" + String.format("%02d", avatar2) + "_avatar_middle.jpg");
 			Thread ret = new Thread();
 			ret.setId(Integer.valueOf(id)).setTitle(title).setNew(isNew)
-					.setCommentCount(Integer.valueOf(commentNum)).setAuthor(user);
+					.setCommentCount(Integer.valueOf(commentNum)).setAuthor(user).setDateStr(dateStr);
 
 			if (forumLink.length() > 0) {
 				fid = forumLink.substring(forumLink.indexOf("fid=") + 4);

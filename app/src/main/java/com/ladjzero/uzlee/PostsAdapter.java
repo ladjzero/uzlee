@@ -140,10 +140,12 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		String sig = post.getSig();
 
 		if (sig != null && sig.length() > 0) {
+			holder.sig.setVisibility(View.VISIBLE);
 			holder.sig.setText(sig);
 		} else {
 			holder.sig.setVisibility(View.GONE);
-		};
+		}
+		;
 
 		Drawable userImage = mUserImageCache.get(uid);
 
@@ -296,8 +298,8 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 			if (DateUtils.isSameDay(thatDate, now)) {
 				return DateFormatUtils.format(thatDate, "HH:mm");
-			} else if (now.getTime() - thatDate.getTime() < 24 * 3600 * 1000) {
-				return DateFormatUtils.format(thatDate, "M月d日 HH:mm");
+			} else if (DateUtils.isSameDay(DateUtils.addDays(thatDate, 1), now)) {
+				return DateFormatUtils.format(thatDate, "昨天 HH:mm");
 			} else if (now.getYear() == thatDate.getYear()) {
 				return DateFormatUtils.format(thatDate, "M月d日");
 			} else {
