@@ -57,6 +57,4 @@
 
     <include layout="@layout/posts_actions"/>
 
-    <include layout="@layout/shadow_under_actionbar"/>
-
 </RelativeLayout>

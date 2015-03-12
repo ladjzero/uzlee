@@ -26,6 +26,7 @@ import java.util.ArrayList;
 
 
 public class EditActivity extends SwipeActivity implements Core.OnRequestListener {
+	public static final int EDIT_SUCCESS = 10;
 
 	int tid;
 	int pid;
@@ -331,7 +332,7 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 		progress.dismiss();
 		Intent returnIntent = new Intent();
 		returnIntent.putExtra("html", html);
-		setResult(0, returnIntent);
+		setResult(EDIT_SUCCESS, returnIntent);
 		finish();
 	}
 }

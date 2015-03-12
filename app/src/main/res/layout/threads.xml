@@ -14,6 +14,4 @@
         android:dividerHeight="1px"
         android:listSelector="@android:color/transparent"/>
 
-    <include layout="@layout/shadow_under_actionbar"/>
-
 </RelativeLayout>

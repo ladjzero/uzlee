@@ -80,20 +80,26 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		mTo = to;
 	}
 
-	@Override
-	public int getCount() {
-		int size = mPosts.size();
-		return size == 0 ? 0 : Math.min(mTo, mPosts.get(size - 1).getPostIndex() + 1) - mFrom;
-	}
+//	@Override
+//	public int getCount() {
+//		int size = mPosts.size();
+//		return size == 0 ? 0 : Math.min(mTo, mPosts.get(size - 1).getPostIndex() + 1) - mFrom;
+//	}
+
+//	@Override
+//	public Post getItem(final int position) {
+//		return (Post) CollectionUtils.find(mPosts, new Predicate() {
+//			@Override
+//			public boolean evaluate(Object o) {
+//				return ((Post) o).getPostIndex() == mFrom + position;
+//			}
+//		});
+//	}
 
 	@Override
-	public Post getItem(final int position) {
-		return (Post) CollectionUtils.find(mPosts, new Predicate() {
-			@Override
-			public boolean evaluate(Object o) {
-				return ((Post) o).getPostIndex() == mFrom + position;
-			}
-		});
+	public void notifyDataSetChanged() {
+		super.notifyDataSetChanged();
+		clearViewCache();
 	}
 
 	@Override

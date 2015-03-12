@@ -368,18 +368,20 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 			mListView.setMode(currPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
 		}
 
-		for (final Object id : CollectionUtils.collect(posts, mGetId)) {
-			mPosts.remove(CollectionUtils.find(mPosts, new Predicate() {
-				@Override
-				public boolean evaluate(Object o) {
-					return ((Post) o).getId() == id;
-				}
-			}));
-		}
-		this.mPosts.addAll(posts);
-		Collections.sort(this.mPosts, mComparator);
+//		for (final Object id : CollectionUtils.collect(posts, mGetId)) {
+//			mPosts.remove(CollectionUtils.find(mPosts, new Predicate() {
+//				@Override
+//				public boolean evaluate(Object o) {
+//					return ((Post) o).getId() == id;
+//				}
+//			}));
+//		}
+
+		mPosts.clear();
+		mPosts.addAll(posts);
+		Collections.sort(mPosts, mComparator);
 		mAdapter.setWindow(posts.get(0).getPostIndex(), posts.get(posts.size() - 1).getPostIndex() + 1);
-		if (this.mPosts.size() > 0) this.mPosts.get(0).setTitle(titleStr);
+		if (mPosts.size() > 0) mPosts.get(0).setTitle(titleStr);
 		mAdapter.notifyDataSetChanged();
 		mListView.getRefreshableView().setSelection(0);
 
@@ -407,39 +409,42 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
-		if (returnIntent != null) {
-			String html = returnIntent.getStringExtra("html");
+		if (requestCode == EDIT_CODE && resultCode == EditActivity.EDIT_SUCCESS) {
+			setProgressBarIndeterminateVisibility(true);
 
-			if (html != null && html.length() > 0) {
-				new AsyncTask<String, Void, Core.PostsRet>() {
-					@Override
-					protected Core.PostsRet doInBackground(String... strings) {
-						return Core.parsePosts(strings[0]);
-					}
+			if (returnIntent != null) {
+				String html = returnIntent.getStringExtra("html");
 
-					@Override
-					protected void onPostExecute(Core.PostsRet ret) {
-						final Collection<Integer> ids = CollectionUtils.collect(PostsActivity.this.mPosts, new Transformer() {
-							@Override
-							public Object transform(Object o) {
-								return ((Post) o).getId();
+				if (html != null && html.length() > 0) {
+					new AsyncTask<String, Void, Core.PostsRet>() {
+						@Override
+						protected Core.PostsRet doInBackground(String... strings) {
+							return Core.parsePosts(strings[0]);
+						}
+
+						@Override
+						protected void onPostExecute(Core.PostsRet ret) {
+							setProgressBarIndeterminateVisibility(false);
+							mPage = ret.page;
+							mHasNextPage = ret.totalPage > ret.page;
+
+							mSeekBar.setMax(Math.max(ret.page, ret.totalPage));
+							mSeekBar.setProgress(ret.page);
+
+							if (mHasNextPage) {
+								mListView.setMode(mPage == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
+							} else {
+								mListView.setMode(mPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
 							}
-						});
 
-						ret.posts = (ArrayList<Post>) CollectionUtils.select(ret.posts, new Predicate() {
-							@Override
-							public boolean evaluate(Object o) {
-								Post post = (Post) o;
-
-								return !ids.contains(post.getId());
-							}
-						});
-
-						PostsActivity.this.mPosts.addAll(ret.posts);
-						mHasNextPage = ret.hasNextPage;
-						mAdapter.notifyDataSetChanged();
-					}
-				}.execute(html);
+							mPosts.clear();
+							mPosts.addAll(ret.posts);
+							mHasNextPage = ret.hasNextPage;
+							mAdapter.notifyDataSetChanged();
+							mListView.getRefreshableView().setSelection(ret.posts.size() - 1);
+						}
+					}.execute(html);
+				}
 			}
 		}
 	}
@@ -458,6 +463,13 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 		if (id == R.id.more) {
 			onKeyDown(KeyEvent.KEYCODE_MENU, null);
+			return true;
+		} else if (id == R.id.reply) {
+			Intent replyIntent = new Intent(this, EditActivity.class);
+			replyIntent.putExtra("tid", mTid);
+			replyIntent.putExtra("title", "回复主题");
+			replyIntent.putExtra("hideTitleInput", true);
+			startActivityForResult(replyIntent, EDIT_CODE);
 			return true;
 		}
 

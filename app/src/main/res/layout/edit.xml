@@ -51,8 +51,6 @@
             android:textSize="30dp"
             android:visibility="gone"/>
 
-        <include layout="@layout/shadow_under_actionbar"/>
-
     </RelativeLayout>
 
 </LinearLayout>
