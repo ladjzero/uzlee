@@ -132,7 +132,7 @@ public class SwipeActivity extends BaseActivity {
 
 
 		int touchSlopDP = 30;
-		int touchSlop = 60;
+		int touchSlop = 6;
 
 		@Override
 		public boolean onInterceptTouchEvent(MotionEvent ev) {
@@ -149,7 +149,7 @@ public class SwipeActivity extends BaseActivity {
 						case MotionEvent.ACTION_MOVE:
 							float dx = ev.getX() - downX;
 							float dy = ev.getY() - downY;
-							if (dx > 0 && (dy == 0f || Math.abs(dx / dy) > 1)) {
+							if (dx > 16.0 && (dy == 0f || Math.abs(dx / dy) > 2)) {
 								downX = ev.getX();
 								downY = ev.getY();
 								currentX = downX;

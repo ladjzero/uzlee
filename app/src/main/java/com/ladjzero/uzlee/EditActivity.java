@@ -49,6 +49,7 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 //		enableBackAction();
 
 		intent = getIntent();
+		getActionBar().setIcon(null);
 
 		tid = intent.getIntExtra("tid", 0);
 		pid = intent.getIntExtra("pid", 0);

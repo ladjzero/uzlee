@@ -136,7 +136,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 	public void onEventMainThread(Core.StatusChangeEvent statusChangeEvent) {
 		super.onEventMainThread(statusChangeEvent);
 
-		if (statusChangeEvent.online) {
+		if (statusChangeEvent.online && !statusChangeEvent.checkedEachDoc) {
 			onNavigationDrawerItemSelected(0);
 		}
 	}

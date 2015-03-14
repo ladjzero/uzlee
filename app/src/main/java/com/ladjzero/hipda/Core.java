@@ -251,10 +251,12 @@ public class Core {
 			if (uid != null && uid.length() > 0) {
 				isOnline = true;
 				Core.uid = Integer.valueOf(uid);
+
+				EventBus.getDefault().post(new StatusChangeEvent(true, true));
 			} else {
 				isOnline = false;
 
-				EventBus.getDefault().post(new StatusChangeEvent(false));
+				EventBus.getDefault().post(new StatusChangeEvent(false, true));
 			}
 		} catch (Error e) {
 
@@ -306,7 +308,7 @@ public class Core {
 									html = new String(responseBody, "GBK");
 									if (html.contains("欢迎您回来")) {
 										getDoc(html);
-										EventBus.getDefault().post(new StatusChangeEvent(true));
+										EventBus.getDefault().post(new StatusChangeEvent(true, false));
 										onRequestListener.onSuccess("");
 									} else if (html.contains("密码错误次数过多，请 15 分钟后重新登录")) {
 										onRequestListener.onError("密码错误次数过多，请 15 分钟后重新登录");
@@ -332,7 +334,7 @@ public class Core {
 			public void onSuccess(String html) {
 				isOnline = false;
 				uid = -1;
-				EventBus.getDefault().post(new StatusChangeEvent(false));
+				EventBus.getDefault().post(new StatusChangeEvent(false, false));
 				EventBus.getDefault().post(new MessageEvent(0));
 
 				onRequestListener.onSuccess(html);
@@ -487,9 +489,21 @@ public class Core {
 			}
 		}
 
-		for (Map.Entry<BodyType, String> body : niceBody) {
-			if (body.getKey() == BodyType.TXT)
-				body.setValue(body.getValue().trim());
+		for (i = 0; i < niceBody.size(); ) {
+			Map.Entry<BodyType, String> body = niceBody.get(0);
+
+			if (body.getKey() == BodyType.TXT) {
+				String trimBody = body.getValue().trim();
+
+				if (trimBody.length() == 0) {
+					niceBody.remove(i);
+				} else {
+					body.setValue(trimBody);
+					i++;
+				}
+			} else {
+				i++;
+			}
 		}
 
 //		Elements attaches = ePost.select("div.postattachlist");
@@ -1515,10 +1529,12 @@ public class Core {
 	}
 
 	public static class StatusChangeEvent {
+		public boolean checkedEachDoc;
 		public boolean online;
 
-		public StatusChangeEvent(boolean online) {
+		public StatusChangeEvent(boolean online, boolean checkedEachDoc) {
 			this.online = online;
+			this.checkedEachDoc = checkedEachDoc;
 		}
 	}
 
