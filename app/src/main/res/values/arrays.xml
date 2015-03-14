@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="questions">
+        <item>没有设置问题</item>
+        <item>母亲的名字</item>
+        <item>爷爷的名字</item>
+        <item>父亲出生的城市</item>
+        <item>老师的名字</item>
+        <item>计算机的型号</item>
+        <item>喜欢的餐馆</item>
+        <item>驾驶执照的后四位</item>
+    </string-array>
+</resources>
