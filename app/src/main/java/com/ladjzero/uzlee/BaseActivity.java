@@ -31,6 +31,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Spinner;
@@ -118,10 +120,24 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 			editor.putLong("last_update_check", now);
 			editor.commit();
 		}
+	}
 
+
+	public AlertDialog buildLoginDialog() {
 		final View alertView = getLayoutInflater().inflate(R.layout.login_dialog, null);
 		final Spinner question = (Spinner) alertView.findViewById(R.id.question);
 		final EditText answer = (EditText) alertView.findViewById(R.id.answer);
+
+		final CheckBox checkBox = (CheckBox) alertView.findViewById(R.id.checkBox);
+		checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+				int visibility = isChecked ? View.VISIBLE : View.GONE;
+
+				question.setVisibility(visibility);
+				answer.setVisibility(visibility);
+			}
+		});
 
 		question.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
@@ -150,7 +166,10 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 				final ProgressDialog progress = ProgressDialog.show(
 						BaseActivity.this, "", getString(R.string.login) + "...", true);
 
-				Core.login(username, password, question.getSelectedItemPosition(), answer.getText().toString(), new Core.OnRequestListener() {
+				int questionId = checkBox.isChecked() ? question.getSelectedItemPosition() : 0;
+				String answerStr = checkBox.isChecked() ? answer.getText().toString() : "";
+
+				Core.login(username, password, questionId, answerStr, new Core.OnRequestListener() {
 
 					@Override
 					public void onError(String error) {
@@ -167,7 +186,8 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 			}
 
 		});
-		alert = builder.create();
+
+		return builder.create();
 	}
 
 	@Override
@@ -194,7 +214,8 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 	}
 
 	public void showLogin() {
-		alert.dismiss();
+		if (alert != null) alert.dismiss();
+		alert = buildLoginDialog();
 		alert.show();
 	}
 

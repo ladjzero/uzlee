@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:background="@android:color/white"
               android:orientation="vertical">
 
     <EditText
@@ -10,10 +11,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="用户名"
-        android:inputType="text">
-
-        <requestFocus/>
-    </EditText>
+        android:inputType="text"/>
 
     <EditText
         android:id="@+id/user_password"
@@ -23,18 +21,26 @@
         android:hint="密码"
         android:inputType="textPassword"/>
 
+    <CheckBox
+        android:id="@+id/checkBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="验证问题"/>
+
     <Spinner
         android:id="@+id/question"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:entries="@array/questions"
         android:hint="验证问题"
-        android:spinnerMode="dialog"/>
+        android:spinnerMode="dialog"
+        android:visibility="gone"/>
 
     <EditText
         android:id="@+id/answer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="验证答案"/>
+        android:hint="验证答案"
+        android:visibility="gone"/>
 
 </LinearLayout>
