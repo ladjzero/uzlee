@@ -86,6 +86,8 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 			return ((Post) o).getId();
 		}
 	};
+	private Menu mMenu;
+	private boolean mIsFetching = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -339,12 +341,16 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	}
 
 	private void fetch(int page, final Core.OnPostsListener onPostsListener) {
+		mIsFetching = true;
 		setProgressBarIndeterminateVisibility(true);
+		toggleMenus(false);
 
 		Core.getHtml("http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + page, new Core.OnRequestListener() {
 			@Override
 			public void onError(String error) {
+				mIsFetching = false;
 				setProgressBarIndeterminateVisibility(false);
+				toggleMenus(true);
 
 
 				onPostsListener.onError();
@@ -362,7 +368,9 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 					@Override
 					protected void onPostExecute(Core.PostsRet ret) {
+						mIsFetching = false;
 						setProgressBarIndeterminateVisibility(false);
+						toggleMenus(true);
 						onPostsListener.onPosts(ret.posts, ret.page, Math.max(ret.totalPage, ret.page));
 						mHint.setVisibility(View.INVISIBLE);
 					}
@@ -431,7 +439,9 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
 		if (requestCode == EDIT_CODE && resultCode == EditActivity.EDIT_SUCCESS) {
+			mIsFetching = true;
 			setProgressBarIndeterminateVisibility(true);
+			toggleMenus(false);
 
 			if (returnIntent != null) {
 				String html = returnIntent.getStringExtra("html");
@@ -445,7 +455,10 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 						@Override
 						protected void onPostExecute(Core.PostsRet ret) {
+							mIsFetching = false;
 							setProgressBarIndeterminateVisibility(false);
+							toggleMenus(true);
+
 							mPage = ret.page;
 							mHasNextPage = ret.totalPage > ret.page;
 
@@ -472,9 +485,14 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		mMenu = menu;
+
 		getMenuInflater().inflate(R.menu.posts, menu);
 		menu.findItem(R.id.more).setIcon(new IconDrawable(this, Iconify.IconValue.fa_ellipsis_h).colorRes(android.R.color.white).actionBarSize());
 		menu.findItem(R.id.reply).setIcon(new IconDrawable(this, Iconify.IconValue.fa_comment_o).colorRes(android.R.color.white).actionBarSize());
+
+		if (mIsFetching) toggleMenus(false);
+
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -495,6 +513,13 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void toggleMenus(boolean visible) {
+		if (mMenu != null) {
+			for (int i = 0; i < mMenu.size(); i++)
+				mMenu.getItem(i).setVisible(visible);
+		}
 	}
 
 	@Override

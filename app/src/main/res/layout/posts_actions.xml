@@ -67,7 +67,7 @@
                     android:background="@drawable/post_action_bg"
                     android:gravity="center"
                     android:text="{fa-share-alt}"
-                    android:textColor="@color/dark_primary"
+                    android:textColor="@color/dark_light"
                     android:textSize="18sp"/>
 
                 <TextView
@@ -76,7 +76,7 @@
                     android:layout_alignParentBottom="true"
                     android:gravity="center"
                     android:text="分享"
-                    android:textColor="@color/dark_primary"
+                    android:textColor="@color/dark_light"
                     android:textSize="14sp"/>
             </RelativeLayout>
 
