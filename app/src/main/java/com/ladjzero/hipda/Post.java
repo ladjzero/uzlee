@@ -2,6 +2,7 @@ package com.ladjzero.hipda;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -27,7 +28,7 @@ public class Post {
 	@DatabaseField
 	private String body;
 	private int tid;
-	private String[] niceBody;
+	private ArrayList<Map.Entry<Core.BodyType, String>> niceBody;
 	private String type;
 	private ArrayList<Post> comments;
 	private int replyTo;
@@ -37,6 +38,7 @@ public class Post {
 	private int postIndex;
 	private Post quote;
 	private String sig;
+	private ArrayList<Core.Attachment> attachments;
 
 	public User getAuthor() {
 		return author;
@@ -74,12 +76,12 @@ public class Post {
 		return this;
 	}
 
-	public Post setNiceBody(String[] body) {
+	public Post setNiceBody(ArrayList<Map.Entry<Core.BodyType, String>> body) {
 		this.niceBody = body;
 		return this;
 	}
 
-	public String[] getNiceBody() {
+	public ArrayList<Map.Entry<Core.BodyType, String>> getNiceBody() {
 		return niceBody;
 	}
 
@@ -198,6 +200,15 @@ public class Post {
 
 	public Post setSig(String sig) {
 		this.sig = sig;
+		return this;
+	}
+
+	public ArrayList<Core.Attachment> getAttachments() {
+		return attachments;
+	}
+
+	public Post setAttachments(ArrayList<Core.Attachment> attachments) {
+		this.attachments = attachments;
 		return this;
 	}
 }

@@ -39,18 +39,8 @@ public class EmojiUtils {
 
 	private final Map<Pattern, Integer> emoticons = new HashMap<Pattern, Integer>();
 
-	public int getResId(String variableName, Class<?> c) {
-
-//		try {
-//			Field idField = c.getDeclaredField(variableName);
-//			return idField.getInt(idField);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			return -1;
-//		}
-
-		int rid = context.getResources().getIdentifier(variableName, "drawable", "com.ladjzero.uzlee");
-		return rid;
+	public static int getResId(Context context, String variableName, Class<?> c) {
+		return context.getResources().getIdentifier(variableName, "drawable", "com.ladjzero.uzlee");
 	}
 
 	public int getEmojiResId(String iconKey) {
@@ -60,10 +50,10 @@ public class EmojiUtils {
 				s_1 = splits[len-1];
 
 		if (s_2.equals("default")) {
-			return getResId(s_1.substring(0, s_1.length() - 4), Drawable.class);
+			return getResId(context, s_1.substring(0, s_1.length() - 4), Drawable.class);
 		} else {
 			String s = s_2 + s_1;
-			return getResId(s.substring(0, s.length() - 4), Drawable.class);
+			return getResId(context, s.substring(0, s.length() - 4), Drawable.class);
 		}
 	}
 

@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -17,7 +18,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.text.Html;
 import android.util.LruCache;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -241,15 +245,15 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 				holder.quoteLayout.setVisibility(View.VISIBLE);
 				holder.quoteName.setText(quoteUser.getName());
 				holder.quoteImg.setImageDrawable(mUserImageCache.get(quid));
-				String bodySnippet0 = betterQuote.getNiceBody()[0];
+				Map.Entry<Core.BodyType, String> bodySnippet0 = betterQuote.getNiceBody().get(0);
 
 
 				if (Core.bans.contains(quid)) {
 					holder.quoteBody.setText(context.getString(R.string.blocked));
 				} else {
 					holder.quoteBody
-							.setText(bodySnippet0.indexOf("txt:") == 0 ? bodySnippet0
-									.substring(4) : "[image]");
+							.setText(bodySnippet0.getKey() == Core.BodyType.TXT ?
+									bodySnippet0.getValue() : "[image]");
 				}
 
 				int qIndex = betterQuote.getPostIndex();
@@ -260,7 +264,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 				holder.quoteBody.setText(quote.getBody());
 
 				if (quote.getPostIndex() > 0) {
-					holder.quotePostNo.setText("#" + quote.getPostIndex());
+					holder.quotePostNo.setText(quote.getPostIndex() + "楼");
 				} else {
 					holder.quotePostNo.setText("");
 				}
@@ -319,67 +323,206 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	private ArrayList<View> buildBody(final Post post) {
 		ArrayList<View> views = new ArrayList<View>();
 
-		for (String bodySnippet : post.getNiceBody()) {
-			if (bodySnippet.startsWith("txt:")) {
-				String content = bodySnippet.substring(4);
-				TextView textView;
+		for (Map.Entry<Core.BodyType, String> bodySnippet : post.getNiceBody()) {
+			switch (bodySnippet.getKey()) {
+				case TXT:
+					String body = bodySnippet.getValue();
+					TextView textView;
 
-				if (content.equals("blocked!")) {
-					textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
-					textView.setText(context.getString(R.string.blocked));
-				} else {
-					textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_text_segment, null);
-					textView.setText(context.emojiUtils.getSmiledText(context, bodySnippet.substring(4)));
-				}
-
-				//CacheWeight
-				textView.setTag(Integer.valueOf(1));
-				views.add(textView);
-//			} else if (bodySnippet.startsWith("sig:") && bodySnippet.length() > 4) {
-//				View sigContainer = context.getLayoutInflater().inflate(R.layout.post_body_sig, null);
-//				TextView textView = (TextView) sigContainer.findViewById(R.id.post_body_sig);
-//				textView.setText(bodySnippet.substring(4));
-//
-//				sigContainer.setTag(Integer.valueOf(0));
-//				views.add(sigContainer);
-			} else if (bodySnippet.startsWith("img:")) {
-				View imageContainer = context.getLayoutInflater().inflate(R.layout.post_body_image_segment, null);
-				PostImageView imageView = (PostImageView) imageContainer.findViewById(R.id.post_img);
-
-				imageContainer.setTag(Integer.valueOf(10));
-				views.add(imageContainer);
-
-				final String url = bodySnippet.substring(4);
-				Double widthHeight = mImageWidthHeight.get(url);
-				if (widthHeight != null) imageView.setWidthHeight(widthHeight);
-
-				ImageLoader.getInstance().displayImage(url, imageView, new SimpleImageLoadingListener() {
-					@Override
-					public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
-						if (mImageWidthHeight.get(url) == null)
-							mImageWidthHeight.put(url, 1.0 * loadedImage.getWidth() / loadedImage.getHeight());
+					if (body.equals("blocked!")) {
+						textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
+						textView.setText(context.getString(R.string.blocked));
+					} else {
+						textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_text_segment, null);
+						textView.setText(context.emojiUtils.getSmiledText(context, body));
 					}
-				});
 
-				imageView.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View view) {
-						Intent intent = new Intent(context, ImageActivity.class);
-						intent.putExtra("url", url);
-						intent.putExtra("tid", post.getTid());
-						context.startActivity(intent);
-					}
-				});
+					//CacheWeight
+					textView.setTag(Integer.valueOf(1));
+					views.add(textView);
 
-				imageView.setOnLongClickListener(new View.OnLongClickListener() {
-					@Override
-					public boolean onLongClick(View view) {
-						return false;
-					}
-				});
+					break;
+				case IMG:
+					View imageContainer = context.getLayoutInflater().inflate(R.layout.post_body_image_segment, null);
+					PostImageView imageView = (PostImageView) imageContainer.findViewById(R.id.post_img);
+
+					imageContainer.setTag(Integer.valueOf(10));
+					views.add(imageContainer);
+
+					final String url = bodySnippet.getValue();
+					Double widthHeight = mImageWidthHeight.get(url);
+					if (widthHeight != null) imageView.setWidthHeight(widthHeight);
+
+					ImageLoader.getInstance().displayImage(url, imageView, new SimpleImageLoadingListener() {
+						@Override
+						public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
+							if (mImageWidthHeight.get(url) == null)
+								mImageWidthHeight.put(url, 1.0 * loadedImage.getWidth() / loadedImage.getHeight());
+						}
+					});
+
+					imageView.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View view) {
+							Intent intent = new Intent(context, ImageActivity.class);
+							intent.putExtra("url", url);
+							intent.putExtra("tid", post.getTid());
+							context.startActivity(intent);
+						}
+					});
+
+					imageView.setOnLongClickListener(new View.OnLongClickListener() {
+						@Override
+						public boolean onLongClick(View view) {
+							return false;
+						}
+					});
+
+					break;
+				case ATT:
+					View view = context.getLayoutInflater().inflate(R.layout.attachment, null);
+					final String[] url_name_size = bodySnippet.getValue().split(Core.DIVIDER);
+					String name = url_name_size[1];
+					int _index = name.lastIndexOf(".");
+					String ext = _index < 0 ? "" : name.substring(_index);
+
+					TextView extView = (TextView) view.findViewById(R.id.file_type);
+					extView.setText(ext);
+					extView.setBackgroundResource(getBackgroudResByExt(ext));
+
+					TextView filenameView = (TextView) view.findViewById(R.id.file_name);
+
+					String _text = url_name_size.length == 2 ? name : name + "  " + url_name_size[2];
+
+					filenameView.setText(_text);
+
+					view.setTag(Integer.valueOf(0));
+
+					view.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View view) {
+							Intent intent = new Intent(Intent.ACTION_VIEW);
+							intent.setData(Uri.parse(url_name_size[0]));
+							context.startActivity(intent);
+						}
+					});
+
+					views.add(view);
+
+					break;
 			}
+//			if (bodySnippet.startsWith("txt:")) {
+//				String content = bodySnippet.substring(4);
+//				TextView textView;
+//
+//				if (content.equals("blocked!")) {
+//					textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
+//					textView.setText(context.getString(R.string.blocked));
+//				} else {
+//					textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_text_segment, null);
+//					textView.setText(context.emojiUtils.getSmiledText(context, bodySnippet.substring(4)));
+//				}
+//
+//				//CacheWeight
+//				textView.setTag(Integer.valueOf(1));
+//				views.add(textView);
+////			} else if (bodySnippet.startsWith("sig:") && bodySnippet.length() > 4) {
+////				View sigContainer = context.getLayoutInflater().inflate(R.layout.post_body_sig, null);
+////				TextView textView = (TextView) sigContainer.findViewById(R.id.post_body_sig);
+////				textView.setText(bodySnippet.substring(4));
+////
+////				sigContainer.setTag(Integer.valueOf(0));
+////				views.add(sigContainer);
+//			} else if (bodySnippet.startsWith("img:")) {
+//				View imageContainer = context.getLayoutInflater().inflate(R.layout.post_body_image_segment, null);
+//				PostImageView imageView = (PostImageView) imageContainer.findViewById(R.id.post_img);
+//
+//				imageContainer.setTag(Integer.valueOf(10));
+//				views.add(imageContainer);
+//
+//				final String url = bodySnippet.substring(4);
+//				Double widthHeight = mImageWidthHeight.get(url);
+//				if (widthHeight != null) imageView.setWidthHeight(widthHeight);
+//
+//				ImageLoader.getInstance().displayImage(url, imageView, new SimpleImageLoadingListener() {
+//					@Override
+//					public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
+//						if (mImageWidthHeight.get(url) == null)
+//							mImageWidthHeight.put(url, 1.0 * loadedImage.getWidth() / loadedImage.getHeight());
+//					}
+//				});
+//
+//				imageView.setOnClickListener(new OnClickListener() {
+//					@Override
+//					public void onClick(View view) {
+//						Intent intent = new Intent(context, ImageActivity.class);
+//						intent.putExtra("url", url);
+//						intent.putExtra("tid", post.getTid());
+//						context.startActivity(intent);
+//					}
+//				});
+//
+//				imageView.setOnLongClickListener(new View.OnLongClickListener() {
+//					@Override
+//					public boolean onLongClick(View view) {
+//						return false;
+//					}
+//				});
+//			} else if (bodySnippet.startsWith("att:")) {
+//				View view = context.getLayoutInflater().inflate(R.layout.attachment, null);
+//				final String[] url_name_size = bodySnippet.substring(4).split(Core.DIVIDER);
+//				String name = url_name_size[1];
+//				int _index = name.lastIndexOf(".");
+//				String ext = _index < 0 ? "" : name.substring(_index);
+//
+//				TextView extView = (TextView) view.findViewById(R.id.file_type);
+//				extView.setText(ext);
+//				extView.setBackgroundResource(getBackgroudResByExt(ext));
+//
+//				TextView filenameView = (TextView) view.findViewById(R.id.file_name);
+//
+//				String _text = url_name_size.length == 2 ? name : name + "  " + url_name_size[2];
+//
+//				filenameView.setText(_text);
+//
+//				view.setTag(Integer.valueOf(0));
+//
+//				view.setOnClickListener(new OnClickListener() {
+//					@Override
+//					public void onClick(View view) {
+//						Intent intent = new Intent(Intent.ACTION_VIEW);
+//						intent.setData(Uri.parse(url_name_size[0]));
+//						context.startActivity(intent);
+//					}
+//				});
+//
+//				views.add(view);
+//			}
 		}
 
+//		for (Core.Attachment attachment : post.getAttachments()) {
+//			TextView textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
+//
+//			textView.setText(attachment.filename);
+//			textView.setTag(Integer.valueOf(0));
+//			views.add(textView);
+//		}
+
 		return views;
+	}
+
+	private int getBackgroudResByExt(String ext) {
+		String resName = "filetype";
+		int randomIndex = 0;
+
+		for (int i = 0; i < ext.length(); ++i) {
+			randomIndex += Character.getNumericValue(ext.charAt(i));
+		}
+
+		randomIndex = randomIndex % 6;
+
+		resName += randomIndex;
+
+		return EmojiUtils.getResId(context, resName, Drawable.class);
 	}
 }

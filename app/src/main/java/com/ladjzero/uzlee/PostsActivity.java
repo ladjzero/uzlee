@@ -45,6 +45,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+
 
 
 public class PostsActivity extends SwipeActivity implements AdapterView.OnItemClickListener,
@@ -284,10 +287,10 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 		StringBuilder builder = new StringBuilder();
 
-		for (String str : post.getNiceBody()) {
-			if (str.startsWith("txt:")) {
+		for (Map.Entry<Core.BodyType, String> body : post.getNiceBody()) {
+			if (body.getKey() == Core.BodyType.TXT) {
 				if (builder.length() > 0) builder.append("\n");
-				builder.append(str.substring(4));
+				builder.append(body.getValue());
 			}
 		}
 

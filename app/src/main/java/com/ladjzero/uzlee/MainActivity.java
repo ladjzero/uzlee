@@ -49,8 +49,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 		switch (position) {
 			case 0:
 				fid = D_ID;
-				title = "Discovery";
-				actionBar.setTitle(title);
+				actionBar.setTitle(title = "Discovery");
 				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(D_ID)).commit();
 				break;
 			case 1:
@@ -58,11 +57,11 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 				actionBar.setTitle("Buy & Sell");
 				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(BS_ID)).commit();
 				break;
-//			case 2:
-//				fid = EINK_ID;
-//				actionBar.setTitle("E-INK");
-//				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(EINK_ID)).commit();
-//				break;
+			case 2:
+				fid = EINK_ID;
+				actionBar.setTitle(title = "E-INK");
+				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(EINK_ID)).commit();
+				break;
 			case 3:
 				intent = new Intent(this, MsgActivity.class);
 				startActivity(intent);

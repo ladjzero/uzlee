@@ -41,6 +41,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Map;
+import java.util.AbstractMap;
+import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
@@ -50,6 +53,8 @@ public class Core {
 	public static final HashMap<String, String> icons = new HashMap<String, String>();
 	public static final Set<String> iconKeys;
 	public static final Collection<String> iconValues;
+	public static final String BASE_URL = "http://www.hi-pda.com/forum";
+	public static final String DIVIDER = "123~#~321";
 
 	static {
 		icons.put("images/smilies/default/smile.gif", ":)");
@@ -391,6 +396,12 @@ public class Core {
 		return ret;
 	}
 
+	public static class Attachment {
+		public String url;
+		public String filename;
+		public String size;
+	}
+
 	private static Post toPostObj(Element ePost) {
 		int idPrefixLength = "pid".length();
 
@@ -405,12 +416,21 @@ public class Core {
 		}
 
 		Elements eBody = ePost.select("td.t_msgfont");
-		String[] niceBody;
+		ArrayList<Map.Entry<BodyType, String>> niceBody = new ArrayList<Map.Entry<BodyType, String>>();
 
 		if (eBody.size() == 0) {
-			niceBody = new String[]{"txt:blocked!"};
+			niceBody.add(new AbstractMap.SimpleEntry<BodyType, String>(BodyType.TXT, "blocked!"));
 		} else {
-			niceBody = postprocessPostBody(preprocessPostBody(eBody.get(0)), ePost.select("div.postattachlist"));
+			ePost.select(".imgtitle a[href^=attachment.php?]").remove();
+			ePost.select(".t_attach a[href^=attachment.php?]").remove();
+
+			Elements eAttachments = ePost.select("a[href^=attachment.php?]");
+			Elements eAttachImages = ePost.select(".postattachlist img[file^=attachments/]");
+
+			niceBody = postprocessPostBody(
+					preprocessPostBody(eBody.get(0)),
+					eAttachments,
+					eAttachImages);
 		}
 
 		String timeStr = ePost.select(".authorinfo > em").text();
@@ -435,12 +455,73 @@ public class Core {
 		post.setId(Integer.valueOf(id)).setNiceBody(niceBody)
 				.setAuthor(user).setTimeStr(timeStr).setPostIndex(Integer.valueOf(postIndex));
 
-		for (String body : niceBody) {
-			if (body.startsWith("sig")) {
-				post.setSig(body.substring(4));
+		for (Map.Entry<BodyType, String> body : niceBody) {
+			if (body.getKey() == BodyType.SIG) {
+				post.setSig(body.getValue());
 				break;
 			}
 		}
+
+		boolean isTxt = false;
+		int i = 0;
+		BodyType type;
+
+		while (i < niceBody.size()) {
+			type = niceBody.get(i).getKey();
+
+			if (isTxt) {
+				isTxt = type == BodyType.TXT;
+
+				if (isTxt) {
+					AbstractMap.SimpleEntry mergedEntry = new AbstractMap.SimpleEntry(BodyType.TXT,
+							niceBody.get(i - 1).getValue() + niceBody.get(i).getValue());
+
+					niceBody.set(i - 1, mergedEntry);
+					niceBody.remove(i);
+				} else {
+					i++;
+				}
+			} else {
+				isTxt = type == BodyType.TXT;
+				i++;
+			}
+		}
+
+		for (Map.Entry<BodyType, String> body : niceBody) {
+			if (body.getKey() == BodyType.TXT)
+				body.setValue(body.getValue().trim());
+		}
+
+//		Elements attaches = ePost.select("div.postattachlist");
+//		ArrayList<Attachment> attachments = new ArrayList<Attachment>();
+//
+//		if (attaches.size() > 0) {
+//			Elements _root = attaches.select("p.attachname");
+//			Elements _a = _root.select(">a");
+//
+//			for (int i = 0; i < _root.size(); ++i) {
+//				Attachment attachment = new Attachment();
+//
+//
+//
+//				attachment.url = BASE_URL + "/" + _a.get(i).attr("href");
+//				attachment.filename = _a.get(i).text();
+//				List<TextNode> textNodes = _root.get(i).textNodes();
+//
+//				for (TextNode textNode : textNodes) {
+//					String text = textNode.text().trim();
+//
+//					if (text.contains("KB")) {
+//						attachment.size = text;
+//						break;
+//					}
+//				}
+//
+//				attachments.add(attachment);
+//			}
+//		}
+//
+//		post.setAttachments(attachments);
 
 		return post;
 	}
@@ -525,8 +606,20 @@ public class Core {
 		Elements eImageAttaches = eBody.select("div.t_attach");
 		eImageAttaches.remove();
 
+		// remove all attachment icons
+		eBody.select("img[src^=images/attachicons]").remove();
+
 		return eBody;
 	}
+
+
+	public static enum BodyType {
+		TXT,
+		IMG,
+		SIG,
+		ATT
+	}
+
 
 	/**
 	 * Convert to String Array smartly. Prepend `txt:` to content string.
@@ -536,49 +629,42 @@ public class Core {
 	 * @param eAttachments
 	 * @return
 	 */
-	private static String[] postprocessPostBody(Element eBody, Elements eAttachments) {
+	private static ArrayList<Map.Entry<BodyType, String>> postprocessPostBody(Element eBody, Elements eAttachments, Elements eAttachImages) {
 		ArrayList<String> temps = new ArrayList<String>();
-		StringBuilder sb = new StringBuilder();
+		ArrayList<String> types = new ArrayList<String>();
+		ArrayList<Map.Entry<BodyType, String>> bodies = new ArrayList<Map.Entry<BodyType, String>>();
+//		StringBuilder sb = new StringBuilder();
 		String sbStr;
 
 		for (Node node : eBody.childNodes()) {
 			if (node instanceof TextNode) {
 				// Jsoup maps &nbsp; to \u00a0
-				sb.append(((TextNode) node).text().replaceAll("\u00a0", " ")
-						.trim());
+				String body = ((TextNode) node).text().replaceAll("\u00a0", " ").trim();
+				bodies.add(new AbstractMap.SimpleEntry(BodyType.TXT, body));
 			} else {
 				Element e = (Element) node;
 				String tag = e.tagName();
 
 				if (tag.equals("a") && e.attr("target").equals("_blank")) {
 					String href = e.attr("href");
-					if (StringUtils.endsWith(href, "tid=1408844")) {
-						if ((sbStr = sb.toString().trim()).length() != 0) {
-							temps.add("txt:" + sbStr);
-						}
-
-						temps.add("sig:{fa-android} HiPDA");
-						sb.delete(0, sb.length());
+					if (StringUtils.endsWithAny(href, "tid=1579403", "tid=1408844")) {
+						bodies.add(new AbstractMap.SimpleEntry(BodyType.SIG, "{fa-android} HiPDA"));
 					} else {
-						sb.append(e.attr("href"));
+						String text = e.text().trim();
+						String link = e.attr("href").trim();
+						String body = text.equals(link) ? link : text + "  " + link;
+						body += "\r\n";
+
+						bodies.add(new AbstractMap.SimpleEntry(BodyType.TXT, body));
 					}
 				} else if (tag.equals("br")) {
-					sb.append("\r\n");
+					bodies.add(new AbstractMap.SimpleEntry(BodyType.TXT, "\r\n"));
 				} else if (tag.equals("font") && e.attr("size").equals("1")) {
-					if ((sbStr = sb.toString().trim()).length() != 0) {
-						temps.add("txt:" + sbStr);
-					}
-
 					// Remove bad spaces of sig. (some bad people sign it)
-					temps.add("sig:" + e.text().replaceAll("\u00a0", " ").trim());
-					sb.delete(0, sb.length());
+					String body = e.text().replaceAll("\u00a0", " ").trim();
+					bodies.add(new AbstractMap.SimpleEntry(BodyType.SIG, body));
 				} else if (tag.equals("img") && e.attr("width").equals("16") && e.attr("height").equals("16")) {
-					if ((sbStr = sb.toString().trim()).length() != 0) {
-						temps.add("txt:" + sbStr);
-					}
-
-					temps.add("sig:{fa-windows}");
-					sb.delete(0, sb.length());
+					bodies.add(new AbstractMap.SimpleEntry(BodyType.SIG, "{fa-windows}"));
 				} else if (tag.equals("img")) {
 					String src = e.attr("src");
 
@@ -591,11 +677,8 @@ public class Core {
 					});
 
 					if (iconKey != null) {
-						sb.append(icons.get(iconKey));
+						bodies.add(new AbstractMap.SimpleEntry(BodyType.TXT, icons.get(iconKey)));
 					} else {
-						if ((sbStr = sb.toString().trim()).length() != 0) {
-							temps.add("txt:" + sbStr);
-						}
 
 						if (e.attr("file").length() != 0) {
 							src = e.attr("file");
@@ -605,30 +688,67 @@ public class Core {
 							src = "http://www.hi-pda.com/forum/" + src;
 						}
 
-						temps.add("img:" + src);
-
-						sb.delete(0, sb.length());
+						bodies.add(new AbstractMap.SimpleEntry(BodyType.IMG, src));
 					}
+				} else if (tag.equals("font") || tag.equals("p") || tag.equals("strong")) {
+					bodies.addAll(postprocessPostBody(e, null, null));
 				} else {
-					sb.append(e.text().replaceAll("\u00a0", " ").trim());
+					bodies.add(new AbstractMap.SimpleEntry(BodyType.TXT,
+							e.text().replaceAll("\u00a0", " ").trim()));
 				}
 			}
 		}
 
-		if ((sbStr = sb.toString().trim()).length() != 0) {
-			temps.add("txt:" + sbStr);
+		if (eAttachImages != null) {
+			for (Element eImg : eAttachImages) {
+				String src = eImg.attr("file");
+
+				bodies.add(new AbstractMap.SimpleEntry(BodyType.IMG,
+						src.startsWith("http") ? src : "http://www.hi-pda.com/forum/" + src));
+			}
 		}
 
-		for (Element eImg : eAttachments.select("img")) {
-			String src = eImg.attr("file");
-			temps.add("img:" + (src.startsWith("http") ? src : "http://www.hi-pda.com/forum/" + src));
+		if (eAttachments != null) {
+			for (Element eAtt : eAttachments) {
+				String url = BASE_URL + "/" + eAtt.attr("href");
+				String filename = eAtt.text();
+				Node eSize = eAtt.parent().nextSibling();
+				String size = "(? KB)";
+				if (eSize instanceof TextNode) size = ((TextNode) eSize).text();
+
+				bodies.add(new AbstractMap.SimpleEntry(BodyType.ATT,
+						url + DIVIDER + filename + DIVIDER + size));
+			}
 		}
 
-		if (temps.size() == 0) {
-			temps.add("txt:(正文格式很奇怪，解析不了)");
-		}
+//		boolean isTxt = false;
+//		int i = 0;
+//		String type;
+//
+//		while (i < temps.size()) {
+//			type = types.get(i);
+//
+//			if (isTxt) {
+//				isTxt = type.equals("txt");
+//
+//				if (isTxt) {
+//					temps.set(i, temps.get(i - 1) + temps.get(i));
+//					temps.remove(i);
+//					types.remove(i);
+//				} else {
+//					i++;
+//				}
+//			} else {
+//				isTxt = type.equals("txt");
+//				i++;
+//			}
+//		}
+//
+//		for (i = 0; i < temps.size(); ++i) {
+//			temps.set(i, types.get(i) + ":" + temps.get(i));
+//		}
 
-		return temps.toArray(new String[0]);
+		return bodies;
 	}
 
 	public static void newThread(int fid, String subject, String message, ArrayList<Integer> attachIds, final OnRequestListener onRequestListener) {
@@ -1367,6 +1487,7 @@ public class Core {
 
 	public interface OnPostsListener {
 		void onPosts(ArrayList<Post> posts, int currPage, int totalPage);
+
 		void onError();
 	}
 
