@@ -49,7 +49,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-
 public class PostsActivity extends SwipeActivity implements AdapterView.OnItemClickListener,
 		Core.OnPostsListener,
 		DiscreteSeekBar.OnProgressChangeListener {
@@ -113,6 +112,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		mListView = (PullToRefreshListView) this.findViewById(R.id.posts);
 		mAdapter = new PostsAdapter(this, mPosts, titleStr);
 		mListView.setOnItemClickListener(this);
+		registerForContextMenu(mListView.getRefreshableView());
 		mListView.setAdapter(mAdapter);
 		mListView.setMode(PullToRefreshBase.Mode.DISABLED);
 		mListView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<ListView>() {
@@ -152,7 +152,6 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		mSeekBar.setOnProgressChangeListener(this);
 		mSeekBarContainer.setVisibility(View.GONE);
 
-		registerForContextMenu(mListView);
 
 		findViewById(R.id.posts_action_share).setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -276,48 +275,67 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-		menu.add(0, 1, 0, "复制正文");
+		// Has header
+		Post post = mAdapter.getItem(((AdapterView.AdapterContextMenuInfo)menuInfo).position - 1);
+
+		menu.add(0, 0, 0, "复制正文");
+		menu.add(0, 1, 1, post.getAuthor().getId() == Core.getUid() ? "编辑" : "回复");
 		super.onCreateContextMenu(menu, v, menuInfo);
 	}
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-		Post post = mAdapter.getItem(info.position);
-		ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-		StringBuilder builder = new StringBuilder();
+		// Has header
+		Post post = mAdapter.getItem(info.position - 1);
 
-		for (Map.Entry<Core.BodyType, String> body : post.getNiceBody()) {
-			if (body.getKey() == Core.BodyType.TXT) {
-				if (builder.length() > 0) builder.append("\n");
-				builder.append(body.getValue());
-			}
+		switch (item.getItemId()) {
+			case 0:
+				ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+				StringBuilder builder = new StringBuilder();
+
+				for (Map.Entry<Core.BodyType, String> body : post.getNiceBody()) {
+					if (body.getKey() == Core.BodyType.TXT) {
+						if (builder.length() > 0) builder.append("\n");
+						builder.append(body.getValue());
+					}
+				}
+
+				ClipData clipData = ClipData.newPlainText("post content", builder.toString());
+				clipboardManager.setPrimaryClip(clipData);
+				showToast("复制到剪切版");
+				break;
+			case 1:
+				startEditActivity(post);
+				break;
 		}
 
-		ClipData clipData = ClipData.newPlainText("post content", builder.toString());
-		clipboardManager.setPrimaryClip(clipData);
-		showToast("复制到剪切版");
 		return super.onContextItemSelected(item);
+	}
+
+	private void startEditActivity(Post post) {
+		int uid = post.getAuthor().getId();
+		int postIndex = post.getPostIndex();
+		Intent intent = new Intent(PostsActivity.this, EditActivity.class);
+		intent.putExtra("title", Core.getUid() == uid ? "编辑" : "回复" + (postIndex == 1 ? "楼主" : postIndex + "楼"));
+
+		if (Core.getUid() == uid) {
+			intent.putExtra("fid", mFid);
+		}
+
+		intent.putExtra("pid", post.getId());
+		intent.putExtra("tid", mTid);
+		intent.putExtra("uid", uid);
+		intent.putExtra("no", postIndex);
+		intent.putExtra("userName", post.getAuthor().getName());
+		intent.putExtra("hideTitleInput", postIndex != 1);
+		startActivityForResult(intent, EDIT_CODE);
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 		Post post = (Post) adapterView.getAdapter().getItem(i);
-		int uid = post.getAuthor().getId();
-
-		Intent intent = new Intent(PostsActivity.this, EditActivity.class);
-		int postIndex = post.getPostIndex();
-		intent.putExtra("title", Core.getUid() == uid ? "编辑" : "回复" + (postIndex == 1 ? "楼主" : postIndex + "楼"));
-		if (Core.getUid() == uid) {
-			intent.putExtra("fid", mFid);
-		}
-		intent.putExtra("pid", post.getId());
-		intent.putExtra("tid", mTid);
-		intent.putExtra("uid", uid);
-		intent.putExtra("no", i + 1);
-		intent.putExtra("userName", post.getAuthor().getName());
-		intent.putExtra("hideTitleInput", i != 0);
-		startActivityForResult(intent, EDIT_CODE);
+		startEditActivity(post);
 	}
 
 	private void fetch(int page, final Core.OnPostsListener onPostsListener) {
