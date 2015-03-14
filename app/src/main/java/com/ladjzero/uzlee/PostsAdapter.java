@@ -327,19 +327,22 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			switch (bodySnippet.getKey()) {
 				case TXT:
 					String body = bodySnippet.getValue();
-					TextView textView;
 
-					if (body.equals("blocked!")) {
-						textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
-						textView.setText(context.getString(R.string.blocked));
-					} else {
-						textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_text_segment, null);
-						textView.setText(context.emojiUtils.getSmiledText(context, body));
+					if (body.trim().length() > 0) {
+						TextView textView;
+
+						if (body.equals("blocked!")) {
+							textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
+							textView.setText(context.getString(R.string.blocked));
+						} else {
+							textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_text_segment, null);
+							textView.setText(context.emojiUtils.getSmiledText(context, body));
+						}
+
+						//CacheWeight
+						textView.setTag(Integer.valueOf(1));
+						views.add(textView);
 					}
-
-					//CacheWeight
-					textView.setTag(Integer.valueOf(1));
-					views.add(textView);
 
 					break;
 				case IMG:

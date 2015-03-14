@@ -193,7 +193,7 @@ public class MyPostsActivity extends SwipeActivity implements ActionBar.TabListe
 			Locale l = Locale.getDefault();
 			switch (position) {
 				case 0:
-					return "帖子";
+					return "主题";
 				case 1:
 					return "回复";
 				case 2:

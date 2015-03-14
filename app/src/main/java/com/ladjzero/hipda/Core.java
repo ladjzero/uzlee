@@ -714,7 +714,12 @@ public class Core {
 				String filename = eAtt.text();
 				Node eSize = eAtt.parent().nextSibling();
 				String size = "(? KB)";
-				if (eSize instanceof TextNode) size = ((TextNode) eSize).text();
+				if (eSize instanceof TextNode) {
+					size = ((TextNode) eSize).text();
+				} else {
+					eSize = eAtt.nextSibling();
+					if (eSize instanceof TextNode) size = ((TextNode) eSize).text();
+				}
 
 				bodies.add(new AbstractMap.SimpleEntry(BodyType.ATT,
 						url + DIVIDER + filename + DIVIDER + size));
