@@ -24,7 +24,8 @@
 
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true">
 
             <TextView
                 android:id="@+id/search_close"
@@ -45,7 +46,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentStart="false"
-                android:layout_centerVertical="true"/>
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"/>
 
 
         </RelativeLayout>
