@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -102,6 +103,8 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		mTid = getIntent().getIntExtra("tid", 0);
 		titleStr = getIntent().getStringExtra("title");
 		setTitle(titleStr);
+
+		Log.d("POST_ID", "fid=" + mFid + ",tid=" + mTid);
 
 		try {
 			threadDao = db.getThreadDao();

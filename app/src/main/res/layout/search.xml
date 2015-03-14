@@ -1,41 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
               android:clickable="true"
-			  android:orientation="vertical">
+              android:orientation="vertical">
 
-	<RelativeLayout
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:background="@color/dark_primary">
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/dark_primary">
 
-		<EditText
-			android:id="@+id/search_input"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginRight="30dp"
-			android:hint="搜索"
-			android:imeOptions="actionSearch"
-			android:paddingLeft="12dp"
-			android:singleLine="true"
-			android:textColor="@android:color/white"
-			android:textCursorDrawable="@null"/>
+        <EditText
+            android:id="@+id/search_input"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="40dp"
+            android:hint="搜索"
+            android:imeOptions="actionSearch"
+            android:paddingLeft="12dp"
+            android:singleLine="true"
+            android:textColor="@android:color/white"
+            android:textCursorDrawable="@null"/>
 
-		<TextView
-			android:id="@+id/search_close"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentEnd="false"
-			android:layout_alignParentRight="true"
-			android:layout_centerVertical="true"
-			android:text="×"
-			android:textColor="@android:color/white"
-			android:textSize="14pt"
-			android:paddingLeft="10dp"
-			android:paddingRight="10dp"/>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
-	</RelativeLayout>
+            <TextView
+                android:id="@+id/search_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="false"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:text="×"
+                android:textColor="@android:color/white"
+                android:textSize="14pt"/>
 
-	<include layout="@layout/threads"/>
+            <ProgressBar
+                android:id="@+id/progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentStart="false"
+                android:layout_centerVertical="true"/>
+
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <include layout="@layout/threads"/>
 </LinearLayout>

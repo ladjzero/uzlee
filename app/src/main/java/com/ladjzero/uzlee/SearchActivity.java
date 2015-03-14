@@ -11,6 +11,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -30,8 +31,8 @@ public class SearchActivity extends SwipeActivity implements Core.OnThreadsListe
 	EditText searchInput;
 	TextView close;
 	boolean hasNextPage;
-	TextView hint;
 	String query;
+	private View mProgress;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -50,7 +51,9 @@ public class SearchActivity extends SwipeActivity implements Core.OnThreadsListe
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
 				if (hasNextPage && query != null) {
-					hint.setVisibility(View.VISIBLE);
+					showToast("正在载入下一页");
+					close.setVisibility(View.INVISIBLE);
+					mProgress.setVisibility(View.VISIBLE);
 					Core.search(query, page, SearchActivity.this);
 				}
 			}
@@ -79,8 +82,8 @@ public class SearchActivity extends SwipeActivity implements Core.OnThreadsListe
 
 		searchInput.setOnKeyListener(this);
 
-		hint = (TextView) findViewById(R.id.hint);
-		hint.setVisibility(View.GONE);
+		mProgress = findViewById(R.id.progress);
+		mProgress.setVisibility(View.INVISIBLE);
 
 		registerForContextMenu(listView);
 	}
@@ -99,6 +102,8 @@ public class SearchActivity extends SwipeActivity implements Core.OnThreadsListe
 
 			if (query.length() != 0) {
 				threads.clear();
+				close.setVisibility(View.INVISIBLE);
+				mProgress.setVisibility(View.VISIBLE);
 				Core.search(query, 1, this);
 			}
 		}
@@ -136,7 +141,8 @@ public class SearchActivity extends SwipeActivity implements Core.OnThreadsListe
 
 	@Override
 	public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
-		hint.setVisibility(View.GONE);
+		close.setVisibility(View.VISIBLE);
+		mProgress.setVisibility(View.INVISIBLE);
 		this.hasNextPage = hasNextPage;
 		this.threads.addAll(threads);
 		adapter.notifyDataSetChanged();
@@ -144,7 +150,6 @@ public class SearchActivity extends SwipeActivity implements Core.OnThreadsListe
 
 	@Override
 	public void onError() {
-		hint.setVisibility(View.GONE);
 		showToast("请求错误");
 	}
 }
