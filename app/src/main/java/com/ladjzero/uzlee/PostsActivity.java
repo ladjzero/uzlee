@@ -381,6 +381,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 	@Override
 	public void onPosts(final ArrayList<Post> posts, int currPage, int totalPage) {
+		toggleMenus(true);
 		mListView.onRefreshComplete();
 		mAdapter.clearViewCache();
 
@@ -438,6 +439,8 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
+		if (mActions.getVisibility() == View.VISIBLE) onKeyDown(KeyEvent.KEYCODE_MENU, null);
+
 		if (requestCode == EDIT_CODE && resultCode == EditActivity.EDIT_SUCCESS) {
 			mIsFetching = true;
 			setProgressBarIndeterminateVisibility(true);
@@ -491,7 +494,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		menu.findItem(R.id.more).setIcon(new IconDrawable(this, Iconify.IconValue.fa_ellipsis_h).colorRes(android.R.color.white).actionBarSize());
 		menu.findItem(R.id.reply).setIcon(new IconDrawable(this, Iconify.IconValue.fa_comment_o).colorRes(android.R.color.white).actionBarSize());
 
-		if (mIsFetching) toggleMenus(false);
+		menu.setGroupVisible(0, !mIsFetching);
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -517,8 +520,8 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 	private void toggleMenus(boolean visible) {
 		if (mMenu != null) {
-			for (int i = 0; i < mMenu.size(); i++)
-				mMenu.getItem(i).setVisible(visible);
+			invalidateOptionsMenu();
+			mMenu.setGroupVisible(0, visible);
 		}
 	}
 

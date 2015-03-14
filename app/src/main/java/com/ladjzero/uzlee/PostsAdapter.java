@@ -387,7 +387,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 					final String[] url_name_size = bodySnippet.getValue().split(Core.DIVIDER);
 					String name = url_name_size[1];
 					int _index = name.lastIndexOf(".");
-					String ext = _index < 0 ? "" : name.substring(_index);
+					String ext = _index < 0 ? "" : name.substring(_index + 1);
 
 					TextView extView = (TextView) view.findViewById(R.id.file_type);
 					extView.setText(ext);
