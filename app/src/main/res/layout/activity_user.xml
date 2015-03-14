@@ -4,11 +4,6 @@
                 android:clickable="true"
                 android:background="@android:color/white">
 
-    <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
-        android:id="@+id/seekbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
     <ImageView
         android:id="@+id/user_info_img"
         android:layout_width="100dp"

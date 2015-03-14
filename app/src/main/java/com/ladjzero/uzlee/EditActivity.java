@@ -62,7 +62,6 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 		getActionBar().setTitle(getIntent().getStringExtra("title"));
-		getActionBar().setIcon(null);
 		setContentView(R.layout.edit);
 		progress = new ProgressDialog(this);
 

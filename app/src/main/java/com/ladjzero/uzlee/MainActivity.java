@@ -98,7 +98,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 
 				final View v = getLayoutInflater().inflate(R.layout.about, null);
 				WebView webView = (WebView) v.findViewById(R.id.about_webView);
-				webView.loadUrl("https://raw.githubusercontent.com/ladjzero/uzlee/master/release/readme.html");
+				webView.loadUrl("https://cdn.rawgit.com/ladjzero/uzlee/master/release/readme.html");
 				webView.setWebViewClient(new WebViewClient() {
 					@Override
 					public boolean shouldOverrideUrlLoading(WebView view, String url) {
