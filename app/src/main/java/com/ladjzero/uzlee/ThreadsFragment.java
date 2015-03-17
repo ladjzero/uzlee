@@ -1,5 +1,6 @@
 package com.ladjzero.uzlee;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -42,6 +43,9 @@ import java.util.Collection;
 
 public class ThreadsFragment extends Fragment implements OnRefreshListener, AdapterView.OnItemClickListener, OnThreadsListener {
 
+	public static final int DATA_SOURCE_THREADS = 0;
+	public static final int DATA_SOURCE_SEARCH = 1;
+
 	private BaseActivity mActivity;
 	private final ArrayList<Thread> threads = new ArrayList<Thread>();
 	private SwipeRefreshLayout swipe;
@@ -57,10 +61,16 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private boolean mGoTopVisible = false;
 	private int mPage = 1;
 	private boolean mIsFetching = false;
+	private int mDataSource;
+	// Search target user.
+	private String mUserName;
+	private boolean mEnablePullToRefresh;
+	private String mTitle;
 
 	public static ThreadsFragment newInstance(int fid) {
 		ThreadsFragment fragment = new ThreadsFragment();
 		Bundle args = new Bundle();
+		args.putBoolean("enablePullToRefresh", true);
 		args.putInt("fid", fid);
 		fragment.setArguments(args);
 		fragment.fid = fid;
@@ -72,7 +82,14 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mActivity = (BaseActivity) getActivity();
 
-		if (db == null) db = ((BaseActivity) getActivity()).getHelper();
+		Bundle args = getArguments();
+		mDataSource = args.getInt("dataSource");
+		mUserName = args.getString("userName");
+		mEnablePullToRefresh = args.getBoolean("enablePullToRefresh");
+		mTitle = args.getString("title");
+		if (mTitle != null) mActivity.setTitle(mTitle);
+
+		if (db == null) db = mActivity.getHelper();
 
 		try {
 			threadDao = db.getThreadDao();
@@ -86,9 +103,10 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		swipe = (SwipeRefreshLayout) rootView.findViewById(R.id.thread_swipe);
 		swipe.setOnRefreshListener(this);
 		swipe.setColorSchemeResources(R.color.dark_primary, R.color.grape_primary, R.color.deep_primary, R.color.snow_dark);
+		swipe.setEnabled(mEnablePullToRefresh);
 
 		listView = (ListView) rootView.findViewById(R.id.threads);
-		adapter = new ThreadsAdapter(getActivity(), threads);
+		adapter = new ThreadsAdapter(mActivity, threads);
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(this);
 
@@ -97,7 +115,13 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 			public void onLoadMore(int page, int totalItemsCount) {
 				if (hasNextPage) {
 					mActivity.showToast("载入下一页");
-					fetch(page, ThreadsFragment.this);
+
+					setRefreshSpinner(true);
+					if (mDataSource == DATA_SOURCE_SEARCH) {
+						Core.getUserThreadsAtPage(mUserName, page, ThreadsFragment.this);
+					} else {
+						fetch(page, ThreadsFragment.this);
+					}
 				}
 			}
 
@@ -178,39 +202,40 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 	private void fetch(int page, final OnThreadsListener onThreadsListener) {
 		mIsFetching = true;
-		// Hack. http://stackoverflow.com/questions/26858692/swiperefreshlayout-setrefreshing-not-showing-indicator-initially
-		swipe.post(new Runnable() {
-			@Override
-			public void run() {
-				swipe.setRefreshing(true);
-			}
-		});
 
-		Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid") + "&page=" + page, new Core.OnRequestListener() {
-			@Override
-			public void onError(String error) {
-				onThreadsListener.onError();
-				swipe.setRefreshing(false);
-				mIsFetching = false;
-			}
+		setRefreshSpinner(true);
 
-			@Override
-			public void onSuccess(String html) {
-				new AsyncTask<String, Void, Core.ThreadsRet>() {
-					@Override
-					protected Core.ThreadsRet doInBackground(String... strings) {
-						return Core.parseThreads(strings[0]);
-					}
+		if (mDataSource == DATA_SOURCE_SEARCH) {
+			Core.getUserThreadsAtPage(mUserName, page, this);
+		} else {
+			Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid") + "&page=" + page, new Core.OnRequestListener() {
+				@Override
+				public void onError(String error) {
+					onThreadsListener.onError();
 
-					@Override
-					protected void onPostExecute(Core.ThreadsRet ret) {
-						swipe.setRefreshing(false);
+					setRefreshSpinner(false);
 
-						onThreadsListener.onThreads(ret.threads, ret.page, ret.hasNextPage);
-					}
-				}.execute(html);
-			}
-		});
+					mIsFetching = false;
+				}
+
+				@Override
+				public void onSuccess(String html) {
+					new AsyncTask<String, Void, Core.ThreadsRet>() {
+						@Override
+						protected Core.ThreadsRet doInBackground(String... strings) {
+							return Core.parseThreads(strings[0]);
+						}
+
+						@Override
+						protected void onPostExecute(Core.ThreadsRet ret) {
+							setRefreshSpinner(false);
+
+							onThreadsListener.onThreads(ret.threads, ret.page, ret.hasNextPage);
+						}
+					}.execute(html);
+				}
+			});
+		}
 	}
 
 	@Override
@@ -219,8 +244,6 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 		if (threads.size() == 0) fetch(1, this);
 		adapter.notifyDataSetChanged();
-
-		swipe.setRefreshing(false);
 	}
 
 	@Override
@@ -243,7 +266,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		Thread t = (Thread) adapterView.getAdapter().getItem(i);
 		t.setNew(false);
 
-		Intent intent = new Intent(getActivity(), PostsActivity.class);
+		Intent intent = new Intent(mActivity, PostsActivity.class);
 		intent.putExtra("fid", fid);
 		intent.putExtra("tid", t.getId());
 		intent.putExtra("title", t.getTitle());
@@ -256,6 +279,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		this.hasNextPage = hasNextPage;
 		mPage = page;
 		mIsFetching = false;
+		setRefreshSpinner(false);
 
 		final Collection<Integer> ids = CollectionUtils.collect(this.threads, new Transformer() {
 			@Override
@@ -277,7 +301,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 	@Override
 	public void onError() {
-		((MainActivity) getActivity()).showToast("请求错误");
+		mActivity.showToast("请求错误");
 	}
 
 	@Override
@@ -290,14 +314,14 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 				ThreadsFragment.this.threads.clear();
 				ThreadsFragment.this.threads.addAll(threads);
 				adapter.notifyDataSetChanged();
-				swipe.setRefreshing(false);
+				setRefreshSpinner(false);
 			}
 
 			@Override
 			public void onError() {
 				mIsFetching = false;
-				swipe.setRefreshing(false);
-				((MainActivity) getActivity()).showToast("请求错误");
+				setRefreshSpinner(false);
+				mActivity.showToast("请求错误");
 			}
 		});
 	}
@@ -312,12 +336,12 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 		Thread thread = adapter.getItem(info.position);
-		ClipboardManager clipboardManager = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+		ClipboardManager clipboardManager = (ClipboardManager) mActivity.getSystemService(Context.CLIPBOARD_SERVICE);
 		StringBuilder builder = new StringBuilder();
 
 		ClipData clipData = ClipData.newPlainText("post content", thread.getTitle());
 		clipboardManager.setPrimaryClip(clipData);
-		((BaseActivity) getActivity()).showToast("复制到剪切版");
+		mActivity.showToast("复制到剪切版");
 		return super.onContextItemSelected(item);
 	}
 
@@ -329,5 +353,27 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 			return null;
 		}
 
+	}
+
+	private void setRefreshSpinner(boolean visible) {
+		if (visible) {
+			if (mEnablePullToRefresh) {
+				// Hack. http://stackoverflow.com/questions/26858692/swiperefreshlayout-setrefreshing-not-showing-indicator-initially
+				swipe.post(new Runnable() {
+					@Override
+					public void run() {
+						swipe.setRefreshing(true);
+					}
+				});
+			} else {
+				mActivity.setProgressBarIndeterminateVisibility(true);
+			}
+		} else {
+			if (mEnablePullToRefresh) {
+				swipe.setRefreshing(false);
+			} else {
+				mActivity.setProgressBarIndeterminateVisibility(false);
+			}
+		}
 	}
 }
