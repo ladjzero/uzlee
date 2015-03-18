@@ -1,40 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-	android:id="@+id/post_quote"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-    android:layout_marginTop="8dp"
+    android:id="@+id/post_quote"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-	android:background="@color/snow_light">
+    android:layout_marginLeft="6dp"
+    android:layout_marginRight="6dp"
+    android:layout_marginTop="8dp"
+    android:background="@color/snow_light">
 
-	<TextView
-		android:id="@+id/textView"
-		android:layout_width="4px"
-		android:layout_height="match_parent"
-		android:background="@color/snow_primary"/>
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="4px"
+        android:layout_height="match_parent"
+        android:background="@color/snow_primary"/>
 
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:padding="8dp"
-		android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp">
 
-		<include layout="@layout/quote_user"/>
+        <include layout="@layout/quote_user"/>
 
-		<android.widget.IconTextView
-			android:id="@+id/post_quote_text"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="7dp"
-			android:ellipsize="end"
-			android:lineSpacingExtra="6dp"
-			android:maxLines="8"
-			android:paddingTop="6dp"
-			android:textColor="@color/smallFont"
-			android:textSize="14sp"/>
-	</LinearLayout>
-
+        <android.widget.IconTextView
+            android:id="@+id/post_quote_text"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:ellipsize="end"
+            android:lineSpacingExtra="6dp"
+            android:maxLines="8"
+            android:paddingTop="6dp"
+            android:textColor="@color/smallFont"
+            android:textSize="14sp"/>
+    </LinearLayout>
 
 
 </LinearLayout>

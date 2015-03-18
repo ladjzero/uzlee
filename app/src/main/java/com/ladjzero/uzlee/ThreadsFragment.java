@@ -1,6 +1,5 @@
 package com.ladjzero.uzlee;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -18,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
@@ -26,16 +24,13 @@ import com.j256.ormlite.dao.Dao;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Core.OnThreadsListener;
 import com.ladjzero.hipda.DBHelper;
-import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
 import com.nineoldandroids.animation.Animator;
 
-import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
-import org.jsoup.Connection;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -44,7 +39,8 @@ import java.util.Collection;
 public class ThreadsFragment extends Fragment implements OnRefreshListener, AdapterView.OnItemClickListener, OnThreadsListener {
 
 	public static final int DATA_SOURCE_THREADS = 0;
-	public static final int DATA_SOURCE_SEARCH = 1;
+	public static final int DATA_SOURCE_USER = 1;
+	public static final int DATA_SOURCE_SEARCH = 2;
 
 	private BaseActivity mActivity;
 	private final ArrayList<Thread> threads = new ArrayList<Thread>();
@@ -66,6 +62,14 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private String mUserName;
 	private boolean mEnablePullToRefresh;
 	private String mTitle;
+	private String mQuery;
+	private OnFetch mOnFetch;
+
+
+	public interface OnFetch{
+		void fetchStart();
+		void fetchEnd();
+	}
 
 	public static ThreadsFragment newInstance(int fid) {
 		ThreadsFragment fragment = new ThreadsFragment();
@@ -78,6 +82,15 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		return fragment;
 	}
 
+	public void setOnFetch(OnFetch onFetch) {
+		mOnFetch = onFetch;
+	}
+
+	public void updateSearch(String query) {
+		mQuery = query;
+		fetch(1, this);
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mActivity = (BaseActivity) getActivity();
@@ -88,6 +101,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		mEnablePullToRefresh = args.getBoolean("enablePullToRefresh");
 		mTitle = args.getString("title");
 		if (mTitle != null) mActivity.setTitle(mTitle);
+		mQuery = args.getString("query");
 
 		if (db == null) db = mActivity.getHelper();
 
@@ -117,8 +131,10 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 					mActivity.showToast("载入下一页");
 
 					setRefreshSpinner(true);
-					if (mDataSource == DATA_SOURCE_SEARCH) {
+					if (mDataSource == DATA_SOURCE_USER) {
 						Core.getUserThreadsAtPage(mUserName, page, ThreadsFragment.this);
+					} else if (mDataSource == DATA_SOURCE_SEARCH) {
+						Core.search(mQuery, page, ThreadsFragment.this);
 					} else {
 						fetch(page, ThreadsFragment.this);
 					}
@@ -205,8 +221,10 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 		setRefreshSpinner(true);
 
-		if (mDataSource == DATA_SOURCE_SEARCH) {
+		if (mDataSource == DATA_SOURCE_USER) {
 			Core.getUserThreadsAtPage(mUserName, page, this);
+		} else if (mDataSource == DATA_SOURCE_SEARCH) {
+			if (mQuery != null && mQuery.length() > 0) Core.search(mQuery, page, ThreadsFragment.this);
 		} else {
 			Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid") + "&page=" + page, new Core.OnRequestListener() {
 				@Override
@@ -242,7 +260,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	public void onResume() {
 		super.onResume();
 
-		if (threads.size() == 0) fetch(1, this);
+		if (threads.size() == 0 && mDataSource != DATA_SOURCE_SEARCH) fetch(1, this);
 		adapter.notifyDataSetChanged();
 	}
 
@@ -357,6 +375,8 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 	private void setRefreshSpinner(boolean visible) {
 		if (visible) {
+			if (mOnFetch != null) mOnFetch.fetchStart();
+
 			if (mEnablePullToRefresh) {
 				// Hack. http://stackoverflow.com/questions/26858692/swiperefreshlayout-setrefreshing-not-showing-indicator-initially
 				swipe.post(new Runnable() {
@@ -369,6 +389,8 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 				mActivity.setProgressBarIndeterminateVisibility(true);
 			}
 		} else {
+			if (mOnFetch != null) mOnFetch.fetchEnd();
+
 			if (mEnablePullToRefresh) {
 				swipe.setRefreshing(false);
 			} else {

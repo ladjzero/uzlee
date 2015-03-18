@@ -413,7 +413,6 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		mPosts.clear();
 		mPosts.addAll(posts);
 		Collections.sort(mPosts, mComparator);
-		mAdapter.setWindow(posts.get(0).getPostIndex(), posts.get(posts.size() - 1).getPostIndex() + 1);
 		if (mPosts.size() > 0) mPosts.get(0).setTitle(titleStr);
 		mAdapter.notifyDataSetChanged();
 		mListView.getRefreshableView().setSelection(0);

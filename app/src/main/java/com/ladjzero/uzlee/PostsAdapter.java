@@ -13,25 +13,19 @@ import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.text.Html;
 import android.util.LruCache;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.amulyakhare.textdrawable.TextDrawable;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.User;
@@ -42,63 +36,37 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
 public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener {
 	private PostsActivity context;
 	private ArrayList<Post> mPosts;
-
-	private LruCache<Integer, ArrayList<View>> mViewCache = new LruCache<Integer, ArrayList<View>>(110) {
-		@Override
-		protected int sizeOf(Integer key, ArrayList<View> value) {
-			int weight = 0;
-
-			for (View v : value) {
-				weight += (Integer) v.getTag();
-			}
-
-			return weight;
-		}
-	};
-
-	private HashMap<Integer, Drawable> mUserImageCache = new HashMap<Integer, Drawable>();
+	private LruCache<Integer, ArrayList<View>> mViewCache;
 	private HashMap<String, Double> mImageWidthHeight = new HashMap<String, Double>();
-	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-	TextDrawable.IShapeBuilder textBuilder = TextDrawable.builder()
-			.beginConfig()
-			.bold()
-			.endConfig();
-	Date now = new Date();
-	String title;
-	private int mFrom = 1;
-	private int mTo = 51;
+	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	private Date mNow;
+	private String mTitle;
 
 	public PostsAdapter(Context context, ArrayList<Post> posts, String title) {
 		super(context, R.layout.post, posts);
 		this.context = (PostsActivity) context;
-		this.mPosts = posts;
-		this.title = title;
+		mPosts = posts;
+		mTitle = title;
+		mNow = new Date();
+
+		mViewCache = new LruCache<Integer, ArrayList<View>>(110) {
+			@Override
+			protected int sizeOf(Integer key, ArrayList<View> value) {
+				int weight = 0;
+
+				for (View v : value) {
+					weight += (Integer) v.getTag();
+				}
+
+				return weight;
+			}
+		};
 	}
 
 	public void clearViewCache() {
 		mViewCache.evictAll();
 	}
 
-	public void setWindow(int from, int to) {
-		mFrom = from;
-		mTo = to;
-	}
-
-//	@Override
-//	public int getCount() {
-//		int size = mPosts.size();
-//		return size == 0 ? 0 : Math.min(mTo, mPosts.get(size - 1).getPostIndex() + 1) - mFrom;
-//	}
-
-//	@Override
-//	public Post getItem(final int position) {
-//		return (Post) CollectionUtils.find(mPosts, new Predicate() {
-//			@Override
-//			public boolean evaluate(Object o) {
-//				return ((Post) o).getPostIndex() == mFrom + position;
-//			}
-//		});
-//	}
 
 	@Override
 	public void notifyDataSetChanged() {
@@ -115,8 +83,9 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			row = context.getLayoutInflater().inflate(R.layout.post, parent, false);
 
 			holder.quoteLayout = row.findViewById(R.id.post_quote);
-			holder.img = (ImageView) row.findViewById(R.id.user_mini_image);
-			holder.quoteImg = (ImageView) holder.quoteLayout.findViewById(R.id.user_mini_image);
+			holder.img = (ImageView) row.findViewById(R.id.user_image);
+			holder.imageMask = (TextView) row.findViewById(R.id.user_image_mask);
+			holder.quoteImg = (ImageView) holder.quoteLayout.findViewById(R.id.user_image);
 			holder.title = (TextView) row.findViewById(R.id.post_title);
 			holder.name = (TextView) row.findViewById(R.id.user_mini_name);
 			holder.quoteName = (TextView) holder.quoteLayout.findViewById(R.id.user_mini_name);
@@ -132,22 +101,24 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 		final Post post = getItem(position);
 		final User author = post.getAuthor();
+		final String userName = author.getName();
+		String imageUrl = author.getImage();
+		String sig = post.getSig();
 		final int uid = author.getId();
 
-		holder.title.setVisibility(position == 0 ? View.VISIBLE : View.GONE);
-		if (post.getPostIndex() == 1) {
-			holder.title.setText(title);
-		} else {
-			holder.title.setVisibility(View.GONE);
-		}
-		holder.name.setText(author.getName());
-//		holder.name.getPaint().setFakeBoldText(true);
+		holder.name.setText(userName);
 		holder.name.setTag(author);
 		holder.name.setOnClickListener(this);
 		holder.img.setTag(author);
 		holder.img.setOnClickListener(this);
 
-		String sig = post.getSig();
+		holder.title.setVisibility(position == 0 ? View.VISIBLE : View.GONE);
+
+		if (post.getPostIndex() == 1) {
+			holder.title.setText(mTitle);
+		} else {
+			holder.title.setVisibility(View.GONE);
+		}
 
 		if (sig != null && sig.length() > 0) {
 			holder.sig.setVisibility(View.VISIBLE);
@@ -155,34 +126,26 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		} else {
 			holder.sig.setVisibility(View.GONE);
 		}
-		;
 
-		Drawable userImage = mUserImageCache.get(uid);
-
-		if (userImage != null) {
-			holder.img.setImageDrawable(userImage);
+		if (imageUrl == null) {
+			holder.imageMask.setVisibility(View.VISIBLE);
+			holder.imageMask.setText(Utils.getFirstChar(userName));
 		} else {
-			if (author.getImage() == null || author.getImage().length() == 0) {
-				Drawable charDrawable = textBuilder.buildRect(Utils.getFirstChar(author.getName()), Utils.getColor(context, R.color.dark_light));
-				mUserImageCache.put(uid, charDrawable);
-				holder.img.setImageDrawable(charDrawable);
-			} else {
-				ImageLoader.getInstance().displayImage(author.getImage(), holder.img, new SimpleImageLoadingListener() {
-					@Override
-					public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
-						author.setImage(imageUri);
-						mUserImageCache.put(uid, new BitmapDrawable(loadedImage));
-					}
+			holder.imageMask.setVisibility(View.GONE);
 
-					@Override
-					public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
-						author.setImage("");
-						Drawable charDrawable = textBuilder.buildRect(Utils.getFirstChar(author.getName()), Utils.getColor(context, R.color.dark_light));
-						mUserImageCache.put(uid, charDrawable);
-						((ImageView) view).setImageDrawable(charDrawable);
-					}
-				});
-			}
+			ImageLoader.getInstance().displayImage(imageUrl, holder.img, new SimpleImageLoadingListener() {
+				@Override
+				public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
+					author.setImage(imageUri);
+				}
+
+				@Override
+				public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
+					author.setImage(null);
+					holder.imageMask.setVisibility(View.VISIBLE);
+					holder.imageMask.setText(Utils.getFirstChar(userName));
+				}
+			});
 		}
 
 		ArrayList<View> niceBody = mViewCache.get(position);
@@ -195,15 +158,11 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		holder.body.removeAllViews();
 
 		if (Core.bans.contains(uid)) {
-			LinearLayout postTextLayout = (LinearLayout) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
-			TextView tv = (TextView) postTextLayout.findViewById(R.id.post_body_fa_text_segment);
-			tv.setText(context.getString(R.string.blocked));
-			postTextLayout.removeAllViews();
-			holder.body.addView(tv);
+			TextView view = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
+			view.setText(context.getString(R.string.blocked));
+			holder.body.addView(view);
 		} else {
 			for (View view : niceBody) {
-				ViewParent vParent = view.getParent();
-				if (vParent != null) ((ViewGroup) vParent).removeView(view);
 				holder.body.addView(view);
 			}
 		}
@@ -244,7 +203,6 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 				holder.quoteLayout.setVisibility(View.VISIBLE);
 				holder.quoteName.setText(quoteUser.getName());
-				holder.quoteImg.setImageDrawable(mUserImageCache.get(quid));
 				Map.Entry<Core.BodyType, String> bodySnippet0 = betterQuote.getNiceBody().get(0);
 
 
@@ -289,6 +247,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 	static class PostHolder {
 		ImageView img;
+		TextView imageMask;
 		ImageView quoteImg;
 		TextView title;
 		TextView name;
@@ -306,11 +265,11 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		try {
 			Date thatDate = dateFormat.parse(timeStr);
 
-			if (DateUtils.isSameDay(thatDate, now)) {
+			if (DateUtils.isSameDay(thatDate, mNow)) {
 				return DateFormatUtils.format(thatDate, "HH:mm");
-			} else if (DateUtils.isSameDay(DateUtils.addDays(thatDate, 1), now)) {
+			} else if (DateUtils.isSameDay(DateUtils.addDays(thatDate, 1), mNow)) {
 				return DateFormatUtils.format(thatDate, "昨天 HH:mm");
-			} else if (now.getYear() == thatDate.getYear()) {
+			} else if (mNow.getYear() == thatDate.getYear()) {
 				return DateFormatUtils.format(thatDate, "M月d日");
 			} else {
 				return DateFormatUtils.format(thatDate, "yyyy年M月d日");
@@ -391,7 +350,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 					TextView extView = (TextView) view.findViewById(R.id.file_type);
 					extView.setText(ext);
-					extView.setBackgroundResource(getBackgroudResByExt(ext));
+					extView.setBackgroundResource(getBackgroundResByExt(ext));
 
 					TextView filenameView = (TextView) view.findViewById(R.id.file_name);
 
@@ -413,108 +372,21 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 					views.add(view);
 
 					break;
-			}
-//			if (bodySnippet.startsWith("txt:")) {
-//				String content = bodySnippet.substring(4);
-//				TextView textView;
-//
-//				if (content.equals("blocked!")) {
-//					textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
-//					textView.setText(context.getString(R.string.blocked));
-//				} else {
-//					textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_text_segment, null);
-//					textView.setText(context.emojiUtils.getSmiledText(context, bodySnippet.substring(4)));
-//				}
-//
-//				//CacheWeight
-//				textView.setTag(Integer.valueOf(1));
-//				views.add(textView);
-////			} else if (bodySnippet.startsWith("sig:") && bodySnippet.length() > 4) {
-////				View sigContainer = context.getLayoutInflater().inflate(R.layout.post_body_sig, null);
-////				TextView textView = (TextView) sigContainer.findViewById(R.id.post_body_sig);
-////				textView.setText(bodySnippet.substring(4));
-////
-////				sigContainer.setTag(Integer.valueOf(0));
-////				views.add(sigContainer);
-//			} else if (bodySnippet.startsWith("img:")) {
-//				View imageContainer = context.getLayoutInflater().inflate(R.layout.post_body_image_segment, null);
-//				PostImageView imageView = (PostImageView) imageContainer.findViewById(R.id.post_img);
-//
-//				imageContainer.setTag(Integer.valueOf(10));
-//				views.add(imageContainer);
-//
-//				final String url = bodySnippet.substring(4);
-//				Double widthHeight = mImageWidthHeight.get(url);
-//				if (widthHeight != null) imageView.setWidthHeight(widthHeight);
-//
-//				ImageLoader.getInstance().displayImage(url, imageView, new SimpleImageLoadingListener() {
-//					@Override
-//					public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
-//						if (mImageWidthHeight.get(url) == null)
-//							mImageWidthHeight.put(url, 1.0 * loadedImage.getWidth() / loadedImage.getHeight());
-//					}
-//				});
-//
-//				imageView.setOnClickListener(new OnClickListener() {
-//					@Override
-//					public void onClick(View view) {
-//						Intent intent = new Intent(context, ImageActivity.class);
-//						intent.putExtra("url", url);
-//						intent.putExtra("tid", post.getTid());
-//						context.startActivity(intent);
-//					}
-//				});
-//
-//				imageView.setOnLongClickListener(new View.OnLongClickListener() {
-//					@Override
-//					public boolean onLongClick(View view) {
-//						return false;
-//					}
-//				});
-//			} else if (bodySnippet.startsWith("att:")) {
-//				View view = context.getLayoutInflater().inflate(R.layout.attachment, null);
-//				final String[] url_name_size = bodySnippet.substring(4).split(Core.DIVIDER);
-//				String name = url_name_size[1];
-//				int _index = name.lastIndexOf(".");
-//				String ext = _index < 0 ? "" : name.substring(_index);
-//
-//				TextView extView = (TextView) view.findViewById(R.id.file_type);
-//				extView.setText(ext);
-//				extView.setBackgroundResource(getBackgroudResByExt(ext));
-//
-//				TextView filenameView = (TextView) view.findViewById(R.id.file_name);
-//
-//				String _text = url_name_size.length == 2 ? name : name + "  " + url_name_size[2];
-//
-//				filenameView.setText(_text);
-//
-//				view.setTag(Integer.valueOf(0));
-//
-//				view.setOnClickListener(new OnClickListener() {
-//					@Override
-//					public void onClick(View view) {
-//						Intent intent = new Intent(Intent.ACTION_VIEW);
-//						intent.setData(Uri.parse(url_name_size[0]));
-//						context.startActivity(intent);
-//					}
-//				});
-//
-//				views.add(view);
-//			}
-		}
+				case QOT:
+					View quoteContainer = context.getLayoutInflater().inflate(R.layout.quote, null);
+					TextView textView = (TextView) quoteContainer.findViewById(R.id.post_quote_text);
+					textView.setText(bodySnippet.getValue());
+					quoteContainer.setTag(Integer.valueOf(1));
+					views.add(quoteContainer);
 
-//		for (Core.Attachment attachment : post.getAttachments()) {
-//			TextView textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
-//
-//			textView.setText(attachment.filename);
-//			textView.setTag(Integer.valueOf(0));
-//			views.add(textView);
-//		}
+					break;
+			}
+		}
 
 		return views;
 	}
 
-	private int getBackgroudResByExt(String ext) {
+	private int getBackgroundResByExt(String ext) {
 		String resName = "filetype";
 		int randomIndex = 0;
 

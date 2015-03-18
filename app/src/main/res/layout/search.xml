@@ -5,8 +5,10 @@
               android:clickable="true"
               android:orientation="vertical">
 
+
     <RelativeLayout
-        android:layout_width="fill_parent"
+        android:id="@+id/action_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/dark_primary">
 
@@ -14,18 +16,23 @@
             android:id="@+id/search_input"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
             android:layout_marginRight="40dp"
             android:hint="搜索"
             android:imeOptions="actionSearch"
             android:paddingLeft="12dp"
             android:singleLine="true"
             android:textColor="@android:color/white"
-            android:textCursorDrawable="@null"/>
+            android:textCursorDrawable="@null"
+            android:layout_centerVertical="true"/>
+
 
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true">
+            android:layout_alignParentBottom="false"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true">
 
             <TextView
                 android:id="@+id/search_close"
@@ -38,21 +45,26 @@
                 android:paddingRight="15dp"
                 android:text="×"
                 android:textColor="@android:color/white"
-                android:textSize="14pt"/>
+                android:textSize="14pt"
+                android:layout_alignParentBottom="false"/>
 
             <ProgressBar
                 android:id="@+id/progress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
                 android:layout_alignParentStart="false"
                 android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"/>
-
+                android:layout_alignParentBottom="false"/>
 
         </RelativeLayout>
 
     </RelativeLayout>
 
-    <include layout="@layout/threads"/>
+    <FrameLayout
+        android:id="@+id/place_holder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></FrameLayout>
+
 </LinearLayout>

@@ -6,9 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
-import com.amulyakhare.textdrawable.TextDrawable;
 import com.j256.ormlite.dao.Dao;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.DBHelper;
@@ -21,8 +19,6 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,11 +35,6 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 	Core core;
 	DBHelper db;
 	Dao<User, Integer> userDao;
-	TextDrawable.IShapeBuilder textBuilder = TextDrawable.builder()
-			.beginConfig()
-			.bold()
-			.endConfig();
-	private HashMap<Integer, Drawable> mUserImageCache = new HashMap<Integer, Drawable>();
 	private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 	private final Date NOW = new Date();
 
@@ -68,7 +59,8 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 			LayoutInflater inflater = ((Activity) context).getLayoutInflater();
 			row = inflater.inflate(R.layout.thread, parent, false);
 
-			holder.img = (ImageView) row.findViewById(R.id.user_mini_image);
+			holder.img = (ImageView) row.findViewById(R.id.user_image);
+			holder.imageMask = (TextView) row.findViewById(R.id.user_image_mask);
 			holder.name = (TextView) row.findViewById(R.id.user_mini_name);
 			holder.title = (TextView) row.findViewById(R.id.thread_title);
 			holder.date = (TextView) row.findViewById(R.id.thread_date);
@@ -80,7 +72,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 
 		final Thread thread = getItem(position);
 		final User user = thread.getAuthor();
-		String image = user.getImage();
+		String imageUrl = user.getImage();
 
 		final int uid = user.getId();
 
@@ -92,24 +84,24 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 
 		final String userName = user.getName();
 
-		Drawable userImage = mUserImageCache.get(uid);
 
-		if (userImage != null) {
-			holder.img.setImageDrawable(userImage);
+		if (imageUrl == null) {
+			holder.imageMask.setVisibility(View.VISIBLE);
+			holder.imageMask.setText(Utils.getFirstChar(userName));
 		} else {
-			ImageLoader.getInstance().displayImage(image, holder.img, new SimpleImageLoadingListener() {
+			ImageLoader.getInstance().displayImage(imageUrl, holder.img, new SimpleImageLoadingListener() {
 				@Override
 				public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
 					user.setImage(imageUri);
-					mUserImageCache.put(uid, new BitmapDrawable(loadedImage));
+					holder.imageMask.setVisibility(View.GONE);
+
 				}
 
 				@Override
 				public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
-					user.setImage("");
-					Drawable charDrawable = textBuilder.buildRect(Utils.getFirstChar(user.getName()), Utils.getColor(context, R.color.dark_light));
-					mUserImageCache.put(uid, charDrawable);
-					((ImageView) view).setImageDrawable(charDrawable);
+					user.setImage(null);
+					holder.imageMask.setVisibility(View.VISIBLE);
+					holder.imageMask.setText(Utils.getFirstChar(userName));
 				}
 			});
 		}
@@ -171,6 +163,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 
 	static class PostHolder {
 		ImageView img;
+		TextView imageMask;
 		TextView name;
 		TextView date;
 		TextView title;

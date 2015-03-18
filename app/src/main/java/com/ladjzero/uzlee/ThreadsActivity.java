@@ -17,7 +17,7 @@ public class ThreadsActivity extends SwipeActivity {
 
 		mFragment = new ThreadsFragment();
 		Bundle bundle = new Bundle();
-		bundle.putInt("dataSource", ThreadsFragment.DATA_SOURCE_SEARCH);
+		bundle.putInt("dataSource", ThreadsFragment.DATA_SOURCE_USER);
 		bundle.putBoolean("enablePullToRefresh", false);
 		String userName = intent.getStringExtra("name");
 		bundle.putString("userName", userName);

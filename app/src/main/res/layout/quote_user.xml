@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    <include layout="@layout/user_mini_for_quote" />
+    <include layout="@layout/user_for_quote" />
 
     <TextView
         android:id="@+id/post_no"

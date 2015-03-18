@@ -19,7 +19,7 @@
         android:text="New Text"
         android:textSize="22sp"/>
 
-    <include layout="@layout/user_mini_for_post"/>
+    <include layout="@layout/user_for_post"/>
 
     <include layout="@layout/post_body"/>
 

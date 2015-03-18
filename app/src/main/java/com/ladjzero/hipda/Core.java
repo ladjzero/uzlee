@@ -506,37 +506,6 @@ public class Core {
 			}
 		}
 
-//		Elements attaches = ePost.select("div.postattachlist");
-//		ArrayList<Attachment> attachments = new ArrayList<Attachment>();
-//
-//		if (attaches.size() > 0) {
-//			Elements _root = attaches.select("p.attachname");
-//			Elements _a = _root.select(">a");
-//
-//			for (int i = 0; i < _root.size(); ++i) {
-//				Attachment attachment = new Attachment();
-//
-//
-//
-//				attachment.url = BASE_URL + "/" + _a.get(i).attr("href");
-//				attachment.filename = _a.get(i).text();
-//				List<TextNode> textNodes = _root.get(i).textNodes();
-//
-//				for (TextNode textNode : textNodes) {
-//					String text = textNode.text().trim();
-//
-//					if (text.contains("KB")) {
-//						attachment.size = text;
-//						break;
-//					}
-//				}
-//
-//				attachments.add(attachment);
-//			}
-//		}
-//
-//		post.setAttachments(attachments);
-
 		return post;
 	}
 
@@ -564,8 +533,8 @@ public class Core {
 						quote.setAuthor(new User().setName(""));
 					}
 
-					eBlockQuote.get(0).child(0).remove();
-					eBlockQuote.select("font[size=2]").remove();
+//					eBlockQuote.get(0).child(0).remove();
+//					eBlockQuote.select("font[size=2]").remove();
 
 					String content = eBlockQuote.text().trim();
 					quote.setBody(content);
@@ -608,7 +577,11 @@ public class Core {
 		eBody.select("i.pstatus").remove();
 
 		// remove quote
-		eBody.select("div.quote").remove();
+		Elements quote = eBody.select("div.quote");
+		for (Element q : quote) {
+			if (q.select("img[src=http://www.hi-pda.com/forum/images/common/back.gif]").size() > 0)
+				q.remove();
+		}
 
 		// remove reply
 		Element first = eBody.children().first();
@@ -631,7 +604,8 @@ public class Core {
 		TXT,
 		IMG,
 		SIG,
-		ATT
+		ATT,
+		QOT
 	}
 
 
@@ -658,6 +632,7 @@ public class Core {
 			} else {
 				Element e = (Element) node;
 				String tag = e.tagName();
+				String className = e.className();
 
 				if (tag.equals("a") && e.attr("target").equals("_blank")) {
 					String href = e.attr("href");
@@ -704,7 +679,10 @@ public class Core {
 
 						bodies.add(new AbstractMap.SimpleEntry(BodyType.IMG, src));
 					}
-				} else if (tag.equals("font") || tag.equals("p") || tag.equals("strong")) {
+				} else if (tag.equals("blockquote")) {
+					bodies.add(new AbstractMap.SimpleEntry(BodyType.QOT,
+							e.text().replaceAll("\u00a0", " ").trim()));
+				} else if (tag.equals("font") || tag.equals("p") || tag.equals("strong") || tag.equals("div")) {
 					bodies.addAll(postprocessPostBody(e, null, null));
 				} else {
 					bodies.add(new AbstractMap.SimpleEntry(BodyType.TXT,
