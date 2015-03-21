@@ -13,13 +13,6 @@
         android:clickable="true"
         android:orientation="vertical">
 
-        <!--<TextView xmlns:android="http://schemas.android.com/apk/res/android"-->
-                  <!--android:layout_width="match_parent"-->
-                  <!--android:layout_height="10px"-->
-                  <!--android:layout_marginTop="-10px"-->
-                  <!--android:background="@drawable/shadow_over_post_actionbar_repeat"-->
-                  <!--android:orientation="vertical"/>-->
-
         <RelativeLayout
             android:id="@+id/seekbar_container"
             android:layout_width="match_parent"

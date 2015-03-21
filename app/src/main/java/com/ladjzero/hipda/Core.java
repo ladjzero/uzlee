@@ -490,7 +490,7 @@ public class Core {
 		}
 
 		for (i = 0; i < niceBody.size(); ) {
-			Map.Entry<BodyType, String> body = niceBody.get(0);
+			Map.Entry<BodyType, String> body = niceBody.get(i);
 
 			if (body.getKey() == BodyType.TXT) {
 				String trimBody = body.getValue().trim();
@@ -641,7 +641,7 @@ public class Core {
 					} else {
 						String text = e.text().trim();
 						String link = e.attr("href").trim();
-						String body = text.equals(link) ? link : text + "  " + link;
+						String body = text.equals(link) || StringUtils.startsWithAny(text, "http://", "https://") ? link : text + "  " + link;
 						body += "\r\n";
 
 						bodies.add(new AbstractMap.SimpleEntry(BodyType.TXT, body));

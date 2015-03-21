@@ -68,7 +68,6 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	private String titleStr;
 	private PostsAdapter mAdapter;
 	private boolean mHasNextPage = false;
-	private TextView mHint;
 	private View mActions;
 	private View mMask;
 	private boolean mIsAnimating = false;
@@ -131,9 +130,6 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 				fetch(mPage + 1, PostsActivity.this);
 			}
 		});
-
-		mHint = (TextView) findViewById(R.id.hint);
-		mHint.setVisibility(View.GONE);
 
 		mMask = findViewById(R.id.mask);
 		mMask.setVisibility(View.GONE);
@@ -357,7 +353,6 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 
 				onPostsListener.onError();
-				mHint.setVisibility(View.GONE);
 			}
 
 			@Override
@@ -375,7 +370,6 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 						setProgressBarIndeterminateVisibility(false);
 						toggleMenus(true);
 						onPostsListener.onPosts(ret.posts, ret.page, Math.max(ret.totalPage, ret.page));
-						mHint.setVisibility(View.INVISIBLE);
 					}
 				}.execute(html);
 			}

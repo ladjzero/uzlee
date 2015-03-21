@@ -32,15 +32,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/white"
-        android:divider="@color/snow_primary"
+        android:divider="@drawable/list_divider"
         android:dividerHeight="1px"
         android:listSelector="@android:color/transparent"
         ptr:ptrAnimationStyle="flip"
         ptr:ptrMode="both"
         ptr:ptrOverScroll="false"
         ptr:ptrShowIndicator="false"/>
-
-    <include layout="@layout/top_hint"/>
 
     <FrameLayout
         android:layout_width="match_parent"

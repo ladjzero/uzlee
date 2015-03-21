@@ -43,7 +43,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	public static final int DATA_SOURCE_SEARCH = 2;
 
 	private BaseActivity mActivity;
-	private final ArrayList<Thread> threads = new ArrayList<Thread>();
+	private final ArrayList<Thread> mThreads = new ArrayList<Thread>();
 	private SwipeRefreshLayout swipe;
 	private DBHelper db;
 	private Dao<Thread, Integer> threadDao;
@@ -87,6 +87,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	}
 
 	public void updateSearch(String query) {
+		mThreads.clear();
 		mQuery = query;
 		fetch(1, this);
 	}
@@ -120,7 +121,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		swipe.setEnabled(mEnablePullToRefresh);
 
 		listView = (ListView) rootView.findViewById(R.id.threads);
-		adapter = new ThreadsAdapter(mActivity, threads);
+		adapter = new ThreadsAdapter(mActivity, mThreads);
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(this);
 
@@ -260,16 +261,16 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	public void onResume() {
 		super.onResume();
 
-		if (threads.size() == 0 && mDataSource != DATA_SOURCE_SEARCH) fetch(1, this);
+		if (mThreads.size() == 0 && mDataSource != DATA_SOURCE_SEARCH) fetch(1, this);
 		adapter.notifyDataSetChanged();
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		if (threads != null) {
+		if (mThreads != null) {
 			ArrayList<Integer> ids = new ArrayList<Integer>();
-			for (Thread t : threads) {
+			for (Thread t : mThreads) {
 				ids.add(t.getId());
 			}
 			outState.putIntegerArrayList("ids", ids);
@@ -299,7 +300,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		mIsFetching = false;
 		setRefreshSpinner(false);
 
-		final Collection<Integer> ids = CollectionUtils.collect(this.threads, new Transformer() {
+		final Collection<Integer> ids = CollectionUtils.collect(mThreads, new Transformer() {
 			@Override
 			public Object transform(Object o) {
 				return ((Thread) o).getId();
@@ -313,7 +314,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 			}
 		});
 
-		this.threads.addAll(threads);
+		mThreads.addAll(threads);
 		adapter.notifyDataSetChanged();
 	}
 
@@ -329,8 +330,8 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 			public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
 				mIsFetching = false;
 				ThreadsFragment.this.hasNextPage = hasNextPage;
-				ThreadsFragment.this.threads.clear();
-				ThreadsFragment.this.threads.addAll(threads);
+				ThreadsFragment.this.mThreads.clear();
+				ThreadsFragment.this.mThreads.addAll(threads);
 				adapter.notifyDataSetChanged();
 				setRefreshSpinner(false);
 			}

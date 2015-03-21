@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.wefika.flowlayout.FlowLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                  android:layout_width="match_parent"
+                                  android:layout_height="wrap_content"
+                                  android:background="@android:color/white"
+                                  android:orientation="horizontal">
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/smile"
+        android:tag="smile"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/sweat"
+        android:tag="sweat"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/huffy"
+        android:tag="huffy"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/cry"
+        android:tag="cry"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/titter"
+        android:tag="titter"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/handshake"
+        android:tag="handshake"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/victory"
+        android:tag="victory"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/curse"
+        android:tag="curse"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/dizzy"
+        android:tag="dizzy"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/shutup"
+        android:tag="shutup"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/funk"
+        android:tag="funk"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/loveliness"
+        android:tag="loveliness"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/sad"
+        android:tag="sad"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/biggrin"
+        android:tag="biggrin"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/cool"
+        android:tag="cool"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/mad"
+        android:tag="mad"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/shocked"
+        android:tag="shocked"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/tongue"
+        android:tag="tongue"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/lol"
+        android:tag="lol"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/shy"
+        android:tag="shy"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/sleepy"
+        android:tag="sleepy"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/coolmonkey01"
+        android:tag="coolmonkey01"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/coolmonkey02"
+        android:tag="coolmonkey02"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/coolmonkey03"
+        android:tag="coolmonkey03"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/coolmonkey04"
+        android:tag="coolmonkey04"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/coolmonkey05"
+        android:tag="coolmonkey05"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/coolmonkey06"
+        android:tag="coolmonkey06"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/coolmonkey07"
+        android:tag="coolmonkey07"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/coolmonkey08"
+        android:tag="coolmonkey08"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/coolmonkey09"
+        android:tag="coolmonkey09"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/coolmonkey10"
+        android:tag="coolmonkey10"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/coolmonkey11"
+        android:tag="coolmonkey11"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/coolmonkey12"
+        android:tag="coolmonkey12"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/coolmonkey13"
+        android:tag="coolmonkey13"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/coolmonkey14"
+        android:tag="coolmonkey14"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/coolmonkey15"
+        android:tag="coolmonkey15"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/coolmonkey16"
+        android:tag="coolmonkey16"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman01"
+        android:tag="grapeman01"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman02"
+        android:tag="grapeman02"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman03"
+        android:tag="grapeman03"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman04"
+        android:tag="grapeman04"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman05"
+        android:tag="grapeman05"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman06"
+        android:tag="grapeman06"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman07"
+        android:tag="grapeman07"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman08"
+        android:tag="grapeman08"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman09"
+        android:tag="grapeman09"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman10"
+        android:tag="grapeman10"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman11"
+        android:tag="grapeman11"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman12"
+        android:tag="grapeman12"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman13"
+        android:tag="grapeman13"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman14"
+        android:tag="grapeman14"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman15"
+        android:tag="grapeman15"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman16"
+        android:tag="grapeman16"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman17"
+        android:tag="grapeman17"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman18"
+        android:tag="grapeman18"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman19"
+        android:tag="grapeman19"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman20"
+        android:tag="grapeman20"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman21"
+        android:tag="grapeman21"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman22"
+        android:tag="grapeman22"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman23"
+        android:tag="grapeman23"/>
+
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp"
+        android:onClick="addEmoji"
+        android:src="@drawable/grapeman24"
+        android:tag="grapeman24"/>
+</com.wefika.flowlayout.FlowLayout>

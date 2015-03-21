@@ -21,6 +21,7 @@ import android.util.LruCache;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -163,6 +164,8 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			holder.body.addView(view);
 		} else {
 			for (View view : niceBody) {
+				ViewParent vParent = view.getParent();
+				if (vParent != null) ((ViewGroup) vParent).removeView(view);
 				holder.body.addView(view);
 			}
 		}

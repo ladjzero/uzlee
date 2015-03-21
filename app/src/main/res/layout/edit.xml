@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/snow_primary"
+                android:orientation="vertical">
+
 
     <EditText
         android:id="@+id/edit_title"
@@ -19,38 +21,32 @@
         android:textCursorDrawable="@null"
         android:textSize="16sp"/>
 
-    <RelativeLayout
+    <ScrollView
+        android:id="@+id/emoji"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="180dp"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/white">
 
-        <EditText
-            android:id="@+id/edit_body"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/snow_primary"
-            android:ems="10"
-            android:gravity="top"
-            android:hint="内容"
-            android:inputType="textMultiLine"
-            android:padding="8dp"
-            android:textColor="@color/dark"
-            android:textColorHint="@color/dark_light"
-            android:textCursorDrawable="@null"
-            android:textSize="16sp"/>
+        <include layout="@layout/emoji"></include>
 
-        <android.widget.IconTextView
-            android:id="@+id/edit_keyboard_emoticon_switch"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="false"
-            android:layout_alignParentRight="true"
-            android:lineSpacingExtra="6dp"
-            android:text="{fa-smile-o}"
-            android:textColor="@color/deep_primary"
-            android:textSize="30dp"
-            android:visibility="gone"/>
+    </ScrollView>
 
-    </RelativeLayout>
+    <EditText
+        android:id="@+id/edit_body"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/emoji"
+        android:layout_below="@+id/edit_title"
+        android:background="@color/snow_primary"
+        android:ems="10"
+        android:gravity="top"
+        android:hint="内容"
+        android:inputType="textMultiLine"
+        android:padding="8dp"
+        android:textColor="@color/dark"
+        android:textColorHint="@color/dark_light"
+        android:textCursorDrawable="@null"
+        android:textSize="16sp"/>
 
-</LinearLayout>
+</RelativeLayout>
