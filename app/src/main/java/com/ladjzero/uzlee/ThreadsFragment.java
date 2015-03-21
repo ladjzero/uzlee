@@ -44,7 +44,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 	private BaseActivity mActivity;
 	private final ArrayList<Thread> mThreads = new ArrayList<Thread>();
-	private SwipeRefreshLayout swipe;
+	private SwipeRefreshLayout mSwipe;
 	private DBHelper db;
 	private Dao<Thread, Integer> threadDao;
 	private Dao<User, Integer> userDao;
@@ -115,10 +115,10 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 		View rootView = inflater.inflate(R.layout.threads_can_refresh, container, false);
 
-		swipe = (SwipeRefreshLayout) rootView.findViewById(R.id.thread_swipe);
-		swipe.setOnRefreshListener(this);
-		swipe.setColorSchemeResources(R.color.dark_primary, R.color.grape_primary, R.color.deep_primary, R.color.snow_dark);
-		swipe.setEnabled(mEnablePullToRefresh);
+		mSwipe = (SwipeRefreshLayout) rootView.findViewById(R.id.thread_swipe);
+		mSwipe.setOnRefreshListener(this);
+		mSwipe.setColorSchemeResources(R.color.dark_primary, R.color.grape_primary, R.color.deep_primary, R.color.snow_dark);
+		mSwipe.setEnabled(mEnablePullToRefresh);
 
 		listView = (ListView) rootView.findViewById(R.id.threads);
 		adapter = new ThreadsAdapter(mActivity, mThreads);
@@ -380,10 +380,10 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 			if (mEnablePullToRefresh) {
 				// Hack. http://stackoverflow.com/questions/26858692/swiperefreshlayout-setrefreshing-not-showing-indicator-initially
-				swipe.post(new Runnable() {
+				mSwipe.post(new Runnable() {
 					@Override
 					public void run() {
-						swipe.setRefreshing(true);
+						if (mIsFetching) mSwipe.setRefreshing(true);
 					}
 				});
 			} else {
@@ -393,7 +393,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 			if (mOnFetch != null) mOnFetch.fetchEnd();
 
 			if (mEnablePullToRefresh) {
-				swipe.setRefreshing(false);
+				mSwipe.setRefreshing(false);
 			} else {
 				mActivity.setProgressBarIndeterminateVisibility(false);
 			}

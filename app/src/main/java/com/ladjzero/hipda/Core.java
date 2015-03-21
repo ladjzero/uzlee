@@ -240,9 +240,7 @@ public class Core {
 				}
 			}
 
-			if (msgCount > 0) {
-				EventBus.getDefault().post(new MessageEvent(msgCount));
-			}
+			EventBus.getDefault().post(new MessageEvent(msgCount));
 
 			String uidHref = doc.select("#umenu > cite > a").attr("href");
 			Uri uri = Uri.parse(uidHref);
@@ -1084,7 +1082,9 @@ public class Core {
 						String href = eTitle.attr("href");
 						String id = href.substring(href.indexOf("tid=") + 4, href.indexOf("&from"));
 						String title = eTitle.text();
-						Thread thread = new Thread().setTitle(title).setId(Integer.valueOf(id));
+						String forumStr = eThread.select("td.forum > a").attr("href");
+						String fid = Uri.parse(forumStr).getQueryParameter("fid");
+						Thread thread = new Thread().setTitle(title).setId(Integer.valueOf(id)).setFid(Integer.valueOf(fid));
 						threads.add(thread);
 					}
 				}
@@ -1326,7 +1326,9 @@ public class Core {
 						String id = href.substring(href.indexOf("ptid=") + 5);
 						String title = eTitle.text();
 						String body = eThreads.get(i + 1).select("th.lighttxt").text().trim();
-						Thread thread = new Thread().setTitle(title).setId(Integer.valueOf(id)).setBody(body);
+						String forumStr = eThreads.get(i).select("td.forum > a").attr("href");
+						String fid = Uri.parse(forumStr).getQueryParameter("fid");
+						Thread thread = new Thread().setTitle(title).setId(Integer.valueOf(id)).setBody(body).setFid(Integer.valueOf(fid));
 						threads.add(thread);
 					}
 				}
@@ -1413,59 +1415,54 @@ public class Core {
 	}
 
 	public static void compressImage(final File imgFile, final OnImageCompressed onImageCompressed) {
-//		new AsyncTask<Void, Void, Void>() {
-//			@Override
-//			protected Void doInBackground(Void... params) {
-		Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-		File tempDir = context.getCacheDir();
-		int width = bitmap.getWidth(), height = bitmap.getHeight();
-		int newWidth = width, newHeight = height;
-
-		if (width > 800 && height > 800) {
-			if (width > height) {
-				newWidth = 800;
-				newHeight = 800 * height / width;
-			} else {
-				newHeight = 800;
-				newWidth = 800 * width / height;
-			}
-		}
-
-		Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
-
 		long fileLength = imgFile.length();
 
-		File tempFile = imgFile;
+		if (fileLength > maxImageLength) {
+			Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+			File tempDir = context.getCacheDir();
+			int width = bitmap.getWidth(), height = bitmap.getHeight();
+			int newWidth = width, newHeight = height;
 
-		while (fileLength > maxImageLength) {
-			OutputStream os = null;
+			if (width > 800 && height > 800) {
+				if (width > height) {
+					newWidth = 800;
+					newHeight = 800 * height / width;
+				} else {
+					newHeight = 800;
+					newWidth = 800 * width / height;
+				}
+			}
 
-			try {
-				tempFile = File.createTempFile("uzlee-compress", ".jpg", tempDir);
-				os = new FileOutputStream(tempFile);
-				scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 90, os);
-				os.close();
+			Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+			File tempFile = imgFile;
 
-				fileLength = tempFile.length();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				if (os != null) {
-					try {
-						os.close();
-					} catch (IOException e) {
-						e.printStackTrace();
+			while (fileLength > maxImageLength) {
+				OutputStream os = null;
+
+				try {
+					tempFile = File.createTempFile("uzlee-compress", ".jpg", tempDir);
+					os = new FileOutputStream(tempFile);
+					scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 90, os);
+					os.close();
+
+					fileLength = tempFile.length();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} finally {
+					if (os != null) {
+						try {
+							os.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
 
+			onImageCompressed.onImage(tempFile);
+		} else {
+			onImageCompressed.onImage(imgFile);
 		}
-
-		onImageCompressed.onImage(tempFile);
-
-//				return null;
-//			}
-//		}.execute();
 	}
 
 	public interface OnRequestListener {

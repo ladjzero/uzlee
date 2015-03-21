@@ -101,14 +101,21 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 		});
 
 		mImeManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
+		subjectInput = (TextView) findViewById(R.id.edit_title);
+		mMessageInput = (EditText) findViewById(R.id.edit_body);
+
+		mMessageInput.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				mEmojiSelector.setVisibility(View.GONE);
+			}
+		});
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
-
-		subjectInput = (TextView) findViewById(R.id.edit_title);
-		mMessageInput = (EditText) findViewById(R.id.edit_body);
 
 		if (isNewThread) {
 			subjectInput.setVisibility(View.VISIBLE);
