@@ -64,7 +64,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private String mTitle;
 	private String mQuery;
 	private OnFetch mOnFetch;
-
+	private int typeId = 0;
 
 	public interface OnFetch{
 		void fetchStart();
@@ -89,6 +89,12 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	public void updateSearch(String query) {
 		mThreads.clear();
 		mQuery = query;
+		fetch(1, this);
+	}
+
+	public void setTypeId(int typeId) {
+		this.typeId = typeId;
+		mThreads.clear();
 		fetch(1, this);
 	}
 
@@ -227,7 +233,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		} else if (mDataSource == DATA_SOURCE_SEARCH) {
 			if (mQuery != null && mQuery.length() > 0) Core.search(mQuery, page, ThreadsFragment.this);
 		} else {
-			Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid") + "&page=" + page, new Core.OnRequestListener() {
+			Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid") + "&page=" + page + "&filter=type&typeid=" + typeId, new Core.OnRequestListener() {
 				@Override
 				public void onError(String error) {
 					onThreadsListener.onError();

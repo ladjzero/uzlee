@@ -3,6 +3,11 @@
       tools:context="com.ladjzero.uzlee.MainActivity">
 
     <item
+        android:id="@+id/thread_sort"
+        android:showAsAction="ifRoom"
+        android:title="sort"/>
+
+    <item
         android:id="@+id/thread_publish"
         android:showAsAction="ifRoom"
         android:title="new thread"/>

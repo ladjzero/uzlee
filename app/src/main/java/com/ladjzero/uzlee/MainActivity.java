@@ -2,10 +2,12 @@ package com.ladjzero.uzlee;
 
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
-import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.*;
+import com.ladjzero.hipda.Thread;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,6 +21,8 @@ import android.view.View;
 import android.view.Window;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import de.greenrobot.event.EventBus;
@@ -28,6 +32,14 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 	private NavigationDrawerFragment mNavigationDrawerFragment;
 	int fid;
 	String title = "";
+
+	private static final int D_ID = 2;
+	private static final int BS_ID = 6;
+	private static final int EINK_ID = 59;
+
+	private MenuItem bsType;
+	private Iconify.IconValue bsTypeIcon = Iconify.IconValue.fa_tags;
+	private ThreadsFragment bsFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,9 +54,6 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 		FragmentManager fragmentManager = getFragmentManager();
 		ActionBar actionBar = getActionBar();
 		Intent intent;
-		final int D_ID = 2;
-		final int BS_ID = 57;
-		final int EINK_ID = 59;
 
 		switch (position) {
 			case 0:
@@ -52,11 +61,13 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 				actionBar.setTitle(title = "Discovery");
 				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(D_ID)).commit();
 				break;
-//			case 1:
-//				fid = BS_ID;
-//				actionBar.setTitle("Buy & Sell");
-//				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(BS_ID)).commit();
-//				break;
+			case 1:
+				fid = BS_ID;
+//				fid = 57;
+				actionBar.setTitle(title = "Buy & Sell");
+				bsFragment = ThreadsFragment.newInstance(BS_ID);
+				fragmentManager.beginTransaction().replace(R.id.container, bsFragment).commit();
+				break;
 			case 2:
 				fid = EINK_ID;
 				actionBar.setTitle(title = "E-INK");
@@ -153,6 +164,11 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 		if (!mNavigationDrawerFragment.isDrawerOpen()) {
 			getMenuInflater().inflate(R.menu.threads, menu);
 			restoreActionBar();
+			bsType = menu.findItem(R.id.thread_sort);
+			if (fid == BS_ID) {
+				bsType.setIcon(new IconDrawable(this, bsTypeIcon).colorRes(android.R.color.white).actionBarSize());
+			}
+			bsType.setVisible(fid == BS_ID);
 			menu.findItem(R.id.thread_publish).setIcon(new IconDrawable(this, Iconify.IconValue.fa_comment_o).colorRes(android.R.color.white).actionBarSize());
 			return true;
 		}
@@ -173,10 +189,49 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 
 			startActivity(intent);
 			return true;
-		}
+		} else if (id == R.id.thread_sort) {
+			ListView listView = new ListView(this);
+			BsAdapter adapter = new BsAdapter(this);
+			listView.setAdapter(adapter);
 
-		// override finish
-		if (id == android.R.id.home) {
+			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+			alertDialogBuilder.setView(listView);
+			final AlertDialog alertDialog = alertDialogBuilder.create();
+			alertDialog.setCanceledOnTouchOutside(true);
+			alertDialog.show();
+
+			listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+					switch (i) {
+						case 1:
+							bsTypeIcon = Iconify.IconValue.fa_mobile;
+							break;
+						case 2:
+							bsTypeIcon = Iconify.IconValue.fa_tablet;
+							break;
+						case 3:
+							bsTypeIcon = Iconify.IconValue.fa_laptop;
+							break;
+						case 4:
+							bsTypeIcon = Iconify.IconValue.fa_wifi;
+							break;
+						case 5:
+							bsTypeIcon = Iconify.IconValue.fa_camera_retro;
+							break;
+						case 6:
+							bsTypeIcon = Iconify.IconValue.fa_music;
+							break;
+						default:
+							bsTypeIcon = Iconify.IconValue.fa_tags;
+					}
+
+					bsFragment.setTypeId(i);
+					alertDialog.dismiss();
+					invalidateOptionsMenu();
+				}
+			});
+		} else if (id == android.R.id.home) {
 			return false;
 		}
 

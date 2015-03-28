@@ -49,11 +49,6 @@ public class NavAdapter extends ArrayAdapter<String> {
 		icon.setText(iconAndText[0]);
 		text.setText(iconAndText[1]);
 
-		if ("{fa-shopping-cart}".equals(iconAndText[0]) || "{fa-gear}".equals(iconAndText[0])) {
-			icon.setTextColor(context.getResources().getColor(R.color.dark_primary));
-			text.setTextColor(context.getResources().getColor(R.color.dark_primary));
-		}
-
 		if ("{fa-bell}".equals(iconAndText[0]) && alertCount != 0) {
 			alert.setText(alertCount + "");
 			alertWrap.setVisibility(View.VISIBLE);

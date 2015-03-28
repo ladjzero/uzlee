@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.Map;
 import java.util.AbstractMap;
 import java.util.List;
+import java.util.regex.*;
 
 import de.greenrobot.event.EventBus;
 
@@ -134,6 +135,8 @@ public class Core {
 	private static int uid;
 	private static boolean isOnline = false;
 	private static PersistentCookieStore cookieStore;
+
+	private static final Pattern colorReg = Pattern.compile("#(\\d|[A-F])+");
 
 	public static void setup(Context context) {
 		if (Core.context == null) {
@@ -962,7 +965,7 @@ public class Core {
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 		Document doc = getDoc(html);
 
-		Elements eThreads = doc.select("body#search").size() == 0 ? doc.select("tbody[id^=normalthread_]") : doc.select("div.searchlist tbody");
+		Elements eThreads = doc.select("body#search").size() == 0 ? doc.select("tbody[id^=normalthread_],tbody[id^=stickthread_") : doc.select("div.searchlist tbody");
 
 		for (Element eThread : eThreads) {
 			Thread thread = toThreadObj(eThread);
@@ -988,13 +991,19 @@ public class Core {
 	}
 
 	private static Thread toThreadObj(Element eThread) {
+		Elements eSubject = eThread.select("th.subject");
 		Elements eLastPost = eThread.select("td.lastpost em a");
 		String lastHref = eLastPost.attr("href");
+		String style;
+		String type = eSubject.select("em > a[href^=forumdisplay.php]").text();
+
 
 		if (lastHref != null && lastHref.length() > 0) {
 			String id = Uri.parse(lastHref).getQueryParameter("tid");
 
-			String title = eThread.select("th.subject span a, th.subject a").first().text();
+			Element _title = eSubject.select("span a[href^=viewthread.php], a[href^=viewthread.php]").first();
+			String title = _title.text();
+			style = _title.attr("style");
 			boolean isNew = eThread.select("th.subject").hasClass("new");
 			Elements eAuthor = eThread.select("td.author");
 			Elements eUser = eAuthor.select("a");
@@ -1022,8 +1031,16 @@ public class Core {
 			User user = new User().setId(uid).setName(userName)
 					.setImage("http://www.hi-pda.com/forum/uc_server/data/avatar/000/" + String.format("%02d", avatar0) + "/" + String.format("%02d", avatar1) + "/" + String.format("%02d", avatar2) + "_avatar_middle.jpg");
 			Thread ret = new Thread();
+
+
 			ret.setId(Integer.valueOf(id)).setTitle(title).setNew(isNew)
-					.setCommentCount(Integer.valueOf(commentNum)).setAuthor(user).setDateStr(dateStr);
+					.setCommentCount(Integer.valueOf(commentNum)).setAuthor(user).setDateStr(dateStr)
+					.setStick(eThread.id().startsWith("stickthread_"))
+					.setBold(style.contains("bold"))
+					.setType(type);
+
+			Matcher matcher = colorReg.matcher(style);
+			if (matcher.find()) ret.setColor(matcher.group());
 
 			if (forumLink.length() > 0) {
 				fid = forumLink.substring(forumLink.indexOf("fid=") + 4);

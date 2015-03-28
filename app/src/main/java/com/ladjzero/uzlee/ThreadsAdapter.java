@@ -19,6 +19,7 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,6 +67,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 			holder.date = (TextView) row.findViewById(R.id.thread_date);
 			holder.commentCount = (TextView) row
 					.findViewById(R.id.thread_comment_count);
+			holder.type = (TextView) row.findViewById(R.id.thread_type);
 
 			row.setTag(holder);
 		}
@@ -140,7 +142,18 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 			holder.title.setText(context.getString(R.string.blocked));
 		} else {
 			holder.title.setText(thread.getTitle());
+			holder.title.getPaint().setFakeBoldText(thread.getBold());
 		}
+
+		String color = thread.getColor();
+
+		if (color != null && color.length() > 0) {
+			holder.title.setTextColor(Color.parseColor(color));
+		} else {
+			holder.title.setTextColor(Color.BLACK);
+		}
+
+		holder.type.setText(getTypeIcon(thread.getType()));
 		holder.commentCount.setText(String.valueOf(thread.getCommentCount()));
 
 		if (!thread.isNew()) {
@@ -161,6 +174,16 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		context.startActivity(intent);
 	}
 
+	private String getTypeIcon(String type) {
+		if (type.equals("手机")) return "{fa-phone-square}";
+		if (type.equals("掌上电脑")) return "{fa-tablet}";
+		if (type.equals("笔记本电脑")) return "{fa-laptop}";
+		if (type.equals("无线产品")) return "{fa-wifi}";
+		if (type.equals("数码相机、摄像机")) return "{fa-camera-retro}";
+		if (type.equals("MP3随身听")) return "{fa-music}";
+		return "";
+	}
+
 	static class PostHolder {
 		ImageView img;
 		TextView imageMask;
@@ -168,6 +191,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		TextView date;
 		TextView title;
 		TextView commentCount;
+		TextView type;
 	}
 
 	private String prettyTime(String timeStr) {

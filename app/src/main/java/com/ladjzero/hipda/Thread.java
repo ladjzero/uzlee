@@ -28,6 +28,9 @@ public class Thread {
 	private int replyTo;
 	private String dateStr;
 	private int fid;
+	private boolean isBold;
+	private String color;
+	private boolean isStick;
 
 	public User getAuthor() {
 		return author;
@@ -139,6 +142,33 @@ public class Thread {
 
 	public Thread setFid(int fid) {
 		this.fid = fid;
+		return this;
+	}
+
+	public boolean getBold() {
+		return isBold;
+	}
+
+	public Thread setBold(boolean isBold) {
+		this.isBold = isBold;
+		return this;
+	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public Thread setColor(String color) {
+		this.color = color;
+		return this;
+	}
+
+	public boolean isStick() {
+		return isStick;
+	}
+
+	public Thread setStick(boolean isStick) {
+		this.isStick = isStick;
 		return this;
 	}
 }
