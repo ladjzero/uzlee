@@ -500,7 +500,16 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		int id = item.getItemId();
 
 		if (id == R.id.more) {
-			onKeyDown(KeyEvent.KEYCODE_MENU, null);
+
+			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+			View view = getLayoutInflater().inflate(R.layout.posts_actions_dialog, null);
+			alertDialogBuilder.setView(view);
+			ListView listView = (ListView) view.findViewById(R.id.actions);
+			listView.setAdapter(new PostActionsAdapter(this));
+			final AlertDialog alertDialog = alertDialogBuilder.create();
+			alertDialog.setCanceledOnTouchOutside(true);
+			alertDialog.show();
+
 			return true;
 		} else if (id == R.id.reply) {
 			Intent replyIntent = new Intent(this, EditActivity.class);

@@ -3,11 +3,9 @@ package com.ladjzero.uzlee;
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
 import com.ladjzero.hipda.*;
-import com.ladjzero.hipda.Thread;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,14 +16,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
 import android.view.View;
-import android.view.Window;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
-
-import de.greenrobot.event.EventBus;
 
 public class MainActivity extends BaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
@@ -87,6 +82,10 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 				break;
 			case 5:
 				intent = new Intent(this, SearchActivity.class);
+				startActivity(intent);
+				break;
+			case 6:
+				intent = new Intent(this, SettingActivity.class);
 				startActivity(intent);
 				break;
 			case 7:
@@ -191,7 +190,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 			return true;
 		} else if (id == R.id.thread_sort) {
 			ListView listView = new ListView(this);
-			BsAdapter adapter = new BsAdapter(this);
+			BsTypeAdapter adapter = new BsTypeAdapter(this);
 			listView.setAdapter(adapter);
 
 			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -203,29 +202,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 			listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 				@Override
 				public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-					switch (i) {
-						case 1:
-							bsTypeIcon = Iconify.IconValue.fa_mobile;
-							break;
-						case 2:
-							bsTypeIcon = Iconify.IconValue.fa_tablet;
-							break;
-						case 3:
-							bsTypeIcon = Iconify.IconValue.fa_laptop;
-							break;
-						case 4:
-							bsTypeIcon = Iconify.IconValue.fa_wifi;
-							break;
-						case 5:
-							bsTypeIcon = Iconify.IconValue.fa_camera_retro;
-							break;
-						case 6:
-							bsTypeIcon = Iconify.IconValue.fa_music;
-							break;
-						default:
-							bsTypeIcon = Iconify.IconValue.fa_tags;
-					}
-
+					bsTypeIcon = BsTypeAdapter.ICON_VALUES[i];
 					bsFragment.setTypeId(i);
 					alertDialog.dismiss();
 					invalidateOptionsMenu();

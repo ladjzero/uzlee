@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="浏览主题和回复">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="show_fixed_threads"
+            android:title="显示置顶主题"/>
+    </PreferenceCategory>
+</PreferenceScreen>

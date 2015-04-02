@@ -8,10 +8,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.joanzapata.android.iconify.Iconify;
+
 /**
  * Created by ladjzero on 2015/3/28.
  */
-public class BsAdapter extends ArrayAdapter {
+public class BsTypeAdapter extends ArrayAdapter {
 	private Context context;
 	public final static String[] TYPES = new String[]{
 			"全部",
@@ -31,8 +33,17 @@ public class BsAdapter extends ArrayAdapter {
 			"{fa-camera-retro}",
 			"{fa-music}"
 	};
+	public final static Iconify.IconValue[] ICON_VALUES = new Iconify.IconValue[] {
+			Iconify.IconValue.fa_tags,
+			Iconify.IconValue.fa_mobile,
+			Iconify.IconValue.fa_tablet,
+			Iconify.IconValue.fa_laptop,
+			Iconify.IconValue.fa_wifi,
+			Iconify.IconValue.fa_camera_retro,
+			Iconify.IconValue.fa_music
+	};
 
-	public BsAdapter(Context context) {
+	public BsTypeAdapter(Context context) {
 		super(context, 0, TYPES);
 		this.context = context;
 	}
