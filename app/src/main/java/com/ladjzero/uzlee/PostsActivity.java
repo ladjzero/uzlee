@@ -155,6 +155,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 			public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 				switch (position) {
 					case 0:
+						mPosts.clear();
 						orderType = orderType == 0 ? 1 : 0;
 						fetch(1, PostsActivity.this);
 						actionsAdapter.notifyDataSetChanged();
@@ -406,7 +407,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 		mPosts.clear();
 		mPosts.addAll(posts);
-		Collections.sort(mPosts, mComparator);
+//		Collections.sort(mPosts, mComparator);
 		if (mPosts.size() > 0) mPosts.get(0).setTitle(titleStr);
 		mAdapter.notifyDataSetChanged();
 		mListView.getRefreshableView().setSelection(0);
