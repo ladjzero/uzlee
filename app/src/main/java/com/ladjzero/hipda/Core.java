@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
@@ -135,6 +136,7 @@ public class Core {
 	private static int uid;
 	private static boolean isOnline = false;
 	private static PersistentCookieStore cookieStore;
+	private static SharedPreferences pref;
 
 	private static final Pattern colorReg = Pattern.compile("#(\\d|[A-F])+");
 
@@ -143,6 +145,7 @@ public class Core {
 			Core.context = context;
 			cookieStore = new PersistentCookieStore(context);
 			httpClient.setCookieStore(cookieStore);
+			pref = PreferenceManager.getDefaultSharedPreferences(context);
 			bans.addAll(getBanList());
 		}
 	}
@@ -965,7 +968,9 @@ public class Core {
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 		Document doc = getDoc(html);
 
-		Elements eThreads = doc.select("body#search").size() == 0 ? doc.select("tbody[id^=normalthread_],tbody[id^=stickthread_") : doc.select("div.searchlist tbody");
+		String selectStr = pref.getBoolean("show_fixed_threads", false) ? "tbody[id^=normalthread_],tbody[id^=stickthread_" : "tbody[id^=normalthread_]";
+
+		Elements eThreads = doc.select("body#search").size() == 0 ? doc.select(selectStr) : doc.select("div.searchlist tbody");
 
 		for (Element eThread : eThreads) {
 			Thread thread = toThreadObj(eThread);
@@ -1390,8 +1395,7 @@ public class Core {
 	}
 
 	public static Set<Integer> getBanList() {
-		SharedPreferences setting = context.getSharedPreferences("uzlee.setting", 0);
-		String banList = setting.getString("ban", "");
+		String banList = pref.getString("ban", "");
 		String bans[] = banList.split(",");
 
 		ArrayList<String> banlist = new ArrayList<String>();
@@ -1414,8 +1418,7 @@ public class Core {
 		bans.add(uid);
 		String bansStr = StringUtils.join(bans, ",");
 
-		SharedPreferences setting = context.getSharedPreferences("uzlee.setting", 0);
-		SharedPreferences.Editor editor = setting.edit();
+		SharedPreferences.Editor editor = pref.edit();
 		editor.putString("ban", bansStr);
 		editor.commit();
 
@@ -1425,8 +1428,7 @@ public class Core {
 		bans.remove(uid);
 		String bansStr = StringUtils.join(bans, ",");
 
-		SharedPreferences setting = context.getSharedPreferences("uzlee.setting", 0);
-		SharedPreferences.Editor editor = setting.edit();
+		SharedPreferences.Editor editor = pref.edit();
 		editor.putString("ban", bansStr);
 		editor.commit();
 	}

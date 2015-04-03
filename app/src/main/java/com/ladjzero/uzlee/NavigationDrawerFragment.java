@@ -52,6 +52,8 @@ public class NavigationDrawerFragment extends Fragment {
 	private int mCurrentSelectedPosition = 0;
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
+
+	private MainActivity activity;
 	NavAdapter adapter;
 	ImageView imageView;
 	TextView userName;
@@ -66,7 +68,10 @@ public class NavigationDrawerFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		materialMenu = new MaterialMenuIcon(getActivity(), Color.WHITE, MaterialMenuDrawable.Stroke.THIN);
+
+		activity = (MainActivity) getActivity();
+
+		materialMenu = new MaterialMenuIcon(activity, Color.WHITE, MaterialMenuDrawable.Stroke.THIN);
 		// Read in the flag indicating whether or not the user has demonstrated awareness of the
 		// drawer. See PREF_USER_LEARNED_DRAWER for details.
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -77,8 +82,6 @@ public class NavigationDrawerFragment extends Fragment {
 			mFromSavedInstanceState = true;
 		}
 
-		// Select either the default item (0) or the last selected item.
-		selectItem(mCurrentSelectedPosition);
 
 		try {
 			userDao = ((MainActivity) getActivity()).getHelper().getUserDao();
@@ -92,6 +95,8 @@ public class NavigationDrawerFragment extends Fragment {
 		super.onActivityCreated(savedInstanceState);
 		// Indicate that this fragment would like to influence the set of actions in the action bar.
 		setHasOptionsMenu(true);
+		// Select either the default item (0) or the last selected item.
+		selectItem(activity.navPosition);
 	}
 
 	@Override

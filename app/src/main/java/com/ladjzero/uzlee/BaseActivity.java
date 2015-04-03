@@ -21,6 +21,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -89,7 +90,7 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 		Core.setup(this);
 		emojiUtils = new EmojiUtils(this);
 
-		setting = getSharedPreferences("uzlee.setting", 0);
+		setting = PreferenceManager.getDefaultSharedPreferences(this);
 
 		FlatUI.initDefaultValues(this);
 		FlatUI.setDefaultTheme(FlatUI.DARK);

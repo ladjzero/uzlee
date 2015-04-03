@@ -14,15 +14,11 @@ import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 
-import com.daimajia.androidanimations.library.Techniques;
-import com.daimajia.androidanimations.library.YoYo;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.j256.ormlite.dao.Dao;
@@ -33,20 +29,15 @@ import com.ladjzero.hipda.DBHelper;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
-import com.nineoldandroids.animation.Animator;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -68,12 +59,8 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	private String titleStr;
 	private PostsAdapter mAdapter;
 	private boolean mHasNextPage = false;
-	private View mActions;
-	private View mMask;
 	private boolean mIsAnimating = false;
 	private DiscreteSeekBar mSeekBar;
-	private View mSeekBarContainer;
-	private boolean mActionsVisibility = false;
 	private Comparator<Post> mComparator = new Comparator<Post>() {
 		@Override
 		public int compare(Post post1, Post post2) {
@@ -88,6 +75,11 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	};
 	private Menu mMenu;
 	private boolean mIsFetching = false;
+	private View mMenuView;
+	private AlertDialog mMenuDialog;
+	private int mFocusUid = -1;
+	// 0 = asc, 1 = dea
+	public int orderType = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -131,113 +123,116 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 			}
 		});
 
-		mMask = findViewById(R.id.mask);
-		mMask.setVisibility(View.GONE);
-		mMask.setOnTouchListener(new View.OnTouchListener() {
-			@Override
-			public boolean onTouch(View view, MotionEvent motionEvent) {
-				if (motionEvent.getAction() == MotionEvent.ACTION_DOWN &&
-						mMask.getVisibility() == View.VISIBLE)
-					onKeyDown(KeyEvent.KEYCODE_MENU, null);
+		mMenuView = getLayoutInflater().inflate(R.layout.posts_actions_dialog, null);
 
-				return mActionsVisibility;
-			}
-		});
-
-		mActions = findViewById(R.id.posts_actions);
-		mActions.setVisibility(View.GONE);
-
-		mSeekBarContainer = findViewById(R.id.seekbar_container);
-		mSeekBar = (DiscreteSeekBar) findViewById(R.id.seekbar);
+		mSeekBar = (DiscreteSeekBar) mMenuView.findViewById(R.id.seekbar);
 		mSeekBar.setMin(1);
 		mSeekBar.setOnProgressChangeListener(this);
-		mSeekBarContainer.setVisibility(View.GONE);
 
-
-		findViewById(R.id.posts_action_share).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				showToast("暂不可用");
-				onKeyDown(KeyEvent.KEYCODE_MENU, null);
-			}
-		});
-
-		findViewById(R.id.posts_action_favorite).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				Core.addToFavorite(mTid, new Core.OnRequestListener() {
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+		alertDialogBuilder
+				.setView(mMenuView)
+				.setOnKeyListener(new DialogInterface.OnKeyListener() {
 					@Override
-					public void onError(String error) {
-						showToast(error);
-					}
-
-					@Override
-					public void onSuccess(String html) {
-						if (html.contains("此主题已成功添加到收藏夹中")) {
-							showToast("收藏成功");
-						} else {
-							if (html.contains("您曾经收藏过这个主题")) {
-								AlertDialog.Builder alert = new AlertDialog.Builder(PostsActivity.this);
-								alert.setTitle("提醒");
-								alert.setMessage("已经收藏过该主题");
-								alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										dialog.cancel();
-									}
-
-								});
-								alert.setPositiveButton("移除收藏", new DialogInterface.OnClickListener() {
-
-									@Override
-									public void onClick(DialogInterface dialogInterface, int i) {
-										Core.removeFromFavoriate(mTid, new Core.OnRequestListener() {
-											@Override
-											public void onError(String error) {
-												showToast(error);
-											}
-
-											@Override
-											public void onSuccess(String html) {
-												if (html.contains("此主题已成功从您的收藏夹中移除")) {
-													showToast("移除成功");
-												} else {
-													showToast("移除失败");
-												}
-											}
-										});
-									}
-								});
-								alert.show();
-							} else {
-								showToast("收藏失败");
-							}
+					public boolean onKey(DialogInterface dialogInterface, int keyCode, KeyEvent keyEvent) {
+						if (keyCode == KeyEvent.KEYCODE_MENU && keyEvent.getAction() == 0) {
+							mMenuDialog.dismiss();
+							return true;
 						}
+
+						return false;
 					}
 				});
-				onKeyDown(KeyEvent.KEYCODE_MENU, null);
-			}
-		});
 
-		findViewById(R.id.posts_action_link).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-				ClipData clipData = ClipData.newPlainText("post url", getUri());
-				clipboardManager.setPrimaryClip(clipData);
-				showToast("复制到剪切版");
-				onKeyDown(KeyEvent.KEYCODE_MENU, null);
-			}
-		});
+		mMenuDialog = alertDialogBuilder.create();
+		mMenuDialog.setCanceledOnTouchOutside(true);
 
-		findViewById(R.id.posts_action_browser).setOnClickListener(new View.OnClickListener() {
+		ListView menuList = (ListView) mMenuView.findViewById(R.id.actions);
+		final PostActionsAdapter actionsAdapter = new PostActionsAdapter(this);
+		menuList.setAdapter(actionsAdapter);
+		menuList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
-			public void onClick(View view) {
-				Intent intent = new Intent(Intent.ACTION_VIEW);
-				intent.setData(Uri.parse(getUri()));
-				startActivity(intent);
-				onKeyDown(KeyEvent.KEYCODE_MENU, null);
+			public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+				switch (position) {
+					case 0:
+						orderType = orderType == 0 ? 1 : 0;
+						fetch(1, PostsActivity.this);
+						actionsAdapter.notifyDataSetChanged();
+						break;
+					case 1:
+						mPosts.clear();
+						mAdapter.notifyDataSetChanged();
+						fetch(1, PostsActivity.this);
+						break;
+					case 2:
+						break;
+					case 3:
+						Core.addToFavorite(mTid, new Core.OnRequestListener() {
+							@Override
+							public void onError(String error) {
+								showToast(error);
+							}
+
+							@Override
+							public void onSuccess(String html) {
+								if (html.contains("此主题已成功添加到收藏夹中")) {
+									showToast("收藏成功");
+								} else {
+									if (html.contains("您曾经收藏过这个主题")) {
+										AlertDialog.Builder alert = new AlertDialog.Builder(PostsActivity.this);
+										alert.setTitle("提醒");
+										alert.setMessage("已经收藏过该主题");
+										alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+
+											@Override
+											public void onClick(DialogInterface dialog, int which) {
+												dialog.cancel();
+											}
+
+										});
+										alert.setPositiveButton("移除收藏", new DialogInterface.OnClickListener() {
+
+											@Override
+											public void onClick(DialogInterface dialogInterface, int i) {
+												Core.removeFromFavoriate(mTid, new Core.OnRequestListener() {
+													@Override
+													public void onError(String error) {
+														showToast(error);
+													}
+
+													@Override
+													public void onSuccess(String html) {
+														if (html.contains("此主题已成功从您的收藏夹中移除")) {
+															showToast("移除成功");
+														} else {
+															showToast("移除失败");
+														}
+													}
+												});
+											}
+										});
+										alert.show();
+									} else {
+										showToast("收藏失败");
+									}
+								}
+							}
+						});
+						break;
+					case 4:
+						ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+						ClipData clipData = ClipData.newPlainText("post url", getUri());
+						clipboardManager.setPrimaryClip(clipData);
+						showToast("复制到剪切版");
+						break;
+					case 5:
+						Intent intent = new Intent(Intent.ACTION_VIEW);
+						intent.setData(Uri.parse(getUri()));
+						startActivity(intent);
+						break;
+				}
+
+				mMenuDialog.dismiss();
 			}
 		});
 	}
@@ -277,7 +272,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
 		// Has header
-		Post post = mAdapter.getItem(((AdapterView.AdapterContextMenuInfo)menuInfo).position - 1);
+		Post post = mAdapter.getItem(((AdapterView.AdapterContextMenuInfo) menuInfo).position - 1);
 
 		menu.add(0, 0, 0, "复制正文");
 		menu.add(0, 1, 1, post.getAuthor().getId() == Core.getUid() ? "编辑" : "回复");
@@ -339,12 +334,18 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		startEditActivity(post);
 	}
 
+	private String getThreadUrl(int page) {
+		String url = "http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + page + "&ordertype=" + orderType;
+		if (mFocusUid > 0) url += "&authorid=" + mFocusUid;
+		return url;
+	}
+
 	private void fetch(int page, final Core.OnPostsListener onPostsListener) {
 		mIsFetching = true;
 		setProgressBarIndeterminateVisibility(true);
 		toggleMenus(false);
 
-		Core.getHtml("http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + page, new Core.OnRequestListener() {
+		Core.getHtml(getThreadUrl(page), new Core.OnRequestListener() {
 			@Override
 			public void onError(String error) {
 				mIsFetching = false;
@@ -382,7 +383,6 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		mListView.onRefreshComplete();
 		mAdapter.clearViewCache();
 
-		if (totalPage > 1) mSeekBarContainer.setVisibility(View.VISIBLE);
 		mSeekBar.setMax(totalPage);
 		mSeekBar.setProgress(currPage);
 
@@ -435,8 +435,6 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
-		if (mActions.getVisibility() == View.VISIBLE) onKeyDown(KeyEvent.KEYCODE_MENU, null);
-
 		if (requestCode == EDIT_CODE && resultCode == EditActivity.EDIT_SUCCESS) {
 			mIsFetching = true;
 			setProgressBarIndeterminateVisibility(true);
@@ -500,15 +498,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		int id = item.getItemId();
 
 		if (id == R.id.more) {
-
-			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-			View view = getLayoutInflater().inflate(R.layout.posts_actions_dialog, null);
-			alertDialogBuilder.setView(view);
-			ListView listView = (ListView) view.findViewById(R.id.actions);
-			listView.setAdapter(new PostActionsAdapter(this));
-			final AlertDialog alertDialog = alertDialogBuilder.create();
-			alertDialog.setCanceledOnTouchOutside(true);
-			alertDialog.show();
+			onKeyDown(KeyEvent.KEYCODE_MENU, null);
 
 			return true;
 		} else if (id == R.id.reply) {
@@ -532,113 +522,8 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent ev) {
-		if (keyCode == KeyEvent.KEYCODE_MENU && !mIsAnimating) {
-			int visibility = mActions.getVisibility();
-
-			if (visibility == View.GONE) {
-				YoYo.with(Techniques.FadeIn)
-						.duration(200)
-						.withListener(new Animator.AnimatorListener() {
-							@Override
-							public void onAnimationStart(Animator animation) {
-								mActions.setVisibility(View.VISIBLE);
-								mActionsVisibility = true;
-								mIsAnimating = true;
-							}
-
-							@Override
-							public void onAnimationEnd(Animator animation) {
-								mIsAnimating = false;
-							}
-
-							@Override
-							public void onAnimationCancel(Animator animation) {
-
-							}
-
-							@Override
-							public void onAnimationRepeat(Animator animation) {
-
-							}
-						})
-						.playOn(mActions);
-
-				YoYo.with(Techniques.FadeIn)
-						.duration(200)
-						.withListener(new Animator.AnimatorListener() {
-							@Override
-							public void onAnimationStart(Animator animation) {
-								mMask.setVisibility(View.VISIBLE);
-							}
-
-							@Override
-							public void onAnimationEnd(Animator animation) {
-							}
-
-							@Override
-							public void onAnimationCancel(Animator animation) {
-
-							}
-
-							@Override
-							public void onAnimationRepeat(Animator animation) {
-
-							}
-						})
-						.playOn(mMask);
-			} else {
-				YoYo.with(Techniques.FadeOut)
-						.duration(200)
-						.withListener(new Animator.AnimatorListener() {
-							@Override
-							public void onAnimationStart(Animator animation) {
-								mIsAnimating = true;
-							}
-
-							@Override
-							public void onAnimationEnd(Animator animation) {
-								mActions.setVisibility(View.GONE);
-								mActionsVisibility = false;
-								mIsAnimating = false;
-							}
-
-							@Override
-							public void onAnimationCancel(Animator animation) {
-
-							}
-
-							@Override
-							public void onAnimationRepeat(Animator animation) {
-
-							}
-						})
-						.playOn(mActions);
-
-				YoYo.with(Techniques.FadeOut)
-						.duration(200)
-						.withListener(new Animator.AnimatorListener() {
-							@Override
-							public void onAnimationStart(Animator animation) {
-							}
-
-							@Override
-							public void onAnimationEnd(Animator animation) {
-								mMask.setVisibility(View.GONE);
-							}
-
-							@Override
-							public void onAnimationCancel(Animator animation) {
-
-							}
-
-							@Override
-							public void onAnimationRepeat(Animator animation) {
-							}
-						})
-						.playOn(mMask);
-			}
-
-
+		if (keyCode == KeyEvent.KEYCODE_MENU && ev.getAction() == 0) {
+			mMenuDialog.show();
 			return true;
 		}
 

@@ -38,6 +38,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 	Dao<User, Integer> userDao;
 	private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 	private final Date NOW = new Date();
+	private int mCommentBgColor;
 
 
 	public ThreadsAdapter(Context context, ArrayList<Thread> threads) {
@@ -48,6 +49,8 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+
+		mCommentBgColor = context.getResources().getColor(R.color.commentNoBg);
 	}
 
 	@Override
@@ -67,7 +70,6 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 			holder.date = (TextView) row.findViewById(R.id.thread_date);
 			holder.commentCount = (TextView) row
 					.findViewById(R.id.thread_comment_count);
-			holder.type = (TextView) row.findViewById(R.id.thread_type);
 
 			row.setTag(holder);
 		}
@@ -148,13 +150,13 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		String color = thread.getColor();
 
 		if (color != null && color.length() > 0) {
-			holder.title.setTextColor(Color.parseColor(color));
+			holder.title.setTextColor(lowerSaturation(Color.parseColor(color)));
 		} else {
 			holder.title.setTextColor(Color.BLACK);
 		}
 
-		holder.type.setText(getTypeIcon(thread.getType()));
-		holder.commentCount.setText(String.valueOf(thread.getCommentCount()));
+		int count = thread.getCommentCount();
+		holder.commentCount.setText(String.valueOf(count));
 
 		if (!thread.isNew()) {
 			holder.commentCount.setBackgroundResource(R.color.border);
@@ -174,16 +176,6 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		context.startActivity(intent);
 	}
 
-	private String getTypeIcon(String type) {
-		if (type.equals("手机")) return "{fa-phone-square}";
-		if (type.equals("掌上电脑")) return "{fa-tablet}";
-		if (type.equals("笔记本电脑")) return "{fa-laptop}";
-		if (type.equals("无线产品")) return "{fa-wifi}";
-		if (type.equals("数码相机、摄像机")) return "{fa-camera-retro}";
-		if (type.equals("MP3随身听")) return "{fa-music}";
-		return "";
-	}
-
 	static class PostHolder {
 		ImageView img;
 		TextView imageMask;
@@ -191,7 +183,6 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		TextView date;
 		TextView title;
 		TextView commentCount;
-		TextView type;
 	}
 
 	private String prettyTime(String timeStr) {
@@ -210,5 +201,20 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		} catch (ParseException e) {
 			return timeStr;
 		}
+	}
+
+	private int lowerSaturation(int color) {
+		float[] hsv = new float[3];
+		Color.colorToHSV(color, hsv);
+//		hsv[1] = hsv[1] * 0.43f;
+		hsv[1] = 0.48f;
+		return Color.HSVToColor(hsv);
+	}
+
+	private int lowerSaturation(int color, float rate) {
+		float[] hsv = new float[3];
+		Color.colorToHSV(color, hsv);
+		hsv[1] = hsv[1] * rate;
+		return Color.HSVToColor(hsv);
 	}
 }

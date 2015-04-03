@@ -9,6 +9,7 @@ import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.KeyEvent;
@@ -28,18 +29,26 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 	int fid;
 	String title = "";
 
-	private static final int D_ID = 2;
-	private static final int BS_ID = 6;
-	private static final int EINK_ID = 59;
+	public static final int D_ID = 2;
+	public static final int BS_ID = 6;
+	public static final int EINK_ID = 59;
 
 	private MenuItem bsType;
-	private Iconify.IconValue bsTypeIcon = Iconify.IconValue.fa_tags;
+	private int bsTypeId;
+	private Iconify.IconValue bsTypeIcon;
 	private ThreadsFragment bsFragment;
+	public int navPosition = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		fid = setting.getInt("fid", D_ID);
+		navPosition = computeNavPosition(fid);
+		bsTypeId = setting.getInt("bs_type", 0);
+		bsTypeIcon = BsTypeAdapter.ICON_VALUES[bsTypeId];
+
 		mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
 	}
@@ -49,24 +58,32 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 		FragmentManager fragmentManager = getFragmentManager();
 		ActionBar actionBar = getActionBar();
 		Intent intent;
+		Bundle bundle = new Bundle();
+		navPosition = position;
 
 		switch (position) {
 			case 0:
 				fid = D_ID;
 				actionBar.setTitle(title = "Discovery");
-				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(D_ID)).commit();
+				bundle.putInt("fid", fid);
+				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(bundle)).commit();
 				break;
 			case 1:
 				fid = BS_ID;
 //				fid = 57;
 				actionBar.setTitle(title = "Buy & Sell");
-				bsFragment = ThreadsFragment.newInstance(BS_ID);
+				bundle = new Bundle();
+				bundle.putInt("fid", fid);
+				bundle.putInt("bs_type_id", bsTypeId);
+				bsFragment = ThreadsFragment.newInstance(bundle);
 				fragmentManager.beginTransaction().replace(R.id.container, bsFragment).commit();
 				break;
 			case 2:
 				fid = EINK_ID;
+				bundle = new Bundle();
+				bundle.putInt("fid", fid);
 				actionBar.setTitle(title = "E-INK");
-				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(EINK_ID)).commit();
+				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(bundle)).commit();
 				break;
 			case 3:
 				intent = new Intent(this, MsgActivity.class);
@@ -140,6 +157,10 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 			default:
 				showToast("暂不可用");
 		}
+
+		SharedPreferences.Editor editor = setting.edit();
+		editor.putInt("fid", fid);
+		editor.commit();
 	}
 
 	@Override
@@ -147,7 +168,18 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 		super.onEventMainThread(statusChangeEvent);
 
 		if (statusChangeEvent.online && !statusChangeEvent.checkedEachDoc) {
-			onNavigationDrawerItemSelected(0);
+			switch (fid) {
+				case D_ID:
+					navPosition = 0;
+					break;
+				case BS_ID:
+					navPosition = 1;
+					break;
+				default:
+					navPosition = 2;
+			}
+
+			onNavigationDrawerItemSelected(navPosition);
 		}
 	}
 
@@ -202,9 +234,13 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 			listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 				@Override
 				public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-					bsTypeIcon = BsTypeAdapter.ICON_VALUES[i];
 					bsFragment.setTypeId(i);
 					alertDialog.dismiss();
+					SharedPreferences.Editor editor = setting.edit();
+					bsTypeId = i;
+					bsTypeIcon = BsTypeAdapter.ICON_VALUES[i];
+					editor.putInt("bs_type", i);
+					editor.commit();
 					invalidateOptionsMenu();
 				}
 			});
@@ -243,5 +279,16 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 			return true;
 		}
 		return super.onKeyUp(keyCode, event);
+	}
+
+	private int computeNavPosition(int fid) {
+		switch (fid) {
+			case D_ID:
+				return navPosition = 0;
+			case BS_ID:
+				return navPosition = 1;
+			default:
+				return navPosition = 2;
+		}
 	}
 }

@@ -40,19 +40,4 @@
         ptr:ptrOverScroll="false"
         ptr:ptrShowIndicator="false"/>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:alpha="0.3">
-
-        <TextView
-            android:id="@+id/mask"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/dark"/>
-    </FrameLayout>
-
-
-    <include layout="@layout/posts_actions"/>
-
 </RelativeLayout>

@@ -64,14 +64,16 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private String mTitle;
 	private String mQuery;
 	private OnFetch mOnFetch;
-	private int typeId = 0;
+	private static int typeId = 0;
 
 	public interface OnFetch{
 		void fetchStart();
 		void fetchEnd();
 	}
 
-	public static ThreadsFragment newInstance(int fid) {
+	public static ThreadsFragment newInstance(Bundle bundle) {
+		int fid = bundle.getInt("fid", MainActivity.D_ID);
+		typeId = bundle.getInt("bs_type_id", 0);
 		ThreadsFragment fragment = new ThreadsFragment();
 		Bundle args = new Bundle();
 		args.putBoolean("enablePullToRefresh", true);
