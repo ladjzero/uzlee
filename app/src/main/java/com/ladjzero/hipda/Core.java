@@ -350,9 +350,14 @@ public class Core {
 		});
 	}
 
-	public static PostsRet parsePosts(String html) {
-		ArrayList<Post> posts = new ArrayList<Post>();
+	public static Posts parsePosts(String html) {
+		Posts posts = new Posts();
 		Document doc = getDoc(html);
+
+		Element eFid = doc.select("#nav a").last();
+		String fidStr = eFid.attr("href");
+		int fid = Integer.valueOf(Uri.parse(fidStr).getQueryParameter("fid"));
+		String title = eFid.nextSibling().toString().replaceAll(" » ", "");
 
 		Elements pages = doc.select("div.pages");
 		int totalPage = 1;
@@ -393,13 +398,13 @@ public class Core {
 
 		boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
 
-		PostsRet ret = new PostsRet();
-		ret.posts = posts;
-		ret.hasNextPage = hasNextPage;
-		ret.page = currPage;
-		ret.totalPage = totalPage;
+		posts.setHasNextPage(hasNextPage);
+		posts.setPage(currPage);
+		posts.setTotalPage(Math.max(totalPage, currPage));
+		posts.setFid(fid);
+		posts.setTitle(title);
 
-		return ret;
+		return posts;
 	}
 
 	public static class Attachment {
@@ -1156,7 +1161,7 @@ public class Core {
 				Document doc = getDoc(html);
 
 				Elements eNotices = doc.select("ul.feed > li.s_clear > div");
-				ArrayList<Post> posts = new ArrayList<Post>();
+				Posts posts = new Posts();
 
 				for (Element eNotice : eNotices) {
 					String title;
@@ -1216,7 +1221,9 @@ public class Core {
 				boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
 
 				// TO-DO
-				onPostsListener.onPosts(posts, currPage, 10);
+				posts.setHasNextPage(hasNextPage);
+				posts.setPage(currPage);
+				onPostsListener.onPosts(posts);
 			}
 		});
 	}
@@ -1499,7 +1506,7 @@ public class Core {
 	}
 
 	public interface OnPostsListener {
-		void onPosts(ArrayList<Post> posts, int currPage, int totalPage);
+		void onPosts(Posts posts);
 
 		void onError();
 	}
@@ -1562,12 +1569,12 @@ public class Core {
 		}
 	}
 
-	public static class PostsRet {
-		public ArrayList<Post> posts;
-		public boolean hasNextPage;
-		public int page;
-		public int totalPage;
-	}
+//	public static class PostsRet {
+//		public ArrayList<Post> posts;
+//		public boolean hasNextPage;
+//		public int page;
+//		public int totalPage;
+//	}
 
 	public static class ThreadsRet {
 		public ArrayList<Thread> threads;

@@ -15,6 +15,7 @@ import org.apache.commons.lang3.time.DateUtils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.LruCache;
@@ -29,25 +30,26 @@ import android.widget.TextView;
 
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Post;
+import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
+import pt.fjss.TextViewWithLinks.TextViewWithLinks;
+
 public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener {
 	private PostsActivity context;
-	private ArrayList<Post> mPosts;
+	private Posts mPosts;
 	private LruCache<Integer, ArrayList<View>> mViewCache;
 	private HashMap<String, Double> mImageWidthHeight = new HashMap<String, Double>();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	private Date mNow;
-	private String mTitle;
 
-	public PostsAdapter(Context context, ArrayList<Post> posts, String title) {
+	public PostsAdapter(Context context, Posts posts) {
 		super(context, R.layout.post, posts);
 		this.context = (PostsActivity) context;
 		mPosts = posts;
-		mTitle = title;
 		mNow = new Date();
 
 		mViewCache = new LruCache<Integer, ArrayList<View>>(110) {
@@ -68,6 +70,21 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		mViewCache.evictAll();
 	}
 
+
+	@Override
+	public int getCount() {
+		return mPosts.getLastMerged().size();
+	}
+
+	@Override
+	public Post getItem(int position) {
+		return mPosts.getLastMerged().get(position);
+	}
+
+	@Override
+	public int getPosition(Post post) {
+		return mPosts.getLastMerged().indexOf(post);
+	}
 
 	@Override
 	public void notifyDataSetChanged() {
@@ -116,7 +133,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		holder.title.setVisibility(position == 0 ? View.VISIBLE : View.GONE);
 
 		if (post.getPostIndex() == 1) {
-			holder.title.setText(mTitle);
+			holder.title.setText(mPosts.getTitle());
 		} else {
 			holder.title.setVisibility(View.GONE);
 		}
@@ -297,8 +314,40 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 							textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
 							textView.setText(context.getString(R.string.blocked));
 						} else {
-							textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_text_segment, null);
+							textView = (TextViewWithLinks) context.getLayoutInflater().inflate(R.layout.post_body_text_segment, null);
 							textView.setText(context.emojiUtils.getSmiledText(context, body));
+							((TextViewWithLinks) textView).linkify(new TextViewWithLinks.OnClickLinksListener() {
+								@Override
+								public void onLinkClick(String url) {
+									if (url.startsWith("http://www.hi-pda.com/forum/")) {
+										Uri uri = Uri.parse(url);
+										String tid = uri.getQueryParameter("tid");
+										String page = uri.getQueryParameter("page");
+										if (page == null || page.length() == 0) page = "1";
+
+										if (tid != null && tid.length() > 0) {
+											Intent intent = new Intent(context, PostsActivity.class);
+											intent.putExtra("tid", Integer.valueOf(tid));
+											intent.putExtra("page", Integer.valueOf(page));
+											context.startActivity(intent);
+
+										} else {
+											Intent intent = new Intent(Intent.ACTION_VIEW);
+											intent.setData(Uri.parse(url));
+											context.startActivity(intent);
+										}
+									} else {
+										Intent intent = new Intent(Intent.ACTION_VIEW);
+										intent.setData(Uri.parse(url));
+										context.startActivity(intent);
+									}
+								}
+
+								@Override
+								public void onTextViewClick() {
+
+								}
+							});
 						}
 
 						//CacheWeight

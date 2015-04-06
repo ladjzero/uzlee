@@ -133,7 +133,7 @@ public class MsgFragment extends Fragment implements AbsListView.OnItemClickList
 			case 0:
 				Core.getAlerts(new Core.OnPostsListener() {
 					@Override
-					public void onPosts(ArrayList<Post> posts, int page, int totalPage) {
+					public void onPosts(Posts posts) {
 						mAdapter.addAll(posts);
 					}
 

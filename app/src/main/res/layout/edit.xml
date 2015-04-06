@@ -1,25 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:background="@color/snow_primary"
+                android:clickable="true"
+                android:nestedScrollingEnabled="true"
                 android:orientation="vertical">
 
 
-    <EditText
+    <com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/edit_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/dark_primary"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
         android:ems="10"
         android:hint="标题"
         android:inputType="text"
         android:padding="8dp"
         android:singleLine="true"
-        android:textColor="@color/snow_light"
-        android:textColorHint="@color/snow_primary"
-        android:textCursorDrawable="@null"
-        android:textSize="16sp"/>
+        android:textSize="16sp"
+        app:met_floatingLabel="normal"
+        app:met_primaryColor="@color/dark_primary"/>
+
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/edit_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/edit_title"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:ems="10"
+        android:gravity="top"
+        android:hint="内容"
+        android:inputType="textMultiLine"
+        android:padding="8dp"
+        android:textSize="16sp"
+        app:met_floatingLabel="normal"
+        app:met_primaryColor="@color/dark_primary"/>
 
     <ScrollView
         android:id="@+id/emoji"
@@ -31,22 +51,5 @@
         <include layout="@layout/emoji"></include>
 
     </ScrollView>
-
-    <EditText
-        android:id="@+id/edit_body"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/emoji"
-        android:layout_below="@+id/edit_title"
-        android:background="@color/snow_primary"
-        android:ems="10"
-        android:gravity="top"
-        android:hint="内容"
-        android:inputType="textMultiLine"
-        android:padding="8dp"
-        android:textColor="@color/dark"
-        android:textColorHint="@color/dark_light"
-        android:textCursorDrawable="@null"
-        android:textSize="16sp"/>
 
 </RelativeLayout>

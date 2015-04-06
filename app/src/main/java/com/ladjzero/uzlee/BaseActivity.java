@@ -52,13 +52,14 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 
 import de.greenrobot.event.EventBus;
+import me.drakeet.materialdialog.MaterialDialog;
 
 
 public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 
 	SharedPreferences setting;
 	EmojiUtils emojiUtils;
-	AlertDialog alert;
+	MaterialDialog alert;
 	static DisplayImageOptions displayImageOptions_no_scale = new DisplayImageOptions.Builder()
 			.showImageForEmptyUri(R.drawable.none)
 			.showImageOnLoading(R.drawable.none)
@@ -67,7 +68,6 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 			.cacheOnDisk(true)
 			.imageScaleType(ImageScaleType.NONE)
 			.build();
-
 
 	private boolean enableSwipe() {
 		return true;
@@ -124,7 +124,7 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 	}
 
 
-	public AlertDialog buildLoginDialog() {
+	public MaterialDialog buildLoginDialog() {
 		final View alertView = getLayoutInflater().inflate(R.layout.login_dialog, null);
 		final Spinner question = (Spinner) alertView.findViewById(R.id.question);
 		final EditText answer = (EditText) alertView.findViewById(R.id.answer);
@@ -152,14 +152,13 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 			}
 		});
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(getString(R.string.login_hipda));
-		builder.setView(alertView);
-		builder.setPositiveButton(getString(R.string.login), new OnClickListener() {
-
+		final MaterialDialog mMaterialDialog = new MaterialDialog(this);
+		mMaterialDialog.setTitle(getString(R.string.login_hipda));
+		mMaterialDialog.setContentView(alertView);
+		mMaterialDialog.setPositiveButton(getString(R.string.login), new View.OnClickListener() {
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
+			public void onClick(View v) {
+				mMaterialDialog.dismiss();
 				String username = ((EditText) alertView.findViewById(R.id.user_name))
 						.getText().toString();
 				String password = ((EditText) alertView
@@ -185,10 +184,47 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 					}
 				});
 			}
-
 		});
 
-		return builder.create();
+		return mMaterialDialog;
+
+//		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//		builder.setTitle(getString(R.string.login_hipda));
+//		builder.setView(alertView);
+//		builder.setPositiveButton(getString(R.string.login), new OnClickListener() {
+//
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				dialog.cancel();
+//				String username = ((EditText) alertView.findViewById(R.id.user_name))
+//						.getText().toString();
+//				String password = ((EditText) alertView
+//						.findViewById(R.id.user_password)).getText().toString();
+//				final ProgressDialog progress = ProgressDialog.show(
+//						BaseActivity.this, "", getString(R.string.login) + "...", true);
+//
+//				int questionId = checkBox.isChecked() ? question.getSelectedItemPosition() : 0;
+//				String answerStr = checkBox.isChecked() ? answer.getText().toString() : "";
+//
+//				Core.login(username, password, questionId, answerStr, new Core.OnRequestListener() {
+//
+//					@Override
+//					public void onError(String error) {
+//						progress.dismiss();
+//						Toast.makeText(BaseActivity.this, error, Toast.LENGTH_LONG).show();
+//					}
+//
+//					@Override
+//					public void onSuccess(String html) {
+//						progress.dismiss();
+//						Toast.makeText(BaseActivity.this, getString(R.string.login_succeed), Toast.LENGTH_LONG).show();
+//					}
+//				});
+//			}
+//
+//		});
+//
+//		return builder.create();
 	}
 
 	@Override

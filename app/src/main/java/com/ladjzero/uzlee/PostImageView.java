@@ -10,6 +10,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+
 public class PostImageView extends ImageView {
 
 	private double widthHeight = -1;
@@ -53,6 +54,4 @@ public class PostImageView extends ImageView {
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		}
 	}
-
-
 }

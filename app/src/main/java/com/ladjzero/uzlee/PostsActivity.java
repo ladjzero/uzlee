@@ -27,6 +27,7 @@ import com.joanzapata.android.iconify.Iconify;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.DBHelper;
 import com.ladjzero.hipda.Post;
+import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
 
@@ -36,9 +37,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
+
+import me.drakeet.materialdialog.MaterialDialog;
 
 
 public class PostsActivity extends SwipeActivity implements AdapterView.OnItemClickListener,
@@ -47,39 +49,21 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 	private static final String TAG = "PostsActivity";
 	private final int EDIT_CODE = 99;
+	// 0 = asc, 1 = desc
+	public int orderType = 0;
 	private DBHelper db;
-	private Dao<Thread, Integer> threadDao;
-	private Dao<Post, Integer> postDao;
 	private Dao<User, Integer> userDao;
-	private int mFid;
 	private int mTid;
 	private int mPage;
-	private ArrayList<Post> mPosts = new ArrayList<Post>();
+	private Posts mPosts = new Posts();
 	private PullToRefreshListView mListView;
-	private String titleStr;
 	private PostsAdapter mAdapter;
 	private boolean mHasNextPage = false;
-	private boolean mIsAnimating = false;
 	private DiscreteSeekBar mSeekBar;
-	private Comparator<Post> mComparator = new Comparator<Post>() {
-		@Override
-		public int compare(Post post1, Post post2) {
-			return post1.getPostIndex() - post2.getPostIndex();
-		}
-	};
-	private Transformer mGetId = new Transformer() {
-		@Override
-		public Object transform(Object o) {
-			return ((Post) o).getId();
-		}
-	};
 	private Menu mMenu;
 	private boolean mIsFetching = false;
 	private View mMenuView;
 	private AlertDialog mMenuDialog;
-	private int mFocusUid = -1;
-	// 0 = asc, 1 = dea
-	public int orderType = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -90,23 +74,20 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		getActionBar().setIcon(null);
 
 		db = this.getHelper();
-		mFid = getIntent().getIntExtra("fid", 0);
-		mTid = getIntent().getIntExtra("tid", 0);
-		titleStr = getIntent().getStringExtra("title");
-		setTitle(titleStr);
+		Intent intent = getIntent();
+		mTid = intent.getIntExtra("tid", 0);
+		mPage = intent.getIntExtra("page", 1);
 
-		Log.d("POST_ID", "fid=" + mFid + ",tid=" + mTid);
+		Log.d("POST_ID", ",tid=" + mTid + " page=" + mPage);
 
 		try {
-			threadDao = db.getThreadDao();
-			postDao = db.getPostDao();
 			userDao = db.getUserDao();
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
 
 		mListView = (PullToRefreshListView) this.findViewById(R.id.posts);
-		mAdapter = new PostsAdapter(this, mPosts, titleStr);
+		mAdapter = new PostsAdapter(this, mPosts);
 		mListView.setOnItemClickListener(this);
 		registerForContextMenu(mListView.getRefreshableView());
 		mListView.setAdapter(mAdapter);
@@ -180,39 +161,38 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 									showToast("收藏成功");
 								} else {
 									if (html.contains("您曾经收藏过这个主题")) {
-										AlertDialog.Builder alert = new AlertDialog.Builder(PostsActivity.this);
-										alert.setTitle("提醒");
-										alert.setMessage("已经收藏过该主题");
-										alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-
-											@Override
-											public void onClick(DialogInterface dialog, int which) {
-												dialog.cancel();
-											}
-
-										});
-										alert.setPositiveButton("移除收藏", new DialogInterface.OnClickListener() {
-
-											@Override
-											public void onClick(DialogInterface dialogInterface, int i) {
-												Core.removeFromFavoriate(mTid, new Core.OnRequestListener() {
+										final MaterialDialog dialog = new MaterialDialog(PostsActivity.this);
+										dialog.setTitle("确认").setMessage("已经收藏过该主题")
+												.setNegativeButton(getString(R.string.cancel), new View.OnClickListener() {
 													@Override
-													public void onError(String error) {
-														showToast(error);
+													public void onClick(View v) {
+														dialog.dismiss();
 													}
-
+												})
+												.setPositiveButton("移除收藏", new View.OnClickListener() {
 													@Override
-													public void onSuccess(String html) {
-														if (html.contains("此主题已成功从您的收藏夹中移除")) {
-															showToast("移除成功");
-														} else {
-															showToast("移除失败");
-														}
+													public void onClick(View v) {
+														dialog.dismiss();
+
+														Core.removeFromFavoriate(mTid, new Core.OnRequestListener() {
+															@Override
+															public void onError(String error) {
+																showToast(error);
+															}
+
+															@Override
+															public void onSuccess(String html) {
+																if (html.contains("此主题已成功从您的收藏夹中移除")) {
+																	showToast("移除成功");
+																} else {
+																	showToast("移除失败");
+																}
+															}
+														});
 													}
 												});
-											}
-										});
-										alert.show();
+
+										dialog.show();
 									} else {
 										showToast("收藏失败");
 									}
@@ -239,8 +219,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	}
 
 	private String getUri() {
-		return StringUtils.join(
-				new String[]{"http://www.hi-pda.com/forum/viewthread.php?", "tid=" + mTid, "&page=" + mPage});
+		return "http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + mPage;
 	}
 
 	@Override
@@ -317,7 +296,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		intent.putExtra("title", Core.getUid() == uid ? "编辑" : "回复" + (postIndex == 1 ? "楼主" : postIndex + "楼"));
 
 		if (Core.getUid() == uid) {
-			intent.putExtra("fid", mFid);
+			intent.putExtra("fid", mPosts.getFid());
 		}
 
 		intent.putExtra("pid", post.getId());
@@ -335,18 +314,12 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		startEditActivity(post);
 	}
 
-	private String getThreadUrl(int page) {
-		String url = "http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + page + "&ordertype=" + orderType;
-		if (mFocusUid > 0) url += "&authorid=" + mFocusUid;
-		return url;
-	}
-
 	private void fetch(int page, final Core.OnPostsListener onPostsListener) {
 		mIsFetching = true;
 		setProgressBarIndeterminateVisibility(true);
 		toggleMenus(false);
 
-		Core.getHtml(getThreadUrl(page), new Core.OnRequestListener() {
+		Core.getHtml("http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + page + "&ordertype=" + orderType, new Core.OnRequestListener() {
 			@Override
 			public void onError(String error) {
 				mIsFetching = false;
@@ -360,18 +333,18 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 			@Override
 			public void onSuccess(String html) {
 
-				new AsyncTask<String, Void, Core.PostsRet>() {
+				new AsyncTask<String, Void, Posts>() {
 					@Override
-					protected Core.PostsRet doInBackground(String... strings) {
+					protected Posts doInBackground(String... strings) {
 						return Core.parsePosts(strings[0]);
 					}
 
 					@Override
-					protected void onPostExecute(Core.PostsRet ret) {
+					protected void onPostExecute(Posts posts) {
 						mIsFetching = false;
 						setProgressBarIndeterminateVisibility(false);
 						toggleMenus(true);
-						onPostsListener.onPosts(ret.posts, ret.page, Math.max(ret.totalPage, ret.page));
+						onPostsListener.onPosts(posts);
 					}
 				}.execute(html);
 			}
@@ -379,10 +352,15 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	}
 
 	@Override
-	public void onPosts(final ArrayList<Post> posts, int currPage, int totalPage) {
+	public void onPosts(final Posts posts) {
+		setTitle(posts.getTitle());
 		toggleMenus(true);
+
 		mListView.onRefreshComplete();
 		mAdapter.clearViewCache();
+
+		int totalPage = posts.getTotalPage(),
+				currPage = posts.getPage();
 
 		mSeekBar.setMax(totalPage);
 		mSeekBar.setProgress(currPage);
@@ -396,19 +374,8 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 			mListView.setMode(currPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
 		}
 
-//		for (final Object id : CollectionUtils.collect(posts, mGetId)) {
-//			mPosts.remove(CollectionUtils.find(mPosts, new Predicate() {
-//				@Override
-//				public boolean evaluate(Object o) {
-//					return ((Post) o).getId() == id;
-//				}
-//			}));
-//		}
 
-		mPosts.clear();
-		mPosts.addAll(posts);
-//		Collections.sort(mPosts, mComparator);
-		if (mPosts.size() > 0) mPosts.get(0).setTitle(titleStr);
+		mPosts.merge(posts);
 		mAdapter.notifyDataSetChanged();
 		mListView.getRefreshableView().setSelection(0);
 
@@ -445,23 +412,26 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 				String html = returnIntent.getStringExtra("html");
 
 				if (html != null && html.length() > 0) {
-					new AsyncTask<String, Void, Core.PostsRet>() {
+					new AsyncTask<String, Void, Posts>() {
 						@Override
-						protected Core.PostsRet doInBackground(String... strings) {
+						protected Posts doInBackground(String... strings) {
 							return Core.parsePosts(strings[0]);
 						}
 
 						@Override
-						protected void onPostExecute(Core.PostsRet ret) {
+						protected void onPostExecute(Posts posts) {
 							mIsFetching = false;
 							setProgressBarIndeterminateVisibility(false);
 							toggleMenus(true);
 
-							mPage = ret.page;
-							mHasNextPage = ret.totalPage > ret.page;
+							mPage = posts.getPage();
+							int totalPage = posts.getTotalPage(),
+									currPage = posts.getPage();
 
-							mSeekBar.setMax(Math.max(ret.page, ret.totalPage));
-							mSeekBar.setProgress(ret.page);
+							mHasNextPage = totalPage > currPage;
+
+							mSeekBar.setMax(totalPage);
+							mSeekBar.setProgress(currPage);
 
 							if (mHasNextPage) {
 								mListView.setMode(mPage == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
@@ -469,11 +439,9 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 								mListView.setMode(mPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
 							}
 
-							mPosts.clear();
-							mPosts.addAll(ret.posts);
-							mHasNextPage = ret.hasNextPage;
+							mPosts.merge(posts);
 							mAdapter.notifyDataSetChanged();
-							mListView.getRefreshableView().setSelection(ret.posts.size() - 1);
+							mListView.getRefreshableView().setSelection(posts.size() - 1);
 						}
 					}.execute(html);
 				}
@@ -486,7 +454,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		mMenu = menu;
 
 		getMenuInflater().inflate(R.menu.posts, menu);
-		menu.findItem(R.id.more).setIcon(new IconDrawable(this, Iconify.IconValue.fa_ellipsis_h).colorRes(android.R.color.white).actionBarSize());
+		menu.findItem(R.id.more).setIcon(new IconDrawable(this, Iconify.IconValue.fa_ellipsis_v).colorRes(android.R.color.white).actionBarSize());
 		menu.findItem(R.id.reply).setIcon(new IconDrawable(this, Iconify.IconValue.fa_comment_o).colorRes(android.R.color.white).actionBarSize());
 
 		menu.setGroupVisible(0, !mIsFetching);
@@ -523,7 +491,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent ev) {
-		if (keyCode == KeyEvent.KEYCODE_MENU && ev.getAction() == 0) {
+		if (keyCode == KeyEvent.KEYCODE_MENU && (ev == null || ev.getAction() == 0)) {
 			mMenuDialog.show();
 			return true;
 		}

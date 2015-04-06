@@ -1,25 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:background="@android:color/white"
               android:orientation="vertical">
 
-    <EditText
+    <com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/user_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="用户名"
-        android:inputType="text"/>
+        android:inputType="text"
+        app:met_floatingLabel="normal"
+        app:met_primaryColor="@color/dark_primary"/>
 
-    <EditText
+    <com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/user_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="密码"
-        android:inputType="textPassword"/>
+        android:inputType="textPassword"
+        app:met_floatingLabel="normal"
+        app:met_primaryColor="@color/dark_primary"/>
 
     <CheckBox
         android:id="@+id/checkBox"
@@ -36,11 +41,13 @@
         android:spinnerMode="dialog"
         android:visibility="gone"/>
 
-    <EditText
+    <com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/answer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="验证答案"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        app:met_floatingLabel="normal"
+        app:met_primaryColor="@color/dark_primary"/>
 
 </LinearLayout>

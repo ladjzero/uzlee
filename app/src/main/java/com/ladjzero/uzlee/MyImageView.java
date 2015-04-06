@@ -8,9 +8,6 @@ import android.view.MotionEvent;
 
 import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 
-/**
- * Created by chenzhuo on 15-2-15.
- */
 public class MyImageView extends ImageViewTouch{
 	float x = -1f;
 

@@ -74,6 +74,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	public static ThreadsFragment newInstance(Bundle bundle) {
 		int fid = bundle.getInt("fid", MainActivity.D_ID);
 		typeId = bundle.getInt("bs_type_id", 0);
+
 		ThreadsFragment fragment = new ThreadsFragment();
 		Bundle args = new Bundle();
 		args.putBoolean("enablePullToRefresh", true);

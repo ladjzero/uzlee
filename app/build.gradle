@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 20
+    compileSdkVersion 21
     buildToolsVersion "21.1.2"
 
     packagingOptions {
@@ -47,6 +47,8 @@ dependencies {
     compile 'com.daimajia.androidanimations:library:1.1.3@aar'
 
     compile "com.wefika:flowlayout:0.3.4"
+    compile 'com.rengwuxian.materialedittext:library:2.0.3'
+    compile 'me.drakeet.materialdialog:library:1.2.2'
 
     compile project(':PullToRefresh')
     compile project(':DiscreteSeekBar')

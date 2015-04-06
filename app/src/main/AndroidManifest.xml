@@ -44,10 +44,7 @@
         <activity
             android:name=".EditActivity"
             android:label="@string/title_activity_reply"
-            android:parentActivityName=".BaseActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.ladjzero.uzlee.BaseActivity"/>
+            android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
             android:name=".MyPostsActivity"
