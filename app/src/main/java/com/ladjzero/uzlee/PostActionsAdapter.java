@@ -18,7 +18,6 @@ public class PostActionsAdapter extends ArrayAdapter{
 	public final static String[] TYPES = new String[]{
 			"逆序阅读",
 			"刷新",
-			"只看楼主",
 			"收藏",
 			"复制链接",
 			"从浏览器打开"
@@ -26,7 +25,6 @@ public class PostActionsAdapter extends ArrayAdapter{
 	public final static String[] ICONS = new String[] {
 			"{fa-sort-numeric-desc}",
 			"{fa-refresh}",
-			"{fa-female}",
 			"{fa-bookmark}",
 			"{fa-link}",
 			"{fa-external-link}"
@@ -34,7 +32,6 @@ public class PostActionsAdapter extends ArrayAdapter{
 	public final static Iconify.IconValue[] ICON_VALUES = new Iconify.IconValue[] {
 			Iconify.IconValue.fa_sort_numeric_desc,
 			Iconify.IconValue.fa_refresh,
-			Iconify.IconValue.fa_female,
 			Iconify.IconValue.fa_bookmark,
 			Iconify.IconValue.fa_link,
 			Iconify.IconValue.fa_external_link

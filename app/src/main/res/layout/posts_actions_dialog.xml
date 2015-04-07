@@ -9,37 +9,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <RelativeLayout
-        android:layout_width="fill_parent"
+    <TextView
+        android:id="@+id/just_a_line"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="#d9d9d9"/>
+
+    <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+        android:id="@+id/seekbar"
+        android:layout_width="wrap_content"
         android:layout_height="54dp"
-        android:orientation="horizontal"
-        android:padding="12dp">
-
-        <android.widget.IconTextView
-            android:id="@+id/pre_page"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_alignParentLeft="true"
-            android:gravity="center"
-            android:text="{fa-step-backward}"
-            android:textSize="20dp"/>
-
-        <android.widget.IconTextView
-            android:id="@+id/next_page"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_alignParentRight="true"
-            android:gravity="center"
-            android:text="{fa-step-forward}"
-            android:textSize="20dp"/>
-
-        <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
-            android:id="@+id/seekbar"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_toLeftOf="@+id/next_page"
-            android:layout_toRightOf="@+id/pre_page"
-            android:gravity="center"/>
-    </RelativeLayout>
+        android:gravity="center"
+        android:padding="10dp"/>
 
 </LinearLayout>

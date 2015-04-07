@@ -65,6 +65,8 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	private View mMenuView;
 	private AlertDialog mMenuDialog;
 	private boolean mInitToLastPost = false;
+	// Help menu dialog to show a line.
+	private View _justALine;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +113,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		mSeekBar = (DiscreteSeekBar) mMenuView.findViewById(R.id.seekbar);
 		mSeekBar.setMin(1);
 		mSeekBar.setOnProgressChangeListener(this);
+		_justALine = mMenuView.findViewById(R.id.just_a_line);
 
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 		alertDialogBuilder
@@ -138,19 +141,15 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 			public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 				switch (position) {
 					case 0:
-						mPosts.clear();
 						orderType = orderType == 0 ? 1 : 0;
 						fetch(1, PostsActivity.this);
 						actionsAdapter.notifyDataSetChanged();
 						break;
 					case 1:
-						mPosts.clear();
 						mAdapter.notifyDataSetChanged();
-						fetch(1, PostsActivity.this);
+						fetch(mPage, PostsActivity.this);
 						break;
 					case 2:
-						break;
-					case 3:
 						Core.addToFavorite(mTid, new Core.OnRequestListener() {
 							@Override
 							public void onError(String error) {
@@ -202,13 +201,13 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 							}
 						});
 						break;
-					case 4:
+					case 3:
 						ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 						ClipData clipData = ClipData.newPlainText("post url", getUri());
 						clipboardManager.setPrimaryClip(clipData);
 						showToast("复制到剪切版");
 						break;
-					case 5:
+					case 4:
 						Intent intent = new Intent(Intent.ACTION_VIEW);
 						intent.setData(Uri.parse(getUri()));
 						startActivity(intent);
@@ -228,7 +227,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	public void onResume() {
 		super.onResume();
 
-		if (mPosts.size() == 0) fetch(1, this);
+		if (mPosts.size() == 0) fetch(mPage, this);
 		mAdapter.notifyDataSetChanged();
 	}
 
@@ -364,8 +363,13 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		int totalPage = posts.getTotalPage(),
 				currPage = posts.getPage();
 
-		mSeekBar.setMax(totalPage);
-		mSeekBar.setProgress(currPage);
+		if (totalPage > 1) {
+			mSeekBar.setMax(totalPage);
+			mSeekBar.setProgress(currPage);
+		} else {
+			_justALine.setVisibility(View.GONE);
+			mSeekBar.setVisibility(View.GONE);
+		}
 
 		mHasNextPage = totalPage > currPage;
 		mPage = currPage;
@@ -494,7 +498,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent ev) {
-		if (keyCode == KeyEvent.KEYCODE_MENU && (ev == null || ev.getAction() == 0)) {
+		if (keyCode == KeyEvent.KEYCODE_MENU && (ev == null || ev.getAction() == 0) && mPosts.size() > 0) {
 			mMenuDialog.show();
 			return true;
 		}
@@ -516,7 +520,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	public void onStopTrackingTouch(DiscreteSeekBar seekBar) {
 		if (mPage != seekBar.getProgress()) {
 			fetch(seekBar.getProgress(), PostsActivity.this);
-			onKeyDown(KeyEvent.KEYCODE_MENU, null);
+			mMenuDialog.dismiss();
 		}
 	}
 }
