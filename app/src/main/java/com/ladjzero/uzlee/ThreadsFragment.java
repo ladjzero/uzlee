@@ -357,6 +357,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
 		menu.add(0, 1, 0, "复制标题");
+		menu.add(0, 2, 0, "查看最新回复");
 		super.onCreateContextMenu(menu, v, menuInfo);
 	}
 
@@ -364,12 +365,26 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 		Thread thread = adapter.getItem(info.position);
-		ClipboardManager clipboardManager = (ClipboardManager) mActivity.getSystemService(Context.CLIPBOARD_SERVICE);
-		StringBuilder builder = new StringBuilder();
 
-		ClipData clipData = ClipData.newPlainText("post content", thread.getTitle());
-		clipboardManager.setPrimaryClip(clipData);
-		mActivity.showToast("复制到剪切版");
+		switch (item.getItemId()) {
+			case 1:
+
+				ClipboardManager clipboardManager = (ClipboardManager) mActivity.getSystemService(Context.CLIPBOARD_SERVICE);
+				StringBuilder builder = new StringBuilder();
+
+				ClipData clipData = ClipData.newPlainText("post content", thread.getTitle());
+				clipboardManager.setPrimaryClip(clipData);
+				mActivity.showToast("复制到剪切版");
+				break;
+			case 2:
+
+				Intent intent = new Intent(mActivity, PostsActivity.class);
+				intent.putExtra("tid", thread.getId());
+				intent.putExtra("page", 9999);
+
+				startActivity(intent);
+		}
+
 		return super.onContextItemSelected(item);
 	}
 

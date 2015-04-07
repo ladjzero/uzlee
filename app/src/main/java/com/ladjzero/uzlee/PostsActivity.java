@@ -64,6 +64,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	private boolean mIsFetching = false;
 	private View mMenuView;
 	private AlertDialog mMenuDialog;
+	private boolean mInitToLastPost = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +78,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		Intent intent = getIntent();
 		mTid = intent.getIntExtra("tid", 0);
 		mPage = intent.getIntExtra("page", 1);
+		mInitToLastPost = mPage == 9999;
 
 		Log.d("POST_ID", ",tid=" + mTid + " page=" + mPage);
 
@@ -95,12 +97,12 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		mListView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<ListView>() {
 			@Override
 			public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-				fetch(mPage - 1, PostsActivity.this);
+				fetch(mPosts.getPage() - 1, PostsActivity.this);
 			}
 
 			@Override
 			public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
-				fetch(mPage + 1, PostsActivity.this);
+				fetch(mPosts.getPage() + 1, PostsActivity.this);
 			}
 		});
 
@@ -377,7 +379,8 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 
 		mPosts.merge(posts);
 		mAdapter.notifyDataSetChanged();
-		mListView.getRefreshableView().setSelection(0);
+		mListView.getRefreshableView().setSelection(mInitToLastPost ? posts.size() - 1 : 0);
+		mInitToLastPost = false;
 
 
 		new AsyncTask<Void, Void, Void>() {
