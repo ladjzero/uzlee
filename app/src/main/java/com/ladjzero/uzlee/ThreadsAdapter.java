@@ -19,6 +19,7 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,25 +33,39 @@ import org.apache.commons.lang3.time.DateUtils;
 
 public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClickListener {
 
-	Context context;
+	BaseActivity context;
 	Core core;
 	DBHelper db;
 	Dao<User, Integer> userDao;
 	private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 	private final Date NOW = new Date();
 	private int mCommentBgColor;
+	private int mWhite;
+	private int mUserNameColor;
+	private boolean mHighlightUnread = true;
 
 
 	public ThreadsAdapter(Context context, ArrayList<Thread> threads) {
 		super(context, R.layout.thread, threads);
-		this.context = context;
+		this.context = (BaseActivity) context;
 		try {
 			userDao = ((BaseActivity) context).getHelper().getUserDao();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
-		mCommentBgColor = context.getResources().getColor(R.color.commentNoBg);
+		mHighlightUnread = this.context.setting.getBoolean("highlight_unread", true);
+
+		Resources res = context.getResources();
+		mCommentBgColor = res.getColor(R.color.commentNoBg);
+		mWhite = res.getColor(android.R.color.white);
+		mUserNameColor = res.getColor(R.color.thread_user_name);
+	}
+
+	@Override
+	public void notifyDataSetChanged() {
+		super.notifyDataSetChanged();
+		mHighlightUnread = this.context.setting.getBoolean("highlight_unread", true);
 	}
 
 	@Override
@@ -156,12 +171,19 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		}
 
 		int count = thread.getCommentCount();
-		holder.commentCount.setText(String.valueOf(count));
+		boolean isNew = thread.isNew();
 
-		if (!thread.isNew()) {
-			holder.commentCount.setBackgroundResource(R.color.border);
+		if (mHighlightUnread) {
+			holder.commentCount.setBackgroundResource(isNew ? R.color.commentNoBg : R.color.border);
+			holder.commentCount.setTextColor(mWhite);
+			holder.commentCount.getPaint().setFakeBoldText(false);
+			holder.commentCount.setText(String.valueOf(count));
+
 		} else {
-			holder.commentCount.setBackgroundResource(R.color.commentNoBg);
+			holder.commentCount.setBackgroundResource(android.R.color.transparent);
+			holder.commentCount.setTextColor(mUserNameColor);
+			holder.commentCount.getPaint().setFakeBoldText(isNew);
+			holder.commentCount.setText((isNew ? "{fa-comments}  " : "{fa-comments-o}  ") + count);
 		}
 
 		return row;
