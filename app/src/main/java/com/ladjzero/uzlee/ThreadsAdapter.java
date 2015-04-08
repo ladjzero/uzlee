@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,7 +60,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		Resources res = context.getResources();
 		mCommentBgColor = res.getColor(R.color.commentNoBg);
 		mWhite = res.getColor(android.R.color.white);
-		mUserNameColor = res.getColor(R.color.thread_user_name);
+		mUserNameColor = res.getColor(R.color.snow_darker);
 	}
 
 	@Override
@@ -176,14 +177,13 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		if (mHighlightUnread) {
 			holder.commentCount.setBackgroundResource(isNew ? R.color.commentNoBg : R.color.border);
 			holder.commentCount.setTextColor(mWhite);
-			holder.commentCount.getPaint().setFakeBoldText(false);
 			holder.commentCount.setText(String.valueOf(count));
-
+			holder.commentCount.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
 		} else {
 			holder.commentCount.setBackgroundResource(android.R.color.transparent);
 			holder.commentCount.setTextColor(mUserNameColor);
-			holder.commentCount.getPaint().setFakeBoldText(isNew);
-			holder.commentCount.setText((isNew ? "{fa-comments}  " : "{fa-comments-o}  ") + count);
+			holder.commentCount.setText(count + " " + (isNew ? "{fa-comments}" : "{fa-comments-o}"));
+			holder.commentCount.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
 		}
 
 		return row;

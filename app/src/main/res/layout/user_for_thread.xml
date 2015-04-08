@@ -83,7 +83,7 @@
             android:paddingTop="2dp"
             android:text="50"
             android:textColor="@android:color/white"
-            android:textSize="12sp"/>
+            android:textSize="14sp"/>
     </RelativeLayout>
 
 </LinearLayout>
