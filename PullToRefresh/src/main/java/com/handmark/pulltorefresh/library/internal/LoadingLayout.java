@@ -50,7 +50,7 @@ public abstract class LoadingLayout extends FrameLayout implements ILoadingLayou
 	private FrameLayout mInnerLayout;
 
 	protected final ImageView mHeaderImage;
-	protected final ProgressBar mHeaderProgress;
+//	protected final ProgressBar mHeaderProgress;
 
 	private boolean mUseIntrinsicAnimation;
 
@@ -81,7 +81,7 @@ public abstract class LoadingLayout extends FrameLayout implements ILoadingLayou
 
 		mInnerLayout = (FrameLayout) findViewById(R.id.fl_inner);
 		mHeaderText = (TextView) mInnerLayout.findViewById(R.id.pull_to_refresh_text);
-		mHeaderProgress = (ProgressBar) mInnerLayout.findViewById(R.id.pull_to_refresh_progress);
+//		mHeaderProgress = (ProgressBar) mInnerLayout.findViewById(R.id.pull_to_refresh_progress);
 		mSubHeaderText = (TextView) mInnerLayout.findViewById(R.id.pull_to_refresh_sub_text);
 		mHeaderImage = (ImageView) mInnerLayout.findViewById(R.id.pull_to_refresh_image);
 
@@ -206,9 +206,9 @@ public abstract class LoadingLayout extends FrameLayout implements ILoadingLayou
 		if (View.VISIBLE == mHeaderText.getVisibility()) {
 			mHeaderText.setVisibility(View.INVISIBLE);
 		}
-		if (View.VISIBLE == mHeaderProgress.getVisibility()) {
-			mHeaderProgress.setVisibility(View.INVISIBLE);
-		}
+//		if (View.VISIBLE == mHeaderProgress.getVisibility()) {
+//			mHeaderProgress.setVisibility(View.INVISIBLE);
+//		}
 		if (View.VISIBLE == mHeaderImage.getVisibility()) {
 			mHeaderImage.setVisibility(View.INVISIBLE);
 		}
@@ -315,9 +315,9 @@ public abstract class LoadingLayout extends FrameLayout implements ILoadingLayou
 		if (View.INVISIBLE == mHeaderText.getVisibility()) {
 			mHeaderText.setVisibility(View.VISIBLE);
 		}
-		if (View.INVISIBLE == mHeaderProgress.getVisibility()) {
-			mHeaderProgress.setVisibility(View.VISIBLE);
-		}
+//		if (View.INVISIBLE == mHeaderProgress.getVisibility()) {
+//			mHeaderProgress.setVisibility(View.VISIBLE);
+//		}
 		if (View.INVISIBLE == mHeaderImage.getVisibility()) {
 			mHeaderImage.setVisibility(View.VISIBLE);
 		}

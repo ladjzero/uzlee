@@ -15,7 +15,6 @@ import org.apache.commons.lang3.time.DateUtils;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.LruCache;
@@ -26,6 +25,7 @@ import android.view.ViewParent;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.ladjzero.hipda.Core;
@@ -45,6 +45,8 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	private HashMap<String, Double> mImageWidthHeight = new HashMap<String, Double>();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	private Date mNow;
+	private int mHoloBlue;
+	private int mTransparent;
 
 	public PostsAdapter(Context context, Posts posts) {
 		super(context, R.layout.post, posts);
@@ -64,6 +66,9 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 				return weight;
 			}
 		};
+
+		mHoloBlue = context.getResources().getColor(android.R.color.holo_blue_dark);
+		mTransparent = context.getResources().getColor(android.R.color.transparent);
 	}
 
 	public void clearViewCache() {
@@ -93,7 +98,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(final int position, View convertView, final ViewGroup parent) {
 		View row = convertView;
 		final PostHolder holder = row == null ? new PostHolder() : (PostHolder) row.getTag();
 
@@ -169,7 +174,39 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		ArrayList<View> niceBody = mViewCache.get(position);
 
 		if (niceBody == null) {
-			niceBody = buildBody(post);
+			niceBody = buildBody(post, new TextViewWithLinks.OnClickLinksListener() {
+				@Override
+				public void onLinkClick(String url) {
+					if (url.startsWith("http://www.hi-pda.com/forum/")) {
+						Uri uri = Uri.parse(url);
+						String tid = uri.getQueryParameter("tid");
+						String page = uri.getQueryParameter("page");
+						if (page == null || page.length() == 0) page = "1";
+
+						if (tid != null && tid.length() > 0) {
+							Intent intent = new Intent(context, PostsActivity.class);
+							intent.putExtra("tid", Integer.valueOf(tid));
+							intent.putExtra("page", Integer.valueOf(page));
+							context.startActivity(intent);
+
+						} else {
+							Intent intent = new Intent(Intent.ACTION_VIEW);
+							intent.setData(Uri.parse(url));
+							context.startActivity(intent);
+						}
+					} else {
+						Intent intent = new Intent(Intent.ACTION_VIEW);
+						intent.setData(Uri.parse(url));
+						context.startActivity(intent);
+					}
+				}
+
+				@Override
+				public void onTextViewClick() {
+					// -1 because of header
+					((ListView) parent).performItemClick(parent, position - 1, 0);
+				}
+			});
 			mViewCache.put(position, niceBody);
 		}
 
@@ -299,7 +336,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		}
 	}
 
-	private ArrayList<View> buildBody(final Post post) {
+	private ArrayList<View> buildBody(final Post post, final TextViewWithLinks.OnClickLinksListener onClickLinksListener) {
 		ArrayList<View> views = new ArrayList<View>();
 
 		for (Map.Entry<Core.BodyType, String> bodySnippet : post.getNiceBody()) {
@@ -308,51 +345,21 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 					String body = bodySnippet.getValue();
 
 					if (body.trim().length() > 0) {
-						TextView textView;
 
 						if (body.equals("blocked!")) {
-							textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
+							TextView textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
 							textView.setText(context.getString(R.string.blocked));
+							textView.setTag(Integer.valueOf(1));
+							views.add(textView);
 						} else {
-							textView = (TextViewWithLinks) context.getLayoutInflater().inflate(R.layout.post_body_text_segment, null);
+							final TextViewWithLinks textView = (TextViewWithLinks) context.getLayoutInflater().inflate(R.layout.post_body_text_segment, null);
 							textView.setText(context.emojiUtils.getSmiledText(context, body));
-							((TextViewWithLinks) textView).linkify(new TextViewWithLinks.OnClickLinksListener() {
-								@Override
-								public void onLinkClick(String url) {
-									if (url.startsWith("http://www.hi-pda.com/forum/")) {
-										Uri uri = Uri.parse(url);
-										String tid = uri.getQueryParameter("tid");
-										String page = uri.getQueryParameter("page");
-										if (page == null || page.length() == 0) page = "1";
+							textView.linkify(onClickLinksListener);
+							textView.setLinkColors(mHoloBlue, mTransparent);
 
-										if (tid != null && tid.length() > 0) {
-											Intent intent = new Intent(context, PostsActivity.class);
-											intent.putExtra("tid", Integer.valueOf(tid));
-											intent.putExtra("page", Integer.valueOf(page));
-											context.startActivity(intent);
-
-										} else {
-											Intent intent = new Intent(Intent.ACTION_VIEW);
-											intent.setData(Uri.parse(url));
-											context.startActivity(intent);
-										}
-									} else {
-										Intent intent = new Intent(Intent.ACTION_VIEW);
-										intent.setData(Uri.parse(url));
-										context.startActivity(intent);
-									}
-								}
-
-								@Override
-								public void onTextViewClick() {
-
-								}
-							});
+							textView.setTag(Integer.valueOf(1));
+							views.add(textView);
 						}
-
-						//CacheWeight
-						textView.setTag(Integer.valueOf(1));
-						views.add(textView);
 					}
 
 					break;

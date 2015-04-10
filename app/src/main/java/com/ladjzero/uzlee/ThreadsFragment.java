@@ -98,6 +98,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	public void setTypeId(int typeId) {
 		this.typeId = typeId;
 		mThreads.clear();
+		adapter.notifyDataSetChanged();
 		fetch(1, this);
 	}
 
@@ -381,6 +382,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 				Intent intent = new Intent(mActivity, PostsActivity.class);
 				intent.putExtra("tid", thread.getId());
 				intent.putExtra("page", 9999);
+				intent.putExtra("title", thread.getTitle());
 
 				startActivity(intent);
 		}

@@ -80,7 +80,6 @@ public class LinkMovementMethodExt extends LinkMovementMethod{
 
 					listener.onKeyDownOnTextView();
 				}
-				
 			}
 		}
 		else

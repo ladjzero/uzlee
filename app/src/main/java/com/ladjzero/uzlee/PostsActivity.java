@@ -28,16 +28,12 @@ import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.DBHelper;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
-import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
-import org.apache.commons.collections.Transformer;
-import org.apache.commons.lang3.StringUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Map;
 
 import me.drakeet.materialdialog.MaterialDialog;
@@ -81,6 +77,8 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		mTid = intent.getIntExtra("tid", 0);
 		mPage = intent.getIntExtra("page", 1);
 		mInitToLastPost = mPage == 9999;
+
+		setTitle(intent.getStringExtra("title"));
 
 		Log.d("POST_ID", ",tid=" + mTid + " page=" + mPage);
 
@@ -143,6 +141,8 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 					case 0:
 						orderType = orderType == 0 ? 1 : 0;
 						fetch(1, PostsActivity.this);
+						// dismiss before data change, visual perfect
+						mMenuDialog.dismiss();
 						actionsAdapter.notifyDataSetChanged();
 						break;
 					case 1:
@@ -163,13 +163,8 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 								} else {
 									if (html.contains("您曾经收藏过这个主题")) {
 										final MaterialDialog dialog = new MaterialDialog(PostsActivity.this);
-										dialog.setTitle("确认").setMessage("已经收藏过该主题")
-												.setNegativeButton(getString(R.string.cancel), new View.OnClickListener() {
-													@Override
-													public void onClick(View v) {
-														dialog.dismiss();
-													}
-												})
+										dialog.setCanceledOnTouchOutside(true)
+												.setMessage("已经收藏过该主题")
 												.setPositiveButton("移除收藏", new View.OnClickListener() {
 													@Override
 													public void onClick(View v) {

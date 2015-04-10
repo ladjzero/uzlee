@@ -5,12 +5,11 @@
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="show_fixed_threads"
-            android:summary="需要刷新主题列表才能生效"
             android:title="显示置顶主题"/>
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="highlight_unread"
-            android:title="突出显示未读的主题"/>
+            android:title="突出显示未读主题"/>
     </PreferenceCategory>
 </PreferenceScreen>

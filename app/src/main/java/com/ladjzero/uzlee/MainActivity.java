@@ -7,6 +7,7 @@ import com.ladjzero.hipda.*;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,8 +21,11 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import me.drakeet.materialdialog.MaterialDialog;
 
 public class MainActivity extends BaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
@@ -120,8 +124,8 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 				});
 				break;
 			case 8:
-				AlertDialog.Builder alert = new AlertDialog.Builder(this);
-				alert.setTitle("关于");
+				final MaterialDialog mMaterialDialog = new MaterialDialog(this);
+				mMaterialDialog.setCanceledOnTouchOutside(true);
 
 				final View v = getLayoutInflater().inflate(R.layout.about, null);
 				WebView webView = (WebView) v.findViewById(R.id.about_webView);
@@ -133,26 +137,17 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 						return true;
 					}
 				});
-				alert.setView(v);
-				alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
 
+				mMaterialDialog.setContentView(v);
+				mMaterialDialog.setPositiveButton("检查更新", new View.OnClickListener() {
 					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.cancel();
-					}
-
-				});
-
-				alert.setNegativeButton(getString(R.string.check_update), new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
+					public void onClick(View v) {
+						mMaterialDialog.dismiss();
 						Core.requestUpdate();
-						dialog.cancel();
 					}
-
 				});
-				alert.show();
+				mMaterialDialog.show();
+
 				break;
 			default:
 				showToast("暂不可用");
