@@ -8,5 +8,5 @@
     android:focusableInTouchMode="false"
     android:lineSpacingExtra="6dp"
     android:text="TextView"
-    android:textColor="@color/dark"
+    android:textColor="@color/smallFont"
     android:textSize="16sp"/>

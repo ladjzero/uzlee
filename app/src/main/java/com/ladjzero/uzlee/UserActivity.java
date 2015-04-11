@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import com.j256.ormlite.dao.Dao;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.User;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
@@ -47,7 +48,7 @@ public class UserActivity extends SwipeActivity {
 				String img = user.getImage();
 
 				if (img != null) {
-					ImageLoader.getInstance().displayImage(img, imageView);
+					ImageLoader.getInstance().displayImage(img, imageView, DisplayImageOptions.createSimple());
 				}
 			}
 		} catch (SQLException e) {

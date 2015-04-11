@@ -1,11 +1,15 @@
 package com.ladjzero.uzlee;
 
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.util.TypedValue;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.j256.ormlite.dao.Dao;
 import com.ladjzero.hipda.Core;
@@ -16,30 +20,24 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.util.TypedValue;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
 public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClickListener {
 
+	private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+	private final Date NOW = new Date();
 	BaseActivity context;
 	Core core;
 	DBHelper db;
 	Dao<User, Integer> userDao;
-	private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-	private final Date NOW = new Date();
 	private int mCommentBgColor;
 	private int mWhite;
 	private int mUserNameColor;
@@ -72,89 +70,54 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View row = convertView;
-		final PostHolder holder = row == null ? new PostHolder()
-				: (PostHolder) row.getTag();
+		final PostHolder holder = row == null ? new PostHolder() : (PostHolder) row.getTag();
 
 		if (row == null) {
-			LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-			row = inflater.inflate(R.layout.thread, parent, false);
+			row = context.getLayoutInflater().inflate(R.layout.thread, parent, false);
 
 			holder.img = (ImageView) row.findViewById(R.id.user_image);
 			holder.imageMask = (TextView) row.findViewById(R.id.user_image_mask);
 			holder.name = (TextView) row.findViewById(R.id.user_mini_name);
 			holder.title = (TextView) row.findViewById(R.id.thread_title);
 			holder.date = (TextView) row.findViewById(R.id.thread_date);
-			holder.commentCount = (TextView) row
-					.findViewById(R.id.thread_comment_count);
+			holder.commentCount = (TextView) row.findViewById(R.id.thread_comment_count);
 
 			row.setTag(holder);
 		}
 
 		final Thread thread = getItem(position);
-		final User user = thread.getAuthor();
-		String imageUrl = user.getImage();
+		final User author = thread.getAuthor();
+		String imageUrl = author.getImage();
+		final int uid = author.getId();
+		final String userName = author.getName();
+		String color = thread.getColor();
+		int count = thread.getCommentCount();
+		boolean isNew = thread.isNew();
 
-		final int uid = user.getId();
+		row.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.uglee : android.R.color.white);
+		holder.imageMask.setText(Utils.getFirstChar(userName));
 
-		if (uid == Core.UGLEE_ID) {
-			row.setBackgroundResource(R.color.uglee);
-		} else {
-			row.setBackgroundResource(android.R.color.white);
-		}
+		ImageLoader.getInstance().displayImage(imageUrl, holder.img, new SimpleImageLoadingListener() {
+			@Override
+			public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
+				author.setImage(imageUri);
+			}
 
-		final String userName = user.getName();
+			@Override
+			public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
+				((ImageView) view).setImageResource(android.R.color.transparent);
+				author.setImage(null);
+				holder.imageMask.setText(Utils.getFirstChar(userName));
+			}
+		});
 
-
-		if (imageUrl == null) {
-			holder.imageMask.setVisibility(View.VISIBLE);
-			holder.imageMask.setText(Utils.getFirstChar(userName));
-		} else {
-			ImageLoader.getInstance().displayImage(imageUrl, holder.img, new SimpleImageLoadingListener() {
-				@Override
-				public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
-					user.setImage(imageUri);
-					holder.imageMask.setVisibility(View.GONE);
-
-				}
-
-				@Override
-				public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
-					user.setImage(null);
-					holder.imageMask.setVisibility(View.VISIBLE);
-					holder.imageMask.setText(Utils.getFirstChar(userName));
-				}
-			});
-		}
-
-		holder.img.setTag(user);
-		holder.name.setTag(user);
+		holder.img.setTag(author);
+		holder.name.setTag(author);
 //		holder.name.getPaint().setFakeBoldText(true);
 		holder.img.setOnClickListener(this);
 		holder.name.setOnClickListener(this);
-
 		holder.date.setText(prettyTime(thread.getDateStr()));
-
-//		holder.img.setOnClickListener(new View.OnClickListener() {
-//			@Override
-//			public void onClick(View view) {
-//				Intent intent = new Intent(context, UserActivity.class);
-//				intent.putExtra("uid", uid);
-//				intent.putExtra("name", userName);
-//				context.startActivity(intent);
-//			}
-//		});
-
 		holder.name.setText(thread.getAuthor().getName());
-
-//		holder.name.setOnClickListener(new View.OnClickListener() {
-//			@Override
-//			public void onClick(View view) {
-//				Intent intent = new Intent(context, UserActivity.class);
-//				intent.putExtra("uid", uid);
-//				intent.putExtra("name", userName);
-//				context.startActivity(intent);
-//			}
-//		});
 
 		if (Core.bans.contains(uid)) {
 			holder.title.setText(context.getString(R.string.blocked));
@@ -163,16 +126,11 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 			holder.title.getPaint().setFakeBoldText(thread.getBold());
 		}
 
-		String color = thread.getColor();
-
 		if (color != null && color.length() > 0) {
 			holder.title.setTextColor(lowerSaturation(Color.parseColor(color)));
 		} else {
 			holder.title.setTextColor(Color.BLACK);
 		}
-
-		int count = thread.getCommentCount();
-		boolean isNew = thread.isNew();
 
 		if (mHighlightUnread) {
 			holder.commentCount.setBackgroundResource(isNew ? R.color.commentNoBg : R.color.border);
@@ -196,15 +154,6 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		intent.putExtra("uid", user.getId());
 		intent.putExtra("name", user.getName());
 		context.startActivity(intent);
-	}
-
-	static class PostHolder {
-		ImageView img;
-		TextView imageMask;
-		TextView name;
-		TextView date;
-		TextView title;
-		TextView commentCount;
 	}
 
 	private String prettyTime(String timeStr) {
@@ -238,5 +187,14 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		Color.colorToHSV(color, hsv);
 		hsv[1] = hsv[1] * rate;
 		return Color.HSVToColor(hsv);
+	}
+
+	static class PostHolder {
+		ImageView img;
+		TextView imageMask;
+		TextView name;
+		TextView date;
+		TextView title;
+		TextView commentCount;
 	}
 }

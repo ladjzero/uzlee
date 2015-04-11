@@ -1,6 +1,5 @@
 package com.ladjzero.uzlee;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -8,16 +7,12 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
 
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-
-import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 
 
 public class ImageActivity extends SwipeActivity implements SwipeActivity.OnSwipeToggle{
@@ -47,7 +42,7 @@ public class ImageActivity extends SwipeActivity implements SwipeActivity.OnSwip
 
 		url = getIntent().getStringExtra("url");
 		tid = getIntent().getIntExtra("tid", 0);
-		ImageLoader.getInstance().displayImage(url, imageView, displayImageOptions_no_scale);
+		ImageLoader.getInstance().displayImage(url, imageView, imageStandAlone);
 	}
 
 

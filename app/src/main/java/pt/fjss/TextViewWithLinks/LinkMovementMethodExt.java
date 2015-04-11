@@ -78,7 +78,7 @@ public class LinkMovementMethodExt extends LinkMovementMethod{
 			} else {
 				if (action == MotionEvent.ACTION_UP) {
 
-					listener.onKeyDownOnTextView();
+					listener.onKeyDownOnTextView(event);
 				}
 			}
 		}
@@ -96,7 +96,7 @@ public class LinkMovementMethodExt extends LinkMovementMethod{
 
 		void onKeyUpOnLink(MessageSpan msg);
 
-		void onKeyDownOnTextView();
+		void onKeyDownOnTextView(MotionEvent event);
 		
 		void onScroll(TextView widget);
 	}

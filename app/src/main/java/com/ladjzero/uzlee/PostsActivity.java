@@ -29,6 +29,8 @@ import com.ladjzero.hipda.DBHelper;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.User;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
@@ -105,6 +107,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 				fetch(mPosts.getPage() + 1, PostsActivity.this);
 			}
 		});
+		mListView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), true, true));
 
 		mMenuView = getLayoutInflater().inflate(R.layout.posts_actions_dialog, null);
 

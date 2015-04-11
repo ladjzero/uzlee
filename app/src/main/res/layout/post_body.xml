@@ -3,6 +3,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:layout_marginTop="10dp"
+              android:focusable="false"
               android:orientation="vertical">
 
     <include layout="@layout/post_quote"/>

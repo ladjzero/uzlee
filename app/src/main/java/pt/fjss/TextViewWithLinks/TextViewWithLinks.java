@@ -11,6 +11,7 @@ import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.widget.TextView;
 
 public class TextViewWithLinks extends TextView {
@@ -66,8 +67,8 @@ public class TextViewWithLinks extends TextView {
 			}
 
 			@Override
-			public void onKeyDownOnTextView() {
-				l.onTextViewClick();
+			public void onKeyDownOnTextView(MotionEvent event) {
+				l.onTextViewClick(event);
 			}
 
 			@Override
@@ -107,6 +108,6 @@ public class TextViewWithLinks extends TextView {
 	public interface OnClickLinksListener {
 		public void onLinkClick(String url);
 
-		public void onTextViewClick();
+		public void onTextViewClick(MotionEvent event);
 	}
 }

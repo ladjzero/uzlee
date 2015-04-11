@@ -36,6 +36,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.util.ArrayList;
 
+import me.drakeet.materialdialog.MaterialDialog;
+
 
 public class EditActivity extends SwipeActivity implements Core.OnRequestListener {
 	public static final int EDIT_SUCCESS = 10;
@@ -229,32 +231,22 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 			photoPickerIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 			startActivityForResult(photoPickerIntent, SELECT_PHOTO);
 		} else if (id == R.id.delete_post) {
-			AlertDialog.Builder alert = new AlertDialog.Builder(this);
-			alert.setTitle("删除该回复？(实验性)");
+			final MaterialDialog materialDialog = new MaterialDialog(this);
 
+			materialDialog.setTitle("删除该回复？(实验性)")
+					.setPositiveButton(getString(R.string.delete), new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							materialDialog.dismiss();
+							progress.setTitle(getString(R.string.delete));
+							progress.show();
+							Core.deletePost(fid, tid, pid, EditActivity.this);
+						}
+					})
+					.setMessage("")
+					.setCanceledOnTouchOutside(true);
 
-			alert.setPositiveButton(getString(R.string.delete), new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.cancel();
-					progress.setTitle(getString(R.string.delete));
-					progress.show();
-					Core.deletePost(fid, tid, pid, EditActivity.this);
-				}
-
-			});
-
-			alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.cancel();
-				}
-
-			});
-
-			alert.show();
+			materialDialog.show();
 		} else if (id == R.id.reply_add_emoji) {
 			if (!mIsAnimating) {
 				if (mEmojiSelector.getVisibility() == View.GONE) {

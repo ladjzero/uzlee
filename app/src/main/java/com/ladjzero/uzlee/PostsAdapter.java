@@ -1,23 +1,16 @@
 package com.ladjzero.uzlee;
 
-import java.util.Date;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.lang3.time.DateUtils;
-
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.util.LruCache;
+import android.os.AsyncTask;
+import android.text.Layout;
+import android.text.Spannable;
+import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -36,17 +29,32 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import pt.fjss.TextViewWithLinks.TextViewWithLinks;
 
 public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener {
 	private PostsActivity context;
 	private Posts mPosts;
-	private LruCache<Integer, ArrayList<View>> mViewCache;
-	private HashMap<String, Double> mImageWidthHeight = new HashMap<String, Double>();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	private Date mNow;
 	private int mHoloBlue;
 	private int mTransparent;
+	private HashMap<Post, Integer> mItemHeights = new HashMap<Post, Integer>();
+	private HashMap<Post, ArrayList<View>> mBodyCache = new HashMap<Post, ArrayList<View>>();
+	private ListView mListView;
+	private int[] layoutXY = new int[2];
 
 	public PostsAdapter(Context context, Posts posts) {
 		super(context, R.layout.post, posts);
@@ -54,25 +62,24 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		mPosts = posts;
 		mNow = new Date();
 
-		mViewCache = new LruCache<Integer, ArrayList<View>>(110) {
-			@Override
-			protected int sizeOf(Integer key, ArrayList<View> value) {
-				int weight = 0;
 
-				for (View v : value) {
-					weight += (Integer) v.getTag();
-				}
-
-				return weight;
-			}
-		};
-
-		mHoloBlue = context.getResources().getColor(android.R.color.holo_blue_dark);
-		mTransparent = context.getResources().getColor(android.R.color.transparent);
+		Resources res = context.getResources();
+		mHoloBlue = res.getColor(android.R.color.holo_blue_dark);
+		mTransparent = res.getColor(android.R.color.transparent);
 	}
 
 	public void clearViewCache() {
-		mViewCache.evictAll();
+		for (ArrayList<View> views : mBodyCache.values()) {
+			for (View view : views) {
+				Object tag = view.getTag();
+				if (tag instanceof PostImageView) {
+					PostImageView imageView = (PostImageView) tag;
+					//http://stackoverflow.com/questions/2859212/how-to-clear-an-imageview-in-android
+					imageView.setImageResource(R.drawable.none);
+					imageView.setTag(R.id.img_has_bitmap, false);
+				}
+			}
+		}
 	}
 
 
@@ -98,9 +105,15 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	}
 
 	@Override
-	public View getView(final int position, View convertView, final ViewGroup parent) {
+	public View getView(int position, View convertView, final ViewGroup parent) {
+		if (mListView == null) {
+			mListView = (ListView) parent;
+			mListView.getLocationOnScreen(layoutXY);
+		}
+
 		View row = convertView;
 		final PostHolder holder = row == null ? new PostHolder() : (PostHolder) row.getTag();
+		int convertPosition = holder.position;
 
 		if (row == null) {
 			row = context.getLayoutInflater().inflate(R.layout.post, parent, false);
@@ -118,26 +131,34 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			holder.postNo = (TextView) row.findViewById(R.id.post_no);
 			holder.postDate = (TextView) row.findViewById(R.id.post_date);
 			holder.quotePostNo = (TextView) holder.quoteLayout.findViewById(R.id.post_no);
-
-			row.setTag(holder);
 		}
+
+		holder.position = position;
+		row.setTag(holder);
 
 		final Post post = getItem(position);
 		final User author = post.getAuthor();
 		final String userName = author.getName();
-		String imageUrl = author.getImage();
+		final String imageUrl = author.getImage();
 		String sig = post.getSig();
 		final int uid = author.getId();
+		int index = post.getPostIndex();
+		Post quote = post.getQuote();
 
+		holder.body.removeAllViews();
 		holder.name.setText(userName);
 		holder.name.setTag(author);
 		holder.name.setOnClickListener(this);
 		holder.img.setTag(author);
 		holder.img.setOnClickListener(this);
-
-		holder.title.setVisibility(position == 0 ? View.VISIBLE : View.GONE);
+		holder.imageMask.setText(Utils.getFirstChar(userName));
+		holder.postDate.setText(prettyTime(post.getTimeStr()));
+		holder.postNo.setText(index == 1 ? "楼主" : index + "楼");
+		holder.quoteLayout.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.ugleeQuote : R.color.snow_light);
+		row.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.uglee : android.R.color.white);
 
 		if (post.getPostIndex() == 1) {
+			holder.title.setVisibility(View.VISIBLE);
 			holder.title.setText(mPosts.getTitle());
 		} else {
 			holder.title.setVisibility(View.GONE);
@@ -150,12 +171,6 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			holder.sig.setVisibility(View.GONE);
 		}
 
-		if (imageUrl == null) {
-			holder.imageMask.setVisibility(View.VISIBLE);
-			holder.imageMask.setText(Utils.getFirstChar(userName));
-		} else {
-			holder.imageMask.setVisibility(View.GONE);
-
 			ImageLoader.getInstance().displayImage(imageUrl, holder.img, new SimpleImageLoadingListener() {
 				@Override
 				public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
@@ -165,116 +180,76 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 				@Override
 				public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
 					author.setImage(null);
-					holder.imageMask.setVisibility(View.VISIBLE);
+					((ImageView) view).setImageResource(android.R.color.transparent);
 					holder.imageMask.setText(Utils.getFirstChar(userName));
 				}
 			});
-		}
 
-		ArrayList<View> niceBody = mViewCache.get(position);
+		buildBodyAsync(post, new OnBuildBody() {
+			@Override
+			public void buildBody(ArrayList<View> views) {
+				if (Core.bans.contains(uid)) {
+					TextView view = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
+					view.setText(context.getString(R.string.blocked));
+					holder.body.addView(view);
+				} else {
+					for (View view : views) {
+						ViewParent vParent = view.getParent();
+						if (vParent != null) ((ViewGroup) vParent).removeView(view);
+						holder.body.addView(view);
 
-		if (niceBody == null) {
-			niceBody = buildBody(post, new TextViewWithLinks.OnClickLinksListener() {
-				@Override
-				public void onLinkClick(String url) {
-					if (url.startsWith("http://www.hi-pda.com/forum/")) {
-						Uri uri = Uri.parse(url);
-						String tid = uri.getQueryParameter("tid");
-						String page = uri.getQueryParameter("page");
-						if (page == null || page.length() == 0) page = "1";
+						Object childView = view.getTag();
+						if (childView instanceof PostImageView) {
+							PostImageView imageView = (PostImageView) childView;
+							final String url = (String) imageView.getTag(R.id.img_url);
+							boolean hasBitmap = (Boolean) imageView.getTag(R.id.img_has_bitmap);
 
-						if (tid != null && tid.length() > 0) {
-							Intent intent = new Intent(context, PostsActivity.class);
-							intent.putExtra("tid", Integer.valueOf(tid));
-							intent.putExtra("page", Integer.valueOf(page));
-							context.startActivity(intent);
+							Double widthHeight = (Double) imageView.getTag(R.id.img_width_height);
 
-						} else {
-							Intent intent = new Intent(Intent.ACTION_VIEW);
-							intent.setData(Uri.parse(url));
-							context.startActivity(intent);
+							if (widthHeight != null) imageView.setWidthHeight(widthHeight);
+
+							if (!hasBitmap) {
+								ImageLoader.getInstance().displayImage(url, imageView, context.postImageInList, new SimpleImageLoadingListener() {
+									@Override
+									public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
+										view.setTag(R.id.img_has_bitmap, true);
+										view.setTag(R.id.img_width_height, 1.0 * loadedImage.getWidth() / loadedImage.getHeight());
+									}
+								});
+							}
 						}
-					} else {
-						Intent intent = new Intent(Intent.ACTION_VIEW);
-						intent.setData(Uri.parse(url));
-						context.startActivity(intent);
 					}
 				}
-
-				@Override
-				public void onTextViewClick() {
-					// -1 because of header
-					((ListView) parent).performItemClick(parent, position - 1, 0);
-				}
-			});
-			mViewCache.put(position, niceBody);
-		}
-
-		holder.body.removeAllViews();
-
-		if (Core.bans.contains(uid)) {
-			TextView view = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
-			view.setText(context.getString(R.string.blocked));
-			holder.body.addView(view);
-		} else {
-			for (View view : niceBody) {
-				ViewParent vParent = view.getParent();
-				if (vParent != null) ((ViewGroup) vParent).removeView(view);
-				holder.body.addView(view);
 			}
-		}
-
-		int index = post.getPostIndex();
-		holder.postNo.setText(index == 1 ? "楼主" : index + "楼");
-
-		Post quote = post.getQuote();
-
-		if (author.getId() == Core.UGLEE_ID) {
-			row.setBackgroundResource(R.color.uglee);
-			holder.quoteLayout.setBackgroundResource(R.color.ugleeQuote);
-		} else {
-			row.setBackgroundResource(android.R.color.white);
-			holder.quoteLayout.setBackgroundResource(R.color.snow_light);
-		}
+		});
 
 		if (quote != null) {
+			holder.quoteLayout.setVisibility(View.VISIBLE);
+
 			final int quoteId = quote.getId();
 
 			Post betterQuote = (Post) CollectionUtils.find(mPosts, new Predicate() {
-
 				@Override
 				public boolean evaluate(Object post) {
 					return ((Post) post).getId() == quoteId;
 				}
-
 			});
 
 			if (betterQuote != null) {
-				User quoteUser = betterQuote.getAuthor();
+				User _user = betterQuote.getAuthor();
+				int _index = betterQuote.getPostIndex();
+				Map.Entry<Core.BodyType, String> _body = betterQuote.getNiceBody().get(0);
 
-				if (quoteUser.getId() == Core.UGLEE_ID) {
-					holder.quoteLayout.setBackgroundResource(R.color.uglee);
-				}
+				holder.quoteName.setText(_user.getName());
+				holder.quotePostNo.setText(_index == 1 ? "楼主" : _index + "楼");
 
-				int quid = quoteUser.getId();
-
-				holder.quoteLayout.setVisibility(View.VISIBLE);
-				holder.quoteName.setText(quoteUser.getName());
-				Map.Entry<Core.BodyType, String> bodySnippet0 = betterQuote.getNiceBody().get(0);
-
-
-				if (Core.bans.contains(quid)) {
+				if (Core.bans.contains(_user.getId())) {
 					holder.quoteBody.setText(context.getString(R.string.blocked));
 				} else {
-					holder.quoteBody
-							.setText(bodySnippet0.getKey() == Core.BodyType.TXT ?
-									bodySnippet0.getValue() : "[image]");
+					holder.quoteBody.setText(
+							_body.getKey() == Core.BodyType.TXT ? _body.getValue() : "[图像]");
 				}
-
-				int qIndex = betterQuote.getPostIndex();
-				holder.quotePostNo.setText(qIndex == 1 ? "楼主" : qIndex + "楼");
 			} else {
-				holder.quoteLayout.setVisibility(View.VISIBLE);
 				holder.quoteName.setText(quote.getAuthor().getName());
 				holder.quoteBody.setText(quote.getBody());
 
@@ -288,7 +263,12 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			holder.quoteLayout.setVisibility(View.GONE);
 		}
 
-		holder.postDate.setText(prettyTime(post.getTimeStr()));
+		Integer height = mItemHeights.get(post);
+		if (height != null && height > 0) {
+			ViewGroup.LayoutParams params = row.getLayoutParams();
+			params.height = height;
+			row.setLayoutParams(params);
+		}
 
 		return row;
 	}
@@ -300,22 +280,6 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		intent.putExtra("uid", user.getId());
 		intent.putExtra("name", user.getName());
 		context.startActivity(intent);
-	}
-
-	static class PostHolder {
-		ImageView img;
-		TextView imageMask;
-		ImageView quoteImg;
-		TextView title;
-		TextView name;
-		TextView quoteName;
-		LinearLayout body;
-		TextView sig;
-		TextView quoteBody;
-		TextView postNo;
-		TextView postDate;
-		TextView quotePostNo;
-		View quoteLayout;
 	}
 
 	private String prettyTime(String timeStr) {
@@ -336,7 +300,31 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		}
 	}
 
-	private ArrayList<View> buildBody(final Post post, final TextViewWithLinks.OnClickLinksListener onClickLinksListener) {
+	private void buildBodyAsync(final Post post, final OnBuildBody onBuildBody) {
+		ArrayList<View> views = mBodyCache.get(post);
+
+		if (views == null) {
+			new AsyncTask<Post, Void, ArrayList<View>>() {
+
+				@Override
+				protected ArrayList<View> doInBackground(Post[] posts) {
+					ArrayList<View> views = buildBody(posts[0]);
+					mBodyCache.put(post, views);
+
+					return views;
+				}
+
+				@Override
+				protected void onPostExecute(ArrayList<View> views) {
+					onBuildBody.buildBody(views);
+				}
+			}.execute(post);
+		} else {
+			onBuildBody.buildBody(views);
+		}
+	}
+
+	private ArrayList<View> buildBody(final Post post) {
 		ArrayList<View> views = new ArrayList<View>();
 
 		for (Map.Entry<Core.BodyType, String> bodySnippet : post.getNiceBody()) {
@@ -344,43 +332,71 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 				case TXT:
 					String body = bodySnippet.getValue();
 
-					if (body.trim().length() > 0) {
+					if (body.equals("blocked!")) {
+						TextView textView = (TextView) context.getLayoutInflater()
+								.inflate(R.layout.post_body_fa_text_segment, null);
+						textView.setText(context.getString(R.string.blocked));
+						textView.setTag(Integer.valueOf(1));
+						views.add(textView);
+					} else {
+						final TextViewWithLinks textView = (TextViewWithLinks) context
+								.getLayoutInflater().inflate(R.layout.post_body_text_segment, null);
+						textView.setText(context.emojiUtils.getSmiledText(context, body));
+						textView.linkify(new TextViewWithLinks.OnClickLinksListener() {
+							@Override
+							public void onLinkClick(String url) {
+								if (url.startsWith("http://www.hi-pda.com/forum/")) {
+									Uri uri = Uri.parse(url);
+									String tid = uri.getQueryParameter("tid");
+									String page = uri.getQueryParameter("page");
+									if (page == null || page.length() == 0) page = "1";
 
-						if (body.equals("blocked!")) {
-							TextView textView = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
-							textView.setText(context.getString(R.string.blocked));
-							textView.setTag(Integer.valueOf(1));
-							views.add(textView);
-						} else {
-							final TextViewWithLinks textView = (TextViewWithLinks) context.getLayoutInflater().inflate(R.layout.post_body_text_segment, null);
-							textView.setText(context.emojiUtils.getSmiledText(context, body));
-							textView.linkify(onClickLinksListener);
-							textView.setLinkColors(mHoloBlue, mTransparent);
+									if (tid != null && tid.length() > 0) {
+										Intent intent = new Intent(context, PostsActivity.class);
+										intent.putExtra("tid", Integer.valueOf(tid));
+										intent.putExtra("page", Integer.valueOf(page));
+										context.startActivity(intent);
+									} else {
+										Intent intent = new Intent(Intent.ACTION_VIEW);
+										intent.setData(Uri.parse(url));
+										context.startActivity(intent);
+									}
+								} else {
+									Intent intent = new Intent(Intent.ACTION_VIEW);
+									intent.setData(Uri.parse(url));
+									context.startActivity(intent);
+								}
+							}
 
-							textView.setTag(Integer.valueOf(1));
-							views.add(textView);
-						}
+							@Override
+							public void onTextViewClick(MotionEvent event) {
+								int position = mListView
+										.pointToPosition(
+												(int) event.getRawX(),
+												(int) event.getRawY() - layoutXY[1]
+										);
+
+								mListView.performItemClick(mListView.getChildAt(position), position, 0);
+							}
+						});
+
+						textView.setLinkColors(mHoloBlue, mTransparent);
+
+						textView.setTag(Integer.valueOf(1));
+						views.add(textView);
 					}
 
 					break;
 				case IMG:
 					View imageContainer = context.getLayoutInflater().inflate(R.layout.post_body_image_segment, null);
 					PostImageView imageView = (PostImageView) imageContainer.findViewById(R.id.post_img);
-
-					imageContainer.setTag(Integer.valueOf(10));
+					imageContainer.setTag(imageView);
 					views.add(imageContainer);
 
 					final String url = bodySnippet.getValue();
-					Double widthHeight = mImageWidthHeight.get(url);
-					if (widthHeight != null) imageView.setWidthHeight(widthHeight);
 
-					ImageLoader.getInstance().displayImage(url, imageView, new SimpleImageLoadingListener() {
-						@Override
-						public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
-							if (mImageWidthHeight.get(url) == null)
-								mImageWidthHeight.put(url, 1.0 * loadedImage.getWidth() / loadedImage.getHeight());
-						}
-					});
+					imageView.setTag(R.id.img_url, url);
+					imageView.setTag(R.id.img_has_bitmap, false);
 
 					imageView.setOnClickListener(new OnClickListener() {
 						@Override
@@ -458,5 +474,26 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		resName += randomIndex;
 
 		return EmojiUtils.getResId(context, resName, Drawable.class);
+	}
+
+	interface OnBuildBody {
+		void buildBody(ArrayList<View> view);
+	}
+
+	static class PostHolder {
+		int position = -1;
+		ImageView img;
+		TextView imageMask;
+		ImageView quoteImg;
+		TextView title;
+		TextView name;
+		TextView quoteName;
+		LinearLayout body;
+		TextView sig;
+		TextView quoteBody;
+		TextView postNo;
+		TextView postDate;
+		TextView quotePostNo;
+		View quoteLayout;
 	}
 }

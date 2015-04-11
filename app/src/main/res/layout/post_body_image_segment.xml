@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:maxHeight="500dp"
-        android:scaleType="fitXY"
-        android:src="@android:drawable/toast_frame"/>
+        android:scaleType="fitXY"/>
 </FrameLayout>
 

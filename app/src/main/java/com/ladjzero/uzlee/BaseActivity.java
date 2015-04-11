@@ -46,10 +46,12 @@ import com.cengalabs.flatui.FlatUI;
 import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.DBHelper;
+import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 
 import de.greenrobot.event.EventBus;
 import me.drakeet.materialdialog.MaterialDialog;
@@ -60,13 +62,33 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 	SharedPreferences setting;
 	EmojiUtils emojiUtils;
 	MaterialDialog alert;
-	static DisplayImageOptions displayImageOptions_no_scale = new DisplayImageOptions.Builder()
-			.showImageForEmptyUri(R.drawable.none)
-			.showImageOnLoading(R.drawable.none)
-			.showImageOnFail(R.drawable.none)
+	static final DisplayImageOptions imageStandAlone = new DisplayImageOptions.Builder()
+			.showImageForEmptyUri(R.color.snow_primary)
+			.showImageOnLoading(R.color.snow_primary)
+			.showImageOnFail(R.color.snow_primary)
 			.cacheInMemory(true)
 			.cacheOnDisk(true)
 			.imageScaleType(ImageScaleType.NONE)
+			.build();
+
+	static final DisplayImageOptions userImageInList = new DisplayImageOptions.Builder()
+			.delayBeforeLoading(800)
+			.showImageForEmptyUri(android.R.color.transparent)
+			.showImageOnLoading(android.R.color.transparent)
+			.showImageOnFail(android.R.color.transparent)
+			.cacheInMemory(true)
+			.cacheOnDisk(true)
+			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
+			.build();
+
+	static final DisplayImageOptions postImageInList = new DisplayImageOptions.Builder()
+			.delayBeforeLoading(800)
+			.showImageForEmptyUri(R.color.snow_primary)
+			.showImageOnLoading(R.color.snow_primary)
+			.showImageOnFail(R.color.snow_primary)
+			.cacheInMemory(true)
+			.cacheOnDisk(true)
+			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
 			.build();
 
 	private boolean enableSwipe() {
@@ -98,17 +120,9 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 		actionBar.setBackgroundDrawable(FlatUI.getActionBarDrawable(this, FlatUI.DARK, false));
 		actionBar.setIcon(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
 
-		DisplayImageOptions ilOptions = new DisplayImageOptions.Builder()
-				.showImageForEmptyUri(R.drawable.none)
-				.showImageOnLoading(R.drawable.none)
-				.showImageOnFail(R.drawable.none)
-				.cacheInMemory(true)
-				.cacheOnDisk(true)
-				.build();
-
-
-		ImageLoaderConfiguration ilConfig = new ImageLoaderConfiguration.Builder(
-				this).defaultDisplayImageOptions(ilOptions).build();
+		ImageLoaderConfiguration ilConfig = new ImageLoaderConfiguration.Builder(this)
+				.memoryCacheSize(2 * 1024 * 1024)
+				.defaultDisplayImageOptions(userImageInList).build();
 		ImageLoader.getInstance().init(ilConfig);
 
 		Long lastCheck = setting.getLong("last_update_check", 0);
@@ -187,44 +201,6 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 		});
 
 		return mMaterialDialog;
-
-//		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//		builder.setTitle(getString(R.string.login_hipda));
-//		builder.setView(alertView);
-//		builder.setPositiveButton(getString(R.string.login), new OnClickListener() {
-//
-//			@Override
-//			public void onClick(DialogInterface dialog, int which) {
-//				dialog.cancel();
-//				String username = ((EditText) alertView.findViewById(R.id.user_name))
-//						.getText().toString();
-//				String password = ((EditText) alertView
-//						.findViewById(R.id.user_password)).getText().toString();
-//				final ProgressDialog progress = ProgressDialog.show(
-//						BaseActivity.this, "", getString(R.string.login) + "...", true);
-//
-//				int questionId = checkBox.isChecked() ? question.getSelectedItemPosition() : 0;
-//				String answerStr = checkBox.isChecked() ? answer.getText().toString() : "";
-//
-//				Core.login(username, password, questionId, answerStr, new Core.OnRequestListener() {
-//
-//					@Override
-//					public void onError(String error) {
-//						progress.dismiss();
-//						Toast.makeText(BaseActivity.this, error, Toast.LENGTH_LONG).show();
-//					}
-//
-//					@Override
-//					public void onSuccess(String html) {
-//						progress.dismiss();
-//						Toast.makeText(BaseActivity.this, getString(R.string.login_succeed), Toast.LENGTH_LONG).show();
-//					}
-//				});
-//			}
-//
-//		});
-//
-//		return builder.create();
 	}
 
 	@Override
@@ -268,27 +244,20 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 			String newVersion = updateInfo.getVersion();
 
 			if (new VersionComparator().compare(version, newVersion) < 0) {
-				AlertDialog.Builder alert = new AlertDialog.Builder(this);
-				alert.setTitle(getString(R.string.update_available) + " " + newVersion);
-				alert.setMessage(updateInfo.getInfo());
-				alert.setNegativeButton(getString(R.string.cancel), new OnClickListener() {
+				MaterialDialog materialDialog = new MaterialDialog(this)
+						.setTitle(getString(R.string.update_available) + " " + newVersion)
+						.setMessage(updateInfo.getInfo())
+						.setPositiveButton(getString(R.string.download), new View.OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								Uri uri = Uri.parse(updateInfo.getUri());
+								Intent downloadIntent = new Intent(Intent.ACTION_VIEW, uri);
+								startActivity(downloadIntent);
+							}
+						})
+						.setCanceledOnTouchOutside(true);
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.cancel();
-					}
-
-				});
-				alert.setPositiveButton(getString(R.string.download), new OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialogInterface, int i) {
-						Uri uri = Uri.parse(updateInfo.getUri());
-						Intent downloadIntent = new Intent(Intent.ACTION_VIEW, uri);
-						startActivity(downloadIntent);
-					}
-				});
-				alert.show();
+				materialDialog.show();
 			} else {
 				showToast("已是最新版");
 			}

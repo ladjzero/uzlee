@@ -39,6 +39,7 @@
         ptr:ptrOverScroll="false"
         ptr:ptrShowIndicator="false"
         ptr:ptrDrawable="@android:color/transparent"
-        ptr:ptrHeaderTextColor="@color/deep_light"/>
+        ptr:ptrHeaderTextColor="@color/snow_dark"
+        ptr:ptrHeaderBackground="@color/dark_dark"/>
 
 </RelativeLayout>
