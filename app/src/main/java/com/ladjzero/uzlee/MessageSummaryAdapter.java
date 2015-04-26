@@ -12,10 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.j256.ormlite.dao.Dao;
-import com.ladjzero.hipda.Core;
-import com.ladjzero.hipda.DBHelper;
+import com.ladjzero.hipda.*;
 import com.ladjzero.hipda.Thread;
-import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
@@ -30,41 +28,24 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClickListener {
-
+/**
+ * Created by ladjzero on 2015/4/25.
+ */
+public class MessageSummaryAdapter extends ArrayAdapter<Thread> implements View.OnClickListener{
 	private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 	private final Date NOW = new Date();
 	BaseActivity context;
 	Core core;
-	DBHelper db;
-	Dao<User, Integer> userDao;
-	private int mCommentBgColor;
-	private int mWhite;
-	private int mUserNameColor;
-	private boolean mHighlightUnread = true;
 
 
-	public ThreadsAdapter(Context context, ArrayList<Thread> threads) {
-		super(context, R.layout.thread, threads);
+	public MessageSummaryAdapter(Context context, ArrayList<Thread> threads) {
+		super(context, R.layout.message_row, threads);
 		this.context = (BaseActivity) context;
-		try {
-			userDao = ((BaseActivity) context).getHelper().getUserDao();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		mHighlightUnread = this.context.setting.getBoolean("highlight_unread", true);
-
-		Resources res = context.getResources();
-		mCommentBgColor = res.getColor(R.color.commentNoBg);
-		mWhite = res.getColor(android.R.color.white);
-		mUserNameColor = res.getColor(R.color.snow_darker);
 	}
 
 	@Override
 	public void notifyDataSetChanged() {
 		super.notifyDataSetChanged();
-		mHighlightUnread = this.context.setting.getBoolean("highlight_unread", true);
 	}
 
 	@Override
@@ -73,14 +54,13 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		final PostHolder holder = row == null ? new PostHolder() : (PostHolder) row.getTag();
 
 		if (row == null) {
-			row = context.getLayoutInflater().inflate(R.layout.thread, parent, false);
+			row = context.getLayoutInflater().inflate(R.layout.message_row, parent, false);
 
 			holder.image = (ImageView) row.findViewById(R.id.user_image);
 			holder.imageMask = (TextView) row.findViewById(R.id.user_image_mask);
 			holder.name = (TextView) row.findViewById(R.id.user_mini_name);
-			holder.title = (TextView) row.findViewById(R.id.thread_title);
+			holder.title = (TextView) row.findViewById(R.id.message);
 			holder.date = (TextView) row.findViewById(R.id.thread_date);
-			holder.commentCount = (TextView) row.findViewById(R.id.thread_comment_count);
 
 			row.setTag(holder);
 		}
@@ -132,18 +112,6 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 			holder.title.setTextColor(Color.BLACK);
 		}
 
-		if (mHighlightUnread) {
-			holder.commentCount.setBackgroundResource(isNew ? R.color.commentNoBg : R.color.border);
-			holder.commentCount.setTextColor(mWhite);
-			holder.commentCount.setText(String.valueOf(count));
-			holder.commentCount.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-		} else {
-			holder.commentCount.setBackgroundResource(android.R.color.transparent);
-			holder.commentCount.setTextColor(mUserNameColor);
-			holder.commentCount.setText(count + " " + (isNew ? "{fa-comments}" : "{fa-comments-o}"));
-			holder.commentCount.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-		}
-
 		return row;
 	}
 
@@ -190,11 +158,10 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 	}
 
 	static class PostHolder {
-		ImageView image;
-		TextView imageMask;
+		TextView title;
 		TextView name;
 		TextView date;
-		TextView title;
-		TextView commentCount;
+		ImageView image;
+		TextView imageMask;
 	}
 }

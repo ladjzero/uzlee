@@ -23,7 +23,6 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 	int tabIndex;
 	boolean hasNextPage = false;
 	ArrayList<Thread> threads = new ArrayList<Thread>();
-	TextView hint;
 	int pageToLoad = 1;
 	private OnFragmentInteractionListener mListener;
 	/**
@@ -101,8 +100,6 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 							 Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.simple_threads, container, false);
 
-		hint = (TextView) view.findViewById(R.id.hint);
-		hint.setVisibility(View.GONE);
 
 		// Set the adapter
 		mListView = (AbsListView) view.findViewById(R.id.simple_thread_list);
@@ -113,7 +110,6 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
 				if (hasNextPage) {
-					hint.setVisibility(View.VISIBLE);
 
 					switch (tabIndex) {
 						case 0:
@@ -196,12 +192,10 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 		this.threads.addAll(threads);
 		mAdapter.notifyDataSetChanged();
 		this.hasNextPage = hasNextPage;
-		if (hint != null) hint.setVisibility(View.GONE);
 	}
 
 	@Override
 	public void onError() {
-		if (hint != null) hint.setVisibility(View.GONE);
 		((MainActivity) getActivity()).showToast("请求错误");
 	}
 

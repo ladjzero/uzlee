@@ -1,68 +1,82 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clickable="true"
-                android:background="@android:color/white">
-
-    <ImageView
-        android:id="@+id/user_info_img"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:src="@color/blossom_light"/>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/greyBackground">
 
     <LinearLayout
-        android:id="@+id/_user_linearlayout"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="false"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/user_btn_1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="@android:color/white"
-            android:background="@color/blood_primary"
-            android:text="浏览TA的主题"
-            android:textSize="16sp"/>
-
-
-        <Button
-            android:id="@+id/user_btn_2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="@android:color/white"
-            android:background="@color/blood_primary"
-            android:text="屏蔽TA的发言"
-            android:textSize="16sp"/>
-    </LinearLayout>
-
-    <!--<ListView-->
-    <!--android:id="@+id/user_info_list"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_alignParentLeft="true"-->
-    <!--android:layout_below="@+id/user_info_img"-->
-    <!--android:layout_marginTop="14dp"-->
-    <!--android:layout_marginBottom="14dp"-->
-    <!--android:dividerHeight="0dp"-->
-    <!--android:layout_above="@+id/_user_linearlayout"/>-->
-
-    <TextView
-        android:id="@+id/user_info_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/_user_linearlayout"
-        android:background="@color/snow_primary"
-        android:gravity="center"
-        android:text="NO DATA"
-        android:textColor="@color/snow_darker"
-        android:textStyle="italic"
-        android:layout_below="@+id/user_info_img"/>
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:orientation="vertical">
 
-</RelativeLayout>
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/user_info_img"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:src="@color/blossom_light"/>
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="name"/>
+        </RelativeLayout>
+
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="14dp"
+            android:layout_marginTop="14dp">
+
+            <LinearLayout
+                android:id="@+id/user_info_list"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/_user_linearlayout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="false"
+            android:orientation="vertical">
+
+            <com.cengalabs.flatui.views.FlatButton
+                android:id="@+id/user_btn_0"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:layout_weight="1"
+                android:text="短信"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                app:fl_cornerRadius="3dp"
+                app:fl_theme="@array/grass"
+                app:fl_touchEffect="fl_ripple"/>
+
+            <com.cengalabs.flatui.views.FlatButton
+                android:id="@+id/user_btn_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:layout_weight="1"
+                android:text="屏蔽TA的发言"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                app:fl_cornerRadius="3dp"
+                app:fl_theme="@array/blood"
+                app:fl_touchEffect="fl_ripple"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

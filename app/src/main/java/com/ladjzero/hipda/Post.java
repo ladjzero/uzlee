@@ -28,7 +28,7 @@ public class Post {
 	@DatabaseField
 	private String body;
 	private int tid;
-	private ArrayList<Map.Entry<Core.BodyType, String>> niceBody;
+	private NiceBody niceBody;
 	private String type;
 	private ArrayList<Post> comments;
 	private int replyTo;
@@ -76,12 +76,12 @@ public class Post {
 		return this;
 	}
 
-	public Post setNiceBody(ArrayList<Map.Entry<Core.BodyType, String>> body) {
+	public Post setNiceBody(NiceBody body) {
 		this.niceBody = body;
 		return this;
 	}
 
-	public ArrayList<Map.Entry<Core.BodyType, String>> getNiceBody() {
+	public NiceBody getNiceBody() {
 		return niceBody;
 	}
 
@@ -211,4 +211,14 @@ public class Post {
 		this.attachments = attachments;
 		return this;
 	}
+
+	public static enum BodyType {
+		TXT,
+		IMG,
+		SIG,
+		ATT,
+		BodyType, QOT
+	}
+
+	public static class NiceBody extends ArrayList<Map.Entry<BodyType, String>> {}
 }

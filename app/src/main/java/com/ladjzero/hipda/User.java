@@ -16,6 +16,13 @@ public class User{
 	private String image;
 	@DatabaseField
 	private String grade;
+
+	private String registerDateStr;
+	private String qq;
+	private String sex;
+	private String totalThreads;
+	private String level;
+	private String points;
 	
 	public String getName() {
 		return name;
@@ -50,6 +57,60 @@ public class User{
 	}
 	public User setId(int id) {
 		this.id = id;
+		return this;
+	}
+
+	public String getRegisterDateStr() {
+		return registerDateStr;
+	}
+
+	public User setRegisterDateStr(String registerDateStr) {
+		this.registerDateStr = registerDateStr;
+		return this;
+	}
+
+	public String getQq() {
+		return qq;
+	}
+
+	public User setQq(String qq) {
+		this.qq = qq;
+		return this;
+	}
+
+	public String getSex() {
+		return sex;
+	}
+
+	public User setSex(String sex) {
+		this.sex = sex;
+		return this;
+	}
+
+	public String getTotalThreads() {
+		return totalThreads;
+	}
+
+	public User setTotalThreads(String totalThreads) {
+		this.totalThreads = totalThreads;
+		return this;
+	}
+
+	public String getLevel() {
+		return level;
+	}
+
+	public User setLevel(String level) {
+		this.level = level;
+		return this;
+	}
+
+	public String getPoints() {
+		return points;
+	}
+
+	public User setPoints(String points) {
+		this.points = points;
 		return this;
 	}
 }

@@ -269,8 +269,8 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 				ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 				StringBuilder builder = new StringBuilder();
 
-				for (Map.Entry<Core.BodyType, String> body : post.getNiceBody()) {
-					if (body.getKey() == Core.BodyType.TXT) {
+				for (Map.Entry<Post.BodyType, String> body : post.getNiceBody()) {
+					if (body.getKey() == Post.BodyType.TXT) {
 						if (builder.length() > 0) builder.append("\n");
 						builder.append(body.getValue());
 					}

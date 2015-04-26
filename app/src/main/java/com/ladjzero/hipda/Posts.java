@@ -10,6 +10,7 @@ import org.apache.commons.collections.Transformer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 public class Posts extends ArrayList<Post> {
 	private int fid;

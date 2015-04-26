@@ -50,6 +50,8 @@ dependencies {
     compile 'com.rengwuxian.materialedittext:library:2.0.3'
     compile 'me.drakeet.materialdialog:library:1.2.2'
 
+    compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
+
     compile project(':PullToRefresh')
     compile project(':DiscreteSeekBar')
 }

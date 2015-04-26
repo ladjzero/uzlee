@@ -14,7 +14,7 @@
         android:id="@+id/just_a_line"
         android:layout_width="match_parent"
         android:layout_height="1px"
-        android:background="#d9d9d9"/>
+        android:background="@color/divider"/>
 
     <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
         android:id="@+id/seekbar"

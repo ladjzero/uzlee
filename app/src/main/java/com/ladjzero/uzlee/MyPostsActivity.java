@@ -13,6 +13,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 
+import com.astuetz.PagerSlidingTabStrip;
+
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -57,7 +59,6 @@ public class MyPostsActivity extends SwipeActivity implements ActionBar.TabListe
 		// Set up the ViewPager with the sections adapter.
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
-		mViewPager.setOnPageChangeListener(this);
 
 //		PagerTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
 //		tabs.setViewPager(mViewPager);
@@ -73,7 +74,7 @@ public class MyPostsActivity extends SwipeActivity implements ActionBar.TabListe
 //			}
 //		});
 
-		PagerTabStrip tabs = (PagerTabStrip) findViewById(R.id.tabs);
+		PagerSlidingTabStrip  tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
 
 		TypedValue tv = new TypedValue();
 		if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
@@ -81,6 +82,8 @@ public class MyPostsActivity extends SwipeActivity implements ActionBar.TabListe
 			ViewGroup.LayoutParams params = tabs.getLayoutParams();
 			params.height = actionBarHeight;
 			tabs.setLayoutParams(params);
+			tabs.setViewPager(mViewPager);
+			tabs.setOnPageChangeListener(this);
 		}
 //		actionBar.hide();
 

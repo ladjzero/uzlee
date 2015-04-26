@@ -13,6 +13,4 @@
         android:dividerHeight="1px"
         android:listSelector="@android:color/transparent" />
 
-    <include layout="@layout/top_hint" />
-
 </RelativeLayout>

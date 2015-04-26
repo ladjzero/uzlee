@@ -59,7 +59,7 @@
             android:label="设置">
         </activity>
         <activity
-            android:name=".MsgActivity"
+            android:name=".AlertActivity"
             android:label="消息">
         </activity>
         <activity
@@ -73,6 +73,10 @@
         <activity
             android:name=".ImageActivity"
             android:label="图片">
+        </activity>
+        <activity
+            android:name=".ChatActivity"
+            android:label="聊天">
         </activity>
     </application>
 

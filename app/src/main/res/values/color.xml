@@ -10,5 +10,8 @@
     <color name="thread_user_name">#ff686868</color>
     <color name="ugleeQuote">@color/snow_light</color>
     <color name="uglee">@color/sand_light</color>
+    <color name="chat_me">#83c673</color>
+    <color name="divider">#d9d9d9</color>
+    <color name="greyBackground">#e7e7e7</color>
 
 </resources>

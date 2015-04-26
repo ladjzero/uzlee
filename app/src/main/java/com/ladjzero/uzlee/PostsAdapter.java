@@ -45,12 +45,13 @@ import java.util.Map;
 import pt.fjss.TextViewWithLinks.TextViewWithLinks;
 
 public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener {
-	private PostsActivity context;
+	private BaseActivity context;
 	private Posts mPosts;
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	private Date mNow;
 	private int mHoloBlue;
 	private int mTransparent;
+	private int layout = R.layout.post;
 	private HashMap<Post, Integer> mItemHeights = new HashMap<Post, Integer>();
 	private HashMap<Post, ArrayList<View>> mBodyCache = new HashMap<Post, ArrayList<View>>();
 	private ListView mListView;
@@ -58,10 +59,9 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 	public PostsAdapter(Context context, Posts posts) {
 		super(context, R.layout.post, posts);
-		this.context = (PostsActivity) context;
+		this.context = (BaseActivity) context;
 		mPosts = posts;
 		mNow = new Date();
-
 
 		Resources res = context.getResources();
 		mHoloBlue = res.getColor(android.R.color.holo_blue_dark);
@@ -82,6 +82,9 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		}
 	}
 
+	protected void setLayout(int layout) {
+		this.layout = layout;
+	}
 
 	@Override
 	public int getCount() {
@@ -106,6 +109,9 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 	@Override
 	public View getView(int position, View convertView, final ViewGroup parent) {
+		final Post post = getItem(position);
+		Post quote = post.getQuote();
+
 		if (mListView == null) {
 			mListView = (ListView) parent;
 			mListView.getLocationOnScreen(layoutXY);
@@ -116,34 +122,35 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		int convertPosition = holder.position;
 
 		if (row == null) {
-			row = context.getLayoutInflater().inflate(R.layout.post, parent, false);
+			row = context.getLayoutInflater().inflate(layout, parent, false);
 
-			holder.quoteLayout = row.findViewById(R.id.post_quote);
 			holder.img = (ImageView) row.findViewById(R.id.user_image);
 			holder.imageMask = (TextView) row.findViewById(R.id.user_image_mask);
-			holder.quoteImg = (ImageView) holder.quoteLayout.findViewById(R.id.user_image);
 			holder.title = (TextView) row.findViewById(R.id.post_title);
 			holder.name = (TextView) row.findViewById(R.id.user_mini_name);
-			holder.quoteName = (TextView) holder.quoteLayout.findViewById(R.id.user_mini_name);
 			holder.body = (LinearLayout) row.findViewById(R.id.post_body_layout);
 			holder.sig = (TextView) row.findViewById(R.id.post_body_sig);
-			holder.quoteBody = (TextView) holder.quoteLayout.findViewById(R.id.post_quote_text);
 			holder.postNo = (TextView) row.findViewById(R.id.post_no);
 			holder.postDate = (TextView) row.findViewById(R.id.post_date);
-			holder.quotePostNo = (TextView) holder.quoteLayout.findViewById(R.id.post_no);
+
+			if (quote != null) {
+				holder.quoteLayout = row.findViewById(R.id.post_quote);
+				holder.quoteImg = (ImageView) holder.quoteLayout.findViewById(R.id.user_image);
+				holder.quoteName = (TextView) holder.quoteLayout.findViewById(R.id.user_mini_name);
+				holder.quoteBody = (TextView) holder.quoteLayout.findViewById(R.id.post_quote_text);
+				holder.quotePostNo = (TextView) holder.quoteLayout.findViewById(R.id.post_no);
+			}
 		}
 
 		holder.position = position;
 		row.setTag(holder);
 
-		final Post post = getItem(position);
 		final User author = post.getAuthor();
 		final String userName = author.getName();
 		final String imageUrl = author.getImage();
 		String sig = post.getSig();
 		final int uid = author.getId();
 		int index = post.getPostIndex();
-		Post quote = post.getQuote();
 
 		holder.body.removeAllViews();
 		holder.name.setText(userName);
@@ -154,8 +161,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		holder.imageMask.setText(Utils.getFirstChar(userName));
 		holder.postDate.setText(prettyTime(post.getTimeStr()));
 		holder.postNo.setText(index == 1 ? "楼主" : index + "楼");
-		holder.quoteLayout.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.ugleeQuote : R.color.snow_light);
-		row.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.uglee : android.R.color.white);
+		row.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.uglee : android.R.color.transparent);
 
 		if (post.getPostIndex() == 1) {
 			holder.title.setVisibility(View.VISIBLE);
@@ -224,6 +230,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		});
 
 		if (quote != null) {
+			holder.quoteLayout.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.ugleeQuote : R.color.snow_light);
 			holder.quoteLayout.setVisibility(View.VISIBLE);
 
 			final int quoteId = quote.getId();
@@ -238,7 +245,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			if (betterQuote != null) {
 				User _user = betterQuote.getAuthor();
 				int _index = betterQuote.getPostIndex();
-				Map.Entry<Core.BodyType, String> _body = betterQuote.getNiceBody().get(0);
+				Map.Entry<Post.BodyType, String> _body = betterQuote.getNiceBody().get(0);
 
 				holder.quoteName.setText(_user.getName());
 				holder.quotePostNo.setText(_index == 1 ? "楼主" : _index + "楼");
@@ -247,7 +254,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 					holder.quoteBody.setText(context.getString(R.string.blocked));
 				} else {
 					holder.quoteBody.setText(
-							_body.getKey() == Core.BodyType.TXT ? _body.getValue() : "[图像]");
+							_body.getKey() == Post.BodyType.TXT ? _body.getValue() : "[图像]");
 				}
 			} else {
 				holder.quoteName.setText(quote.getAuthor().getName());
@@ -260,7 +267,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 				}
 			}
 		} else {
-			holder.quoteLayout.setVisibility(View.GONE);
+			if (holder.quoteLayout != null) holder.quoteLayout.setVisibility(View.GONE);
 		}
 
 		Integer height = mItemHeights.get(post);
@@ -282,7 +289,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		context.startActivity(intent);
 	}
 
-	private String prettyTime(String timeStr) {
+	protected String prettyTime(String timeStr) {
 		try {
 			Date thatDate = dateFormat.parse(timeStr);
 
@@ -327,7 +334,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	private ArrayList<View> buildBody(final Post post) {
 		ArrayList<View> views = new ArrayList<View>();
 
-		for (Map.Entry<Core.BodyType, String> bodySnippet : post.getNiceBody()) {
+		for (Map.Entry<Post.BodyType, String> bodySnippet : post.getNiceBody()) {
 			switch (bodySnippet.getKey()) {
 				case TXT:
 					String body = bodySnippet.getValue();

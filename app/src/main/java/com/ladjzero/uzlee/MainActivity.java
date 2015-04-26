@@ -7,8 +7,6 @@ import com.ladjzero.hipda.*;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -21,7 +19,6 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -90,7 +87,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(bundle)).commit();
 				break;
 			case 3:
-				intent = new Intent(this, MsgActivity.class);
+				intent = new Intent(this, AlertActivity.class);
 				startActivity(intent);
 				break;
 			case 4:
