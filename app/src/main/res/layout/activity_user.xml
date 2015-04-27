@@ -12,29 +12,58 @@
         android:orientation="vertical">
 
         <RelativeLayout
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
             <ImageView
                 android:id="@+id/user_info_img"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_alignParentTop="false"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="20dp"
                 android:src="@color/blossom_light"/>
 
-            <TextView
-                android:id="@+id/name"
+            <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="name"/>
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="20dp"
+                android:layout_toRightOf="@+id/user_info_img">
+
+                <TextView
+                    android:id="@+id/name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:text="name"
+                    android:textSize="14sp"/>
+
+                <TextView
+                    android:id="@+id/level"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/name"
+                    android:padding="4dp"
+                    android:text="name"/>
+
+                <TextView
+                    android:id="@+id/uid"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/level"
+                    android:padding="4dp"
+                    android:text="name"/>
+            </RelativeLayout>
+
         </RelativeLayout>
 
         <FrameLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="14dp"
-            android:layout_marginTop="14dp">
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="20dp">
 
             <LinearLayout
                 android:id="@+id/user_info_list"
@@ -55,7 +84,10 @@
                 android:id="@+id/user_btn_0"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="12dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginTop="0dp"
                 android:layout_weight="1"
                 android:text="短信"
                 android:textColor="@android:color/white"
@@ -68,7 +100,10 @@
                 android:id="@+id/user_btn_2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="12dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginTop="0dp"
                 android:layout_weight="1"
                 android:text="屏蔽TA的发言"
                 android:textColor="@android:color/white"

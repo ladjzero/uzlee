@@ -64,6 +64,14 @@ public class UserActivity extends SwipeActivity {
 			@Override
 			public void onUser(final User user) {
 				ImageLoader.getInstance().displayImage(user.getImage(), imageView);
+				TextView name = (TextView) findViewById(R.id.name);
+				TextView level = (TextView) findViewById(R.id.level);
+				TextView uid = (TextView) findViewById(R.id.uid);
+
+				name.setText(user.getName());
+				name.getPaint().setFakeBoldText(true);
+				level.setText(user.getLevel());
+				uid.setText("No." + user.getId());
 
 				for (String kv : propertyToString(user)) {
 					View view = getLayoutInflater().inflate(R.layout.user_info_row, null, false);
@@ -96,7 +104,6 @@ public class UserActivity extends SwipeActivity {
 		});
 
 		final String userName = getIntent().getStringExtra("name");
-		setTitle(userName + "的信息");
 
 //		searchPosts.setBackgroundResource(R.color.dark_primary);
 
@@ -130,17 +137,14 @@ public class UserActivity extends SwipeActivity {
 		ArrayList<String> strings = new ArrayList<>();
 
 		String qq = user.getQq();
-		String level = user.getLevel();
 		String registerDate = user.getRegisterDateStr();
 		String totalThreads = user.getTotalThreads();
-		String sex = user.getSex();
 		String points = user.getPoints();
 
-		if (sex != null && sex.length() > 0) strings.add("性别," + sex);
 		if (qq != null && qq.length() > 0) strings.add("{fa-qq}," + qq);
-		strings.add("发帖数量," + totalThreads + "  " + level);
+		strings.add("发帖数量," + totalThreads);
 		strings.add("积分," + points);
-		strings.add("注册日期," + registerDate + " No." + user.getId());
+		strings.add("注册日期," + registerDate);
 
 		return strings;
 	}
