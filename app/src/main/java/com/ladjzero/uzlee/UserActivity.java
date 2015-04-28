@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -28,13 +29,35 @@ public class UserActivity extends SwipeActivity {
 
 	private Dao<User, Integer> userDao;
 	LinearLayout mInfo;
+	Button chat;
+	Button block;
+	User user;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
 		super.onCreate(savedInstanceState);
 //		enableBackAction();
 		setContentView(R.layout.activity_user);
 		mInfo = (LinearLayout) findViewById(R.id.user_info_list);
+		chat = (Button) findViewById(R.id.chat);
+		block = (Button) findViewById(R.id.block);
+
+		chat.setVisibility(View.GONE);
+		block.setVisibility(View.GONE);
+
+		chat.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (user != null) {
+					Intent intent = new Intent(UserActivity.this, ChatActivity.class);
+					intent.putExtra("uid", user.getId());
+					intent.putExtra("title", user.getName());
+					startActivity(intent);
+				}
+			}
+		});
 
 		try {
 			userDao = getHelper().getUserDao();
@@ -60,9 +83,20 @@ public class UserActivity extends SwipeActivity {
 			e.printStackTrace();
 		}
 
+		setProgressBarIndeterminateVisibility(true);
+
 		Core.getUser(uid, new Core.OnUserListener() {
 			@Override
-			public void onUser(final User user) {
+			public void onUser(final User u) {
+				user = u;
+
+				if (user.getId() != Core.getUid()) {
+					chat.setVisibility(View.VISIBLE);
+					block.setVisibility(View.VISIBLE);
+				}
+
+				setProgressBarIndeterminateVisibility(false);
+
 				ImageLoader.getInstance().displayImage(user.getImage(), imageView);
 				TextView name = (TextView) findViewById(R.id.name);
 				TextView level = (TextView) findViewById(R.id.level);
@@ -82,15 +116,21 @@ public class UserActivity extends SwipeActivity {
 					String[] strings = kv.split(",");
 					key.setText(strings[0]);
 					value.setText(strings[1]);
-					more.setVisibility(strings[0].equals("发帖数量") ? View.VISIBLE : View.INVISIBLE);
-					view.setOnClickListener(new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							Intent intent = new Intent(UserActivity.this, ThreadsActivity.class);
-							intent.putExtra("name", user.getName());
-							startActivity(intent);
-						}
-					});
+
+					if (strings[0].equals("发帖数量")) {
+						view.setOnClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								Intent intent = new Intent(UserActivity.this, ThreadsActivity.class);
+								intent.putExtra("name", user.getName());
+								startActivity(intent);
+							}
+						});
+
+						more.setVisibility(View.VISIBLE);
+					} else {
+						more.setVisibility(View.INVISIBLE);
+					}
 
 					mInfo.addView(view);
 				}
@@ -107,26 +147,25 @@ public class UserActivity extends SwipeActivity {
 
 //		searchPosts.setBackgroundResource(R.color.dark_primary);
 
-		final Button ban = (Button) findViewById(R.id.user_btn_2);
 
 		if (Core.bans.contains(uid)) {
-			ban.setText("移除黑名单");
+			block.setText("移除黑名单");
 //			ban.setBackgroundResource(R.color.grass_primary);
 		} else {
-			ban.setText("加入黑名单");
+			block.setText("加入黑名单");
 //			ban.setBackgroundResource(R.color.blood_primary);
 		}
 
-		ban.setOnClickListener(new View.OnClickListener() {
+		block.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				if (Core.bans.contains(uid)) {
 					Core.removeFromBanList(uid);
-					ban.setText("加入黑名单");
+					block.setText("加入黑名单");
 //					ban.setBackgroundResource(R.color.blood_primary);
 				} else {
 					Core.addToBanList(uid);
-					ban.setText("移除黑名单");
+					block.setText("移除黑名单");
 //					ban.setBackgroundResource(R.color.grass_primary);
 				}
 			}

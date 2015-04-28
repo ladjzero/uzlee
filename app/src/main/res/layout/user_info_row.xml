@@ -27,9 +27,10 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:layout_marginRight="8dp"
             android:text="{fa-angle-right}"
-            android:textSize="20sp"
-            android:textColor="@color/dark_light"/>
+            android:textColor="@color/dark_light"
+            android:textSize="24sp"/>
 
         <android.widget.IconTextView
             android:id="@+id/value"

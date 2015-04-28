@@ -49,23 +49,40 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	private Posts mPosts;
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	private Date mNow;
+	private int mWhite;
 	private int mHoloBlue;
 	private int mTransparent;
+	private int mDefaultTextColor;
+	private int mTextColor;
+	private int mLinkColor;
 	private int layout = R.layout.post;
 	private HashMap<Post, Integer> mItemHeights = new HashMap<Post, Integer>();
 	private HashMap<Post, ArrayList<View>> mBodyCache = new HashMap<Post, ArrayList<View>>();
 	private ListView mListView;
 	private int[] layoutXY = new int[2];
+	private TYPE type;
 
-	public PostsAdapter(Context context, Posts posts) {
+	public static enum TYPE {
+		POST,
+		CHAT
+	}
+
+	public PostsAdapter(Context context, Posts posts, TYPE type) {
 		super(context, R.layout.post, posts);
 		this.context = (BaseActivity) context;
 		mPosts = posts;
 		mNow = new Date();
+		this.type = type;
 
 		Resources res = context.getResources();
-		mHoloBlue = res.getColor(android.R.color.holo_blue_dark);
+		mLinkColor = mHoloBlue = res.getColor(android.R.color.holo_blue_dark);
 		mTransparent = res.getColor(android.R.color.transparent);
+		mWhite = res.getColor(android.R.color.white);
+		mTextColor = mDefaultTextColor = res.getColor(R.color.smallFont);
+	}
+
+	public PostsAdapter(Context context, Posts posts) {
+		this(context, posts, TYPE.POST);
 	}
 
 	public void clearViewCache() {
@@ -82,8 +99,10 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		}
 	}
 
-	protected void setLayout(int layout) {
+	protected void setLayout(int layout, int textColor, int linkColor) {
 		this.layout = layout;
+		mTextColor = textColor;
+		mLinkColor = linkColor;
 	}
 
 	@Override
@@ -133,7 +152,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			holder.postNo = (TextView) row.findViewById(R.id.post_no);
 			holder.postDate = (TextView) row.findViewById(R.id.post_date);
 
-			if (quote != null) {
+			if (type == TYPE.POST) {
 				holder.quoteLayout = row.findViewById(R.id.post_quote);
 				holder.quoteImg = (ImageView) holder.quoteLayout.findViewById(R.id.user_image);
 				holder.quoteName = (TextView) holder.quoteLayout.findViewById(R.id.user_mini_name);
@@ -229,45 +248,47 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			}
 		});
 
-		if (quote != null) {
-			holder.quoteLayout.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.ugleeQuote : R.color.snow_light);
-			holder.quoteLayout.setVisibility(View.VISIBLE);
+		if (type == TYPE.POST) {
+			if (quote != null) {
+				holder.quoteLayout.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.ugleeQuote : R.color.snow_light);
+				holder.quoteLayout.setVisibility(View.VISIBLE);
 
-			final int quoteId = quote.getId();
+				final int quoteId = quote.getId();
 
-			Post betterQuote = (Post) CollectionUtils.find(mPosts, new Predicate() {
-				@Override
-				public boolean evaluate(Object post) {
-					return ((Post) post).getId() == quoteId;
-				}
-			});
+				Post betterQuote = (Post) CollectionUtils.find(mPosts, new Predicate() {
+					@Override
+					public boolean evaluate(Object post) {
+						return ((Post) post).getId() == quoteId;
+					}
+				});
 
-			if (betterQuote != null) {
-				User _user = betterQuote.getAuthor();
-				int _index = betterQuote.getPostIndex();
-				Map.Entry<Post.BodyType, String> _body = betterQuote.getNiceBody().get(0);
+				if (betterQuote != null) {
+					User _user = betterQuote.getAuthor();
+					int _index = betterQuote.getPostIndex();
+					Map.Entry<Post.BodyType, String> _body = betterQuote.getNiceBody().get(0);
 
-				holder.quoteName.setText(_user.getName());
-				holder.quotePostNo.setText(_index == 1 ? "楼主" : _index + "楼");
+					holder.quoteName.setText(_user.getName());
+					holder.quotePostNo.setText(_index == 1 ? "楼主" : _index + "楼");
 
-				if (Core.bans.contains(_user.getId())) {
-					holder.quoteBody.setText(context.getString(R.string.blocked));
+					if (Core.bans.contains(_user.getId())) {
+						holder.quoteBody.setText(context.getString(R.string.blocked));
+					} else {
+						holder.quoteBody.setText(
+								_body.getKey() == Post.BodyType.TXT ? _body.getValue() : "[图像]");
+					}
 				} else {
-					holder.quoteBody.setText(
-							_body.getKey() == Post.BodyType.TXT ? _body.getValue() : "[图像]");
+					holder.quoteName.setText(quote.getAuthor().getName());
+					holder.quoteBody.setText(quote.getBody());
+
+					if (quote.getPostIndex() > 0) {
+						holder.quotePostNo.setText(quote.getPostIndex() + "楼");
+					} else {
+						holder.quotePostNo.setText("");
+					}
 				}
 			} else {
-				holder.quoteName.setText(quote.getAuthor().getName());
-				holder.quoteBody.setText(quote.getBody());
-
-				if (quote.getPostIndex() > 0) {
-					holder.quotePostNo.setText(quote.getPostIndex() + "楼");
-				} else {
-					holder.quotePostNo.setText("");
-				}
+				if (holder.quoteLayout != null) holder.quoteLayout.setVisibility(View.GONE);
 			}
-		} else {
-			if (holder.quoteLayout != null) holder.quoteLayout.setVisibility(View.GONE);
 		}
 
 		Integer height = mItemHeights.get(post);
@@ -387,7 +408,8 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 							}
 						});
 
-						textView.setLinkColors(mHoloBlue, mTransparent);
+						textView.setLinkColors(mLinkColor, mTransparent);
+						textView.setTextColor(mTextColor);
 
 						textView.setTag(Integer.valueOf(1));
 						views.add(textView);

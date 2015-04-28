@@ -641,7 +641,7 @@ public class Core {
 						new User()
 								.setName(name)
 								.setId(uid == null ? getUid() : Integer.valueOf(uid))
-								.setImage(image)
+								.setImage(image.replace("_small", "_middle"))
 				);
 	}
 
@@ -1302,7 +1302,7 @@ public class Core {
 					String uid = userLink.substring(userLink.indexOf("uid=") + 4);
 					String uimg = pm.select("a.avatar img").attr("src");
 
-					User u = new User().setId(Integer.valueOf(uid)).setImage(uimg).setName(userName);
+					User u = new User().setId(Integer.valueOf(uid)).setImage(uimg.replace("_small", "_middle")).setName(userName);
 
 					String title = pm.select("div.summary").text();
 					boolean isNew = pm.select("img[alt=NEW]").size() != 0;

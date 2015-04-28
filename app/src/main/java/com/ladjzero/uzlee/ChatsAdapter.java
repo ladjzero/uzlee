@@ -1,6 +1,7 @@
 package com.ladjzero.uzlee;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -13,9 +14,18 @@ import com.ladjzero.hipda.Posts;
  */
 public class ChatsAdapter extends PostsAdapter {
 	private int uid = Core.getUid();
+	private int textColorYou;
+	private int linkColorYou;
+	private int textColorMe;
+	private int linkColorMe;
 
 	public ChatsAdapter(Context context, Posts posts) {
-		super(context, posts);
+		super(context, posts, TYPE.CHAT);
+
+		Resources res = context.getResources();
+		textColorYou = res.getColor(R.color.smallFont);
+		linkColorYou = res.getColor(android.R.color.holo_blue_dark);
+		textColorMe = linkColorMe = res.getColor(android.R.color.white);
 	}
 
 	@Override
@@ -30,13 +40,26 @@ public class ChatsAdapter extends PostsAdapter {
 		return chat.getAuthor().getId() != uid ? 0 : 1;
 	}
 
-	public int getLayout(int position) {
-		return getItemViewType(position) == 0 ? R.layout.chat_you : R.layout.chat_me;
+	public int getLayout(int position, int[] colors) {
+		if (getItemViewType(position) == 0) {
+			colors[0] = textColorYou;
+			colors[1] = linkColorYou;
+
+			return R.layout.chat_you;
+		} else {
+			colors[0] = textColorMe;
+			colors[1] = linkColorMe;
+
+			return R.layout.chat_me;
+		}
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		setLayout(getLayout(position));
+		int[] colors = new int[2];
+		int layoutId = getLayout(position, colors);
+
+		setLayout(layoutId, colors[0], colors[1]);
 
 		View view = super.getView(position, convertView, parent);
 

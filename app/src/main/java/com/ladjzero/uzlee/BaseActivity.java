@@ -78,7 +78,7 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 			.showImageOnFail(android.R.color.transparent)
 			.cacheInMemory(true)
 			.cacheOnDisk(true)
-			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
+			.displayer(new FadeInBitmapDisplayer(100, true, true, false))
 			.build();
 
 	static final DisplayImageOptions postImageInList = new DisplayImageOptions.Builder()

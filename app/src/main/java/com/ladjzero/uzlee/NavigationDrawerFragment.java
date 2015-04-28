@@ -160,6 +160,15 @@ public class NavigationDrawerFragment extends Fragment {
 		if (user != null && user.getId() == Core.getUid()) {
 			userLayout.setVisibility(View.VISIBLE);
 
+			userLayout.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Intent intent = new Intent(activity, UserActivity.class);
+					intent.putExtra("uid", user.getId());
+					startActivity(intent);
+				}
+			});
+
 			ImageLoader.getInstance().displayImage(user.getImage(), imageView);
 			userName.setText(user.getName());
 		} else if (Core.getUid() > 0) {

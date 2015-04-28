@@ -13,17 +13,15 @@
 
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
 
             <ImageView
                 android:id="@+id/user_info_img"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_alignParentTop="false"
+                android:layout_width="81dp"
+                android:layout_height="81dp"
                 android:layout_marginBottom="20dp"
-                android:layout_marginLeft="30dp"
-                android:layout_marginTop="20dp"
-                android:src="@color/blossom_light"/>
+                android:layout_marginLeft="30dp"/>
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -35,26 +33,23 @@
                 <TextView
                     android:id="@+id/name"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="4dp"
-                    android:text="name"
+                    android:layout_height="27dp"
+                    android:gravity="center_vertical"
                     android:textSize="14sp"/>
 
                 <TextView
                     android:id="@+id/level"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="27dp"
                     android:layout_below="@+id/name"
-                    android:padding="4dp"
-                    android:text="name"/>
+                    android:gravity="center_vertical"/>
 
                 <TextView
                     android:id="@+id/uid"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="27dp"
                     android:layout_below="@+id/level"
-                    android:padding="4dp"
-                    android:text="name"/>
+                    android:gravity="center_vertical"/>
             </RelativeLayout>
 
         </RelativeLayout>
@@ -62,8 +57,10 @@
         <FrameLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:layout_marginTop="20dp">
+            android:layout_marginBottom="30dp"
+            android:layout_marginTop="30dp"
+            android:background="@color/divider"
+            android:paddingBottom="1px">
 
             <LinearLayout
                 android:id="@+id/user_info_list"
@@ -81,7 +78,7 @@
             android:orientation="vertical">
 
             <com.cengalabs.flatui.views.FlatButton
-                android:id="@+id/user_btn_0"
+                android:id="@+id/chat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
@@ -97,7 +94,7 @@
                 app:fl_touchEffect="fl_ripple"/>
 
             <com.cengalabs.flatui.views.FlatButton
-                android:id="@+id/user_btn_2"
+                android:id="@+id/block"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
