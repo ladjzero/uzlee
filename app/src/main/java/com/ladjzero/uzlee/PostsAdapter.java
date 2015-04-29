@@ -19,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ladjzero.hipda.Core;
@@ -27,7 +28,9 @@ import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.rey.material.widget.ProgressView;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -234,11 +237,25 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 							if (widthHeight != null) imageView.setWidthHeight(widthHeight);
 
 							if (!hasBitmap) {
+								ProgressView bar = (ProgressView) imageView.getTag(R.id.img_progress);
+								bar.setProgress(0);
+								bar.start();
+
 								ImageLoader.getInstance().displayImage(url, imageView, context.postImageInList, new SimpleImageLoadingListener() {
 									@Override
 									public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
+										ProgressView bar = (ProgressView) view.getTag(R.id.img_progress);
+
+										bar.setVisibility(View.GONE);
 										view.setTag(R.id.img_has_bitmap, true);
 										view.setTag(R.id.img_width_height, 1.0 * loadedImage.getWidth() / loadedImage.getHeight());
+									}
+								}, new ImageLoadingProgressListener() {
+									@Override
+									public void onProgressUpdate(String s, View view, int current, int total) {
+										ProgressView bar = (ProgressView) view.getTag(R.id.img_progress);
+
+										bar.setProgress(current * 1.0f / total);
 									}
 								});
 							}
@@ -426,6 +443,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 					imageView.setTag(R.id.img_url, url);
 					imageView.setTag(R.id.img_has_bitmap, false);
+					imageView.setTag(R.id.img_progress, imageContainer.findViewById(R.id.progressBar));
 
 					imageView.setOnClickListener(new OnClickListener() {
 						@Override

@@ -27,6 +27,8 @@ import com.ladjzero.hipda.DBHelper;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
 import com.nineoldandroids.animation.Animator;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -66,8 +68,9 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private OnFetch mOnFetch;
 	private static int typeId = 0;
 
-	public interface OnFetch{
+	public interface OnFetch {
 		void fetchStart();
+
 		void fetchEnd();
 	}
 
@@ -135,84 +138,85 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(this);
 
-		listView.setOnScrollListener(new EndlessScrollListener() {
-			@Override
-			public void onLoadMore(int page, int totalItemsCount) {
-				if (hasNextPage) {
-					mActivity.showToast("载入下一页");
+		listView.setOnScrollListener(
+				new PauseOnScrollListener(ImageLoader.getInstance(), true, true, new EndlessScrollListener() {
+					@Override
+					public void onLoadMore(int page, int totalItemsCount) {
+						if (hasNextPage) {
+							mActivity.showToast("载入下一页");
 
-					setRefreshSpinner(true);
-					if (mDataSource == DATA_SOURCE_USER) {
-						Core.getUserThreadsAtPage(mUserName, page, ThreadsFragment.this);
-					} else if (mDataSource == DATA_SOURCE_SEARCH) {
-						Core.search(mQuery, page, ThreadsFragment.this);
-					} else {
-						fetch(page, ThreadsFragment.this);
+							setRefreshSpinner(true);
+							if (mDataSource == DATA_SOURCE_USER) {
+								Core.getUserThreadsAtPage(mUserName, page, ThreadsFragment.this);
+							} else if (mDataSource == DATA_SOURCE_SEARCH) {
+								Core.search(mQuery, page, ThreadsFragment.this);
+							} else {
+								fetch(page, ThreadsFragment.this);
+							}
+						}
 					}
-				}
-			}
 
-			@Override
-			public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-				super.onScroll(absListView, firstVisibleItem, visibleItemCount, totalItemCount);
+					@Override
+					public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+						super.onScroll(absListView, firstVisibleItem, visibleItemCount, totalItemCount);
 
-				if (firstVisibleItem > 10 && !mGoTopVisible) {
-					YoYo.with(Techniques.FadeIn)
-							.duration(200)
-							.withListener(new Animator.AnimatorListener() {
-								@Override
-								public void onAnimationStart(Animator animation) {
-									mGoTop.setVisibility(View.VISIBLE);
-									mGoTopVisible = true;
-									mIsAnimating = true;
-								}
+						if (firstVisibleItem > 10 && !mGoTopVisible) {
+							YoYo.with(Techniques.FadeIn)
+									.duration(200)
+									.withListener(new Animator.AnimatorListener() {
+										@Override
+										public void onAnimationStart(Animator animation) {
+											mGoTop.setVisibility(View.VISIBLE);
+											mGoTopVisible = true;
+											mIsAnimating = true;
+										}
 
-								@Override
-								public void onAnimationEnd(Animator animation) {
-									mIsAnimating = false;
-								}
+										@Override
+										public void onAnimationEnd(Animator animation) {
+											mIsAnimating = false;
+										}
 
-								@Override
-								public void onAnimationCancel(Animator animation) {
+										@Override
+										public void onAnimationCancel(Animator animation) {
 
-								}
+										}
 
-								@Override
-								public void onAnimationRepeat(Animator animation) {
+										@Override
+										public void onAnimationRepeat(Animator animation) {
 
-								}
-							})
-							.playOn(mGoTop);
-				} else if (firstVisibleItem <= 10 && mGoTopVisible) {
-					YoYo.with(Techniques.FadeOut)
-							.duration(200)
-							.withListener(new Animator.AnimatorListener() {
-								@Override
-								public void onAnimationStart(Animator animation) {
-									mIsAnimating = true;
-								}
+										}
+									})
+									.playOn(mGoTop);
+						} else if (firstVisibleItem <= 10 && mGoTopVisible) {
+							YoYo.with(Techniques.FadeOut)
+									.duration(200)
+									.withListener(new Animator.AnimatorListener() {
+										@Override
+										public void onAnimationStart(Animator animation) {
+											mIsAnimating = true;
+										}
 
-								@Override
-								public void onAnimationEnd(Animator animation) {
-									mGoTop.setVisibility(View.GONE);
-									mGoTopVisible = false;
-									mIsAnimating = false;
-								}
+										@Override
+										public void onAnimationEnd(Animator animation) {
+											mGoTop.setVisibility(View.GONE);
+											mGoTopVisible = false;
+											mIsAnimating = false;
+										}
 
-								@Override
-								public void onAnimationCancel(Animator animation) {
+										@Override
+										public void onAnimationCancel(Animator animation) {
 
-								}
+										}
 
-								@Override
-								public void onAnimationRepeat(Animator animation) {
+										@Override
+										public void onAnimationRepeat(Animator animation) {
 
-								}
-							})
-							.playOn(mGoTop);
-				}
-			}
-		});
+										}
+									})
+									.playOn(mGoTop);
+						}
+					}
+				}));
 
 		mGoTop = rootView.findViewById(R.id.go_top);
 		mGoTop.setVisibility(View.GONE);
@@ -235,7 +239,8 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		if (mDataSource == DATA_SOURCE_USER) {
 			Core.getUserThreadsAtPage(mUserName, page, this);
 		} else if (mDataSource == DATA_SOURCE_SEARCH) {
-			if (mQuery != null && mQuery.length() > 0) Core.search(mQuery, page, ThreadsFragment.this);
+			if (mQuery != null && mQuery.length() > 0)
+				Core.search(mQuery, page, ThreadsFragment.this);
 		} else {
 			Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid") + "&page=" + page + "&filter=type&typeid=" + typeId, new Core.OnRequestListener() {
 				@Override

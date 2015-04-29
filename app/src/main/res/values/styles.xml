@@ -6,6 +6,10 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>
+
+        <item name="colorPrimary">@color/grass_primary</item>
+        <item name="colorPrimaryDark">@color/grass_dark</item>
+        <item name="colorAccent">@color/grass_light</item>
         <!--<item name="android:actionOverflowButtonStyle">@style/AppBaseTheme.OverFlow</item>-->
     </style>
 
@@ -17,8 +21,13 @@
     </style>
 
     <!--<style name="AppBaseTheme.OverFlow">-->
-        <!--<item name="android:src">@drawable/icon25</item>-->
+    <!--<item name="android:src">@drawable/icon25</item>-->
     <!--</style>-->
 
     <style name="AppTheme" parent="AppBaseTheme"></style>
+
+    <style name="DeterminateLinearProgressDrawableStyle" parent="Material.Drawable.LinearProgress.Determinate">
+        <item name="lpd_strokeColor">#FF4389F3</item>
+        <item name="lpd_strokeSecondaryColor">#FFB6CDF2</item>
+    </style>
 </resources>

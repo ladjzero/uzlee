@@ -1,15 +1,25 @@
-<FrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp">
+    android:paddingBottom="10dp">
 
     <com.ladjzero.uzlee.PostImageView
         android:id="@+id/post_img"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:maxHeight="500dp"
         android:scaleType="fitXY"/>
-</FrameLayout>
+
+    <com.rey.material.widget.ProgressView
+        android:id="@+id/progressBar"
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:layout_gravity="center"
+        app:pv_autostart="false"
+        app:pv_circular="false"
+        app:pv_progressMode="determinate"
+        app:pv_progressStyle="@style/DeterminateLinearProgressDrawableStyle"/>
+</RelativeLayout>
 

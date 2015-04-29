@@ -45,4 +45,5 @@
     <item type="id" name="img_url" />
     <item type="id" name="img_has_bitmap" />
     <item type="id" name="img_width_height" />
+    <item type="id" name="img_progress" />
 </resources>
