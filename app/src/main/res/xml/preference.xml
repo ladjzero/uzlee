@@ -11,5 +11,13 @@
             android:defaultValue="true"
             android:key="highlight_unread"
             android:title="突出显示未读主题"/>
+
+        <ListPreference
+            android:defaultValue="2"
+            android:entries="@array/thread_sort_by"
+            android:entryValues="@array/thread_sort_values"
+            android:key="sort_thread"
+            android:summary="按照%s排序"
+            android:title="主题排序"/>
     </PreferenceCategory>
 </PreferenceScreen>

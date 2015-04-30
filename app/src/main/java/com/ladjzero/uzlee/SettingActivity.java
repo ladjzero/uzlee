@@ -1,6 +1,9 @@
 package com.ladjzero.uzlee;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.ListPreference;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +17,7 @@ public class SettingActivity extends SwipeActivity {
 		getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingFragment()).commit();
 	}
 
-	public static class SettingFragment extends PreferenceFragment {
+	public static class SettingFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
@@ -26,6 +29,27 @@ public class SettingActivity extends SwipeActivity {
 			View view = super.onCreateView(inflater, container, savedInstanceState);
 			view.setBackgroundColor(getResources().getColor(android.R.color.white));
 			return view;
+		}
+
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+			Preference preference = findPreference(key);
+
+			if (key.equals("sort_thread")) {
+				preference.setSummary("按照" + ((ListPreference) preference).getEntry() + "排序");
+			}
+		}
+
+		@Override
+		public void onResume() {
+			super.onResume();
+			getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+		}
+
+		@Override
+		public void onPause() {
+			getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+			super.onPause();
 		}
 	}
 }

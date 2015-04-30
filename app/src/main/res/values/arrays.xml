@@ -10,4 +10,14 @@
         <item>喜欢的餐馆</item>
         <item>驾驶执照的后四位</item>
     </string-array>
+
+    <string-array name="thread_sort_by">
+        <item>发表时间</item>
+        <item>回复时间</item>
+    </string-array>
+
+    <string-array name="thread_sort_values">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
 </resources>
