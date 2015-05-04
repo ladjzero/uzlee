@@ -53,7 +53,7 @@ public class UserActivity extends SwipeActivity {
 				if (user != null) {
 					Intent intent = new Intent(UserActivity.this, ChatActivity.class);
 					intent.putExtra("uid", user.getId());
-					intent.putExtra("title", user.getName());
+					intent.putExtra("name", user.getName());
 					startActivity(intent);
 				}
 			}

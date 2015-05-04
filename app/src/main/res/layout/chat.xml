@@ -1,13 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@color/greyBackground"
-              android:orientation="vertical">
+<RelativeLayout
+    android:id="@+id/root"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/greyBackground">
+
+    <RelativeLayout
+        android:id="@+id/chat_edit"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/white">
+
+        <com.cengalabs.flatui.views.FlatButton
+            android:id="@+id/send_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:minHeight="26dp"
+            android:minWidth="40dp"
+            android:text="发送"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            app:fl_cornerRadius="3dp"
+            app:fl_theme="@array/sky"
+            app:fl_touchEffect="fl_ripple"/>
+
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:id="@+id/message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/send_message"
+            android:ems="10"
+            android:inputType="textMultiLine"
+            android:singleLine="true"
+            android:textSize="16sp"
+            app:met_floatingLabel="normal"
+            app:met_primaryColor="@android:color/holo_blue_light"/>
+
+    </RelativeLayout>
 
     <ListView
         android:id="@+id/chats"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/chat_edit"
         android:divider="@android:color/transparent"/>
-</LinearLayout>
+</RelativeLayout>

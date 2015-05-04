@@ -5,11 +5,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.text.Layout;
-import android.text.Spannable;
-import android.text.style.ClickableSpan;
-import android.text.style.URLSpan;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,7 +14,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ladjzero.hipda.Core;
@@ -141,7 +135,6 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 		View row = convertView;
 		final PostHolder holder = row == null ? new PostHolder() : (PostHolder) row.getTag();
-		int convertPosition = holder.position;
 
 		if (row == null) {
 			row = context.getLayoutInflater().inflate(layout, parent, false);
@@ -199,71 +192,68 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			holder.sig.setVisibility(View.GONE);
 		}
 
-			ImageLoader.getInstance().displayImage(imageUrl, holder.img, new SimpleImageLoadingListener() {
-				@Override
-				public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
-					author.setImage(imageUri);
-				}
-
-				@Override
-				public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
-					author.setImage(null);
-					((ImageView) view).setImageResource(android.R.color.transparent);
-					holder.imageMask.setText(Utils.getFirstChar(userName));
-				}
-			});
-
-		buildBodyAsync(post, new OnBuildBody() {
+		ImageLoader.getInstance().displayImage(imageUrl, holder.img, new SimpleImageLoadingListener() {
 			@Override
-			public void buildBody(ArrayList<View> views) {
-				if (Core.bans.contains(uid)) {
-					TextView view = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
-					view.setText(context.getString(R.string.blocked));
-					holder.body.addView(view);
-				} else {
-					for (View view : views) {
-						ViewParent vParent = view.getParent();
-						if (vParent != null) ((ViewGroup) vParent).removeView(view);
-						holder.body.addView(view);
+			public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
+				author.setImage(imageUri);
+			}
 
-						Object childView = view.getTag();
-						if (childView instanceof PostImageView) {
-							PostImageView imageView = (PostImageView) childView;
-							final String url = (String) imageView.getTag(R.id.img_url);
-							boolean hasBitmap = (Boolean) imageView.getTag(R.id.img_has_bitmap);
+			@Override
+			public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
+				author.setImage(null);
+				((ImageView) view).setImageResource(android.R.color.transparent);
+				holder.imageMask.setText(Utils.getFirstChar(userName));
+			}
+		});
 
-							Double widthHeight = (Double) imageView.getTag(R.id.img_width_height);
+		ArrayList<View> views = buildBody(post);
 
-							if (widthHeight != null) imageView.setWidthHeight(widthHeight);
+		if (Core.bans.contains(uid)) {
+			TextView view = (TextView) context.getLayoutInflater().inflate(R.layout.post_body_fa_text_segment, null);
+			view.setText(context.getString(R.string.blocked));
+			holder.body.addView(view);
+		} else {
+			for (View view : views) {
+				ViewParent vParent = view.getParent();
+				if (vParent != null) ((ViewGroup) vParent).removeView(view);
+				holder.body.addView(view);
 
-							if (!hasBitmap) {
-								ProgressView bar = (ProgressView) imageView.getTag(R.id.img_progress);
-								bar.setProgress(0);
-								bar.start();
+				Object childView = view.getTag();
+				if (childView instanceof PostImageView) {
+					PostImageView imageView = (PostImageView) childView;
+					final String url = (String) imageView.getTag(R.id.img_url);
+					boolean hasBitmap = (Boolean) imageView.getTag(R.id.img_has_bitmap);
 
-								ImageLoader.getInstance().displayImage(url, imageView, context.postImageInList, new SimpleImageLoadingListener() {
-									@Override
-									public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
-										ProgressView bar = (ProgressView) view.getTag(R.id.img_progress);
+					Double widthHeight = (Double) imageView.getTag(R.id.img_width_height);
 
-										bar.setVisibility(View.GONE);
-										view.setTag(R.id.img_has_bitmap, true);
-										view.setTag(R.id.img_width_height, 1.0 * loadedImage.getWidth() / loadedImage.getHeight());
-									}
-								}, new ImageLoadingProgressListener() {
-									@Override
-									public void onProgressUpdate(String s, View view, int current, int total) {
-										ProgressView bar = (ProgressView) view.getTag(R.id.img_progress);
+					if (widthHeight != null) imageView.setWidthHeight(widthHeight);
 
-										bar.setProgress(current * 1.0f / total);
-									}
-								});
+					if (!hasBitmap) {
+						ProgressView bar = (ProgressView) imageView.getTag(R.id.img_progress);
+						bar.setProgress(0);
+						bar.start();
+
+						ImageLoader.getInstance().displayImage(url, imageView, context.postImageInList, new SimpleImageLoadingListener() {
+							@Override
+							public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
+								ProgressView bar = (ProgressView) view.getTag(R.id.img_progress);
+
+								bar.setVisibility(View.GONE);
+								view.setTag(R.id.img_has_bitmap, true);
+								view.setTag(R.id.img_width_height, 1.0 * loadedImage.getWidth() / loadedImage.getHeight());
 							}
-						}
+						}, new ImageLoadingProgressListener() {
+							@Override
+							public void onProgressUpdate(String s, View view, int current, int total) {
+								ProgressView bar = (ProgressView) view.getTag(R.id.img_progress);
+
+								bar.setProgress(current * 1.0f / total);
+							}
+						});
 					}
 				}
 			}
-		});
+		}
 
 		if (type == TYPE.POST) {
 			if (quote != null) {
@@ -342,30 +332,6 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			}
 		} catch (ParseException e) {
 			return timeStr;
-		}
-	}
-
-	private void buildBodyAsync(final Post post, final OnBuildBody onBuildBody) {
-		ArrayList<View> views = mBodyCache.get(post);
-
-		if (views == null) {
-			new AsyncTask<Post, Void, ArrayList<View>>() {
-
-				@Override
-				protected ArrayList<View> doInBackground(Post[] posts) {
-					ArrayList<View> views = buildBody(posts[0]);
-					mBodyCache.put(post, views);
-
-					return views;
-				}
-
-				@Override
-				protected void onPostExecute(ArrayList<View> views) {
-					onBuildBody.buildBody(views);
-				}
-			}.execute(post);
-		} else {
-			onBuildBody.buildBody(views);
 		}
 	}
 
@@ -494,7 +460,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 					views.add(view);
 
 					break;
-				case QOT:
+				case QUOTE:
 					View quoteContainer = context.getLayoutInflater().inflate(R.layout.quote, null);
 					TextView textView = (TextView) quoteContainer.findViewById(R.id.post_quote_text);
 					textView.setText(bodySnippet.getValue());

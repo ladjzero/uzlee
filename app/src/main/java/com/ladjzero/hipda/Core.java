@@ -44,7 +44,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Map;
 import java.util.AbstractMap;
-import java.util.List;
 import java.util.regex.*;
 
 import de.greenrobot.event.EventBus;
@@ -134,6 +133,7 @@ public class Core {
 	private static String hash;
 	private static Context context;
 	private static int uid;
+	private static String name;
 	private static boolean isOnline = false;
 	private static PersistentCookieStore cookieStore;
 	private static SharedPreferences pref;
@@ -156,6 +156,10 @@ public class Core {
 
 	public static int getUid() {
 		return uid;
+	}
+
+	public static String getName() {
+		return name;
 	}
 
 	public static void requestUpdate() {
@@ -248,13 +252,15 @@ public class Core {
 
 			EventBus.getDefault().post(new MessageEvent(msgCount));
 
-			String uidHref = doc.select("#umenu > cite > a").attr("href");
+			Elements eUser = doc.select("#umenu > cite > a");
+			String uidHref = eUser.attr("href");
 			Uri uri = Uri.parse(uidHref);
 			String uid = uri.getQueryParameter("uid");
 
 			if (uid != null && uid.length() > 0) {
 				isOnline = true;
 				Core.uid = Integer.valueOf(uid);
+				Core.name = eUser.text().trim();
 
 				EventBus.getDefault().post(new StatusChangeEvent(true, true));
 			} else {
@@ -624,6 +630,31 @@ public class Core {
 		return posts;
 	}
 
+	public static void sendMessage(String name, String message, final OnRequestListener onRequestListener) {
+		String url = "http://www.hi-pda.com/forum/pm.php?action=send&pmsubmit=yes&infloat=yes&sendnew=yes";
+
+		RequestParams params = new RequestParams();
+		params.setContentEncoding("GBK");
+		params.put("formhash", formhash);
+		params.put("msgto", name);
+		params.put("message", message);
+		params.put("pmsubmit", "true");
+
+		httpClient
+				.post(url,
+						params, new TextHttpResponseHandler("GBK") {
+							@Override
+							public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+								onRequestListener.onError(s);
+							}
+
+							@Override
+							public void onSuccess(int i, Header[] headers, String s) {
+								onRequestListener.onSuccess(s);
+							}
+						});
+	}
+
 	private static Post toMessageObj(Element ePost) {
 		Element eCite = ePost.select("> p.cite").first();
 		String name = eCite.select("> cite").text();
@@ -716,7 +747,7 @@ public class Core {
 						bodies.add(new AbstractMap.SimpleEntry(Post.BodyType.IMG, src));
 					}
 				} else if (tag.equals("blockquote")) {
-					bodies.add(new AbstractMap.SimpleEntry(Post.BodyType.QOT,
+					bodies.add(new AbstractMap.SimpleEntry(Post.BodyType.QUOTE,
 							e.text().replaceAll("\u00a0", " ").trim()));
 				} else if (tag.equals("font") || tag.equals("p") || tag.equals("strong") || tag.equals("div")) {
 					bodies.addAll(postprocessPostBody(e, null, null));
@@ -1628,6 +1659,10 @@ public class Core {
 //		public int page;
 //		public int totalPage;
 //	}
+
+	public interface OnProgress {
+		void progress(int current, int total);
+	}
 
 	public static class ThreadsRet {
 		public ArrayList<Thread> threads;

@@ -50,9 +50,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/post_date"
-        android:layout_toLeftOf="@+id/user"
         android:layout_marginLeft="12dp"
         android:layout_marginRight="4dp"
+        android:layout_toLeftOf="@+id/user"
         android:background="@drawable/chat_me">
 
         <LinearLayout
@@ -62,6 +62,23 @@
             android:orientation="vertical"
             android:padding="6dp"/>
     </FrameLayout>
+
+    <RelativeLayout
+        android:id="@+id/chat_status"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_below="@+id/post_date"
+        android:layout_marginTop="8.5dp"
+        android:layout_toLeftOf="@+id/body_wrapper">
+
+        <ProgressBar
+            android:id="@+id/pending"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
 
     <!-- invisible, but required -->
     <TextView

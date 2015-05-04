@@ -18,14 +18,32 @@ public class ChatsAdapter extends PostsAdapter {
 	private int linkColorYou;
 	private int textColorMe;
 	private int linkColorMe;
+	private Posts mChats;
 
 	public ChatsAdapter(Context context, Posts posts) {
 		super(context, posts, TYPE.CHAT);
+
+		mChats = posts;
 
 		Resources res = context.getResources();
 		textColorYou = res.getColor(R.color.smallFont);
 		linkColorYou = res.getColor(android.R.color.holo_blue_dark);
 		textColorMe = linkColorMe = res.getColor(android.R.color.white);
+	}
+
+	@Override
+	public int getCount() {
+		return mChats.size();
+	}
+
+	@Override
+	public Post getItem(int position) {
+		return mChats.get(position);
+	}
+
+	@Override
+	public int getPosition(Post post) {
+		return mChats.indexOf(post);
 	}
 
 	@Override
@@ -63,8 +81,9 @@ public class ChatsAdapter extends PostsAdapter {
 
 		View view = super.getView(position, convertView, parent);
 
+		Post chat = getItem(position);
+
 		if (position > 0) {
-			Post chat = getItem(position);
 			Post preChat = getItem(position - 1);
 			View date = view.findViewById(R.id.post_date);
 
@@ -73,6 +92,12 @@ public class ChatsAdapter extends PostsAdapter {
 			} else {
 				date.setVisibility(View.VISIBLE);
 			}
+		}
+
+		if (layoutId == R.layout.chat_me) {
+			View pendingView = view.findViewById(R.id.pending);
+
+			pendingView.setVisibility(chat.isPending() ? View.VISIBLE : View.GONE);
 		}
 
 		return view;

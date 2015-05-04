@@ -52,12 +52,13 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.rey.material.widget.ProgressView;
 
 import de.greenrobot.event.EventBus;
 import me.drakeet.materialdialog.MaterialDialog;
 
 
-public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
+public class BaseActivity extends OrmLiteBaseActivity<DBHelper> implements Core.OnProgress{
 
 	SharedPreferences setting;
 	EmojiUtils emojiUtils;
@@ -78,7 +79,7 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 			.showImageOnFail(android.R.color.transparent)
 			.cacheInMemory(true)
 			.cacheOnDisk(true)
-			.displayer(new FadeInBitmapDisplayer(100, true, true, false))
+			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
 			.build();
 
 	static final DisplayImageOptions postImageInList = new DisplayImageOptions.Builder()
@@ -272,6 +273,9 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> {
 			return "0.1";
 		}
 	}
+
+	@Override
+	public void progress(int current, int total) {}
 
 	public static class VersionComparator implements Comparator<String> {
 

@@ -39,6 +39,8 @@ public class Post {
 	private Post quote;
 	private String sig;
 	private ArrayList<Core.Attachment> attachments;
+	private boolean isPending;
+	private boolean isRead;
 
 	public User getAuthor() {
 		return author;
@@ -212,12 +214,30 @@ public class Post {
 		return this;
 	}
 
+	public boolean isRead() {
+		return isRead;
+	}
+
+	public Post setRead(boolean isRead) {
+		this.isRead = isRead;
+		return this;
+	}
+
+	public boolean isPending() {
+		return isPending;
+	}
+
+	public Post setPending(boolean isPending) {
+		this.isPending = isPending;
+		return this;
+	}
+
 	public static enum BodyType {
 		TXT,
 		IMG,
 		SIG,
 		ATT,
-		BodyType, QOT
+		QUOTE
 	}
 
 	public static class NiceBody extends ArrayList<Map.Entry<BodyType, String>> {}

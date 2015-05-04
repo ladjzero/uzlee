@@ -76,7 +76,8 @@
         </activity>
         <activity
             android:name=".ChatActivity"
-            android:label="聊天">
+            android:label="聊天"
+            android:windowSoftInputMode="stateHidden">
         </activity>
     </application>
 

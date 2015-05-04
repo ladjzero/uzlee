@@ -231,6 +231,17 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		return rootView;
 	}
 
+	private String getOrder() {
+		int i = Integer.parseInt(mActivity.setting.getString("sort_thread", "2"));
+
+		switch (i) {
+			case 1:
+				return "dateline";
+			default:
+				return "lastpost";
+		}
+	}
+
 	private void fetch(int page, final OnThreadsListener onThreadsListener) {
 		mIsFetching = true;
 
@@ -242,7 +253,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 			if (mQuery != null && mQuery.length() > 0)
 				Core.search(mQuery, page, ThreadsFragment.this);
 		} else {
-			Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid") + "&page=" + page + "&filter=type&typeid=" + typeId, new Core.OnRequestListener() {
+			Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid") + "&page=" + page + "&filter=type&typeid=" + typeId + "&orderby=" + getOrder(), new Core.OnRequestListener() {
 				@Override
 				public void onError(String error) {
 					onThreadsListener.onError();

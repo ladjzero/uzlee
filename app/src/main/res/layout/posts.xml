@@ -31,15 +31,17 @@
         android:id="@+id/posts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:animationCache="false"
         android:background="@android:color/white"
         android:divider="@drawable/list_divider"
         android:dividerHeight="1px"
+        android:scrollingCache="false"
         ptr:ptrAnimationStyle="flip"
+        ptr:ptrDrawable="@android:color/transparent"
+        ptr:ptrHeaderBackground="@color/dark_dark"
+        ptr:ptrHeaderTextColor="@color/snow_dark"
         ptr:ptrMode="both"
         ptr:ptrOverScroll="false"
-        ptr:ptrShowIndicator="false"
-        ptr:ptrDrawable="@android:color/transparent"
-        ptr:ptrHeaderTextColor="@color/snow_dark"
-        ptr:ptrHeaderBackground="@color/dark_dark"/>
+        ptr:ptrShowIndicator="false"/>
 
 </RelativeLayout>
