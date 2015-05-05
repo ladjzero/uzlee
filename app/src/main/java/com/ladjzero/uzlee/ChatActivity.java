@@ -2,6 +2,7 @@ package com.ladjzero.uzlee;
 
 import android.content.Intent;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -126,7 +127,7 @@ public class ChatActivity extends SwipeActivity implements Core.OnPostsListener,
 			public void onError(String error) {
 				setProgressBarIndeterminateVisibility(false);
 
-				onPostsListener.onError();
+				onPostsListener.onError(error);
 			}
 
 			@Override
@@ -158,11 +159,6 @@ public class ChatActivity extends SwipeActivity implements Core.OnPostsListener,
 				mListView.setSelection(mAdapter.getCount() - 1);
 			}
 		});
-	}
-
-	@Override
-	public void onError() {
-
 	}
 
 	@Override

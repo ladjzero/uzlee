@@ -80,6 +80,7 @@ public class AlertFragment extends Fragment implements AbsListView.OnItemClickLi
 		mListView = (AbsListView) view.findViewById(R.id.simple_thread_list);
 		mListView.setAdapter(mAdapter);
 		mListView.setOnItemClickListener(this);
+		mListView.setEmptyView(view.findViewById(R.id.no_data));
 
 		switch (tabIndex) {
 			case 0:
@@ -103,8 +104,8 @@ public class AlertFragment extends Fragment implements AbsListView.OnItemClickLi
 					}
 
 					@Override
-					public void onError() {
-						((MainActivity) getActivity()).showToast("请求错误");
+					public void onError(String error) {
+						((MainActivity) getActivity()).showToast(error);
 					}
 				});
 				break;
@@ -118,7 +119,7 @@ public class AlertFragment extends Fragment implements AbsListView.OnItemClickLi
 		if (tabIndex == 0) {
 			Thread chat = (Thread) parent.getAdapter().getItem(position);
 			Intent intent = new Intent(getActivity(), ChatActivity.class);
-			intent.putExtra("name",chat.getAuthor().getName());
+			intent.putExtra("name", chat.getAuthor().getName());
 			intent.putExtra("uid", chat.getAuthor().getId());
 			startActivity(intent);
 

@@ -24,7 +24,7 @@ public class AlertActivity extends SwipeActivity implements SimpleThreadsFragmen
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getActionBar().hide();
-		setContentView(R.layout.activity_my_posts);
+		setContentView(R.layout.view_pager);
 
 		mFragmentCache = new SparseArray<>();
 		mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());

@@ -10,11 +10,12 @@
         android:layout_height="wrap_content"
         android:background="@color/dark_primary"
         android:textColor="@android:color/white"
-        android:textSize="14sp"
-        app:pstsIndicatorColor="@android:color/white"
+        android:textSize="16sp"
+        app:pstsDividerColor="@color/dark_primary"
+        app:pstsIndicatorColor="@color/dark_light"
         app:pstsIndicatorHeight="4dp"
-        app:pstsUnderlineColor="@color/dark_primary"
-        app:pstsUnderlineHeight="1px"/>
+        app:pstsShouldExpand="true"
+        app:pstsUnderlineHeight="0px"/>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"

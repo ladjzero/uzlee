@@ -6,7 +6,6 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
-import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -44,7 +43,7 @@ public class MyPostsActivity extends SwipeActivity implements ActionBar.TabListe
 		getActionBar().hide();
 
 		fragmentCache = new HashMap<Integer, Fragment>();
-		setContentView(R.layout.activity_my_posts);
+		setContentView(R.layout.view_pager);
 
 		// Set up the action bar.
 		final ActionBar actionBar = getActionBar();

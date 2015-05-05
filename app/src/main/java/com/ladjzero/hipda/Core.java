@@ -1237,77 +1237,81 @@ public class Core {
 		getHtml("http://www.hi-pda.com/forum/notice.php", new OnRequestListener() {
 			@Override
 			public void onError(String error) {
-				onPostsListener.onError();
+				onPostsListener.onError(error);
 			}
 
 			@Override
 			public void onSuccess(String html) {
-				Document doc = getDoc(html);
+				try {
+					Document doc = getDoc(html);
 
-				Elements eNotices = doc.select("ul.feed > li.s_clear > div");
-				Posts posts = new Posts();
+					Elements eNotices = doc.select("ul.feed > li.s_clear > div");
+					Posts posts = new Posts();
 
-				for (Element eNotice : eNotices) {
-					String title;
-					Elements eSummary = eNotice.select(">dl.summary");
-					String body;
-					String tid;
-					String pid;
-					String fid = "0";
-					String findPostLink;
-					if (eSummary.size() > 0) {
-						findPostLink = eNotice.select(">p>a").last().attr("href");
-						title = eNotice.select(">a").last().text();
-						body = eSummary.select("dt").last().text() + eSummary.select("dd").last().text();
-						String viewPostLink = eNotice.select(">p>a").first().attr("href");
+					for (Element eNotice : eNotices) {
+						String title;
+						Elements eSummary = eNotice.select(">dl.summary");
+						String body;
+						String tid;
+						String pid;
+						String fid = "0";
+						String findPostLink;
+						if (eSummary.size() > 0) {
+							findPostLink = eNotice.select(">p>a").last().attr("href");
+							title = eNotice.select(">a").last().text();
+							body = eSummary.select("dt").last().text() + eSummary.select("dd").last().text();
+							String viewPostLink = eNotice.select(">p>a").first().attr("href");
 
-						int fidIndex = viewPostLink.indexOf("&fid=");
-						fid = viewPostLink.substring(fidIndex + 5, viewPostLink.indexOf("&tid="));
+							int fidIndex = viewPostLink.indexOf("&fid=");
+							fid = viewPostLink.substring(fidIndex + 5, viewPostLink.indexOf("&tid="));
 //					} else if (findPostLink == null || findPostLink.length() == 0) {
 //						// other alerts, like thread being highlighted
 //						title = eNotice.text();
 //						body = "";
-					} else {
-						// thread watched on
-						Element lastA = eNotice.select(">a").last();
-						findPostLink = lastA.attr("href");
-						lastA.remove();
-						lastA = eNotice.select(">a").last();
-						title = lastA.text();
-						lastA.remove();
+						} else {
+							// thread watched on
+							Element lastA = eNotice.select(">a").last();
+							findPostLink = lastA.attr("href");
+							lastA.remove();
+							lastA = eNotice.select(">a").last();
+							title = lastA.text();
+							lastA.remove();
 
-						eNotice.select(">em").last().remove();
-						eNotice.select("dfn").remove();
-						body = eNotice.text();
+							eNotice.select(">em").last().remove();
+							eNotice.select("dfn").remove();
+							body = eNotice.text();
+						}
+
+						Uri findPostUri = Uri.parse(findPostLink);
+
+						tid = findPostUri.getQueryParameter("ptid");
+						pid = findPostUri.getQueryParameter("pid");
+						if (tid == null) tid = "0";
+						if (pid == null) pid = "0";
+
+						Post post = new Post().setId(Integer.valueOf(pid))
+								.setTid(Integer.valueOf(tid))
+								.setFid(Integer.valueOf(fid))
+								.setTitle(title).setBody(body);
+						posts.add(post);
 					}
 
-					Uri findPostUri = Uri.parse(findPostLink);
+					int currPage = 1;
+					Elements page = doc.select("div.pages > strong");
 
-					tid = findPostUri.getQueryParameter("ptid");
-					pid = findPostUri.getQueryParameter("pid");
-					if (tid == null) tid = "0";
-					if (pid == null) pid = "0";
+					if (page.size() > 0) {
+						currPage = Integer.valueOf(page.first().text());
+					}
 
-					Post post = new Post().setId(Integer.valueOf(pid))
-							.setTid(Integer.valueOf(tid))
-							.setFid(Integer.valueOf(fid))
-							.setTitle(title).setBody(body);
-					posts.add(post);
+					boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
+
+					// TO-DO
+					posts.setHasNextPage(hasNextPage);
+					posts.setPage(currPage);
+					onPostsListener.onPosts(posts);
+				} catch (Exception e) {
+					onError(e.toString());
 				}
-
-				int currPage = 1;
-				Elements page = doc.select("div.pages > strong");
-
-				if (page.size() > 0) {
-					currPage = Integer.valueOf(page.first().text());
-				}
-
-				boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
-
-				// TO-DO
-				posts.setHasNextPage(hasNextPage);
-				posts.setPage(currPage);
-				onPostsListener.onPosts(posts);
 			}
 		});
 	}
@@ -1592,7 +1596,7 @@ public class Core {
 	public interface OnPostsListener {
 		void onPosts(Posts posts);
 
-		void onError();
+		void onError(String error);
 	}
 
 	public interface OnThreadsListener {

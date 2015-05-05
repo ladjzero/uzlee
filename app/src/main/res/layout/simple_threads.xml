@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/white"
-    android:orientation="vertical">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/white"
+                android:orientation="vertical">
 
     <ListView
         android:id="@+id/simple_thread_list"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:divider="@color/snow_primary"
+        android:divider="@drawable/list_divider"
         android:dividerHeight="1px"
-        android:listSelector="@android:color/transparent" />
+        android:listSelector="@android:color/transparent"/>
 
+    <TextView
+        android:id="@+id/no_data"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/greyBackground"
+        android:gravity="center"
+        android:text="没有数据"
+        android:textColor="@color/dark_light"
+        android:visibility="gone"/>
 </RelativeLayout>

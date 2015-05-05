@@ -326,7 +326,7 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 				toggleMenus(true);
 
 
-				onPostsListener.onError();
+				onPostsListener.onError(error);
 			}
 
 			@Override
@@ -402,8 +402,8 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	}
 
 	@Override
-	public void onError() {
-		showToast("请求错误");
+	public void onError(String error) {
+		showToast(error);
 	}
 
 	@Override

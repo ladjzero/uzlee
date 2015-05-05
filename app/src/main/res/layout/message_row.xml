@@ -16,8 +16,8 @@
 
         <TextView
             android:id="@+id/user_image_mask"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
             android:background="@color/dark_light"
             android:gravity="center"
             android:textColor="@android:color/white"
@@ -25,8 +25,8 @@
 
         <ImageView
             android:id="@+id/user_image"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
             android:layout_gravity="center_vertical"
             android:accessibilityLiveRegion="polite"
             android:scaleType="centerCrop"/>
@@ -35,13 +35,13 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="43dp"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="12dp">
 
         <TextView
             android:id="@+id/user_mini_name"
             android:layout_width="wrap_content"
-            android:layout_height="21dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_gravity="center_vertical"
             android:gravity="center_vertical"
@@ -67,15 +67,16 @@
         <TextView
             android:id="@+id/message"
             android:layout_width="wrap_content"
-            android:layout_height="21dp"
-            android:layout_alignParentBottom="true"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="false"
             android:layout_alignParentTop="false"
+            android:layout_below="@+id/user_mini_name"
             android:layout_gravity="center_vertical"
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:singleLine="true"
             android:text="一二三四一二三四一二三四一二三四一二三四一二三四一二三四一二三四"
-            android:textSize="16sp"/>
+            android:textSize="14sp"/>
     </RelativeLayout>
 
 
