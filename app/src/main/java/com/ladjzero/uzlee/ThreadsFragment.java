@@ -256,7 +256,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 			Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid") + "&page=" + page + "&filter=type&typeid=" + typeId + "&orderby=" + getOrder(), new Core.OnRequestListener() {
 				@Override
 				public void onError(String error) {
-					onThreadsListener.onError();
+					onThreadsListener.onError(error);
 
 					setRefreshSpinner(false);
 
@@ -345,8 +345,8 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	}
 
 	@Override
-	public void onError() {
-		mActivity.showToast("请求错误");
+	public void onError(String error) {
+		mActivity.showToast(error);
 	}
 
 	@Override
@@ -363,10 +363,10 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 			}
 
 			@Override
-			public void onError() {
+			public void onError(String error) {
 				mIsFetching = false;
 				setRefreshSpinner(false);
-				mActivity.showToast("请求错误");
+				mActivity.showToast(error);
 			}
 		});
 	}

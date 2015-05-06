@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.Window;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -16,18 +15,11 @@ import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.User;
-import com.ladjzero.uzlee.BaseActivity;
-import com.ladjzero.uzlee.PostsAdapter;
-import com.ladjzero.uzlee.R;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.Date;
-import java.util.Collection;
 
 
 /**
@@ -105,6 +97,7 @@ public class ChatActivity extends SwipeActivity implements Core.OnPostsListener,
 		mAdapter = new ChatsAdapter(this, mCharts);
 
 		mListView.setAdapter(mAdapter);
+		mListView.setEmptyView(findViewById(R.id.empty_view));
 
 		Intent intent = getIntent();
 		uid = intent.getIntExtra("uid", -1);

@@ -13,13 +13,6 @@
         android:dividerHeight="1px"
         android:listSelector="@android:color/transparent"/>
 
-    <TextView
-        android:id="@+id/no_data"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:background="@color/greyBackground"
-        android:gravity="center"
-        android:text="没有数据"
-        android:textColor="@color/dark_light"
-        android:visibility="gone"/>
+    <include layout="@layout/empty_view"/>
+
 </RelativeLayout>

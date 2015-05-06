@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
@@ -83,8 +84,6 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 		setContentView(R.layout.edit);
 		progress = new ProgressDialog(this);
 
-		mEmojiSelector = findViewById(R.id.emoji);
-		mEmojiSelector.setVisibility(View.GONE);
 
 		Core.getExistedAttach(new Core.OnRequestListener() {
 			@Override
@@ -248,6 +247,11 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 
 			materialDialog.show();
 		} else if (id == R.id.reply_add_emoji) {
+			if (mEmojiSelector == null) {
+				((ViewStub) findViewById(R.id.emoji_viewstub)).inflate();
+				mEmojiSelector = findViewById(R.id.emoji);
+			}
+
 			if (!mIsAnimating) {
 				if (mEmojiSelector.getVisibility() == View.GONE) {
 					YoYo.with(Techniques.SlideInUp)

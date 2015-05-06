@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:clickable="true"
@@ -12,19 +13,22 @@
         android:layout_height="wrap_content"
         android:background="@color/dark_primary">
 
-        <EditText
+        <com.rengwuxian.materialedittext.MaterialEditText
             android:id="@+id/search_input"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="12dp"
             android:layout_marginRight="40dp"
             android:hint="搜索"
             android:imeOptions="actionSearch"
-            android:paddingLeft="12dp"
             android:singleLine="true"
-            android:textColor="@android:color/white"
             android:textCursorDrawable="@null"
-            android:layout_centerVertical="true"/>
+            app:met_floatingLabel="none"
+            app:met_primaryColor="@color/snow_darker"
+            app:met_textColor="@android:color/white"
+            app:met_textColorHint="@color/snow_darker"/>
 
 
         <RelativeLayout
@@ -38,6 +42,7 @@
                 android:id="@+id/search_close"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentBottom="false"
                 android:layout_alignParentEnd="false"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
@@ -45,18 +50,17 @@
                 android:paddingRight="15dp"
                 android:text="×"
                 android:textColor="@android:color/white"
-                android:textSize="14pt"
-                android:layout_alignParentBottom="false"/>
+                android:textSize="14pt"/>
 
             <ProgressBar
                 android:id="@+id/progress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentBottom="false"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentStart="false"
-                android:layout_centerVertical="true"
-                android:layout_alignParentBottom="false"/>
+                android:layout_centerVertical="true"/>
 
         </RelativeLayout>
 

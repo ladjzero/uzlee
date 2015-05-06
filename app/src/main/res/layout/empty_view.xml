@@ -1,0 +1,11 @@
+<TextView
+    android:id="@+id/empty_view"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/greyBackground"
+    android:clickable="true"
+    android:gravity="center"
+    android:text="没有数据"
+    android:textColor="@color/dark_light"
+    android:visibility="gone"/>

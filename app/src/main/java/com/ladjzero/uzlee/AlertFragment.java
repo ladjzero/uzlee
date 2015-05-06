@@ -1,6 +1,5 @@
 package com.ladjzero.uzlee;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.ladjzero.hipda.*;
@@ -80,7 +78,7 @@ public class AlertFragment extends Fragment implements AbsListView.OnItemClickLi
 		mListView = (AbsListView) view.findViewById(R.id.simple_thread_list);
 		mListView.setAdapter(mAdapter);
 		mListView.setOnItemClickListener(this);
-		mListView.setEmptyView(view.findViewById(R.id.no_data));
+		mListView.setEmptyView(view.findViewById(R.id.empty_view));
 
 		switch (tabIndex) {
 			case 0:
@@ -91,8 +89,8 @@ public class AlertFragment extends Fragment implements AbsListView.OnItemClickLi
 					}
 
 					@Override
-					public void onError() {
-						((MainActivity) getActivity()).showToast("请求错误");
+					public void onError(String error) {
+						((BaseActivity) getActivity()).showToast(error);
 					}
 				});
 				break;
@@ -105,7 +103,7 @@ public class AlertFragment extends Fragment implements AbsListView.OnItemClickLi
 
 					@Override
 					public void onError(String error) {
-						((MainActivity) getActivity()).showToast(error);
+						((BaseActivity) getActivity()).showToast(error);
 					}
 				});
 				break;

@@ -1003,7 +1003,7 @@ public class Core {
 
 				@Override
 				public void onError(String error) {
-					onThreadsListener.onError();
+					onThreadsListener.onError(error);
 				}
 
 				@Override
@@ -1176,7 +1176,7 @@ public class Core {
 		getHtml("http://www.hi-pda.com/forum/my.php?item=favorites&type=thread&page=" + page, new OnRequestListener() {
 			@Override
 			public void onError(String error) {
-				onThreadsListener.onError();
+				onThreadsListener.onError(error);
 			}
 
 			@Override
@@ -1320,7 +1320,7 @@ public class Core {
 		getHtml("http://www.hi-pda.com/forum/pm.php?filter=privatepm", new OnRequestListener() {
 			@Override
 			public void onError(String error) {
-				onThreadsListener.onError();
+				onThreadsListener.onError(error);
 			}
 
 			@Override
@@ -1365,7 +1365,7 @@ public class Core {
 		getHtml("http://www.hi-pda.com/forum/my.php?item=threads&page" + page, new OnRequestListener() {
 			@Override
 			public void onError(String error) {
-				onThreadsListener.onError();
+				onThreadsListener.onError(error);
 			}
 
 			@Override
@@ -1425,7 +1425,7 @@ public class Core {
 		getHtml("http://www.hi-pda.com/forum/my.php?item=posts&page=" + page, new OnRequestListener() {
 			@Override
 			public void onError(String error) {
-				onThreadsListener.onError();
+				onThreadsListener.onError(error);
 			}
 
 			@Override
@@ -1469,7 +1469,7 @@ public class Core {
 
 			@Override
 			public void onError(String error) {
-				onThreadsListener.onError();
+				onThreadsListener.onError(error);
 			}
 
 			@Override
@@ -1602,7 +1602,7 @@ public class Core {
 	public interface OnThreadsListener {
 		void onThreads(ArrayList<Thread> threads, int currPage, boolean hasNextPage);
 
-		void onError();
+		void onError(String error);
 	}
 
 	public interface OnImageCompressed {

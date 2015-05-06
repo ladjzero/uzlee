@@ -103,7 +103,7 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 
 		// Set the adapter
 		mListView = (AbsListView) view.findViewById(R.id.simple_thread_list);
-		mListView.setEmptyView(view.findViewById(R.id.no_data));
+		mListView.setEmptyView(view.findViewById(R.id.empty_view));
 
 		// Set OnItemClickListener so we can be notified on item clicks
 		mListView.setOnItemClickListener(this);
@@ -196,8 +196,8 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 	}
 
 	@Override
-	public void onError() {
-		((MainActivity) getActivity()).showToast("请求错误");
+	public void onError(String error) {
+		((MainActivity) getActivity()).showToast(error);
 	}
 
 	/**
