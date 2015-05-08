@@ -130,7 +130,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 		mSwipe = (SwipeRefreshLayout) rootView.findViewById(R.id.thread_swipe);
 		mSwipe.setOnRefreshListener(this);
-		mSwipe.setColorSchemeResources(R.color.dark_light, R.color.dark_light, R.color.dark_light, R.color.dark_light);
+		mSwipe.setColorSchemeResources(R.color.dark_primary, R.color.dark_primary, R.color.dark_primary, R.color.dark_primary);
 		mSwipe.setEnabled(mEnablePullToRefresh);
 
 		listView = (ListView) rootView.findViewById(R.id.threads);

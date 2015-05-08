@@ -60,6 +60,7 @@ import me.drakeet.materialdialog.MaterialDialog;
 
 public class BaseActivity extends OrmLiteBaseActivity<DBHelper> implements Core.OnProgress{
 
+	public static final int IMAGE_MEM_CACHE_SIZE = 16 * 1024 * 1024;
 	SharedPreferences setting;
 	EmojiUtils emojiUtils;
 	MaterialDialog alert;
@@ -89,6 +90,7 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> implements Core.
 			.showImageOnFail(R.color.snow_primary)
 			.cacheInMemory(true)
 			.cacheOnDisk(true)
+			.imageScaleType(ImageScaleType.NONE_SAFE)
 			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
 			.build();
 
@@ -122,7 +124,7 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> implements Core.
 		actionBar.setIcon(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
 
 		ImageLoaderConfiguration ilConfig = new ImageLoaderConfiguration.Builder(this)
-				.memoryCacheSize(2 * 1024 * 1024)
+				.memoryCacheSize(IMAGE_MEM_CACHE_SIZE)
 				.defaultDisplayImageOptions(userImageInList).build();
 		ImageLoader.getInstance().init(ilConfig);
 

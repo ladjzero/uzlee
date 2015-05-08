@@ -49,6 +49,7 @@ import java.util.regex.*;
 import de.greenrobot.event.EventBus;
 
 public class Core {
+	public final static int MAX_UPLOAD_LENGTH = 299 * 1024;
 	public final static int UGLEE_ID = 1261;
 	public static final Set<Integer> bans = new HashSet<Integer>();
 	public static final HashMap<String, String> icons = new HashMap<String, String>();
@@ -127,7 +128,6 @@ public class Core {
 	}
 
 	private static final String TAG = "Core";
-	private final static int maxImageLength = 299 * 1024;
 	private static AsyncHttpClient httpClient = new AsyncHttpClient();
 	private static String formhash;
 	private static String hash;
@@ -1528,55 +1528,115 @@ public class Core {
 		editor.commit();
 	}
 
-	public static void compressImage(final File imgFile, final OnImageCompressed onImageCompressed) {
-		long fileLength = imgFile.length();
+	/**
+	 *
+	 * If the length of image file is less than maxSize, quality will not be applied, and
+	 * image file will be returned directly.
+	 *
+	 * @param imageFile
+	 * @param maxSize
+	 * @param quality
+	 * @return File
+	 */
+	private static File findBestQuality(final File imageFile, int maxSize, int quality) {
+		long fileLength = imageFile.length();
 
-		if (fileLength > maxImageLength) {
-			Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-			File tempDir = context.getCacheDir();
-			int width = bitmap.getWidth(), height = bitmap.getHeight();
-			int newWidth = width, newHeight = height;
+		if (fileLength > maxSize) {
+			try {
+				Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+				File tempDir = context.getCacheDir();
+				File tempFile = File.createTempFile("uzlee-compress", ".jpg", tempDir);
+				OutputStream os = new FileOutputStream(tempFile);
+				bitmap.compress(Bitmap.CompressFormat.JPEG, quality, os);
+				os.close();
+				fileLength = tempFile.length();
 
-			if (width > 800 && height > 800) {
-				if (width > height) {
-					newWidth = 800;
-					newHeight = 800 * height / width;
-				} else {
-					newHeight = 800;
-					newWidth = 800 * width / height;
-				}
+				Log.i(TAG, String.format("findBestQuality, length: %d, quality: %d", fileLength, quality));
+
+				return fileLength > maxSize ? null : tempFile;
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
 			}
-
-			Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
-			File tempFile = imgFile;
-
-			while (fileLength > maxImageLength) {
-				OutputStream os = null;
-
-				try {
-					tempFile = File.createTempFile("uzlee-compress", ".jpg", tempDir);
-					os = new FileOutputStream(tempFile);
-					scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 90, os);
-					os.close();
-
-					fileLength = tempFile.length();
-				} catch (IOException e) {
-					e.printStackTrace();
-				} finally {
-					if (os != null) {
-						try {
-							os.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-
-			onImageCompressed.onImage(tempFile);
 		} else {
-			onImageCompressed.onImage(imgFile);
+			return imageFile;
 		}
+	}
+
+	private static File findBestQuality(final File imageFile, int maxSize) {
+		// Test the worst case.
+		File tempFile = findBestQuality(imageFile, maxSize, 30);
+
+		// Find a better one.
+		if (tempFile != null) {
+			int quality = 90;
+
+			do {
+				tempFile = findBestQuality(imageFile, maxSize, quality);
+				quality -= 15;
+			} while (tempFile == null && quality >= 30);
+		}
+
+		return tempFile;
+	}
+
+	private static File compressBySize(final File imageFile, int maxSize, float rate) {
+		long fileLength = imageFile.length();
+
+		if (fileLength > maxSize) {
+			try {
+				Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+				int width = bitmap.getWidth();
+				int height = bitmap.getHeight();
+				width = (int) (width * rate);
+				height = (int) (height * rate);
+
+				File tempDir = context.getCacheDir();
+				File tempFile = File.createTempFile("uzlee-compress", ".jpg", tempDir);
+				Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width , height, true);
+				OutputStream os = new FileOutputStream(tempFile);
+				scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+				os.close();
+				fileLength = tempFile.length();
+
+				Log.i(TAG, String.format("compressBySize, length: %d, height: %d, width: %d", fileLength, height, width));
+
+				return fileLength > maxSize ? null : tempFile;
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			}
+		} else {
+			return imageFile;
+		}
+	}
+
+	/**
+	 *
+	 * @param imageFile
+	 * @param maxSize
+	 * @param currentRate, 1.0f as the initial value.
+	 * @return
+	 */
+	private static File compressImage(File imageFile, int maxSize, float currentRate) {
+		File tempFile = findBestQuality(imageFile, maxSize);
+
+		if (tempFile != null) {
+			return tempFile;
+		} else {
+			currentRate = currentRate * 0.8f;
+			tempFile = compressBySize(imageFile, maxSize, currentRate);
+
+			if (tempFile == null) {
+				return compressImage(imageFile, maxSize, currentRate);
+			} else {
+				return tempFile;
+			}
+		}
+	}
+
+	public static File compressImage(File imageFile, int maxSize) {
+		return compressImage(imageFile, maxSize, 1.0f);
 	}
 
 	public interface OnRequestListener {

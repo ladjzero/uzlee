@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.Menu;
@@ -27,9 +28,11 @@ import android.widget.Toast;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
 import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.Posts;
 import com.nineoldandroids.animation.Animator;
 
 import org.apache.commons.lang3.StringUtils;
@@ -60,10 +63,12 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 	private View mEmojiSelector;
 	private InputMethodManager mImeManager;
 	private boolean mIsAnimating = false;
+	private EditActivity that;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		that = this;
 //		enableBackAction();
 
 		intent = getIntent();
@@ -320,19 +325,22 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 			Uri uri = imageReturnedIntent.getData();
 			File imageFile = new File(getRealPathFromURI(this, uri));
 
-			progress.setTitle("图片压缩");
-			progress.show();
+			progress.show(that, "图片处理", "图片处理");
 
-			Core.compressImage(imageFile, new Core.OnImageCompressed() {
+			new AsyncTask<File, Void, File>() {
+
 				@Override
-				public void onImage(File imageFile) {
+				protected File doInBackground(File... params) {
+					return Core.compressImage(params[0], Core.MAX_UPLOAD_LENGTH);
+				}
 
-					progress.setTitle("图片上传");
+				@Override
+				protected void onPostExecute(File tempFile) {
+					progress.show(that, "图片上传", "图片上传");
 
-					Core.uploadImage(imageFile, new Core.OnUploadListener() {
+					Core.uploadImage(tempFile, new Core.OnUploadListener() {
 						@Override
 						public void onUpload(String response) {
-							progress.dismiss();
 
 							if (response.startsWith("DISCUZUPLOAD")) {
 								int attachId = -1;
@@ -348,10 +356,12 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 									mMessageInput.setText(mMessageInput.getText() + "[attachimg]" + attachId + "[/attachimg]");
 								}
 							}
+
+							progress.dismiss();
 						}
 					});
 				}
-			});
+			}.execute(imageFile);
 		}
 	}
 
