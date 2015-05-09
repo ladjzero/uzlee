@@ -27,7 +27,6 @@ import java.sql.SQLException;
 
 public class UserActivity extends SwipeActivity {
 
-	private Dao<User, Integer> userDao;
 	LinearLayout mInfo;
 	Button chat;
 	Button block;
@@ -59,29 +58,9 @@ public class UserActivity extends SwipeActivity {
 			}
 		});
 
-		try {
-			userDao = getHelper().getUserDao();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
 		final int uid = getIntent().getIntExtra("uid", -1);
 
 		final ImageView imageView = (ImageView) findViewById(R.id.user_info_img);
-
-		try {
-			User user = userDao.queryForId(uid);
-
-			if (user != null) {
-				String img = user.getImage();
-
-				if (img != null) {
-					ImageLoader.getInstance().displayImage(img, imageView, DisplayImageOptions.createSimple());
-				}
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 
 		setProgressBarIndeterminateVisibility(true);
 
@@ -133,12 +112,6 @@ public class UserActivity extends SwipeActivity {
 					}
 
 					mInfo.addView(view);
-				}
-
-				try {
-					userDao.createOrUpdate(user);
-				} catch (SQLException e) {
-					e.printStackTrace();
 				}
 			}
 		});

@@ -48,8 +48,6 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private final ArrayList<Thread> mThreads = new ArrayList<Thread>();
 	private SwipeRefreshLayout mSwipe;
 	private DBHelper db;
-	private Dao<Thread, Integer> threadDao;
-	private Dao<User, Integer> userDao;
 	private ListView listView;
 	private ThreadsAdapter adapter;
 	private boolean hasNextPage = false;
@@ -116,15 +114,6 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		mTitle = args.getString("title");
 		if (mTitle != null) mActivity.setTitle(mTitle);
 		mQuery = args.getString("query");
-
-		if (db == null) db = mActivity.getHelper();
-
-		try {
-			threadDao = db.getThreadDao();
-			userDao = db.getUserDao();
-		} catch (SQLException e1) {
-			e1.printStackTrace();
-		}
 
 		View rootView = inflater.inflate(R.layout.threads_can_refresh, container, false);
 

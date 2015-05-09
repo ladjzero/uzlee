@@ -17,13 +17,13 @@ public class SearchActivity extends SwipeActivity implements View.OnKeyListener,
 
 
 	private EditText mSearch;
-	private TextView mClose;
-	private View mProgress;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getActionBar().hide();
+		setContentView(R.layout.search);
+
+		mActionbar.setDisplayHomeAsUpEnabled(true);
 
 		mFragment = new ThreadsFragment();
 		mFragment.setOnFetch(this);
@@ -32,41 +32,14 @@ public class SearchActivity extends SwipeActivity implements View.OnKeyListener,
 		bundle.putBoolean("enablePullToRefresh", false);
 		mFragment.setArguments(bundle);
 
-		setContentView(R.layout.search);
 		FragmentTransaction ft = getFragmentManager().beginTransaction();
 		ft.replace(R.id.place_holder, mFragment);
 		ft.commit();
 
-		mClose = (TextView) findViewById(R.id.search_close);
-		mClose.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				String q = mSearch.getText().toString();
-				if (q.length() == 0) {
-					finish();
-				} else {
-					mSearch.setText("");
-				}
-			}
-		});
 
 		mSearch = (EditText) findViewById(R.id.search_input);
 
-		View view = findViewById(R.id.action_container);
-
-		TypedValue tv = new TypedValue();
-		if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-			int actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
-			ViewGroup.LayoutParams params = view.getLayoutParams();
-			params.height = actionBarHeight;
-			view.setLayoutParams(params);
-			mSearch.setHeight(actionBarHeight);
-		}
-
 		mSearch.setOnKeyListener(this);
-
-		mProgress = findViewById(R.id.progress);
-		mProgress.setVisibility(View.INVISIBLE);
 	}
 
 	@Override
@@ -85,13 +58,9 @@ public class SearchActivity extends SwipeActivity implements View.OnKeyListener,
 
 	@Override
 	public void fetchStart() {
-		mClose.setVisibility(View.GONE);
-		mProgress.setVisibility(View.VISIBLE);
 	}
 
 	@Override
 	public void fetchEnd() {
-		mClose.setVisibility(View.VISIBLE);
-		mProgress.setVisibility(View.GONE);
 	}
 }

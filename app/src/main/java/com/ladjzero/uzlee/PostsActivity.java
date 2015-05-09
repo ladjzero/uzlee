@@ -50,7 +50,6 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	// 0 = asc, 1 = desc
 	public int orderType = 0;
 	private DBHelper db;
-	private Dao<User, Integer> userDao;
 	private int mTid;
 	private int mPage;
 	private Posts mPosts = new Posts();
@@ -69,12 +68,12 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		this.setContentView(R.layout.posts);
 		super.onCreate(savedInstanceState);
+		this.setContentView(R.layout.posts);
 
-		getActionBar().setIcon(null);
+//		mActionbar.setIcon(null);
+		mActionbar.setDisplayHomeAsUpEnabled(true);
 
-		db = this.getHelper();
 		Intent intent = getIntent();
 		mTid = intent.getIntExtra("tid", 0);
 		mPage = intent.getIntExtra("page", 1);
@@ -83,12 +82,6 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		setTitle(intent.getStringExtra("title"));
 
 		Log.d("POST_ID", ",tid=" + mTid + " page=" + mPage);
-
-		try {
-			userDao = db.getUserDao();
-		} catch (SQLException e1) {
-			e1.printStackTrace();
-		}
 
 		mListView = (PullToRefreshListView) this.findViewById(R.id.posts);
 		mAdapter = new PostsAdapter(this, mPosts);
@@ -383,22 +376,6 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 		mAdapter.notifyDataSetChanged();
 		mListView.getRefreshableView().setSelection(mInitToLastPost ? posts.size() - 1 : 0);
 		mInitToLastPost = false;
-
-
-		new AsyncTask<Void, Void, Void>() {
-			@Override
-			protected Void doInBackground(Void... params) {
-				for (Post p : posts) {
-					try {
-						userDao.createOrUpdate(p.getAuthor());
-					} catch (SQLException e) {
-						// TODO Auto-generated catch
-						e.printStackTrace();
-					}
-				}
-				return null;
-			}
-		}.execute();
 	}
 
 	@Override

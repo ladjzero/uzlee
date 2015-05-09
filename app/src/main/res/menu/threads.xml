@@ -1,15 +1,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.ladjzero.uzlee.MainActivity">
 
     <item
         android:id="@+id/thread_sort"
-        android:showAsAction="ifRoom"
-        android:title="sort"/>
+        android:title="sort"
+        app:showAsAction="always"/>
 
     <item
         android:id="@+id/thread_publish"
-        android:showAsAction="ifRoom"
-        android:title="new thread"/>
+        android:title="new thread"
+        app:showAsAction="always"/>
 
 </menu>

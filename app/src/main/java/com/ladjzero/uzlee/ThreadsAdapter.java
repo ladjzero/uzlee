@@ -37,7 +37,6 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 	BaseActivity context;
 	Core core;
 	DBHelper db;
-	Dao<User, Integer> userDao;
 	private int mCommentBgColor;
 	private int mWhite;
 	private int mUserNameColor;
@@ -47,11 +46,6 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 	public ThreadsAdapter(Context context, ArrayList<Thread> threads) {
 		super(context, R.layout.thread, threads);
 		this.context = (BaseActivity) context;
-		try {
-			userDao = ((BaseActivity) context).getHelper().getUserDao();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 
 		mHighlightUnread = this.context.setting.getBoolean("highlight_unread", true);
 

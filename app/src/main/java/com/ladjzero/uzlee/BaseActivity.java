@@ -7,7 +7,6 @@ import java.util.Collection;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -22,44 +21,32 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.util.AttributeSet;
-import android.util.DisplayMetrics;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.VelocityTracker;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.balysv.materialmenu.MaterialMenuDrawable;
-import com.balysv.materialmenu.MaterialMenuIcon;
 import com.cengalabs.flatui.FlatUI;
-import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 import com.ladjzero.hipda.Core;
-import com.ladjzero.hipda.DBHelper;
-import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
-import com.rey.material.widget.ProgressView;
 
 import de.greenrobot.event.EventBus;
 import me.drakeet.materialdialog.MaterialDialog;
 
 
-public class BaseActivity extends OrmLiteBaseActivity<DBHelper> implements Core.OnProgress{
+public class BaseActivity extends ActionBarActivity implements Core.OnProgress{
 
+	protected ActionBar mActionbar;
 	public static final int IMAGE_MEM_CACHE_SIZE = 16 * 1024 * 1024;
 	SharedPreferences setting;
 	EmojiUtils emojiUtils;
@@ -90,7 +77,7 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> implements Core.
 			.showImageOnFail(R.color.snow_primary)
 			.cacheInMemory(true)
 			.cacheOnDisk(true)
-			.imageScaleType(ImageScaleType.NONE_SAFE)
+			.imageScaleType(ImageScaleType.NONE)
 			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
 			.build();
 
@@ -101,8 +88,6 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> implements Core.
 	;
 
 	public void enableBackAction() {
-		MaterialMenuIcon materialMenu = new MaterialMenuIcon(this, Color.WHITE, MaterialMenuDrawable.Stroke.THIN);
-		materialMenu.setState(MaterialMenuDrawable.IconState.ARROW);
 	}
 
 	public void showToast(String message) {
@@ -117,11 +102,9 @@ public class BaseActivity extends OrmLiteBaseActivity<DBHelper> implements Core.
 
 		setting = PreferenceManager.getDefaultSharedPreferences(this);
 
-		FlatUI.initDefaultValues(this);
-		FlatUI.setDefaultTheme(FlatUI.DARK);
-		ActionBar actionBar = getActionBar();
-		actionBar.setBackgroundDrawable(FlatUI.getActionBarDrawable(this, FlatUI.DARK, false));
-		actionBar.setIcon(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
+		mActionbar = getSupportActionBar();
+//		mActionbar.setBackgroundDrawable(FlatUI.getActionBarDrawable(this, FlatUI.DARK, false));
+//		mActionbar.setIcon(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
 
 		ImageLoaderConfiguration ilConfig = new ImageLoaderConfiguration.Builder(this)
 				.memoryCacheSize(IMAGE_MEM_CACHE_SIZE)

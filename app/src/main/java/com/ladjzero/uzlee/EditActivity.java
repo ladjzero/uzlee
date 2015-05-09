@@ -34,6 +34,8 @@ import com.joanzapata.android.iconify.Iconify;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Posts;
 import com.nineoldandroids.animation.Animator;
+import com.rey.material.app.Dialog;
+import com.rey.material.app.DialogFragment;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -59,7 +61,6 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 	private static final int SELECT_PHOTO = 100;
 	ArrayList<Integer> attachIds = new ArrayList<Integer>();
 	ArrayList<Integer> existedAttachIds = new ArrayList<Integer>();
-	ProgressDialog progress;
 	private View mEmojiSelector;
 	private InputMethodManager mImeManager;
 	private boolean mIsAnimating = false;
@@ -72,7 +73,7 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 //		enableBackAction();
 
 		intent = getIntent();
-		getActionBar().setIcon(null);
+		mActionbar.setIcon(null);
 
 		tid = intent.getIntExtra("tid", 0);
 		pid = intent.getIntExtra("pid", 0);
@@ -85,9 +86,8 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 		isEdit = (tid != 0 && pid != 0 && fid != 0);
 
 //		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-		getActionBar().setTitle(getIntent().getStringExtra("title"));
+		mActionbar.setTitle(getIntent().getStringExtra("title"));
 		setContentView(R.layout.edit);
-		progress = new ProgressDialog(this);
 
 
 		Core.getExistedAttach(new Core.OnRequestListener() {
@@ -139,30 +139,31 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 		}
 
 		if (isEdit) {
-			progress.setTitle("载入中");
-			progress.show();
+			final Dialog mDialog = new Dialog(this, R.style.Material_App_Dialog_Simple_Light);
+
+			mDialog.title("载入中").cancelable(false).show();
 
 			Core.getEditBody(fid, tid, pid, new Core.OnRequestListener() {
 				@Override
 				public void onError(String error) {
-					progress.dismiss();
+					mDialog.dismiss();
 				}
 
 				@Override
 				public void onSuccess(String html) {
 					subjectInput.setText(html);
-					progress.dismiss();
+					mDialog.dismiss();
 				}
 			}, new Core.OnRequestListener() {
 				@Override
 				public void onError(String error) {
-					progress.dismiss();
+					mDialog.dismiss();
 				}
 
 				@Override
 				public void onSuccess(String html) {
 					mMessageInput.setText(html);
-					progress.dismiss();
+					mDialog.dismiss();
 				}
 			});
 		}
@@ -187,6 +188,7 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
+		final Dialog mDialog = new Dialog(this, R.style.Material_App_Dialog_Simple_Light);
 
 		if (id == R.id.reply_send) {
 			String subject = subjectInput.getText().toString();
@@ -198,8 +200,8 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 				} else if (message.length() == 0) {
 					showToast("内容不能少于5字");
 				} else {
-					progress.setTitle("发送");
-					progress.show();
+					mDialog.title("发送").cancelable(false).show();
+
 
 					message += "\t\t\t[size=1][color=Gray]有只梨[/color][/size]";
 
@@ -211,20 +213,18 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 				} else if (message.length() == 0) {
 					showToast("内容不能少于5字");
 				} else {
-					progress.setTitle("发送");
-					progress.show();
+					mDialog.title("发送").cancelable(false).show();
 
 					Core.editPost(fid, tid, pid, subject, message, attachIds, this);
 				}
 			} else if (isReplyToOne) {
-				progress.setTitle("发送");
-				progress.show();
+				mDialog.title("发送").cancelable(false).show();
+
 				message = "[b]回复 [url=http://www.hi-pda.com/forum/redirect.php?goto=findpost&pid=" + pid + "&ptid=" + tid + "]" + intent.getIntExtra("no", 0) + "#[/url] [i]" + intent.getStringExtra("userName") + "[/i] [/b]\n\n" + message;
 				message += "\t\t\t[size=1][color=Gray]有只梨[/color][/size]";
 				Core.sendReply(tid, message, attachIds, existedAttachIds, this);
 			} else if (isReply) {
-				progress.setTitle("发送");
-				progress.show();
+				mDialog.title("发送").cancelable(false).show();
 
 				message += "\t\t\t[size=1][color=Gray]有只梨[/color][/size]";
 				Core.sendReply(tid, message, attachIds, existedAttachIds, this);
@@ -235,22 +235,17 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 			photoPickerIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 			startActivityForResult(photoPickerIntent, SELECT_PHOTO);
 		} else if (id == R.id.delete_post) {
-			final MaterialDialog materialDialog = new MaterialDialog(this);
-
-			materialDialog.setTitle("删除该回复？(实验性)")
-					.setPositiveButton(getString(R.string.delete), new View.OnClickListener() {
+			mDialog
+					.title("删除该回复？(实验性)")
+					.canceledOnTouchOutside(true)
+					.positiveActionClickListener(new View.OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							materialDialog.dismiss();
-							progress.setTitle(getString(R.string.delete));
-							progress.show();
+							mDialog.dismiss();
 							Core.deletePost(fid, tid, pid, EditActivity.this);
 						}
 					})
-					.setMessage("")
-					.setCanceledOnTouchOutside(true);
-
-			materialDialog.show();
+					.show();
 		} else if (id == R.id.reply_add_emoji) {
 			if (mEmojiSelector == null) {
 				((ViewStub) findViewById(R.id.emoji_viewstub)).inflate();
@@ -325,7 +320,10 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 			Uri uri = imageReturnedIntent.getData();
 			File imageFile = new File(getRealPathFromURI(this, uri));
 
-			progress.show(that, "图片处理", "图片处理");
+			final Dialog mDialog = new Dialog(this, R.style.Material_App_Dialog_Simple_Light);
+
+
+			mDialog.title("图片处理").show();
 
 			new AsyncTask<File, Void, File>() {
 
@@ -336,7 +334,7 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 
 				@Override
 				protected void onPostExecute(File tempFile) {
-					progress.show(that, "图片上传", "图片上传");
+					mDialog.title("图片上传").show();
 
 					Core.uploadImage(tempFile, new Core.OnUploadListener() {
 						@Override
@@ -357,7 +355,7 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 								}
 							}
 
-							progress.dismiss();
+							mDialog.dismiss();
 						}
 					});
 				}
@@ -382,13 +380,11 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 
 	@Override
 	public void onError(String error) {
-		progress.dismiss();
 		Toast.makeText(EditActivity.this, error, Toast.LENGTH_LONG).show();
 	}
 
 	@Override
 	public void onSuccess(String html) {
-		progress.dismiss();
 		Intent returnIntent = new Intent();
 		returnIntent.putExtra("html", html);
 		setResult(EDIT_SUCCESS, returnIntent);

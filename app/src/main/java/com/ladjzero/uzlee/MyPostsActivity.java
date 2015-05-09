@@ -40,13 +40,12 @@ public class MyPostsActivity extends SwipeActivity implements ActionBar.TabListe
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 //		enableBackAction();
-		getActionBar().hide();
+		mActionbar.hide();
 
 		fragmentCache = new HashMap<Integer, Fragment>();
 		setContentView(R.layout.view_pager);
 
 		// Set up the action bar.
-		final ActionBar actionBar = getActionBar();
 //		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 //		actionBar.setDisplayShowHomeEnabled(false);
 //		actionBar.setDisplayShowTitleEnabled(false);

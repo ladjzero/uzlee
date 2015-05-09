@@ -41,7 +41,7 @@ public class ChatActivity extends SwipeActivity implements Core.OnPostsListener,
 		this.setContentView(R.layout.chat);
 		super.onCreate(savedInstanceState);
 
-		getActionBar().setIcon(null);
+		mActionbar.setIcon(null);
 
 		mRootView = findViewById(R.id.root);
 		mRootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {

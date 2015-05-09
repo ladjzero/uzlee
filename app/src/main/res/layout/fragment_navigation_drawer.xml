@@ -1,45 +1,44 @@
 <LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:background="@color/dark_dark"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dark_darker"
 
-	android:orientation="vertical">
+    android:orientation="vertical">
 
-	<LinearLayout
-		android:id="@+id/nav_user"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="horizontal"
-		android:paddingLeft="20dp"
-		android:paddingTop="10dp"
-		android:paddingBottom="10dp"
-		android:clickable="true"
-		android:background="@drawable/down_border">
+    <LinearLayout
+        android:id="@+id/nav_user"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/dark_dark"
+        android:clickable="true"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp"
+        android:paddingLeft="20dp"
+        android:paddingTop="10dp">
 
 
-		<ImageView
-			android:id="@+id/nav_user_image"
-			android:layout_width="40dp"
-			android:layout_height="40dp"
-			android:layout_marginRight="15dp"/>
+        <ImageView
+            android:id="@+id/nav_user_image"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="15dp"/>
 
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="40dp"
-			android:id="@+id/nav_user_name"
-			android:gravity="center"
-			android:textColor="@color/snow_dark"
-			android:textSize="14sp"/>
-	</LinearLayout>
+        <TextView
+            android:id="@+id/nav_user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:textColor="@color/snow_dark"
+            android:textSize="14sp"/>
+    </LinearLayout>
 
-	<ListView android:id="@+id/nav_list"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:choiceMode="singleChoice"
-			  android:divider="@android:color/transparent"
-			  android:dividerHeight="0dp"
-			  tools:context="com.ladjzero.uzlee.NavigationDrawerFragment"/>
+    <ListView
+        android:id="@+id/nav_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:choiceMode="singleChoice"
+        android:dividerHeight="0dp"/>
 
 </LinearLayout>

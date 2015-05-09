@@ -1,19 +1,16 @@
 package com.ladjzero.uzlee;
 
 import android.app.Activity;
-import android.app.ActionBar;
-import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.net.Uri;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,20 +23,16 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.balysv.materialmenu.MaterialMenuDrawable;
-import com.balysv.materialmenu.MaterialMenuIcon;
-import com.j256.ormlite.dao.Dao;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-import java.sql.SQLException;
 
 import de.greenrobot.event.EventBus;
 
 public class NavigationDrawerFragment extends Fragment {
-	MaterialMenuIcon materialMenu;
-	boolean isDrawerOpened;
+	private static final String TAG = "NavigationDrawerFragment";
+
 	private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
 	private static final String PREF_USER_LEARNED_DRAWER = "navigation_drawer_learned";
 	private NavigationDrawerCallbacks mCallbacks;
@@ -58,7 +51,6 @@ public class NavigationDrawerFragment extends Fragment {
 	ImageView imageView;
 	TextView userName;
 	User user;
-	Dao<User, Integer> userDao;
 	View userLayout;
 	String title;
 
@@ -71,7 +63,7 @@ public class NavigationDrawerFragment extends Fragment {
 
 		activity = (MainActivity) getActivity();
 
-		materialMenu = new MaterialMenuIcon(activity, Color.WHITE, MaterialMenuDrawable.Stroke.THIN);
+//		materialMenu = new MaterialMenuIconCompat(activity, Color.WHITE, MaterialMenuDrawable.Stroke.THIN);
 		// Read in the flag indicating whether or not the user has demonstrated awareness of the
 		// drawer. See PREF_USER_LEARNED_DRAWER for details.
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -82,12 +74,6 @@ public class NavigationDrawerFragment extends Fragment {
 			mFromSavedInstanceState = true;
 		}
 
-
-		try {
-			userDao = ((MainActivity) getActivity()).getHelper().getUserDao();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Override
@@ -102,6 +88,7 @@ public class NavigationDrawerFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View layout = inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
+		Log.i(TAG, "onCreateView");
 		mDrawerListView = (ListView) layout.findViewById(R.id.nav_list);
 //		mDrawerListView = (ListView) inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
 		mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -139,6 +126,8 @@ public class NavigationDrawerFragment extends Fragment {
 
 	@Override
 	public void onResume() {
+		Log.i(TAG, "onResume");
+
 		super.onResume();
 //		Core.addOnMsgListener(this);
 		EventBus.getDefault().register(this);
@@ -147,6 +136,8 @@ public class NavigationDrawerFragment extends Fragment {
 
 	@Override
 	public void onPause() {
+		Log.i(TAG, "onPause");
+
 //		Core.removeOnMsgListener(this);
 		EventBus.getDefault().unregister(this);
 		super.onPause();
@@ -157,6 +148,8 @@ public class NavigationDrawerFragment extends Fragment {
 	}
 
 	public void setUser() {
+		Log.i(TAG, "setUser");
+
 		if (user != null && user.getId() == Core.getUid()) {
 			userLayout.setVisibility(View.VISIBLE);
 
@@ -172,22 +165,11 @@ public class NavigationDrawerFragment extends Fragment {
 			ImageLoader.getInstance().displayImage(user.getImage(), imageView);
 			userName.setText(user.getName());
 		} else if (Core.getUid() > 0) {
-			try {
-				user = userDao.queryForId(Core.getUid());
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 
 			if (user == null) {
 				Core.getUser(Core.getUid(), new Core.OnUserListener() {
 					@Override
 					public void onUser(User u) {
-						try {
-							userDao.createOrUpdate(u);
-						} catch (SQLException e) {
-							e.printStackTrace();
-						}
-
 						userLayout.setVisibility(View.VISIBLE);
 						ImageLoader.getInstance().displayImage(u.getImage(), imageView);
 						userName.setText(u.getName());
@@ -205,6 +187,8 @@ public class NavigationDrawerFragment extends Fragment {
 	}
 
 	public void onEventMainThread(Core.StatusChangeEvent statusChangeEvent) {
+		Log.i(TAG, "onEventMainThread -> setUser");
+
 		adapter.notifyDataSetChanged();
 		getView().invalidate();
 
@@ -216,6 +200,8 @@ public class NavigationDrawerFragment extends Fragment {
 	}
 
 	public void onEventMainThread(final Core.UpdateInfo updateInfo) {
+		Log.i(TAG, "onEventMainThread -> update");
+
 		if (updateInfo != null) {
 			String version = ((MainActivity) getActivity()).getVersion();
 			String newVersion = updateInfo.getVersion();
@@ -228,6 +214,8 @@ public class NavigationDrawerFragment extends Fragment {
 
 	// menu key triggers this
 	public void toggleDrawer() {
+		Log.i(TAG, "toggleDrawer");
+
 		if (isDrawerOpen()) {
 			mDrawerLayout.closeDrawer(Gravity.LEFT);
 		} else {
@@ -244,6 +232,8 @@ public class NavigationDrawerFragment extends Fragment {
 	}
 
 	public boolean isDrawerOpen() {
+		Log.i(TAG, "isDrawerOpen");
+
 		return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mFragmentContainerView);
 	}
 
@@ -254,6 +244,8 @@ public class NavigationDrawerFragment extends Fragment {
 	 * @param drawerLayout The DrawerLayout containing this fragment's UI.
 	 */
 	public void setUp(int fragmentId, DrawerLayout drawerLayout) {
+		Log.i(TAG, "setUp");
+
 		mFragmentContainerView = getActivity().findViewById(fragmentId);
 		mDrawerLayout = drawerLayout;
 
@@ -266,19 +258,20 @@ public class NavigationDrawerFragment extends Fragment {
 		mDrawerToggle = new ActionBarDrawerToggle(
 				getActivity(),                    /* host Activity */
 				mDrawerLayout,                    /* DrawerLayout object */
-				R.drawable._1x1,             /* nav drawer image to replace 'Up' caret */
 				R.string.navigation_drawer_open,  /* "open drawer" description for accessibility */
 				R.string.navigation_drawer_close  /* "close drawer" description for accessibility */
 		) {
-			@Override
-			public void onDrawerSlide(View drawerView, float slideOffset) {
-				materialMenu.setTransformationOffset(
-						MaterialMenuDrawable.AnimationState.BURGER_ARROW,
-						isDrawerOpened ? 2 - slideOffset : slideOffset);
-			}
+//			@Override
+//			public void onDrawerSlide(View drawerView, float slideOffset) {
+//				materialMenu.setTransformationOffset(
+//						MaterialMenuDrawable.AnimationState.BURGER_ARROW,
+//						isDrawerOpened ? 2 - slideOffset : slideOffset);
+//			}
 
 			@Override
 			public void onDrawerClosed(View drawerView) {
+				Log.i(TAG, "onDrawerClosed");
+
 				super.onDrawerClosed(drawerView);
 				if (!isAdded()) {
 					return;
@@ -289,6 +282,8 @@ public class NavigationDrawerFragment extends Fragment {
 
 			@Override
 			public void onDrawerOpened(View drawerView) {
+				Log.i(TAG, "onDrawerOpened");
+
 				super.onDrawerOpened(drawerView);
 				if (!isAdded()) {
 					return;
@@ -317,6 +312,8 @@ public class NavigationDrawerFragment extends Fragment {
 		mDrawerLayout.post(new Runnable() {
 			@Override
 			public void run() {
+				Log.i(TAG, "post syncState");
+
 				mDrawerToggle.syncState();
 			}
 		});
@@ -325,6 +322,8 @@ public class NavigationDrawerFragment extends Fragment {
 	}
 
 	private void selectItem(int position) {
+		Log.i(TAG, String.format("selectItem, position: %d", position));
+
 		mCurrentSelectedPosition = position;
 		if (mDrawerListView != null) {
 			mDrawerListView.setItemChecked(position, true);
@@ -340,6 +339,8 @@ public class NavigationDrawerFragment extends Fragment {
 
 	@Override
 	public void onAttach(Activity activity) {
+		Log.i(TAG, "onAttach");
+
 		super.onAttach(activity);
 		try {
 			mCallbacks = (NavigationDrawerCallbacks) activity;
@@ -350,18 +351,24 @@ public class NavigationDrawerFragment extends Fragment {
 
 	@Override
 	public void onDetach() {
+		Log.i(TAG, "onDetach");
+
 		super.onDetach();
 		mCallbacks = null;
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
+		Log.i(TAG, "onSaveInstanceState");
+
 		super.onSaveInstanceState(outState);
 		outState.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
 	}
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
+		Log.i(TAG, "onConfigurationChanged");
+
 		super.onConfigurationChanged(newConfig);
 		// Forward the new configuration the drawer toggle component.
 		mDrawerToggle.onConfigurationChanged(newConfig);
@@ -369,6 +376,8 @@ public class NavigationDrawerFragment extends Fragment {
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		Log.i(TAG, "onCreateOptionsMenu");
+
 		// If the drawer is open, show the global app actions in the action bar. See also
 		// showGlobalContextActionBar, which controls the top-left area of the action bar.
 		if (mDrawerLayout != null && isDrawerOpen()) {
@@ -392,6 +401,8 @@ public class NavigationDrawerFragment extends Fragment {
 	 * 'context', rather than just what's in the current screen.
 	 */
 	private void showGlobalContextActionBar() {
+		Log.i(TAG, "showGlobalContextActionBar");
+
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayShowTitleEnabled(true);
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
@@ -399,7 +410,7 @@ public class NavigationDrawerFragment extends Fragment {
 	}
 
 	private ActionBar getActionBar() {
-		return getActivity().getActionBar();
+		return ((BaseActivity)getActivity()).getSupportActionBar();
 	}
 
 	public static interface NavigationDrawerCallbacks {

@@ -1,23 +1,24 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.ladjzero.uzlee.EditActivity">
     <item
         android:id="@+id/reply_add_emoji"
-        android:showAsAction="always"
-        android:title="表情"/>
+        android:title="表情"
+        app:showAsAction="always"/>
 
     <item
         android:id="@+id/reply_add_image"
-        android:showAsAction="always"
-        android:title="图片"/>
+        android:title="图片"
+        app:showAsAction="always"/>
 
     <item
         android:id="@+id/delete_post"
-        android:showAsAction="always"
-        android:title="删除"/>
+        android:title="删除"
+        app:showAsAction="always"/>
 
     <item
         android:id="@+id/reply_send"
-        android:showAsAction="always"
-        android:title="回复"/>
+        android:title="回复"
+        app:showAsAction="always"/>
 </menu>

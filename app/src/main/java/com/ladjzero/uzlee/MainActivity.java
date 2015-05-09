@@ -4,13 +4,13 @@ import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
 import com.ladjzero.hipda.*;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.ActionBar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -57,7 +57,6 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 	@Override
 	public void onNavigationDrawerItemSelected(int position) {
 		FragmentManager fragmentManager = getFragmentManager();
-		ActionBar actionBar = getActionBar();
 		Intent intent;
 		Bundle bundle = new Bundle();
 		navPosition = position;
@@ -65,14 +64,14 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 		switch (position) {
 			case 0:
 				fid = D_ID;
-				actionBar.setTitle(title = "Discovery");
+				mActionbar.setTitle(title = "Discovery");
 				bundle.putInt("fid", fid);
 				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(bundle)).commit();
 				break;
 			case 1:
 				fid = BS_ID;
 //				fid = 57;
-				actionBar.setTitle(title = "Buy & Sell");
+				mActionbar.setTitle(title = "Buy & Sell");
 				bundle = new Bundle();
 				bundle.putInt("fid", fid);
 				bundle.putInt("bs_type_id", bsTypeId);
@@ -83,7 +82,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 				fid = EINK_ID;
 				bundle = new Bundle();
 				bundle.putInt("fid", fid);
-				actionBar.setTitle(title = "E-INK");
+				mActionbar.setTitle(title = "E-INK");
 				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(bundle)).commit();
 				break;
 			case 3:
@@ -176,10 +175,9 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 	}
 
 	public void restoreActionBar() {
-		ActionBar actionBar = getActionBar();
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-		actionBar.setDisplayShowTitleEnabled(true);
-		actionBar.setTitle(title);
+		mActionbar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+		mActionbar.setDisplayShowTitleEnabled(true);
+		mActionbar.setTitle(title);
 	}
 
 	@Override

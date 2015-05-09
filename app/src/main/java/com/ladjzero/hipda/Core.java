@@ -258,15 +258,19 @@ public class Core {
 			String uid = uri.getQueryParameter("uid");
 
 			if (uid != null && uid.length() > 0) {
-				isOnline = true;
-				Core.uid = Integer.valueOf(uid);
-				Core.name = eUser.text().trim();
+				if (!isOnline) {
+					isOnline = true;
+					Core.uid = Integer.valueOf(uid);
+					Core.name = eUser.text().trim();
 
-				EventBus.getDefault().post(new StatusChangeEvent(true, true));
+					Log.i(TAG, String.format("EventBus.StatusChangeEvent %b %b", isOnline, true));
+					EventBus.getDefault().post(new StatusChangeEvent(isOnline, true));
+				}
 			} else {
 				isOnline = false;
 
-				EventBus.getDefault().post(new StatusChangeEvent(false, true));
+				Log.i(TAG, String.format("EventBus.StatusChangeEvent %b %b", isOnline, true));
+				EventBus.getDefault().post(new StatusChangeEvent(isOnline, true));
 			}
 		} catch (Error e) {
 
