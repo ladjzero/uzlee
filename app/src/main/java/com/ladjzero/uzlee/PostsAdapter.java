@@ -20,6 +20,7 @@ import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.User;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
@@ -58,6 +59,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	private ListView mListView;
 	private int[] layoutXY = new int[2];
 	private TYPE type;
+	private DisplayImageOptions mDisplayOption;
 
 	public static enum TYPE {
 		POST,
@@ -76,10 +78,24 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		mTransparent = res.getColor(android.R.color.transparent);
 		mWhite = res.getColor(android.R.color.white);
 		mTextColor = mDefaultTextColor = res.getColor(R.color.smallFont);
+
+		mDisplayOption = getImageLoader();
 	}
 
 	public PostsAdapter(Context context, Posts posts) {
 		this(context, posts, TYPE.POST);
+	}
+
+	private DisplayImageOptions getImageLoader() {
+		int imageCount = 0;
+
+		for (Post post : mPosts.getLastMerged()) {
+			for (Map.Entry<Post.BodyType, String> entry : post.getNiceBody()) {
+				if (entry.getKey() == Post.BodyType.IMG) imageCount++;
+			}
+		}
+
+		return imageCount > 3 ? BaseActivity.LowQualityDisplay : BaseActivity.BestQualityDisplay;
 	}
 
 	public void clearViewCache() {
@@ -120,6 +136,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	@Override
 	public void notifyDataSetChanged() {
 		super.notifyDataSetChanged();
+		mDisplayOption = getImageLoader();
 		clearViewCache();
 	}
 
@@ -192,7 +209,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			holder.sig.setVisibility(View.GONE);
 		}
 
-		ImageLoader.getInstance().displayImage(imageUrl, holder.img, new SimpleImageLoadingListener() {
+		ImageLoader.getInstance().displayImage(imageUrl, holder.img, BaseActivity.LowQualityDisplay, new SimpleImageLoadingListener() {
 			@Override
 			public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
 				author.setImage(imageUri);
@@ -233,7 +250,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 						bar.setProgress(0);
 						bar.start();
 
-						ImageLoader.getInstance().displayImage(url, imageView, context.postImageInList, new SimpleImageLoadingListener() {
+						ImageLoader.getInstance().displayImage(url, imageView, mDisplayOption, new SimpleImageLoadingListener() {
 							@Override
 							public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
 								ProgressView bar = (ProgressView) view.getTag(R.id.img_progress);

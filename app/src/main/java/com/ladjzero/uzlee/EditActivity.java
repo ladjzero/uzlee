@@ -34,6 +34,7 @@ import com.joanzapata.android.iconify.Iconify;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Posts;
 import com.nineoldandroids.animation.Animator;
+import com.r0adkll.slidr.Slidr;
 import com.rey.material.app.Dialog;
 import com.rey.material.app.DialogFragment;
 
@@ -45,7 +46,7 @@ import java.util.ArrayList;
 import me.drakeet.materialdialog.MaterialDialog;
 
 
-public class EditActivity extends SwipeActivity implements Core.OnRequestListener {
+public class EditActivity extends BaseActivity implements Core.OnRequestListener {
 	public static final int EDIT_SUCCESS = 10;
 
 	int tid;
@@ -72,8 +73,9 @@ public class EditActivity extends SwipeActivity implements Core.OnRequestListene
 		that = this;
 //		enableBackAction();
 
+		Slidr.attach(this);
 		intent = getIntent();
-		mActionbar.setIcon(null);
+		mActionbar.setDisplayHomeAsUpEnabled(true);
 
 		tid = intent.getIntExtra("tid", 0);
 		pid = intent.getIntExtra("pid", 0);

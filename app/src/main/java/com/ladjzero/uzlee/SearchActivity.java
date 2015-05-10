@@ -11,7 +11,9 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class SearchActivity extends SwipeActivity implements View.OnKeyListener, ThreadsFragment.OnFetch {
+import com.r0adkll.slidr.Slidr;
+
+public class SearchActivity extends BaseActivity implements View.OnKeyListener, ThreadsFragment.OnFetch {
 
 	private ThreadsFragment mFragment;
 
@@ -23,7 +25,11 @@ public class SearchActivity extends SwipeActivity implements View.OnKeyListener,
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.search);
 
+		Slidr.attach(this);
+
 		mActionbar.setDisplayHomeAsUpEnabled(true);
+		mActionbar.setDisplayShowCustomEnabled(true);
+		mActionbar.setCustomView(R.layout.search_action_bar);
 
 		mFragment = new ThreadsFragment();
 		mFragment.setOnFetch(this);

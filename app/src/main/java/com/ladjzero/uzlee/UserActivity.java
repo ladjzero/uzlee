@@ -20,12 +20,13 @@ import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.r0adkll.slidr.Slidr;
 
 import java.util.ArrayList;
 
 import java.sql.SQLException;
 
-public class UserActivity extends SwipeActivity {
+public class UserActivity extends BaseActivity {
 
 	LinearLayout mInfo;
 	Button chat;
@@ -34,11 +35,10 @@ public class UserActivity extends SwipeActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-
 		super.onCreate(savedInstanceState);
-//		enableBackAction();
 		setContentView(R.layout.activity_user);
+
+		mActionbar.setDisplayHomeAsUpEnabled(true);
 		mInfo = (LinearLayout) findViewById(R.id.user_info_list);
 		chat = (Button) findViewById(R.id.chat);
 		block = (Button) findViewById(R.id.block);
@@ -143,6 +143,8 @@ public class UserActivity extends SwipeActivity {
 				}
 			}
 		});
+
+		Slidr.attach(this);
 	}
 
 	public ArrayList<String> propertyToString(User user) {

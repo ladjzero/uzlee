@@ -31,6 +31,7 @@ import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
+import com.r0adkll.slidr.Slidr;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
@@ -41,7 +42,7 @@ import java.util.Map;
 import me.drakeet.materialdialog.MaterialDialog;
 
 
-public class PostsActivity extends SwipeActivity implements AdapterView.OnItemClickListener,
+public class PostsActivity extends BaseActivity implements AdapterView.OnItemClickListener,
 		Core.OnPostsListener,
 		DiscreteSeekBar.OnProgressChangeListener {
 
@@ -208,6 +209,8 @@ public class PostsActivity extends SwipeActivity implements AdapterView.OnItemCl
 				mMenuDialog.dismiss();
 			}
 		});
+
+		Slidr.attach(this);
 	}
 
 	private String getUri() {

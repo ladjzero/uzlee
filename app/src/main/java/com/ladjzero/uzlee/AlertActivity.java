@@ -6,43 +6,41 @@ import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.SparseArray;
-import android.util.TypedValue;
-import android.view.ViewGroup;
 
-import com.astuetz.PagerSlidingTabStrip;
+import com.r0adkll.slidr.Slidr;
+import com.r0adkll.slidr.model.SlidrInterface;
+import com.rey.material.widget.TabPageIndicator;
 
 /**
  * Created by ladjzero on 2015/1/1.
  */
-public class AlertActivity extends SwipeActivity implements SimpleThreadsFragment.OnFragmentInteractionListener, ViewPager.OnPageChangeListener {
+public class AlertActivity extends BaseActivity implements SimpleThreadsFragment.OnFragmentInteractionListener, ViewPager.OnPageChangeListener {
 	SectionsPagerAdapter mSectionsPagerAdapter;
 	ViewPager mViewPager;
 	SparseArray<Fragment> mFragmentCache;
+	SlidrInterface slidrInterface;
 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mActionbar.hide();
 		setContentView(R.layout.view_pager);
+		mActionbar.setDisplayHomeAsUpEnabled(true);
+		mActionbar.setDisplayShowCustomEnabled(true);
+		mActionbar.setCustomView(R.layout.view_page_bar);
 
 		mFragmentCache = new SparseArray<>();
 		mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
 
-		PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+//		PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+		TabPageIndicator tabs = (TabPageIndicator) findViewById(R.id.tabs);
 
-		TypedValue tv = new TypedValue();
+		tabs.setViewPager(mViewPager);
+		tabs.setOnPageChangeListener(this);
 
-		if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-			int actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
-			ViewGroup.LayoutParams params = tabs.getLayoutParams();
-			params.height = actionBarHeight;
-			tabs.setLayoutParams(params);
-			tabs.setViewPager(mViewPager);
-			tabs.setOnPageChangeListener(this);
-		}
+		slidrInterface = Slidr.attach(this);
 	}
 
 	@Override
@@ -62,7 +60,9 @@ public class AlertActivity extends SwipeActivity implements SimpleThreadsFragmen
 
 	@Override
 	public void onPageSelected(int i) {
-		setEnableSwipe(i == 0);
+//		setEnableSwipe(i == 0);
+		if (i == 0) slidrInterface.unlock();
+		else slidrInterface.lock();
 	}
 
 	@Override

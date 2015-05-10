@@ -12,13 +12,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 
-import com.astuetz.PagerSlidingTabStrip;
+import com.r0adkll.slidr.Slidr;
+import com.r0adkll.slidr.model.SlidrInterface;
+import com.rey.material.widget.TabPageIndicator;
 
 import java.util.HashMap;
 import java.util.Locale;
 
 
-public class MyPostsActivity extends SwipeActivity implements ActionBar.TabListener, SimpleThreadsFragment.OnFragmentInteractionListener, ViewPager.OnPageChangeListener {
+public class MyPostsActivity extends BaseActivity implements ActionBar.TabListener, SimpleThreadsFragment.OnFragmentInteractionListener, ViewPager.OnPageChangeListener {
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -29,6 +31,7 @@ public class MyPostsActivity extends SwipeActivity implements ActionBar.TabListe
 	 * {@link android.support.v13.app.FragmentStatePagerAdapter}.
 	 */
 	SectionsPagerAdapter mSectionsPagerAdapter;
+	SlidrInterface slidrInterface;
 
 	/**
 	 * The {@link ViewPager} that will host the section contents.
@@ -40,7 +43,9 @@ public class MyPostsActivity extends SwipeActivity implements ActionBar.TabListe
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 //		enableBackAction();
-		mActionbar.hide();
+		mActionbar.setDisplayHomeAsUpEnabled(true);
+		mActionbar.setDisplayShowCustomEnabled(true);
+		mActionbar.setCustomView(R.layout.view_page_bar);
 
 		fragmentCache = new HashMap<Integer, Fragment>();
 		setContentView(R.layout.view_pager);
@@ -72,17 +77,11 @@ public class MyPostsActivity extends SwipeActivity implements ActionBar.TabListe
 //			}
 //		});
 
-		PagerSlidingTabStrip  tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+//		PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+		TabPageIndicator tabs = (TabPageIndicator) findViewById(R.id.tabs);
 
-		TypedValue tv = new TypedValue();
-		if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-			int actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
-			ViewGroup.LayoutParams params = tabs.getLayoutParams();
-			params.height = actionBarHeight;
-			tabs.setLayoutParams(params);
-			tabs.setViewPager(mViewPager);
-			tabs.setOnPageChangeListener(this);
-		}
+		tabs.setViewPager(mViewPager);
+		tabs.setOnPageChangeListener(this);
 //		actionBar.hide();
 
 		// For each of the sections in the app, add a tab to the action bar.
@@ -96,6 +95,8 @@ public class MyPostsActivity extends SwipeActivity implements ActionBar.TabListe
 //							.setText(mSectionsPagerAdapter.getPageTitle(i))
 //							.setTabListener(this));
 //		}
+
+		slidrInterface = Slidr.attach(this);
 	}
 
 	@Override
@@ -143,12 +144,14 @@ public class MyPostsActivity extends SwipeActivity implements ActionBar.TabListe
 
 	@Override
 	public void onPageScrolled(int i, float v, int i2) {
-		setEnableSwipe(i == 0 && i2 <= 0);
+//		setEnableSwipe(i == 0 && i2 <= 0);
 	}
 
 	@Override
 	public void onPageSelected(int i) {
-		setEnableSwipe(i == 0);
+		if (i == 0) slidrInterface.unlock();
+		else slidrInterface.lock();
+//		setEnableSwipe(i == 0);
 	}
 
 	@Override

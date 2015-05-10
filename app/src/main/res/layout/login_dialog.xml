@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
+              android:fillViewport="true"
               android:layout_height="match_parent"
-              android:background="@android:color/white"
               android:orientation="vertical">
 
     <com.rengwuxian.materialedittext.MaterialEditText
@@ -25,12 +25,6 @@
         android:inputType="textPassword"
         app:met_floatingLabel="normal"
         app:met_primaryColor="@color/dark_primary"/>
-
-    <CheckBox
-        android:id="@+id/checkBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="验证问题"/>
 
     <Spinner
         android:id="@+id/question"

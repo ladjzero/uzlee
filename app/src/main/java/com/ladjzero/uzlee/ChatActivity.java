@@ -2,12 +2,11 @@ package com.ladjzero.uzlee;
 
 import android.content.Intent;
 import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -15,6 +14,7 @@ import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.User;
+import com.r0adkll.slidr.Slidr;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -25,11 +25,11 @@ import java.util.Date;
 /**
  * Created by ladjzero on 2015/4/25.
  */
-public class ChatActivity extends SwipeActivity implements Core.OnPostsListener, Core.OnRequestListener {
+public class ChatActivity extends BaseActivity implements Core.OnPostsListener, Core.OnRequestListener {
 	private View mRootView;
 	private ListView mListView;
 	private EditText mMessage;
-	private View mSend;
+	private Button mSend;
 	private ChatsAdapter mAdapter;
 	private Posts mCharts;
 	private int uid;
@@ -37,11 +37,11 @@ public class ChatActivity extends SwipeActivity implements Core.OnPostsListener,
 	private String mName;
 
 	protected void onCreate(Bundle savedInstanceState) {
-		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		this.setContentView(R.layout.chat);
 		super.onCreate(savedInstanceState);
+		this.setContentView(R.layout.chat);
 
-		mActionbar.setIcon(null);
+		Slidr.attach(this);
+		mActionbar.setDisplayHomeAsUpEnabled(true);
 
 		mRootView = findViewById(R.id.root);
 		mRootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -61,7 +61,7 @@ public class ChatActivity extends SwipeActivity implements Core.OnPostsListener,
 			}
 		});
 
-		mSend = findViewById(R.id.send_message);
+		mSend = (Button) findViewById(R.id.send_message);
 
 		mSend.setOnClickListener(new View.OnClickListener() {
 			@Override

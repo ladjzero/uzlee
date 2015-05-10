@@ -9,10 +9,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class SettingActivity extends SwipeActivity {
+import com.r0adkll.slidr.Slidr;
+
+public class SettingActivity extends BaseActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mActionbar.setDisplayHomeAsUpEnabled(true);
+
+		Slidr.attach(this);
 
 		getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingFragment()).commit();
 	}

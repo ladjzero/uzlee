@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Window;
 
-public class ThreadsActivity extends SwipeActivity {
+import com.r0adkll.slidr.Slidr;
+
+public class ThreadsActivity extends BaseActivity {
 
 	private ThreadsFragment mFragment;
 
@@ -28,5 +30,7 @@ public class ThreadsActivity extends SwipeActivity {
 		FragmentTransaction ft = getFragmentManager().beginTransaction();
 		ft.replace(R.id.place_holder, mFragment);
 		ft.commit();
+
+		Slidr.attach(this);
 	}
 }

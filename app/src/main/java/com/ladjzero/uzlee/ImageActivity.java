@@ -2,31 +2,44 @@ package com.ladjzero.uzlee;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.r0adkll.slidr.Slidr;
+import com.r0adkll.slidr.model.SlidrInterface;
+
+import uk.co.senab.photoview.PhotoViewAttacher;
 
 
-public class ImageActivity extends SwipeActivity implements SwipeActivity.OnSwipeToggle{
+public class ImageActivity extends BaseActivity {
 
 	String url;
 	int tid;
+	SlidrInterface slidrInterface;
+	boolean slidrLocked = false;
+	PhotoViewAttacher mAttacher;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_image);
-//		enableBackAction();
-		final MyImageView imageView = (MyImageView) findViewById(R.id.image_view);
-		imageView.setSwipeToggle(this);
+		mActionbar.setDisplayHomeAsUpEnabled(true);
+
+		slidrInterface = Slidr.attach(this);
+
+		final ImageView imageView = (ImageView) findViewById(R.id.image_view);
+//		imageView.setSwipeToggle(this);
 //		imageView.setOnTouchListener(new View.OnTouchListener() {
 //			@Override
 //			public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -42,7 +55,32 @@ public class ImageActivity extends SwipeActivity implements SwipeActivity.OnSwip
 
 		url = getIntent().getStringExtra("url");
 		tid = getIntent().getIntExtra("tid", 0);
-		ImageLoader.getInstance().displayImage(url, imageView, imageStandAlone);
+
+		ImageLoader.getInstance().displayImage(url, imageView, BestQualityDisplay, new SimpleImageLoadingListener() {
+			@Override
+			public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+				mAttacher = new PhotoViewAttacher(imageView);
+				mAttacher.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
+					@Override
+					public void onMatrixChanged(RectF rect) {
+						if (rect.left >= 0 && slidrLocked) {
+							slidrInterface.unlock();
+							slidrLocked = false;
+						} else if (rect.left < 0 && !slidrLocked) {
+							slidrInterface.lock();
+							slidrLocked = true;
+						}
+					}
+				});
+
+				mAttacher.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
+					@Override
+					public void onViewTap(View view, float x, float y) {
+						finish();
+					}
+				});
+			}
+		});
 	}
 
 

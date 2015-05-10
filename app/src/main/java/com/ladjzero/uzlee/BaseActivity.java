@@ -1,30 +1,21 @@
 package com.ladjzero.uzlee;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Collection;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -39,19 +30,27 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.r0adkll.slidr.model.SlidrConfig;
+import com.r0adkll.slidr.model.SlidrPosition;
+import com.rey.material.app.Dialog;
+import com.rey.material.app.DialogFragment;
+import com.rey.material.app.SimpleDialog;
+
+import org.apache.commons.lang3.StringUtils;
 
 import de.greenrobot.event.EventBus;
-import me.drakeet.materialdialog.MaterialDialog;
 
 
-public class BaseActivity extends ActionBarActivity implements Core.OnProgress{
-
+public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
+	private static final String TAG = "BaseActivity";
 	protected ActionBar mActionbar;
+	protected int mActionbarHeight;
 	public static final int IMAGE_MEM_CACHE_SIZE = 16 * 1024 * 1024;
 	SharedPreferences setting;
 	EmojiUtils emojiUtils;
-	MaterialDialog alert;
-	static final DisplayImageOptions imageStandAlone = new DisplayImageOptions.Builder()
+	Dialog alert;
+
+	public static final DisplayImageOptions imageStandAlone = new DisplayImageOptions.Builder()
 			.showImageForEmptyUri(R.color.snow_primary)
 			.showImageOnLoading(R.color.snow_primary)
 			.showImageOnFail(R.color.snow_primary)
@@ -60,7 +59,7 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress{
 			.imageScaleType(ImageScaleType.NONE)
 			.build();
 
-	static final DisplayImageOptions userImageInList = new DisplayImageOptions.Builder()
+	public static final DisplayImageOptions userImageInList = new DisplayImageOptions.Builder()
 			.delayBeforeLoading(800)
 			.showImageForEmptyUri(android.R.color.transparent)
 			.showImageOnLoading(android.R.color.transparent)
@@ -70,7 +69,7 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress{
 			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
 			.build();
 
-	static final DisplayImageOptions postImageInList = new DisplayImageOptions.Builder()
+	public static final DisplayImageOptions BestQualityDisplay = new DisplayImageOptions.Builder()
 			.delayBeforeLoading(800)
 			.showImageForEmptyUri(R.color.snow_primary)
 			.showImageOnLoading(R.color.snow_primary)
@@ -78,6 +77,17 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress{
 			.cacheInMemory(true)
 			.cacheOnDisk(true)
 			.imageScaleType(ImageScaleType.NONE)
+			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
+			.build();
+
+	public static final DisplayImageOptions LowQualityDisplay = new DisplayImageOptions.Builder()
+			.delayBeforeLoading(800)
+			.showImageForEmptyUri(R.color.snow_primary)
+			.showImageOnLoading(R.color.snow_primary)
+			.showImageOnFail(R.color.snow_primary)
+			.cacheInMemory(true)
+			.cacheOnDisk(true)
+			.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
 			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
 			.build();
 
@@ -104,7 +114,7 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress{
 
 		mActionbar = getSupportActionBar();
 //		mActionbar.setBackgroundDrawable(FlatUI.getActionBarDrawable(this, FlatUI.DARK, false));
-//		mActionbar.setIcon(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
+		mActionbarHeight = mActionbar.getHeight();
 
 		ImageLoaderConfiguration ilConfig = new ImageLoaderConfiguration.Builder(this)
 				.memoryCacheSize(IMAGE_MEM_CACHE_SIZE)
@@ -121,72 +131,6 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress{
 			editor.putLong("last_update_check", now);
 			editor.commit();
 		}
-	}
-
-
-	public MaterialDialog buildLoginDialog() {
-		final View alertView = getLayoutInflater().inflate(R.layout.login_dialog, null);
-		final Spinner question = (Spinner) alertView.findViewById(R.id.question);
-		final EditText answer = (EditText) alertView.findViewById(R.id.answer);
-
-		final CheckBox checkBox = (CheckBox) alertView.findViewById(R.id.checkBox);
-		checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-				int visibility = isChecked ? View.VISIBLE : View.GONE;
-
-				question.setVisibility(visibility);
-				answer.setVisibility(visibility);
-			}
-		});
-
-		question.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-			@Override
-			public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-				answer.setText("");
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> adapterView) {
-				answer.setText("");
-			}
-		});
-
-		final MaterialDialog mMaterialDialog = new MaterialDialog(this);
-		mMaterialDialog.setTitle(getString(R.string.login_hipda));
-		mMaterialDialog.setContentView(alertView);
-		mMaterialDialog.setPositiveButton(getString(R.string.login), new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mMaterialDialog.dismiss();
-				String username = ((EditText) alertView.findViewById(R.id.user_name))
-						.getText().toString();
-				String password = ((EditText) alertView
-						.findViewById(R.id.user_password)).getText().toString();
-				final ProgressDialog progress = ProgressDialog.show(
-						BaseActivity.this, "", getString(R.string.login) + "...", true);
-
-				int questionId = checkBox.isChecked() ? question.getSelectedItemPosition() : 0;
-				String answerStr = checkBox.isChecked() ? answer.getText().toString() : "";
-
-				Core.login(username, password, questionId, answerStr, new Core.OnRequestListener() {
-
-					@Override
-					public void onError(String error) {
-						progress.dismiss();
-						Toast.makeText(BaseActivity.this, error, Toast.LENGTH_LONG).show();
-					}
-
-					@Override
-					public void onSuccess(String html) {
-						progress.dismiss();
-						Toast.makeText(BaseActivity.this, getString(R.string.login_succeed), Toast.LENGTH_LONG).show();
-					}
-				});
-			}
-		});
-
-		return mMaterialDialog;
 	}
 
 	@Override
@@ -212,15 +156,83 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress{
 		super.onPause();
 	}
 
-	public void showLogin() {
-		if (alert != null) alert.dismiss();
-		alert = buildLoginDialog();
-		alert.show();
-	}
-
 	public void onEventMainThread(Core.StatusChangeEvent statusChangeEvent) {
+		Log.i(TAG, String.format("onEventMainThread.statusChangeEvent : online %b", statusChangeEvent.online));
+
 		if (!statusChangeEvent.online) {
-			showLogin();
+			SimpleDialog.Builder builder = new SimpleDialog.Builder(R.style.Material_App_Dialog_Simple_Light) {
+
+				@Override
+				protected Dialog onBuild(Context context, int styleId) {
+					Dialog dialog = super.onBuild(context, styleId);
+					dialog.canceledOnTouchOutside(false);
+					dialog.layoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+					return dialog;
+				}
+
+				@Override
+				public void onPositiveActionClicked(DialogFragment fragment) {
+					android.app.Dialog dialog = fragment.getDialog();
+
+					String username = ((EditText) dialog.findViewById(R.id.user_name)).getText().toString();
+					String password = ((EditText) dialog.findViewById(R.id.user_password)).getText().toString();
+					final ProgressDialog progress = ProgressDialog.show(BaseActivity.this, "", getString(R.string.login) + "...", true);
+					Spinner question = (Spinner) dialog.findViewById(R.id.question);
+					EditText answer = (EditText) dialog.findViewById(R.id.answer);
+
+					boolean questionShow = question.getVisibility() == View.VISIBLE;
+					int questionId = questionShow ? question.getSelectedItemPosition() : 0;
+					String answerStr = questionShow ? answer.getText().toString() : "";
+
+					Core.login(username, password, questionId, answerStr, new Core.OnRequestListener() {
+
+						@Override
+						public void onError(String error) {
+							progress.dismiss();
+							Toast.makeText(BaseActivity.this, error, Toast.LENGTH_LONG).show();
+						}
+
+						@Override
+						public void onSuccess(String html) {
+							progress.dismiss();
+							Toast.makeText(BaseActivity.this, getString(R.string.login_succeed), Toast.LENGTH_LONG).show();
+						}
+					});
+
+					super.onPositiveActionClicked(fragment);
+				}
+
+				@Override
+				public void onNegativeActionClicked(DialogFragment fragment) {
+					android.app.Dialog dialog = fragment.getDialog();
+
+					final Spinner question = (Spinner) dialog.findViewById(R.id.question);
+					final EditText answer = (EditText) dialog.findViewById(R.id.answer);
+
+					if (question.getVisibility() == View.GONE) {
+						question.setVisibility(View.VISIBLE);
+						answer.setVisibility(View.VISIBLE);
+						answer.setText("");
+						mDialog.negativeAction("关闭验证问题");
+					} else {
+						question.setVisibility(View.GONE);
+						answer.setVisibility(View.GONE);
+						answer.setText("");
+						mDialog.negativeAction("显示验证问题");
+					}
+				}
+			};
+
+			builder
+					.contentView(R.layout.login_dialog)
+					.title(getString(R.string.login_hipda))
+					.positiveAction("登录")
+					.negativeAction("显示验证问题");
+
+			DialogFragment dialog = DialogFragment.newInstance(builder);
+
+			dialog.show(getSupportFragmentManager(), null);
+			Log.i(TAG, "login show");
 		}
 	}
 
@@ -230,20 +242,23 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress{
 			String newVersion = updateInfo.getVersion();
 
 			if (new VersionComparator().compare(version, newVersion) < 0) {
-				MaterialDialog materialDialog = new MaterialDialog(this)
-						.setTitle(getString(R.string.update_available) + " " + newVersion)
-						.setMessage(updateInfo.getInfo())
-						.setPositiveButton(getString(R.string.download), new View.OnClickListener() {
-							@Override
-							public void onClick(View v) {
-								Uri uri = Uri.parse(updateInfo.getUri());
-								Intent downloadIntent = new Intent(Intent.ACTION_VIEW, uri);
-								startActivity(downloadIntent);
-							}
-						})
-						.setCanceledOnTouchOutside(true);
+				SimpleDialog.Builder builder = new SimpleDialog.Builder(R.style.Material_App_Dialog_Simple_Light) {
 
-				materialDialog.show();
+					@Override
+					public void onPositiveActionClicked(DialogFragment fragment) {
+						Uri uri = Uri.parse(updateInfo.getUri());
+						Intent downloadIntent = new Intent(Intent.ACTION_VIEW, uri);
+						startActivity(downloadIntent);
+					}
+				};
+
+				builder.message(updateInfo.getInfo())
+						.positiveAction(getString(R.string.download));
+
+				DialogFragment dialog = DialogFragment.newInstance(builder);
+
+				dialog.show(getSupportFragmentManager(), null);
+				Log.i(TAG, "update show");
 			} else {
 				showToast("已是最新版");
 			}
@@ -260,7 +275,8 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress{
 	}
 
 	@Override
-	public void progress(int current, int total) {}
+	public void progress(int current, int total) {
+	}
 
 	public static class VersionComparator implements Comparator<String> {
 
@@ -284,5 +300,11 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress{
 				return Integer.signum(vals1.length - vals2.length);
 			}
 		}
+	}
+
+	@Override
+	public void finish() {
+		super.finish();
+		overridePendingTransition(0, R.anim.push_right_out);
 	}
 }

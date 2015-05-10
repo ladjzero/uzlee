@@ -7,9 +7,9 @@
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>
 
-        <item name="colorPrimary">@color/grass_primary</item>
-        <item name="colorPrimaryDark">@color/grass_dark</item>
-        <item name="colorAccent">@color/grass_light</item>
+        <item name="colorPrimary">@color/dark_primary</item>
+        <item name="colorPrimaryDark">@color/dark_dark</item>
+        <item name="colorAccent">@color/grass_primary</item>
         <!--<item name="android:actionOverflowButtonStyle">@style/AppBaseTheme.OverFlow</item>-->
     </style>
 
@@ -27,7 +27,7 @@
     <style name="AppTheme" parent="AppBaseTheme"></style>
 
     <style name="DeterminateLinearProgressDrawableStyle" parent="Material.Drawable.LinearProgress.Determinate">
-        <item name="lpd_strokeColor">#FF4389F3</item>
-        <item name="lpd_strokeSecondaryColor">#FFB6CDF2</item>
+        <item name="lpd_strokeColor">@color/grass_primary</item>
+        <item name="lpd_strokeSecondaryColor">@color/grass_light</item>
     </style>
 </resources>

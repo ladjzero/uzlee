@@ -93,8 +93,6 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 				if (Core.isOnline()) {
 					intent = new Intent(this, MyPostsActivity.class);
 					startActivity(intent);
-				} else {
-					showLogin();
 				}
 				break;
 			case 5:

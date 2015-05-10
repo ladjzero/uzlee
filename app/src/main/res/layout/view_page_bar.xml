@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <!--<com.astuetz.PagerSlidingTabStrip-->
+    <!--android:id="@+id/tabs"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:textColor="@android:color/white"-->
+    <!--android:textSize="16sp"-->
+    <!--app:pstsDividerColor="@android:color/transparent"-->
+    <!--app:pstsIndicatorColor="@color/dark_light"-->
+    <!--app:pstsIndicatorHeight="4dp"-->
+    <!--app:pstsShouldExpand="true"-->
+    <!--app:pstsUnderlineHeight="0px"/>-->
+
+    <com.rey.material.widget.TabPageIndicator
+        style="@style/Material.Widget.TabPageIndicator"
+        android:id="@+id/tabs"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:tpi_mode="fixed"/>
+
+</RelativeLayout>
