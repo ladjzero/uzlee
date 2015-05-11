@@ -3,25 +3,15 @@ package com.ladjzero.hipda;
 import java.util.ArrayList;
 import java.util.Date;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
-
-@DatabaseTable(tableName = "thread")
 public class Thread {
-	@DatabaseField(id = true)
 	private int id;
-	@DatabaseField(canBeNull = false, foreign = true, columnName = "uid")
 	private User author;
 
-	@DatabaseField
 	private boolean isNew;
-	@DatabaseField
 	private int commentCount;
 
 	private Date createDate;
-	@DatabaseField
 	private String title;
-	@DatabaseField
 	private String body;
 	private String type;
 	private ArrayList<Post> comments;

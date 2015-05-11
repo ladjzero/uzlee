@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
 
     packagingOptions {
         exclude 'META-INF/NOTICE.txt'
@@ -31,8 +31,6 @@ dependencies {
     compile files('libs/commons-lang3-3.3.2.jar')
     compile files('libs/fastjson-1.1.34.android.jar')
     compile files('libs/jsoup-1.8.1.jar')
-    compile files('libs/ormlite-android-4.48.jar')
-    compile files('libs/ormlite-core-4.48.jar')
     compile files('libs/universal-image-loader-1.9.3.jar')
     compile files('libs/acra-4.5.0.jar')
     compile files('libs/eventbus-2.4.0.jar')
@@ -50,12 +48,14 @@ dependencies {
     compile 'me.drakeet.materialdialog:library:1.2.2'
 
     compile 'com.github.rey5137:material:1.1.0'
-    compile 'com.android.support:appcompat-v7:21.0.2'
+    compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.android.support:cardview-v7:21.0.3'
 
     compile 'com.r0adkll:slidableactivity:2.0.2'
 
     compile 'com.github.chrisbanes.photoview:library:1.2.2'
+
+    compile 'com.github.ksoichiro:android-observablescrollview:1.5.0'
 
     compile project(':PullToRefresh')
     compile project(':DiscreteSeekBar')

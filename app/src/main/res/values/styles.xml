@@ -1,5 +1,10 @@
 <resources>
 
+    <style name="AppBaseTheme.NoTransparent" parent="AppBaseTheme" >
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+
     <style name="AppBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowAnimationStyle">@style/AppBaseTheme.WindowAnimation</item>
         <!--remove action bar shadow-->
@@ -25,9 +30,4 @@
     <!--</style>-->
 
     <style name="AppTheme" parent="AppBaseTheme"></style>
-
-    <style name="DeterminateLinearProgressDrawableStyle" parent="Material.Drawable.LinearProgress.Determinate">
-        <item name="lpd_strokeColor">@color/grass_primary</item>
-        <item name="lpd_strokeSecondaryColor">@color/grass_light</item>
-    </style>
 </resources>

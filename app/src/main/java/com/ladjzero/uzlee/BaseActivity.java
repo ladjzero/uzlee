@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +25,8 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.cengalabs.flatui.FlatUI;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
+import com.github.ksoichiro.android.observablescrollview.ScrollState;
 import com.ladjzero.hipda.Core;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -41,7 +44,7 @@ import org.apache.commons.lang3.StringUtils;
 import de.greenrobot.event.EventBus;
 
 
-public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
+public class BaseActivity extends AppCompatActivity implements Core.OnProgress, ObservableScrollViewCallbacks {
 	private static final String TAG = "BaseActivity";
 	protected ActionBar mActionbar;
 	protected int mActionbarHeight;
@@ -90,6 +93,11 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 			.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
 			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
 			.build();
+
+	public static final SlidrConfig slidrConfig = new SlidrConfig.Builder()
+							.position(SlidrPosition.LEFT)
+							.sensitivity(0.47f)
+							.build();
 
 	private boolean enableSwipe() {
 		return true;
@@ -276,6 +284,29 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 
 	@Override
 	public void progress(int current, int total) {
+	}
+
+	@Override
+	public void onScrollChanged(int i, boolean b, boolean b2) {
+
+	}
+
+	@Override
+	public void onDownMotionEvent() {
+
+	}
+
+	@Override
+	public void onUpOrCancelMotionEvent(ScrollState scrollState) {
+		if (scrollState == ScrollState.UP) {
+			if (mActionbar.isShowing()) {
+				mActionbar.hide();
+			}
+		} else if (scrollState == ScrollState.DOWN) {
+			if (!mActionbar.isShowing()) {
+				mActionbar.show();
+			}
+		}
 	}
 
 	public static class VersionComparator implements Comparator<String> {

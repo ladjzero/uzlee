@@ -4,28 +4,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
-
-@DatabaseTable(tableName = "post")
 public class Post {
-	@DatabaseField(id = true)
 	private int id;
-	@DatabaseField(canBeNull = false, foreign = true, columnName = "uid")
 	private User author;
 
-	@DatabaseField
 	private boolean isNew;
-	@DatabaseField
 	private int commentCount;
 
 	private Date createDate;
-	@DatabaseField
 	private String title;
-	@DatabaseField
 	private String body;
 	private int tid;
 	private NiceBody niceBody;

@@ -19,7 +19,6 @@
         app:pv_autostart="false"
         app:pv_circular="false"
         app:pv_progressMode="determinate"
-        app:pv_progressStyle="@style/DeterminateLinearProgressDrawableStyle"
         android:layout_alignParentTop="true"/>
 </RelativeLayout>
 

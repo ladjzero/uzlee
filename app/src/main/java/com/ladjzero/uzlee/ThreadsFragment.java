@@ -20,10 +20,9 @@ import android.widget.ListView;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
-import com.j256.ormlite.dao.Dao;
+import com.github.ksoichiro.android.observablescrollview.ObservableListView;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Core.OnThreadsListener;
-import com.ladjzero.hipda.DBHelper;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
 import com.nineoldandroids.animation.Animator;
@@ -47,8 +46,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private BaseActivity mActivity;
 	private final ArrayList<Thread> mThreads = new ArrayList<Thread>();
 	private SwipeRefreshLayout mSwipe;
-	private DBHelper db;
-	private ListView listView;
+	private ObservableListView listView;
 	private ThreadsAdapter adapter;
 	private boolean hasNextPage = false;
 	private int fid;
@@ -122,10 +120,11 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		mSwipe.setColorSchemeResources(R.color.dark_primary, R.color.dark_primary, R.color.dark_primary, R.color.dark_primary);
 		mSwipe.setEnabled(mEnablePullToRefresh);
 
-		listView = (ListView) rootView.findViewById(R.id.threads);
+		listView = (ObservableListView) rootView.findViewById(R.id.threads);
 		adapter = new ThreadsAdapter(mActivity, mThreads);
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(this);
+		listView.setScrollViewCallbacks(mActivity);
 
 		listView.setOnScrollListener(
 				new PauseOnScrollListener(ImageLoader.getInstance(), true, true, new EndlessScrollListener() {

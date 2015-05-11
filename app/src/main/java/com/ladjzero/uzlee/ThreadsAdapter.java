@@ -11,9 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.j256.ormlite.dao.Dao;
 import com.ladjzero.hipda.Core;
-import com.ladjzero.hipda.DBHelper;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -36,7 +34,6 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 	private final Date NOW = new Date();
 	BaseActivity context;
 	Core core;
-	DBHelper db;
 	private int mCommentBgColor;
 	private int mWhite;
 	private int mUserNameColor;

@@ -11,7 +11,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.j256.ormlite.dao.Dao;
 import com.ladjzero.hipda.*;
 import com.ladjzero.hipda.Thread;
 import com.nostra13.universalimageloader.core.ImageLoader;

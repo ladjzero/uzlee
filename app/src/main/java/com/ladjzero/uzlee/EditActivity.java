@@ -116,7 +116,7 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 		mMessageInput.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				mEmojiSelector.setVisibility(View.GONE);
+				if (mEmojiSelector != null) mEmojiSelector.setVisibility(View.GONE);
 			}
 		});
 	}

@@ -21,11 +21,9 @@ import android.widget.ListView;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
-import com.j256.ormlite.dao.Dao;
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
 import com.ladjzero.hipda.Core;
-import com.ladjzero.hipda.DBHelper;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.User;
@@ -50,7 +48,6 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	private final int EDIT_CODE = 99;
 	// 0 = asc, 1 = desc
 	public int orderType = 0;
-	private DBHelper db;
 	private int mTid;
 	private int mPage;
 	private Posts mPosts = new Posts();
@@ -210,7 +207,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 			}
 		});
 
-		Slidr.attach(this);
+		Slidr.attach(this, slidrConfig);
 	}
 
 	private String getUri() {
