@@ -65,11 +65,9 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.posts);
 
-//		mActionbar.setIcon(null);
 		mActionbar.setDisplayHomeAsUpEnabled(true);
 
 		Intent intent = getIntent();
@@ -99,6 +97,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 			}
 		});
 		mListView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), true, true));
+
 
 		mMenuView = getLayoutInflater().inflate(R.layout.posts_actions_dialog, null);
 

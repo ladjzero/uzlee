@@ -12,7 +12,7 @@
         android:background="@color/snow_dark"
         android:orientation="vertical">
 
-        <com.github.ksoichiro.android.observablescrollview.ObservableListView
+        <ListView
             android:id="@+id/threads"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
