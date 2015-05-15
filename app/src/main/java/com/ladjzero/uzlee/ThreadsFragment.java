@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -34,11 +35,14 @@ import org.apache.commons.collections.Transformer;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import de.greenrobot.event.EventBus;
+
 public class ThreadsFragment extends Fragment implements OnRefreshListener, AdapterView.OnItemClickListener, OnThreadsListener {
 
 	public static final int DATA_SOURCE_THREADS = 0;
 	public static final int DATA_SOURCE_USER = 1;
 	public static final int DATA_SOURCE_SEARCH = 2;
+	private static final String TAG = "ThreadsFragment";
 
 	private BaseActivity mActivity;
 	private final ArrayList<Thread> mThreads = new ArrayList<Thread>();
@@ -273,6 +277,16 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 		if (mThreads.size() == 0 && mDataSource != DATA_SOURCE_SEARCH) fetch(1, this);
 		adapter.notifyDataSetChanged();
+
+		mSwipe.setEnabled(mEnablePullToRefresh);
+
+		EventBus.getDefault().register(this);
+	}
+
+	@Override
+	public void onPause() {
+		EventBus.getDefault().unregister(this);
+		super.onPause();
 	}
 
 	@Override
@@ -423,6 +437,15 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 			} else {
 				mActivity.setProgressBarIndeterminateVisibility(false);
 			}
+		}
+	}
+
+	public void onEventMainThread(Core.StatusChangeEvent statusChangeEvent) {
+		Log.i(TAG, String.format("onEventMainThread.statusChangeEvent : online %b", statusChangeEvent.online));
+
+		if (!statusChangeEvent.online) {
+			mThreads.clear();
+			adapter.notifyDataSetChanged();
 		}
 	}
 }

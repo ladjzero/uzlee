@@ -1,19 +1,17 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dark_darker"
+    android:background="@color/snow_primary"
 
     android:orientation="vertical">
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/nav_user"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/dark_dark"
+        android:background="@color/snow_darker"
         android:clickable="true"
-        android:orientation="horizontal"
         android:paddingBottom="10dp"
         android:paddingLeft="20dp"
         android:paddingTop="10dp">
@@ -30,15 +28,16 @@
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:gravity="center"
-            android:textColor="@color/snow_dark"
-            android:textSize="14sp"/>
-    </LinearLayout>
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:layout_toRightOf="@+id/nav_user_image"/>
+    </RelativeLayout>
 
     <ListView
         android:id="@+id/nav_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:choiceMode="singleChoice"
-        android:dividerHeight="0dp"/>
+        android:divider="@android:color/transparent"/>
 
 </LinearLayout>

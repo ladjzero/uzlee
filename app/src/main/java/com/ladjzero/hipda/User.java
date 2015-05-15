@@ -31,6 +31,14 @@ public class User{
 		return this;
 	}
 	public String getImage() {
+		if (image == null) {
+			int avatar0 = id / 10000;
+			int avatar1 = (id % 10000) / 100;
+			int avatar2 = id % 100;
+
+			image = String.format("http://www.hi-pda.com/forum/uc_server/data/avatar/000/%02d/%02d/%02d_avatar_middle.jpg", avatar0, avatar1, avatar2);
+		}
+
 		return image;
 	}
 	public User setImage(String image) {

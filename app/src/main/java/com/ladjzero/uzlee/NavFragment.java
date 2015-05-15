@@ -30,8 +30,8 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 
 import de.greenrobot.event.EventBus;
 
-public class NavigationDrawerFragment extends Fragment {
-	private static final String TAG = "NavigationDrawerFragment";
+public class NavFragment extends Fragment {
+	private static final String TAG = "NavFragment";
 
 	private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
 	private static final String PREF_USER_LEARNED_DRAWER = "navigation_drawer_learned";
@@ -50,11 +50,10 @@ public class NavigationDrawerFragment extends Fragment {
 	NavAdapter adapter;
 	ImageView imageView;
 	TextView userName;
-	User user;
 	View userLayout;
 	String title;
 
-	public NavigationDrawerFragment() {
+	public NavFragment() {
 	}
 
 	@Override
@@ -87,7 +86,7 @@ public class NavigationDrawerFragment extends Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View layout = inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
+		View layout = inflater.inflate(R.layout.nav, container, false);
 		Log.i(TAG, "onCreateView");
 		mDrawerListView = (ListView) layout.findViewById(R.id.nav_list);
 //		mDrawerListView = (ListView) inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
@@ -120,6 +119,16 @@ public class NavigationDrawerFragment extends Fragment {
 		userName = (TextView) layout.findViewById(R.id.nav_user_name);
 
 		userLayout.setVisibility(View.GONE);
+		userLayout.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (Core.getUser() != null) {
+					Intent intent = new Intent(activity, UserActivity.class);
+					intent.putExtra("uid", Core.getUser().getId());
+					startActivity(intent);
+				}
+			}
+		});
 
 		return layout;
 	}
@@ -129,16 +138,20 @@ public class NavigationDrawerFragment extends Fragment {
 		Log.i(TAG, "onResume");
 
 		super.onResume();
-//		Core.addOnMsgListener(this);
+
+		if (Core.getUser() != null) {
+			userLayout.setVisibility(View.VISIBLE);
+			ImageLoader.getInstance().displayImage(Core.getUser().getImage(), imageView);
+			userName.setText(Core.getUser().getName());
+		}
+
 		EventBus.getDefault().register(this);
-		if (Core.getUid() > 0) setUser();
 	}
 
 	@Override
 	public void onPause() {
 		Log.i(TAG, "onPause");
 
-//		Core.removeOnMsgListener(this);
 		EventBus.getDefault().unregister(this);
 		super.onPause();
 	}
@@ -147,54 +160,23 @@ public class NavigationDrawerFragment extends Fragment {
 		adapter.setAlert(messageEvent.count);
 	}
 
-	public void setUser() {
-		Log.i(TAG, "setUser");
-
-		if (user != null && user.getId() == Core.getUid()) {
-			userLayout.setVisibility(View.VISIBLE);
-
-			userLayout.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					Intent intent = new Intent(activity, UserActivity.class);
-					intent.putExtra("uid", user.getId());
-					startActivity(intent);
-				}
-			});
-
-			ImageLoader.getInstance().displayImage(user.getImage(), imageView);
-			userName.setText(user.getName());
-		} else if (Core.getUid() > 0) {
-
-			if (user == null) {
-				Core.getUser(Core.getUid(), new Core.OnUserListener() {
-					@Override
-					public void onUser(User u) {
-						userLayout.setVisibility(View.VISIBLE);
-						ImageLoader.getInstance().displayImage(u.getImage(), imageView);
-						userName.setText(u.getName());
-					}
-				});
-			} else {
-				userLayout.setVisibility(View.VISIBLE);
-
-				ImageLoader.getInstance().displayImage(user.getImage(), imageView);
-				userName.setText(user.getName());
-			}
-		} else {
-			userLayout.setVisibility(View.GONE);
-		}
-	}
-
 	public void onEventMainThread(Core.StatusChangeEvent statusChangeEvent) {
-		Log.i(TAG, "onEventMainThread -> setUser");
+		Log.i(TAG, "onEventMainThread -> userLayout");
 
 		adapter.notifyDataSetChanged();
 		getView().invalidate();
 
 		if (statusChangeEvent.online) {
-			setUser();
+			if (userLayout.getVisibility() == View.GONE) {
+				Log.i(TAG, "onEventMainThread -> userLayout -> visible");
+
+				userLayout.setVisibility(View.VISIBLE);
+				ImageLoader.getInstance().displayImage(Core.getUser().getImage(), imageView);
+				userName.setText(Core.getUser().getName());
+			}
 		} else {
+			Log.i(TAG, "onEventMainThread -> userLayout -> gone");
+
 			userLayout.setVisibility(View.GONE);
 		}
 	}
@@ -410,7 +392,7 @@ public class NavigationDrawerFragment extends Fragment {
 	}
 
 	private ActionBar getActionBar() {
-		return ((BaseActivity)getActivity()).getSupportActionBar();
+		return ((BaseActivity) getActivity()).getSupportActionBar();
 	}
 
 	public static interface NavigationDrawerCallbacks {

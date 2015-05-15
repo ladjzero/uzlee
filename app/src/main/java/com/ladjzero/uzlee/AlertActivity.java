@@ -25,7 +25,8 @@ public class AlertActivity extends BaseActivity implements SimpleThreadsFragment
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.view_pager);
-		mActionbar.setDisplayHomeAsUpEnabled(true);
+		mActionbar.setIcon(null);
+
 		mActionbar.setDisplayShowCustomEnabled(true);
 		mActionbar.setCustomView(R.layout.view_page_bar);
 

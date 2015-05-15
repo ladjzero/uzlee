@@ -27,7 +27,7 @@ public class SearchActivity extends BaseActivity implements View.OnKeyListener, 
 
 		Slidr.attach(this);
 
-		mActionbar.setDisplayHomeAsUpEnabled(true);
+		mActionbar.setIcon(null);
 		mActionbar.setDisplayShowCustomEnabled(true);
 		mActionbar.setCustomView(R.layout.search_action_bar);
 

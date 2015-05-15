@@ -1,46 +1,59 @@
 package com.ladjzero.uzlee;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
+import com.cengalabs.flatui.FlatUI;
+import com.cengalabs.flatui.views.FlatButton;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.User;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.r0adkll.slidr.Slidr;
 
 import java.util.ArrayList;
 
-import java.sql.SQLException;
-
 public class UserActivity extends BaseActivity {
 
 	LinearLayout mInfo;
-	Button chat;
-	Button block;
+	FlatButton chat;
+	FlatButton block;
 	User user;
+	int[] bloodTheme = {};
+	int[] grassTheme = {};
+	int uid;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_user);
+		setContentView(R.layout.user);
 
-		mActionbar.setDisplayHomeAsUpEnabled(true);
+		Resources res = getResources();
+
+		bloodTheme = new int[]{
+				res.getColor(R.color.blood_darker),
+				res.getColor(R.color.blood_dark),
+				res.getColor(R.color.blood_primary),
+				res.getColor(R.color.blood_light)
+		};
+
+		grassTheme = new int[] {
+				res.getColor(R.color.grass_darker),
+				res.getColor(R.color.grass_dark),
+				res.getColor(R.color.grass_primary),
+				res.getColor(R.color.grass_light)
+		};
+
+		mActionbar.hide();
+
 		mInfo = (LinearLayout) findViewById(R.id.user_info_list);
-		chat = (Button) findViewById(R.id.chat);
-		block = (Button) findViewById(R.id.block);
+		chat = (FlatButton) findViewById(R.id.chat);
+		block = (FlatButton) findViewById(R.id.block);
 
 		chat.setVisibility(View.GONE);
 		block.setVisibility(View.GONE);
@@ -57,7 +70,7 @@ public class UserActivity extends BaseActivity {
 			}
 		});
 
-		final int uid = getIntent().getIntExtra("uid", -1);
+		uid = getIntent().getIntExtra("uid", -1);
 
 		final ImageView imageView = (ImageView) findViewById(R.id.user_info_img);
 
@@ -68,7 +81,7 @@ public class UserActivity extends BaseActivity {
 			public void onUser(final User u) {
 				user = u;
 
-				if (user.getId() != Core.getUid()) {
+				if (user.getId() != Core.getUser().getId()) {
 					chat.setVisibility(View.VISIBLE);
 					block.setVisibility(View.VISIBLE);
 				}
@@ -120,30 +133,29 @@ public class UserActivity extends BaseActivity {
 //		searchPosts.setBackgroundResource(R.color.dark_primary);
 
 
-		if (Core.bans.contains(uid)) {
-			block.setText("移除黑名单");
-//			ban.setBackgroundResource(R.color.grass_primary);
-		} else {
-			block.setText("加入黑名单");
-//			ban.setBackgroundResource(R.color.blood_primary);
-		}
+		updateBlockButton();
 
 		block.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				if (Core.bans.contains(uid)) {
-					Core.removeFromBanList(uid);
-					block.setText("加入黑名单");
-//					ban.setBackgroundResource(R.color.blood_primary);
-				} else {
-					Core.addToBanList(uid);
-					block.setText("移除黑名单");
-//					ban.setBackgroundResource(R.color.grass_primary);
-				}
+				if (Core.bans.contains(uid)) Core.removeFromBanList(uid);
+				else Core.addToBanList(uid);
+
+				updateBlockButton();
 			}
 		});
 
 		Slidr.attach(this);
+	}
+
+	private void updateBlockButton() {
+		if (Core.bans.contains(uid)) {
+			block.setText("移除黑名单");
+			block.getAttributes().setColors(grassTheme);
+		} else {
+			block.setText("加入黑名单");
+			block.getAttributes().setColors(bloodTheme);
+		}
 	}
 
 	public ArrayList<String> propertyToString(User user) {

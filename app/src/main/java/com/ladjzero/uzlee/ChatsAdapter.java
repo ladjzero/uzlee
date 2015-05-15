@@ -13,7 +13,7 @@ import com.ladjzero.hipda.Posts;
  * Created by ladjzero on 2015/4/25.
  */
 public class ChatsAdapter extends PostsAdapter {
-	private int uid = Core.getUid();
+	private int uid = Core.getUser().getId();
 	private int textColorYou;
 	private int linkColorYou;
 	private int textColorMe;

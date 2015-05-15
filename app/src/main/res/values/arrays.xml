@@ -20,4 +20,11 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+
+    <integer-array name="white_flat_theme">
+        <item>@color/dark_primary</item>
+        <item>@color/snow_dark</item>
+        <item>@android:color/white</item>
+        <item>@android:color/white</item>
+    </integer-array>
 </resources>

@@ -15,7 +15,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -26,14 +25,13 @@ import com.joanzapata.android.iconify.Iconify;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
-import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 import com.r0adkll.slidr.Slidr;
+import com.rey.material.widget.ProgressView;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -62,13 +60,16 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	private boolean mInitToLastPost = false;
 	// Help menu dialog to show a line.
 	private View _justALine;
+	private ProgressView mProgressBar;
+	private int myid;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.posts);
 
-		mActionbar.setDisplayHomeAsUpEnabled(true);
+		myid = Core.getUser().getId();
+		mActionbar.setIcon(null);
 
 		Intent intent = getIntent();
 		mTid = intent.getIntExtra("tid", 0);
@@ -78,6 +79,8 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		setTitle(intent.getStringExtra("title"));
 
 		Log.d("POST_ID", ",tid=" + mTid + " page=" + mPage);
+
+		mProgressBar = (ProgressView) findViewById(R.id.progress_bar);
 
 		mListView = (PullToRefreshListView) this.findViewById(R.id.posts);
 		mAdapter = new PostsAdapter(this, mPosts);
@@ -217,7 +220,10 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	public void onResume() {
 		super.onResume();
 
-		if (mPosts.size() == 0) fetch(mPage, this);
+		if (mPosts.size() == 0) {
+			fetch(mPage, this);
+		}
+
 		mAdapter.notifyDataSetChanged();
 	}
 
@@ -246,7 +252,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		Post post = mAdapter.getItem(((AdapterView.AdapterContextMenuInfo) menuInfo).position - 1);
 
 		menu.add(0, 0, 0, "复制正文");
-		menu.add(0, 1, 1, post.getAuthor().getId() == Core.getUid() ? "编辑" : "回复");
+		menu.add(0, 1, 1, post.getAuthor().getId() == myid ? "编辑" : "回复");
 		super.onCreateContextMenu(menu, v, menuInfo);
 	}
 
@@ -284,9 +290,9 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		int uid = post.getAuthor().getId();
 		int postIndex = post.getPostIndex();
 		Intent intent = new Intent(PostsActivity.this, EditActivity.class);
-		intent.putExtra("title", Core.getUid() == uid ? "编辑" : "回复" + (postIndex == 1 ? "楼主" : postIndex + "楼"));
+		intent.putExtra("title", myid == uid ? "编辑" : "回复" + (postIndex == 1 ? "楼主" : postIndex + "楼"));
 
-		if (Core.getUid() == uid) {
+		if (myid == uid) {
 			intent.putExtra("fid", mPosts.getFid());
 		}
 
@@ -307,14 +313,18 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 	private void fetch(int page, final Core.OnPostsListener onPostsListener) {
 		mIsFetching = true;
-		setProgressBarIndeterminateVisibility(true);
 		toggleMenus(false);
 
-		Core.getHtml("http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + page + "&ordertype=" + orderType, new Core.OnRequestListener() {
+		mProgressBar.start();
+
+		String url = "http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + page + "&ordertype=" + orderType;
+
+		Log.i(TAG, "Fetching " + url);
+
+		Core.getHtml(url, new Core.OnRequestListener() {
 			@Override
 			public void onError(String error) {
 				mIsFetching = false;
-				setProgressBarIndeterminateVisibility(false);
 				toggleMenus(true);
 
 
@@ -324,10 +334,25 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 			@Override
 			public void onSuccess(String html) {
 
-				new AsyncTask<String, Void, Posts>() {
+				new AsyncTask<String, Float, Posts>() {
 					@Override
 					protected Posts doInBackground(String... strings) {
-						return Core.parsePosts(strings[0]);
+						return Core.parsePosts(strings[0], new Core.OnProgress() {
+							@Override
+							public void progress(int current, int total) {
+								float progress = 1.0f * current / total;
+
+								Log.i(TAG, String.format("Progressing %f current %d total %d", progress, current, total));
+
+								publishProgress(progress);
+							}
+						});
+					}
+
+					@Override
+					protected void onProgressUpdate(Float... floats) {
+						Log.i(TAG, "onProgressUpdate " + floats[0]);
+						mProgressBar.setProgress(floats[0]);
 					}
 
 					@Override
@@ -336,6 +361,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 						setProgressBarIndeterminateVisibility(false);
 						toggleMenus(true);
 						onPostsListener.onPosts(posts);
+						mProgressBar.stop();
 					}
 				}.execute(html);
 			}
@@ -435,7 +461,6 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		mMenu = menu;
 
 		getMenuInflater().inflate(R.menu.posts, menu);
-		menu.findItem(R.id.more).setIcon(new IconDrawable(this, Iconify.IconValue.fa_ellipsis_v).colorRes(android.R.color.white).actionBarSize());
 		menu.findItem(R.id.reply).setIcon(new IconDrawable(this, Iconify.IconValue.fa_comment_o).colorRes(android.R.color.white).actionBarSize());
 
 		menu.setGroupVisible(0, !mIsFetching);

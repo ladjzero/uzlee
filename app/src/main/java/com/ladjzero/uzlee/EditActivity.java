@@ -128,7 +128,7 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 		if (isNewThread) {
 			subjectInput.setVisibility(View.VISIBLE);
 		} else {
-			if (uid != Core.getUid()) {
+			if (uid != Core.getUser().getId()) {
 				//reply
 				subjectInput.setVisibility(View.GONE);
 			} else if (no != 1) {

@@ -132,8 +132,7 @@ public class Core {
 	private static String formhash;
 	private static String hash;
 	private static Context context;
-	private static int uid;
-	private static String name;
+	private static User user;
 	private static boolean isOnline = false;
 	private static PersistentCookieStore cookieStore;
 	private static SharedPreferences pref;
@@ -154,12 +153,8 @@ public class Core {
 		return isOnline;
 	}
 
-	public static int getUid() {
-		return uid;
-	}
-
-	public static String getName() {
-		return name;
+	public static User getUser() {
+		return user;
 	}
 
 	public static void requestUpdate() {
@@ -193,7 +188,7 @@ public class Core {
 				try {
 					RequestParams params = new RequestParams();
 					params.setContentEncoding("GBK");
-					params.put("uid", uid);
+					params.put("uid", user.getId());
 					params.put("hash", hash);
 					params.put("Filedata", imageFile);
 					params.put("filename", imageFile.getName());
@@ -260,8 +255,10 @@ public class Core {
 			if (uid != null && uid.length() > 0) {
 				if (!isOnline) {
 					isOnline = true;
-					Core.uid = Integer.valueOf(uid);
-					Core.name = eUser.text().trim();
+					int id = Integer.valueOf(uid);
+					String name = eUser.text().trim();
+
+					user = new User().setId(id).setName(name);
 
 					Log.i(TAG, String.format("EventBus.StatusChangeEvent %b %b", isOnline, true));
 					EventBus.getDefault().post(new StatusChangeEvent(isOnline, true));
@@ -347,7 +344,7 @@ public class Core {
 			@Override
 			public void onSuccess(String html) {
 				isOnline = false;
-				uid = -1;
+				user = null;
 				EventBus.getDefault().post(new StatusChangeEvent(false, false));
 				EventBus.getDefault().post(new MessageEvent(0));
 
@@ -361,6 +358,10 @@ public class Core {
 	}
 
 	public static Posts parsePosts(String html) {
+		return parsePosts(html, null);
+	}
+
+	public static Posts parsePosts(String html, OnProgress onProgress) {
 		Posts posts = new Posts();
 		Document doc = getDoc(html);
 
@@ -395,8 +396,12 @@ public class Core {
 
 		Elements ePosts = doc.select("table[id^=pid]");
 
+		int i = 0;
+
 		for (Element ePost : ePosts) {
 			posts.add(toPostObj(ePost));
+
+			if (onProgress != null) onProgress.progress(++i, ePosts.size());
 		}
 
 		int currPage = 1;
@@ -675,7 +680,7 @@ public class Core {
 				.setAuthor(
 						new User()
 								.setName(name)
-								.setId(uid == null ? getUid() : Integer.valueOf(uid))
+								.setId(uid == null ? user.getId() : Integer.valueOf(uid))
 								.setImage(image.replace("_small", "_middle"))
 				);
 	}
@@ -1096,12 +1101,7 @@ public class Core {
 
 			int uid = Integer.valueOf(userId);
 
-			int avatar0 = uid / 10000;
-			int avatar1 = (uid % 10000) / 100;
-			int avatar2 = uid % 100;
-
-			User user = new User().setId(uid).setName(userName)
-					.setImage("http://www.hi-pda.com/forum/uc_server/data/avatar/000/" + String.format("%02d", avatar0) + "/" + String.format("%02d", avatar1) + "/" + String.format("%02d", avatar2) + "_avatar_middle.jpg");
+			User user = new User().setId(uid).setName(userName);
 			Thread ret = new Thread();
 
 
@@ -1341,7 +1341,7 @@ public class Core {
 					String uid = userLink.substring(userLink.indexOf("uid=") + 4);
 					String uimg = pm.select("a.avatar img").attr("src");
 
-					User u = new User().setId(Integer.valueOf(uid)).setImage(uimg.replace("_small", "_middle")).setName(userName);
+					User u = new User().setId(Integer.valueOf(uid)).setName(userName);
 
 					String title = pm.select("div.summary").text();
 					boolean isNew = pm.select("img[alt=NEW]").size() != 0;

@@ -15,7 +15,8 @@ public class SettingActivity extends BaseActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mActionbar.setDisplayHomeAsUpEnabled(true);
+		mActionbar.setIcon(null);
+
 
 		Slidr.attach(this);
 

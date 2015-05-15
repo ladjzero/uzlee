@@ -87,10 +87,11 @@
                 android:layout_marginTop="0dp"
                 android:layout_weight="1"
                 android:text="短信"
-                android:textColor="@android:color/white"
                 android:textSize="16sp"
+                android:textColor="@android:color/black"
                 app:fl_cornerRadius="3dp"
-                app:fl_theme="@array/grass"
+                app:fl_theme="@array/white_flat_theme"
+                app:fl_textAppearance="fl_dark"
                 app:fl_touchEffect="fl_ripple"/>
 
             <com.cengalabs.flatui.views.FlatButton

@@ -69,7 +69,7 @@ public class ChatActivity extends BaseActivity implements Core.OnPostsListener, 
 				String message = mMessage.getText().toString();
 
 				if (message != null && message.length() > 0) {
-					User user = new User().setId(Core.getUid()).setName(Core.getName());
+					User user = Core.getUser();
 					Post.NiceBody body = new Post.NiceBody();
 					body.add(new AbstractMap.SimpleEntry<Post.BodyType, String>(Post.BodyType.TXT, message));
 					DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");

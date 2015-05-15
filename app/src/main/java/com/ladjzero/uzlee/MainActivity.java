@@ -24,9 +24,9 @@ import android.widget.Toast;
 
 import me.drakeet.materialdialog.MaterialDialog;
 
-public class MainActivity extends BaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class MainActivity extends BaseActivity implements NavFragment.NavigationDrawerCallbacks {
 
-	private NavigationDrawerFragment mNavigationDrawerFragment;
+	private NavFragment mNavFragment;
 	int fid;
 	String title = "";
 
@@ -50,8 +50,8 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 		bsTypeId = setting.getInt("bs_type", 0);
 		bsTypeIcon = BsTypeAdapter.ICON_VALUES[bsTypeId];
 
-		mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
-		mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
+		mNavFragment = (NavFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
+		mNavFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
 	}
 
 	@Override
@@ -114,6 +114,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 
 					@Override
 					public void onSuccess(String html) {
+
 					}
 				});
 				break;
@@ -180,7 +181,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		if (!mNavigationDrawerFragment.isDrawerOpen()) {
+		if (!mNavFragment.isDrawerOpen()) {
 			getMenuInflater().inflate(R.menu.threads, menu);
 			restoreActionBar();
 			bsType = menu.findItem(R.id.thread_sort);
@@ -263,7 +264,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_MENU) {
-			mNavigationDrawerFragment.toggleDrawer();
+			mNavFragment.toggleDrawer();
 			return true;
 		}
 		return super.onKeyUp(keyCode, event);

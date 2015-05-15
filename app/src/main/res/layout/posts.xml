@@ -1,5 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
-
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ptr="http://schemas.android.com/apk/res-auto"
@@ -24,5 +22,7 @@
         ptr:ptrMode="both"
         ptr:ptrOverScroll="false"
         ptr:ptrShowIndicator="false"/>
+
+    <include layout="@layout/progress_bar"/>
 
 </RelativeLayout>
