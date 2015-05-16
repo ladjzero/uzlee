@@ -9,21 +9,32 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.r0adkll.slidr.Slidr;
 
 public class SettingActivity extends BaseActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mActionbar.setIcon(null);
 
+		mActionbar.setDisplayHomeAsUpEnabled(true);
+		LayoutInflater mInflater = LayoutInflater.from(this);
+		View customView =  mInflater.inflate(R.layout.toolbar_title, null);
+
+		mActionbar.setTitle(null);
+		mActionbar.setDisplayHomeAsUpEnabled(true);
+		mActionbar.setDisplayShowCustomEnabled(true);
+		mActionbar.setCustomView(customView);
+		mTitleView = (android.widget.TextView) customView.findViewById(R.id.title);
+
+		setTitle("设置");
 
 		Slidr.attach(this);
 
 		getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingFragment()).commit();
 	}
 
-	public static class SettingFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+	public class SettingFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
@@ -43,6 +54,10 @@ public class SettingActivity extends BaseActivity {
 
 			if (key.equals("sort_thread")) {
 				preference.setSummary("按照" + ((ListPreference) preference).getEntry() + "排序");
+			}
+
+			if (key.equals("enable_image_only_wifi")) {
+				setImageNetwork();
 			}
 		}
 

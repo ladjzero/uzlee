@@ -14,7 +14,7 @@
 
         <item name="colorPrimary">@color/dark_primary</item>
         <item name="colorPrimaryDark">@color/dark_dark</item>
-        <item name="colorAccent">@color/grass_primary</item>
+        <item name="colorAccent">@android:color/holo_blue_light</item>
         <!--<item name="android:actionOverflowButtonStyle">@style/AppBaseTheme.OverFlow</item>-->
     </style>
 
@@ -23,6 +23,12 @@
         <item name="android:activityOpenExitAnimation">@anim/push_left_out</item>
         <item name="android:activityCloseEnterAnimation">@anim/pull_left_in</item>
         <item name="android:activityCloseExitAnimation">@anim/push_right_out</item>
+    </style>
+
+    <style name="DeterminateLinearProgressDrawableStyle" parent="Material.Drawable.LinearProgress.Determinate">
+        <item name="lpd_strokeColor">@android:color/holo_blue_dark</item>
+        <item name="lpd_strokeSecondaryColor">@android:color/holo_blue_bright</item>
+        <item name="lpd_verticalAlign">top</item>
     </style>
 
     <!--<style name="AppBaseTheme.OverFlow">-->

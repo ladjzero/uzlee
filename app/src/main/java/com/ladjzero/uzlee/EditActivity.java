@@ -73,7 +73,6 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 		that = this;
 //		enableBackAction();
 
-		Slidr.attach(this);
 		intent = getIntent();
 		mActionbar.setDisplayHomeAsUpEnabled(true);
 

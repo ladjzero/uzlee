@@ -8,7 +8,9 @@ import android.support.v4.view.ViewPager;
 import android.util.SparseArray;
 
 import com.r0adkll.slidr.Slidr;
+import com.r0adkll.slidr.model.SlidrConfig;
 import com.r0adkll.slidr.model.SlidrInterface;
+import com.r0adkll.slidr.model.SlidrPosition;
 import com.rey.material.widget.TabPageIndicator;
 
 /**
@@ -25,8 +27,8 @@ public class AlertActivity extends BaseActivity implements SimpleThreadsFragment
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.view_pager);
-		mActionbar.setIcon(null);
 
+		mActionbar.setDisplayHomeAsUpEnabled(true);
 		mActionbar.setDisplayShowCustomEnabled(true);
 		mActionbar.setCustomView(R.layout.view_page_bar);
 
@@ -41,7 +43,10 @@ public class AlertActivity extends BaseActivity implements SimpleThreadsFragment
 		tabs.setViewPager(mViewPager);
 		tabs.setOnPageChangeListener(this);
 
-		slidrInterface = Slidr.attach(this);
+		slidrInterface = Slidr.attach(this, new SlidrConfig.Builder()
+				.position(SlidrPosition.LEFT)
+				.sensitivity(1f)
+				.build());
 	}
 
 	@Override

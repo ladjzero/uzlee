@@ -13,7 +13,9 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 
 import com.r0adkll.slidr.Slidr;
+import com.r0adkll.slidr.model.SlidrConfig;
 import com.r0adkll.slidr.model.SlidrInterface;
+import com.r0adkll.slidr.model.SlidrPosition;
 import com.rey.material.widget.TabPageIndicator;
 
 import java.util.HashMap;
@@ -96,7 +98,10 @@ public class MyPostsActivity extends BaseActivity implements ActionBar.TabListen
 //							.setTabListener(this));
 //		}
 
-		slidrInterface = Slidr.attach(this);
+		slidrInterface = Slidr.attach(this, new SlidrConfig.Builder()
+				.position(SlidrPosition.LEFT)
+				.sensitivity(1f)
+				.build());
 	}
 
 	@Override

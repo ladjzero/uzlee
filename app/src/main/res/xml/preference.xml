@@ -22,14 +22,14 @@
 
         <CheckBoxPreference
             android:defaultValue="false"
-            android:key="image_load_when"
-            android:title="移动网络下不下载图像"/>
+            android:key="enable_image_only_wifi"
+            android:title="只在WIFI网络下加载图像"/>
 
         <CheckBoxPreference
             android:defaultValue="false"
-            android:key="force_utf8"
-            android:summary="出现乱码可以尝试使用UTF8编码"
-            android:title="使用UTF8编码"/>
+            android:key="detect_code"
+            android:title="自动切换编码"
+            android:summary="受乱码困扰的话可以试试"/>
     </PreferenceCategory>
 
     <PreferenceCategory

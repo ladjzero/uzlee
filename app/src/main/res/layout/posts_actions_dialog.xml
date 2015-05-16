@@ -22,7 +22,7 @@
         android:layout_height="54dp"
         android:gravity="center"
         android:padding="10dp"
-        app:dsb_trackColor="@android:color/holo_blue_light"
+        app:dsb_trackColor="@android:color/holo_blue_bright"
         app:dsb_progressColor="@android:color/holo_blue_dark"
         app:dsb_indicatorColor="@android:color/holo_blue_dark"/>
 

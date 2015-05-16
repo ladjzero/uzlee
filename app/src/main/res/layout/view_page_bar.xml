@@ -4,23 +4,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-    <!--<com.astuetz.PagerSlidingTabStrip-->
-    <!--android:id="@+id/tabs"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:textColor="@android:color/white"-->
-    <!--android:textSize="16sp"-->
-    <!--app:pstsDividerColor="@android:color/transparent"-->
-    <!--app:pstsIndicatorColor="@color/dark_light"-->
-    <!--app:pstsIndicatorHeight="4dp"-->
-    <!--app:pstsShouldExpand="true"-->
-    <!--app:pstsUnderlineHeight="0px"/>-->
-
     <com.rey.material.widget.TabPageIndicator
-        style="@style/Material.Widget.TabPageIndicator"
         android:id="@+id/tabs"
+        style="@style/Material.Widget.TabPageIndicator"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:tpi_indicatorColor="@android:color/holo_blue_light"
+        app:tpi_indicatorHeight="4dp"
         app:tpi_mode="fixed"/>
 
 </RelativeLayout>

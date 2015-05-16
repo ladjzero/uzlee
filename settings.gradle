@@ -1,2 +1,2 @@
-include ':app', 'DiscreteSeekBar'
+include ':app', 'DiscreteSeekBar', ':AutoFitTextViewLibrary'
 include ':PullToRefresh'

@@ -51,9 +51,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private ThreadsAdapter adapter;
 	private boolean hasNextPage = false;
 	private int fid;
-	private View mGoTop;
 	private boolean mIsAnimating = false;
-	private boolean mGoTopVisible = false;
 	private int mPage = 1;
 	private boolean mIsFetching = false;
 	private int mDataSource;
@@ -64,6 +62,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private String mQuery;
 	private OnFetch mOnFetch;
 	private static int typeId = 0;
+	private View mTitleView;
 
 	public interface OnFetch {
 		void fetchStart();
@@ -105,6 +104,16 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mActivity = (BaseActivity) getActivity();
+		mTitleView = mActivity.mTitleView;
+
+		if (mTitleView != null) {
+			mTitleView.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (listView != null) listView.setSelection(0);
+				}
+			});
+		}
 
 		Bundle args = getArguments();
 		mDataSource = args.getInt("dataSource");
@@ -143,77 +152,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 							}
 						}
 					}
-
-					@Override
-					public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-						super.onScroll(absListView, firstVisibleItem, visibleItemCount, totalItemCount);
-
-						if (firstVisibleItem > 10 && !mGoTopVisible) {
-							YoYo.with(Techniques.FadeIn)
-									.duration(200)
-									.withListener(new Animator.AnimatorListener() {
-										@Override
-										public void onAnimationStart(Animator animation) {
-											mGoTop.setVisibility(View.VISIBLE);
-											mGoTopVisible = true;
-											mIsAnimating = true;
-										}
-
-										@Override
-										public void onAnimationEnd(Animator animation) {
-											mIsAnimating = false;
-										}
-
-										@Override
-										public void onAnimationCancel(Animator animation) {
-
-										}
-
-										@Override
-										public void onAnimationRepeat(Animator animation) {
-
-										}
-									})
-									.playOn(mGoTop);
-						} else if (firstVisibleItem <= 10 && mGoTopVisible) {
-							YoYo.with(Techniques.FadeOut)
-									.duration(200)
-									.withListener(new Animator.AnimatorListener() {
-										@Override
-										public void onAnimationStart(Animator animation) {
-											mIsAnimating = true;
-										}
-
-										@Override
-										public void onAnimationEnd(Animator animation) {
-											mGoTop.setVisibility(View.GONE);
-											mGoTopVisible = false;
-											mIsAnimating = false;
-										}
-
-										@Override
-										public void onAnimationCancel(Animator animation) {
-
-										}
-
-										@Override
-										public void onAnimationRepeat(Animator animation) {
-
-										}
-									})
-									.playOn(mGoTop);
-						}
-					}
 				}));
-
-		mGoTop = rootView.findViewById(R.id.go_top);
-		mGoTop.setVisibility(View.GONE);
-		mGoTop.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				if (mGoTopVisible) listView.setSelection(0);
-			}
-		});
 
 		registerForContextMenu(listView);
 		return rootView;

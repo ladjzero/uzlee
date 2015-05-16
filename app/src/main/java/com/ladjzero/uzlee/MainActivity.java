@@ -10,16 +10,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBar;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
 import android.view.View;
+import android.view.Window;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import me.drakeet.materialdialog.MaterialDialog;
@@ -43,7 +45,17 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		setContentView(R.layout.activity_main);
+
+		LayoutInflater mInflater = LayoutInflater.from(this);
+		View customView =  mInflater.inflate(R.layout.toolbar_title, null);
+
+		mActionbar.setTitle(null);
+		mActionbar.setDisplayShowCustomEnabled(true);
+		mActionbar.setCustomView(customView);
+
+		mTitleView = (TextView) customView.findViewById(R.id.title);
 
 		fid = setting.getInt("fid", D_ID);
 		navPosition = computeNavPosition(fid);
@@ -64,14 +76,14 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 		switch (position) {
 			case 0:
 				fid = D_ID;
-				mActionbar.setTitle(title = "Discovery");
+				setTitle(title = "Discovery");
 				bundle.putInt("fid", fid);
 				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(bundle)).commit();
 				break;
 			case 1:
 				fid = BS_ID;
 //				fid = 57;
-				mActionbar.setTitle(title = "Buy & Sell");
+				setTitle(title = "Buy & Sell");
 				bundle = new Bundle();
 				bundle.putInt("fid", fid);
 				bundle.putInt("bs_type_id", bsTypeId);
@@ -82,7 +94,7 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 				fid = EINK_ID;
 				bundle = new Bundle();
 				bundle.putInt("fid", fid);
-				mActionbar.setTitle(title = "E-INK");
+				setTitle(title = "E-INK");
 				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(bundle)).commit();
 				break;
 			case 3:
@@ -174,9 +186,9 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 	}
 
 	public void restoreActionBar() {
-		mActionbar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-		mActionbar.setDisplayShowTitleEnabled(true);
-		mActionbar.setTitle(title);
+//		mActionbar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+		mActionbar.setTitle(null);
+		setTitle(title);
 	}
 
 	@Override

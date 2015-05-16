@@ -2,13 +2,16 @@ package com.ladjzero.uzlee;
 
 import android.content.Intent;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Post;
@@ -42,6 +45,24 @@ public class ChatActivity extends BaseActivity implements Core.OnPostsListener, 
 
 		Slidr.attach(this);
 		mActionbar.setDisplayHomeAsUpEnabled(true);
+
+		LayoutInflater mInflater = LayoutInflater.from(this);
+		View customView =  mInflater.inflate(R.layout.toolbar_title_for_post, null);
+
+		mActionbar.setTitle(null);
+		mActionbar.setDisplayHomeAsUpEnabled(true);
+		mActionbar.setDisplayShowCustomEnabled(true);
+		mActionbar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(android.R.color.holo_blue_dark)));
+		mActionbar.setCustomView(customView);
+
+		mTitleView = (TextView) customView.findViewById(R.id.title);
+
+		mTitleView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (mListView != null) mListView.setSelection(0);
+			}
+		});
 
 		mRootView = findViewById(R.id.root);
 		mRootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {

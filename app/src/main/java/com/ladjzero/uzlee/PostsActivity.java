@@ -12,11 +12,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
@@ -28,6 +31,7 @@ import com.ladjzero.hipda.Posts;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 import com.r0adkll.slidr.Slidr;
+import com.r0adkll.slidr.model.SlidrInterface;
 import com.rey.material.widget.ProgressView;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
@@ -62,6 +66,8 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	private View _justALine;
 	private ProgressView mProgressBar;
 	private int myid;
+	SlidrInterface slidrInterface;
+	private int position = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +75,25 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		this.setContentView(R.layout.posts);
 
 		myid = Core.getUser().getId();
-		mActionbar.setIcon(null);
+
+		slidrInterface = Slidr.attach(this, slidrConfig);
+
+		LayoutInflater mInflater = LayoutInflater.from(this);
+		View customView =  mInflater.inflate(R.layout.toolbar_title_for_post, null);
+
+		mActionbar.setTitle(null);
+		mActionbar.setDisplayHomeAsUpEnabled(true);
+		mActionbar.setDisplayShowCustomEnabled(true);
+		mActionbar.setCustomView(customView);
+
+		mTitleView = (TextView) customView.findViewById(R.id.title);
+
+		mTitleView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (mListView != null) mListView.getRefreshableView().setSelection(0);
+			}
+		});
 
 		Intent intent = getIntent();
 		mTid = intent.getIntExtra("tid", 0);
@@ -92,15 +116,23 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 			@Override
 			public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
 				fetch(mPosts.getPage() - 1, PostsActivity.this);
+				position = 0;
 			}
 
 			@Override
 			public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
 				fetch(mPosts.getPage() + 1, PostsActivity.this);
+				position = 0;
 			}
 		});
 		mListView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), true, true));
-
+		mListView.setOnPullEventListener(new PullToRefreshBase.OnPullEventListener<ListView>() {
+			@Override
+			public void onPullEvent(PullToRefreshBase<ListView> refreshView, PullToRefreshBase.State state, PullToRefreshBase.Mode direction) {
+				if (state == PullToRefreshBase.State.PULL_TO_REFRESH) slidrInterface.lock();
+				if (state == PullToRefreshBase.State.RESET) slidrInterface.unlock();
+			}
+		});
 
 		mMenuView = getLayoutInflater().inflate(R.layout.posts_actions_dialog, null);
 
@@ -142,6 +174,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 						actionsAdapter.notifyDataSetChanged();
 						break;
 					case 1:
+						PostsActivity.this.position = mListView.getRefreshableView().getFirstVisiblePosition();
 						mAdapter.notifyDataSetChanged();
 						fetch(mPage, PostsActivity.this);
 						break;
@@ -208,8 +241,6 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 				mMenuDialog.dismiss();
 			}
 		});
-
-		Slidr.attach(this, slidrConfig);
 	}
 
 	private String getUri() {
@@ -399,7 +430,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 		mPosts.merge(posts);
 		mAdapter.notifyDataSetChanged();
-		mListView.getRefreshableView().setSelection(mInitToLastPost ? posts.size() - 1 : 0);
+		mListView.getRefreshableView().setSelection(mInitToLastPost ? posts.size() - 1 : position);
 		mInitToLastPost = false;
 	}
 

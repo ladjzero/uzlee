@@ -9,16 +9,6 @@
               android:paddingRight="12dp"
               android:paddingTop="12dp">
 
-
-    <TextView
-        android:id="@+id/post_title"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:lineSpacingExtra="8sp"
-        android:text="New Text"
-        android:textSize="22sp"/>
-
     <include layout="@layout/user_for_post"/>
 
     <include layout="@layout/post_body"/>

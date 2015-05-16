@@ -3,10 +3,13 @@ package com.ladjzero.uzlee;
 import java.util.Comparator;
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -18,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ladjzero.hipda.Core;
@@ -26,6 +30,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.utils.L;
 import com.r0adkll.slidr.model.SlidrConfig;
 import com.r0adkll.slidr.model.SlidrPosition;
 import com.rey.material.app.Dialog;
@@ -40,9 +45,12 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 	protected ActionBar mActionbar;
 	protected int mActionbarHeight;
 	public static final int IMAGE_MEM_CACHE_SIZE = 16 * 1024 * 1024;
+
 	SharedPreferences setting;
 	EmojiUtils emojiUtils;
 	Dialog alert;
+	protected TextView mTitleView;
+
 
 	public static final DisplayImageOptions imageStandAlone = new DisplayImageOptions.Builder()
 			.showImageForEmptyUri(R.color.snow_primary)
@@ -85,10 +93,26 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
 			.build();
 
+	public static final DisplayImageOptions BesetQualityForSingleImage = new DisplayImageOptions.Builder()
+			.showImageForEmptyUri(android.R.color.transparent)
+			.showImageOnLoading(android.R.color.transparent)
+			.showImageOnFail(android.R.color.transparent)
+			.cacheInMemory(true)
+			.cacheOnDisk(true)
+			.imageScaleType(ImageScaleType.NONE)
+			.build();
+
 	public static final SlidrConfig slidrConfig = new SlidrConfig.Builder()
 							.position(SlidrPosition.LEFT)
 							.sensitivity(0.47f)
 							.build();
+
+	static {
+		L.writeLogs(false);
+	}
+
+	public BaseActivity() {
+	}
 
 	private boolean enableSwipe() {
 		return true;
@@ -101,6 +125,15 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 
 	public void showToast(String message) {
 		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void setTitle(CharSequence title) {
+		if (mTitleView == null) {
+			super.setTitle(title);
+		} else {
+			mTitleView.setText(title);
+		}
 	}
 
 	@Override
@@ -130,6 +163,8 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 			editor.putLong("last_update_check", now);
 			editor.commit();
 		}
+
+		setImageNetwork();
 	}
 
 	@Override
@@ -305,5 +340,25 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 	public void finish() {
 		super.finish();
 		overridePendingTransition(0, R.anim.push_right_out);
+	}
+
+	protected void setImageNetwork() {
+		ConnectivityManager connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
+
+		if (activeNetInfo != null) {
+			boolean isWifi = activeNetInfo.getType() == ConnectivityManager.TYPE_WIFI;
+			boolean loadWifiOnly = setting.getBoolean("enable_image_only_wifi", false);
+
+			ImageLoader.getInstance().denyNetworkDownloads(!isWifi && loadWifiOnly);
+			Log.i(TAG, String.format("wifi %b load when wifi only %b", isWifi, loadWifiOnly));
+		}
+	}
+
+	public class ConnectionChangeReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			setImageNetwork();
+		}
 	}
 }

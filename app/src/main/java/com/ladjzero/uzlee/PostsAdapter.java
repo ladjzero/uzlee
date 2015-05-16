@@ -35,6 +35,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -60,6 +61,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	private int[] layoutXY = new int[2];
 	private TYPE type;
 	private DisplayImageOptions mDisplayOption;
+	private ArrayList<String> mUrls;
 
 	public static enum TYPE {
 		POST,
@@ -80,6 +82,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		mTextColor = mDefaultTextColor = res.getColor(R.color.smallFont);
 
 		mDisplayOption = getImageLoader();
+		mUrls = new ArrayList<>();
 	}
 
 	public PostsAdapter(Context context, Posts posts) {
@@ -138,6 +141,14 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		super.notifyDataSetChanged();
 		mDisplayOption = getImageLoader();
 		clearViewCache();
+
+		mUrls.clear();
+
+		for (Post post : mPosts) {
+			for (Map.Entry<Post.BodyType, String> entry : post.getNiceBody()) {
+				if (entry.getKey() == Post.BodyType.IMG) mUrls.add(entry.getValue());
+			}
+		}
 	}
 
 	@Override
@@ -158,7 +169,6 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 			holder.img = (ImageView) row.findViewById(R.id.user_image);
 			holder.imageMask = (TextView) row.findViewById(R.id.user_image_mask);
-			holder.title = (TextView) row.findViewById(R.id.post_title);
 			holder.name = (TextView) row.findViewById(R.id.user_mini_name);
 			holder.body = (LinearLayout) row.findViewById(R.id.post_body_layout);
 			holder.sig = (TextView) row.findViewById(R.id.post_body_sig);
@@ -194,13 +204,6 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		holder.postDate.setText(prettyTime(post.getTimeStr()));
 		holder.postNo.setText(index == 1 ? "楼主" : index + "楼");
 		row.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.uglee : android.R.color.transparent);
-
-		if (post.getPostIndex() == 1) {
-			holder.title.setVisibility(View.VISIBLE);
-			holder.title.setText(mPosts.getTitle());
-		} else {
-			holder.title.setVisibility(View.GONE);
-		}
 
 		if (sig != null && sig.length() > 0) {
 			holder.sig.setVisibility(View.VISIBLE);
@@ -252,19 +255,33 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 						ImageLoader.getInstance().displayImage(url, imageView, mDisplayOption, new SimpleImageLoadingListener() {
 							@Override
-							public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
-								ProgressView bar = (ProgressView) view.getTag(R.id.img_progress);
+							public void onLoadingComplete(String imageUri, View view, android.graphics.Bitmap loadedImage) {
+								if (view != null) {
+									ProgressView bar = (ProgressView) view.getTag(R.id.img_progress);
 
-								bar.setVisibility(View.GONE);
-								view.setTag(R.id.img_has_bitmap, true);
-								view.setTag(R.id.img_width_height, 1.0 * loadedImage.getWidth() / loadedImage.getHeight());
+									bar.stop();
+									view.setTag(R.id.img_has_bitmap, true);
+									view.setTag(R.id.img_width_height, 1.0 * loadedImage.getWidth() / loadedImage.getHeight());
+								}
+							}
+
+							@Override
+							public void onLoadingFailed(String url, View view, FailReason reason) {
+								if (view != null) {
+
+									ProgressView bar = (ProgressView) view.getTag(R.id.img_progress);
+
+									bar.stop();
+								}
 							}
 						}, new ImageLoadingProgressListener() {
 							@Override
 							public void onProgressUpdate(String s, View view, int current, int total) {
-								ProgressView bar = (ProgressView) view.getTag(R.id.img_progress);
+								if (view != null) {
+									ProgressView bar = (ProgressView) view.getTag(R.id.img_progress);
 
-								bar.setProgress(current * 1.0f / total);
+									bar.setProgress(current * 1.0f / total);
+								}
 							}
 						});
 					}
@@ -426,7 +443,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 					imageView.setTag(R.id.img_url, url);
 					imageView.setTag(R.id.img_has_bitmap, false);
-					imageView.setTag(R.id.img_progress, imageContainer.findViewById(R.id.progressBar));
+					imageView.setTag(R.id.img_progress, imageContainer.findViewById(R.id.progress_bar));
 
 					imageView.setOnClickListener(new OnClickListener() {
 						@Override
@@ -434,6 +451,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 							Intent intent = new Intent(context, ImageActivity.class);
 							intent.putExtra("url", url);
 							intent.putExtra("tid", post.getTid());
+							intent.putStringArrayListExtra("urls", mUrls);
 							context.startActivity(intent);
 						}
 					});
@@ -515,7 +533,6 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		ImageView img;
 		TextView imageMask;
 		ImageView quoteImg;
-		TextView title;
 		TextView name;
 		TextView quoteName;
 		LinearLayout body;

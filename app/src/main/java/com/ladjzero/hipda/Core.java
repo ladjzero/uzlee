@@ -136,6 +136,8 @@ public class Core {
 	private static boolean isOnline = false;
 	private static PersistentCookieStore cookieStore;
 	private static SharedPreferences pref;
+	private static String code = "GBK";
+	private static final String STATS = "论坛统计";
 
 	private static final Pattern colorReg = Pattern.compile("#(\\d|[A-F])+");
 
@@ -175,7 +177,7 @@ public class Core {
 	}
 
 	public static void uploadImage(final File imageFile, final OnUploadListener onUploadListener) {
-		httpClient.get("http://www.hi-pda.com/forum/post.php?action=newthread&fid=57", new TextHttpResponseHandler("GBK") {
+		httpClient.get("http://www.hi-pda.com/forum/post.php?action=newthread&fid=57", new TextHttpResponseHandler(code) {
 			@Override
 			public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
 
@@ -187,7 +189,7 @@ public class Core {
 
 				try {
 					RequestParams params = new RequestParams();
-					params.setContentEncoding("GBK");
+					params.setContentEncoding(code);
 					params.put("uid", user.getId());
 					params.put("hash", hash);
 					params.put("Filedata", imageFile);
@@ -212,7 +214,7 @@ public class Core {
 	}
 
 	public static void getHtml(String url, final OnRequestListener onRequestListener) {
-		httpClient.get(url, new RequestParams(), new TextHttpResponseHandler("GBK") {
+		httpClient.get(url, new RequestParams(), new TextHttpResponseHandler(code) {
 
 			@Override
 			public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
@@ -270,7 +272,7 @@ public class Core {
 				EventBus.getDefault().post(new StatusChangeEvent(isOnline, true));
 			}
 		} catch (Error e) {
-
+			Log.e(TAG, "getDoc " + e.toString());
 		}
 
 		Elements formHashInput = doc.select("input[name=formhash]");
@@ -285,13 +287,21 @@ public class Core {
 			hash = hashInput.val();
 		}
 
+		String stats = doc.select("#footlink a[href=stats.php]").text();
+
+		if (pref.getBoolean("detect_code", false)) {
+			if (!stats.equals(STATS)) code = code.equals("GBK") ? "UTF-8" : "GBK";
+		} else {
+			code = "GBK";
+		}
+
 		Log.i(TAG, "getDoc " + (System.currentTimeMillis() - time));
 		return doc;
 	}
 
 	public static void login(String username, String password, int questionId, String answer, final OnRequestListener onRequestListener) {
 		RequestParams params = new RequestParams();
-		params.setContentEncoding("GBK");
+		params.setContentEncoding(code);
 		params.put("sid", "fa6m4o");
 		params.put("formhash", "ad793a3f");
 		params.put("loginfield", "username");
@@ -316,7 +326,7 @@ public class Core {
 
 								String html;
 								try {
-									html = new String(responseBody, "GBK");
+									html = new String(responseBody, code);
 									if (html.contains("欢迎您回来")) {
 										getDoc(html);
 										EventBus.getDefault().post(new StatusChangeEvent(true, false));
@@ -592,6 +602,8 @@ public class Core {
 				quote.setAuthor(new User().setName(userName))
 						.setBody("");
 
+				eSimpleReply.get(0).parent().remove();
+
 				return quote;
 			}
 		}
@@ -643,7 +655,7 @@ public class Core {
 		String url = "http://www.hi-pda.com/forum/pm.php?action=send&pmsubmit=yes&infloat=yes&sendnew=yes";
 
 		RequestParams params = new RequestParams();
-		params.setContentEncoding("GBK");
+		params.setContentEncoding(code);
 		params.put("formhash", formhash);
 		params.put("msgto", name);
 		params.put("message", message);
@@ -651,7 +663,7 @@ public class Core {
 
 		httpClient
 				.post(url,
-						params, new TextHttpResponseHandler("GBK") {
+						params, new TextHttpResponseHandler(code) {
 							@Override
 							public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
 								onRequestListener.onError(s);
@@ -826,7 +838,7 @@ public class Core {
 
 	public static void newThread(int fid, String subject, String message, ArrayList<Integer> attachIds, final OnRequestListener onRequestListener) {
 		RequestParams params = new RequestParams();
-		params.setContentEncoding("GBK");
+		params.setContentEncoding(code);
 		params.put("formhash", formhash);
 		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
 		params.put("wysiwyg", 1);
@@ -844,7 +856,7 @@ public class Core {
 
 		httpClient
 				.post("http://www.hi-pda.com/forum/post.php?action=newthread&fid=" + fid + "&extra=&topicsubmit=yes", params,
-						new TextHttpResponseHandler("GBK") {
+						new TextHttpResponseHandler(code) {
 							@Override
 							public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
 								onRequestListener.onError(s);
@@ -859,7 +871,7 @@ public class Core {
 
 	public static void editPost(int fid, int tid, int pid, String subject, String message, ArrayList<Integer> attachIds, final OnRequestListener onRequestListener) {
 		RequestParams params = new RequestParams();
-		params.setContentEncoding("GBK");
+		params.setContentEncoding(code);
 		params.put("formhash", formhash);
 		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
 		params.put("wysiwyg", 1);
@@ -881,7 +893,7 @@ public class Core {
 
 		httpClient
 				.post("http://www.hi-pda.com/forum/post.php?action=edit&extra=&editsubmit=yes&mod=", params,
-						new TextHttpResponseHandler("GBK") {
+						new TextHttpResponseHandler(code) {
 							@Override
 							public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
 								onRequestListener.onError(throwable.toString());
@@ -896,7 +908,7 @@ public class Core {
 
 	public static void deletePost(int fid, int tid, int pid, final OnRequestListener onRequestListener) {
 		RequestParams params = new RequestParams();
-		params.setContentEncoding("GBK");
+		params.setContentEncoding(code);
 		params.put("formhash", formhash);
 		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
 		params.put("wysiwyg", 1);
@@ -911,7 +923,7 @@ public class Core {
 
 		httpClient
 				.post("http://www.hi-pda.com/forum/post.php?action=edit&extra=&editsubmit=yes&mod=",
-						params, new TextHttpResponseHandler("GBK") {
+						params, new TextHttpResponseHandler(code) {
 							@Override
 							public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
 								onRequestListener.onError(s);
@@ -957,7 +969,7 @@ public class Core {
 
 	public static void sendReply(int tid, String content, ArrayList<Integer> attachIds, ArrayList<Integer> existedAttchIds, final OnRequestListener onRequestListener) {
 		RequestParams params = new RequestParams();
-		params.setContentEncoding("GBK");
+		params.setContentEncoding(code);
 		params.put("formhash", formhash);
 		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
 		params.put("subject", "");
@@ -982,7 +994,7 @@ public class Core {
 
 		httpClient
 				.post("http://www.hi-pda.com/forum/post.php?action=reply&fid=57&tid=" + tid + "&extra=&replysubmit=yes",
-						params, new TextHttpResponseHandler("GBK") {
+						params, new TextHttpResponseHandler(code) {
 							@Override
 							public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
 								onRequestListener.onError(s);
@@ -997,7 +1009,7 @@ public class Core {
 
 	public static void search(String query, int page, final OnThreadsListener onThreadsListener) {
 		try {
-			getHtml("http://www.hi-pda.com/forum/search.php?srchtxt=" + URLEncoder.encode(query, "GBK")
+			getHtml("http://www.hi-pda.com/forum/search.php?srchtxt=" + URLEncoder.encode(query, code)
 					+ "&srchtype=title&"
 					+ "searchsubmit=true&"
 					+ "st=on&"
@@ -1417,7 +1429,7 @@ public class Core {
 	public static void getUserThreadsAtPage(String userName, int page, OnThreadsListener onThreadsListener) {
 		String url = null;
 		try {
-			url = "http://www.hi-pda.com/forum/search.php?srchtype=title&srchtxt=&searchsubmit=true&st=on&srchuname=" + URLEncoder.encode(userName, "GBK") + "&srchfilter=all&srchfrom=0&before=&orderby=lastpost&ascdesc=desc&page=" + page;
+			url = "http://www.hi-pda.com/forum/search.php?srchtype=title&srchtxt=&searchsubmit=true&st=on&srchuname=" + URLEncoder.encode(userName, code) + "&srchfilter=all&srchfrom=0&before=&orderby=lastpost&ascdesc=desc&page=" + page;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -1740,7 +1752,7 @@ public class Core {
 
 	public static void addToFavorite(int tid, final OnRequestListener onRequestListener) {
 		httpClient.get("http://www.hi-pda.com/forum/my.php?item=favorites&tid=" + tid + "&inajax=1&ajaxtarget=favorite_msg",
-				new TextHttpResponseHandler("GBK") {
+				new TextHttpResponseHandler(code) {
 					@Override
 					public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
 						onRequestListener.onError("收藏失败");
@@ -1755,7 +1767,7 @@ public class Core {
 
 	public static void removeFromFavoriate(int tid, final OnRequestListener onRequestListener) {
 		httpClient.get("http://www.hi-pda.com/forum/my.php?item=favorites&action=remove&tid=" + tid + "&inajax=1&ajaxtarget=favorite_msg",
-				new TextHttpResponseHandler("GBK") {
+				new TextHttpResponseHandler(code) {
 					@Override
 					public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
 						onRequestListener.onError("删除失败");
