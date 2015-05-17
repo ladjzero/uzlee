@@ -374,7 +374,7 @@ public class Core {
 		Element eFid = doc.select("#nav a").last();
 		String fidStr = eFid.attr("href");
 
-		Logger.i("html %s, eFid %s, fidStr %s", html, eFid.html(), fidStr);
+//		Logger.i("html %s, eFid %s, fidStr %s", html, eFid.html(), fidStr);
 
 		int fid = Integer.valueOf(Uri.parse(fidStr).getQueryParameter("fid"));
 		String title = eFid.nextSibling().toString().replaceAll(" » ", "");
@@ -432,7 +432,7 @@ public class Core {
 	}
 
 	private static Post toPostObj(Element ePost) {
-		Logger.d("raw post %s", ePost.html());
+//		Logger.d("raw post %s", ePost.html());
 
 		int idPrefixLength = "pid".length();
 
