@@ -3,9 +3,9 @@ package com.ladjzero.uzlee;
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
 import com.ladjzero.hipda.*;
+import com.orhanobut.logger.Logger;
 
 import android.app.AlertDialog;
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -15,14 +15,13 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
-import android.view.Window;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import me.drakeet.materialdialog.MaterialDialog;
 
@@ -62,13 +61,13 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 		bsTypeId = setting.getInt("bs_type", 0);
 		bsTypeIcon = BsTypeAdapter.ICON_VALUES[bsTypeId];
 
-		mNavFragment = (NavFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
+		mNavFragment = (NavFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
 		mNavFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
 	}
 
 	@Override
 	public void onNavigationDrawerItemSelected(int position) {
-		FragmentManager fragmentManager = getFragmentManager();
+		FragmentManager fragmentManager = getSupportFragmentManager();
 		Intent intent;
 		Bundle bundle = new Bundle();
 		navPosition = position;
@@ -117,16 +116,14 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 				break;
 			case 7:
 				Core.logout(new Core.OnRequestListener() {
-
-
 					@Override
 					public void onError(String error) {
-						Toast.makeText(MainActivity.this, error, Toast.LENGTH_LONG).show();
+						showToast(error);
 					}
 
 					@Override
 					public void onSuccess(String html) {
-
+						showToast("登出成功");
 					}
 				});
 				break;
@@ -166,10 +163,12 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 	}
 
 	@Override
-	public void onEventMainThread(Core.StatusChangeEvent statusChangeEvent) {
-		super.onEventMainThread(statusChangeEvent);
+	public void onEventMainThread(User user) {
+		Logger.i("EventBus.onEventMainThread.statusChangeEvent : user is null ? %b", user == null);
 
-		if (statusChangeEvent.user != null && !statusChangeEvent.checkedEachDoc) {
+		super.onEventMainThread(user);
+
+		if (user != null) {
 			switch (fid) {
 				case D_ID:
 					navPosition = 0;
@@ -186,8 +185,6 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 	}
 
 	public void restoreActionBar() {
-//		mActionbar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-		mActionbar.setTitle(null);
 		setTitle(title);
 	}
 
@@ -209,9 +206,6 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 
 		if (id == R.id.thread_publish) {
@@ -220,6 +214,7 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 			intent.putExtra("fid", fid);
 
 			startActivity(intent);
+
 			return true;
 		} else if (id == R.id.thread_sort) {
 			ListView listView = new ListView(this);
@@ -262,8 +257,7 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 		}
 
 		this.doubleBackToExitPressedOnce = true;
-		Toast.makeText(this, "再次后退将会退出", Toast.LENGTH_SHORT).show();
-
+		showToast("再次后退将会退出");
 		new Handler().postDelayed(new Runnable() {
 
 			@Override

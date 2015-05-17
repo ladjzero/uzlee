@@ -66,6 +66,7 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 	private InputMethodManager mImeManager;
 	private boolean mIsAnimating = false;
 	private EditActivity that;
+	ProgressDialog progress;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -86,10 +87,9 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 		isReply = (tid != 0 && pid == 0 && fid == 0);
 		isEdit = (tid != 0 && pid != 0 && fid != 0);
 
-//		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		mActionbar.setTitle(getIntent().getStringExtra("title"));
 		setContentView(R.layout.edit);
-
+		progress = new ProgressDialog(this);
 
 		Core.getExistedAttach(new Core.OnRequestListener() {
 			@Override
@@ -140,31 +140,30 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 		}
 
 		if (isEdit) {
-			final Dialog mDialog = new Dialog(this, R.style.Material_App_Dialog_Simple_Light);
-
-			mDialog.title("载入中").cancelable(false).show();
+			progress.setTitle("载入中");
+			progress.show();
 
 			Core.getEditBody(fid, tid, pid, new Core.OnRequestListener() {
 				@Override
 				public void onError(String error) {
-					mDialog.dismiss();
+					progress.dismiss();
 				}
 
 				@Override
 				public void onSuccess(String html) {
 					subjectInput.setText(html);
-					mDialog.dismiss();
+					progress.dismiss();
 				}
 			}, new Core.OnRequestListener() {
 				@Override
 				public void onError(String error) {
-					mDialog.dismiss();
+					progress.dismiss();
 				}
 
 				@Override
 				public void onSuccess(String html) {
 					mMessageInput.setText(html);
-					mDialog.dismiss();
+					progress.dismiss();
 				}
 			});
 		}
@@ -189,9 +188,10 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
-		final Dialog mDialog = new Dialog(this, R.style.Material_App_Dialog_Simple_Light);
 
 		if (id == R.id.reply_send) {
+			String sig = setting.getBoolean("use_sig", true) ? "有只梨" : "";
+
 			String subject = subjectInput.getText().toString();
 			String message = mMessageInput.getText().toString();
 
@@ -201,10 +201,10 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 				} else if (message.length() == 0) {
 					showToast("内容不能少于5字");
 				} else {
-					mDialog.title("发送").cancelable(false).show();
+					progress.setTitle("发送");
+					progress.show();
 
-
-					message += "\t\t\t[size=1][color=Gray]有只梨[/color][/size]";
+					message += "\t\t\t[size=1][color=Gray]" + sig + "[/color][/size]";
 
 					Core.newThread(fid, subject, message, attachIds, this);
 				}
@@ -214,20 +214,23 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 				} else if (message.length() == 0) {
 					showToast("内容不能少于5字");
 				} else {
-					mDialog.title("发送").cancelable(false).show();
+					progress.setTitle("发送");
+					progress.show();
 
 					Core.editPost(fid, tid, pid, subject, message, attachIds, this);
 				}
 			} else if (isReplyToOne) {
-				mDialog.title("发送").cancelable(false).show();
+				progress.setTitle("发送");
+				progress.show();
 
 				message = "[b]回复 [url=http://www.hi-pda.com/forum/redirect.php?goto=findpost&pid=" + pid + "&ptid=" + tid + "]" + intent.getIntExtra("no", 0) + "#[/url] [i]" + intent.getStringExtra("userName") + "[/i] [/b]\n\n" + message;
-				message += "\t\t\t[size=1][color=Gray]有只梨[/color][/size]";
+				message += "\t\t\t[size=1][color=Gray]" + sig + "[/color][/size]";
 				Core.sendReply(tid, message, attachIds, existedAttachIds, this);
 			} else if (isReply) {
-				mDialog.title("发送").cancelable(false).show();
+				progress.setTitle("发送");
+				progress.show();
 
-				message += "\t\t\t[size=1][color=Gray]有只梨[/color][/size]";
+				message += "\t\t\t[size=1][color=Gray]" + sig + "[/color][/size]";
 				Core.sendReply(tid, message, attachIds, existedAttachIds, this);
 			}
 		} else if (id == R.id.reply_add_image) {
@@ -236,6 +239,8 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 			photoPickerIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 			startActivityForResult(photoPickerIntent, SELECT_PHOTO);
 		} else if (id == R.id.delete_post) {
+			final Dialog mDialog = new Dialog(this);
+
 			mDialog
 					.title("删除该回复？(实验性)")
 					.canceledOnTouchOutside(true)
@@ -246,6 +251,8 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 							Core.deletePost(fid, tid, pid, EditActivity.this);
 						}
 					})
+					.positiveAction("确认")
+					.negativeAction("取消")
 					.show();
 		} else if (id == R.id.reply_add_emoji) {
 			if (mEmojiSelector == null) {

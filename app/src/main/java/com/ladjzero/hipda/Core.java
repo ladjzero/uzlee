@@ -17,6 +17,7 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.PersistentCookieStore;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
+import com.orhanobut.logger.Logger;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -260,16 +261,16 @@ public class Core {
 
 					user = new User().setId(id).setName(name);
 
-					Log.i(TAG, String.format("EventBus.StatusChangeEvent %d %s %b", user.getId(), user.getName(), true));
-					EventBus.getDefault().post(new StatusChangeEvent(user, true));
+					Logger.i("EventBus.StatusChangeEvent %d %s", user.getId(), user.getName());
+					EventBus.getDefault().post(user);
 				}
 			} else {
 				user = null;
-				Log.i(TAG, String.format("EventBus.StatusChangeEvent %d %s %b", 0, "null", true));
-				EventBus.getDefault().post(new StatusChangeEvent(user, true));
+				Logger.i("EventBus.StatusChangeEvent %d %s", 0, "null");
+				EventBus.getDefault().post(user);
 			}
 		} catch (Error e) {
-			Log.e(TAG, "getDoc " + e.toString());
+			Logger.e(TAG, e.toString());
 		}
 
 		Elements formHashInput = doc.select("input[name=formhash]");
@@ -292,7 +293,7 @@ public class Core {
 			code = "GBK";
 		}
 
-		Log.i(TAG, "getDoc " + (System.currentTimeMillis() - time));
+		Logger.i("%d ms",System.currentTimeMillis() - time);
 		return doc;
 	}
 
@@ -319,14 +320,13 @@ public class Core {
 
 							@Override
 							public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-								Log.i(TAG, "login");
+								Logger.i("login succeed");
 
 								String html;
 								try {
 									html = new String(responseBody, code);
 									if (html.contains("欢迎您回来")) {
 										getDoc(html);
-										EventBus.getDefault().post(new StatusChangeEvent(user, false));
 										onRequestListener.onSuccess("");
 									} else if (html.contains("密码错误次数过多，请 15 分钟后重新登录")) {
 										onRequestListener.onError("密码错误次数过多，请 15 分钟后重新登录");
@@ -350,10 +350,9 @@ public class Core {
 
 			@Override
 			public void onSuccess(String html) {
-				Log.i(TAG, "logout");
+				Logger.i("logout succeed");
 
-				user = null;
-				EventBus.getDefault().post(new StatusChangeEvent(user, false));
+				EventBus.getDefault().post(user = null);
 				EventBus.getDefault().post(new MessageEvent(0));
 
 				onRequestListener.onSuccess(html);
@@ -374,6 +373,9 @@ public class Core {
 		Document doc = getDoc(html);
 
 		Element eFid = doc.select("#nav a").last();
+
+		Logger.i("eFid %s" + eFid.html());
+
 		String fidStr = eFid.attr("href");
 		int fid = Integer.valueOf(Uri.parse(fidStr).getQueryParameter("fid"));
 		String title = eFid.nextSibling().toString().replaceAll(" » ", "");
@@ -430,14 +432,8 @@ public class Core {
 		return posts;
 	}
 
-	public static class Attachment {
-		public String url;
-		public String filename;
-		public String size;
-	}
-
 	private static Post toPostObj(Element ePost) {
-		if (DEBUG) Log.i(TAG, "raw post" + ePost.html());
+		Logger.d("raw post %s", ePost.html());
 
 		int idPrefixLength = "pid".length();
 
@@ -1573,7 +1569,7 @@ public class Core {
 				os.close();
 				fileLength = tempFile.length();
 
-				Log.i(TAG, String.format("findBestQuality, length: %d, quality: %d", fileLength, quality));
+				Logger.i("length: %d, quality: %d", fileLength, quality);
 
 				return fileLength > maxSize ? null : tempFile;
 			} catch (IOException e) {
@@ -1621,7 +1617,7 @@ public class Core {
 				os.close();
 				fileLength = tempFile.length();
 
-				Log.i(TAG, String.format("compressBySize, length: %d, height: %d, width: %d", fileLength, height, width));
+				Logger.i("length: %d, height: %d, width: %d", fileLength, height, width);
 
 				return fileLength > maxSize ? null : tempFile;
 			} catch (IOException e) {
@@ -1659,6 +1655,42 @@ public class Core {
 
 	public static File compressImage(File imageFile, int maxSize) {
 		return compressImage(imageFile, maxSize, 1.0f);
+	}
+
+	public static void addToFavorite(int tid, final OnRequestListener onRequestListener) {
+		httpClient.get("http://www.hi-pda.com/forum/my.php?item=favorites&tid=" + tid + "&inajax=1&ajaxtarget=favorite_msg",
+				new TextHttpResponseHandler(code) {
+					@Override
+					public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+						onRequestListener.onError("收藏失败");
+					}
+
+					@Override
+					public void onSuccess(int i, Header[] headers, String s) {
+						onRequestListener.onSuccess(s);
+					}
+				});
+	}
+
+	public static void removeFromFavoriate(int tid, final OnRequestListener onRequestListener) {
+		httpClient.get("http://www.hi-pda.com/forum/my.php?item=favorites&action=remove&tid=" + tid + "&inajax=1&ajaxtarget=favorite_msg",
+				new TextHttpResponseHandler(code) {
+					@Override
+					public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+						onRequestListener.onError("删除失败");
+					}
+
+					@Override
+					public void onSuccess(int i, Header[] headers, String s) {
+						onRequestListener.onSuccess(s);
+					}
+				});
+	}
+
+	public static class Attachment {
+		public String url;
+		public String filename;
+		public String size;
 	}
 
 	public interface OnRequestListener {
@@ -1699,15 +1731,12 @@ public class Core {
 		}
 	}
 
-	public static class StatusChangeEvent {
-		public boolean checkedEachDoc;
-		public User user;
-
-		public StatusChangeEvent(User user, boolean checkedEachDoc) {
-			this.user = user;
-			this.checkedEachDoc = checkedEachDoc;
-		}
-	}
+//	public static class PostsRet {
+//		public ArrayList<Post> posts;
+//		public boolean hasNextPage;
+//		public int page;
+//		public int totalPage;
+//	}
 
 	public static class UpdateInfo {
 		private String version;
@@ -1739,13 +1768,6 @@ public class Core {
 		}
 	}
 
-//	public static class PostsRet {
-//		public ArrayList<Post> posts;
-//		public boolean hasNextPage;
-//		public int page;
-//		public int totalPage;
-//	}
-
 	public interface OnProgress {
 		void progress(int current, int total);
 	}
@@ -1754,35 +1776,5 @@ public class Core {
 		public ArrayList<Thread> threads;
 		public boolean hasNextPage;
 		public int page;
-	}
-
-	public static void addToFavorite(int tid, final OnRequestListener onRequestListener) {
-		httpClient.get("http://www.hi-pda.com/forum/my.php?item=favorites&tid=" + tid + "&inajax=1&ajaxtarget=favorite_msg",
-				new TextHttpResponseHandler(code) {
-					@Override
-					public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
-						onRequestListener.onError("收藏失败");
-					}
-
-					@Override
-					public void onSuccess(int i, Header[] headers, String s) {
-						onRequestListener.onSuccess(s);
-					}
-				});
-	}
-
-	public static void removeFromFavoriate(int tid, final OnRequestListener onRequestListener) {
-		httpClient.get("http://www.hi-pda.com/forum/my.php?item=favorites&action=remove&tid=" + tid + "&inajax=1&ajaxtarget=favorite_msg",
-				new TextHttpResponseHandler(code) {
-					@Override
-					public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
-						onRequestListener.onError("删除失败");
-					}
-
-					@Override
-					public void onSuccess(int i, Header[] headers, String s) {
-						onRequestListener.onSuccess(s);
-					}
-				});
 	}
 }

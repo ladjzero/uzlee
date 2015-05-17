@@ -35,8 +35,8 @@
     <PreferenceCategory
         android:title="写作">
         <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="show_uzlee_sig"
+            android:defaultValue="true"
+            android:key="use_sig"
             android:title="使用签名"/>
     </PreferenceCategory>
 </PreferenceScreen>

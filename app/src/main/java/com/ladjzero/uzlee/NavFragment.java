@@ -1,8 +1,8 @@
 package com.ladjzero.uzlee;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Intent;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,13 +25,12 @@ import android.widget.TextView;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.orhanobut.logger.Logger;
 
 
 import de.greenrobot.event.EventBus;
 
 public class NavFragment extends Fragment {
-	private static final String TAG = "NavFragment";
-
 	private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
 	private static final String PREF_USER_LEARNED_DRAWER = "navigation_drawer_learned";
 	private NavigationDrawerCallbacks mCallbacks;
@@ -72,7 +70,6 @@ public class NavFragment extends Fragment {
 			mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
 			mFromSavedInstanceState = true;
 		}
-
 	}
 
 	@Override
@@ -86,13 +83,15 @@ public class NavFragment extends Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		Logger.i("start");
+
 		View layout = inflater.inflate(R.layout.nav, container, false);
-		Log.i(TAG, "onCreateView");
 		mDrawerListView = (ListView) layout.findViewById(R.id.nav_list);
-//		mDrawerListView = (ListView) inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
 		mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Logger.i("position %d", position);
+
 				selectItem(position);
 			}
 		});
@@ -135,14 +134,23 @@ public class NavFragment extends Fragment {
 
 	@Override
 	public void onResume() {
-		Log.i(TAG, "onResume");
+		User user = Core.getUser();
+
+		Logger.i("EventBus.register, Core.user %b", user != null);
 
 		super.onResume();
 
-		if (Core.getUser() != null) {
-			userLayout.setVisibility(View.VISIBLE);
-			ImageLoader.getInstance().displayImage(Core.getUser().getImage(), imageView);
-			userName.setText(Core.getUser().getName());
+		if (user != null) {
+			Logger.i("set user layout visible, user %d %s", user.getId(), user.getName());
+
+			userLayout.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					userLayout.setVisibility(View.VISIBLE);
+					ImageLoader.getInstance().displayImage(Core.getUser().getImage(), imageView);
+					userName.setText(Core.getUser().getName());
+				}
+			}, 3000);
 		}
 
 		EventBus.getDefault().register(this);
@@ -150,39 +158,43 @@ public class NavFragment extends Fragment {
 
 	@Override
 	public void onPause() {
-		Log.i(TAG, "onPause");
+		Logger.i("EventBus.unregister");
 
 		EventBus.getDefault().unregister(this);
 		super.onPause();
 	}
 
 	public void onEventMainThread(Core.MessageEvent messageEvent) {
+		Logger.i("EventBus.onEventMainThread -> set message count %d", messageEvent.count);
+
 		adapter.setAlert(messageEvent.count);
 	}
 
-	public void onEventMainThread(Core.StatusChangeEvent statusChangeEvent) {
-		Log.i(TAG, "onEventMainThread -> userLayout");
+	public void onEventMainThread(User user) {
+		Logger.i("EventBus.onEventMainThread -> userLayout, user %", user != null);
 
 		adapter.notifyDataSetChanged();
 		getView().invalidate();
 
-		if (statusChangeEvent.user != null) {
+		if (user != null) {
+			Logger.i("EventBase.onEventMainThread -> userLayout -> visible, current visible %b", userLayout.getVisibility() == View.VISIBLE);
+
 			if (userLayout.getVisibility() == View.GONE) {
-				Log.i(TAG, "onEventMainThread -> userLayout -> visible");
+				Logger.i("EventBase.onEventMainThread -> userLayout -> visible, uid %d, name %s", user.getId(), user.getName());
 
 				userLayout.setVisibility(View.VISIBLE);
 				ImageLoader.getInstance().displayImage(Core.getUser().getImage(), imageView);
 				userName.setText(Core.getUser().getName());
 			}
 		} else {
-			Log.i(TAG, "onEventMainThread -> userLayout -> gone");
+			Logger.i("EventBus.onEventMainThread -> userLayout -> gone");
 
 			userLayout.setVisibility(View.GONE);
 		}
 	}
 
 	public void onEventMainThread(final Core.UpdateInfo updateInfo) {
-		Log.i(TAG, "onEventMainThread -> update");
+		Logger.i("EventBus.onEventMainThread -> update info");
 
 		if (updateInfo != null) {
 			String version = ((MainActivity) getActivity()).getVersion();
@@ -196,26 +208,15 @@ public class NavFragment extends Fragment {
 
 	// menu key triggers this
 	public void toggleDrawer() {
-		Log.i(TAG, "toggleDrawer");
+		boolean isOpen = isDrawerOpen();
 
-		if (isDrawerOpen()) {
-			mDrawerLayout.closeDrawer(Gravity.LEFT);
-		} else {
-			mDrawerLayout.openDrawer(Gravity.LEFT);
-		}
-	}
+		Logger.i("toggleDrawer, isOpen %b", isOpen);
 
-	public void onUpdate(boolean hasUpdate) {
-		adapter.setUpdate(hasUpdate);
-	}
-
-	public void onMsg(int count) {
-		adapter.setAlert(count);
+		if (isOpen) mDrawerLayout.closeDrawer(Gravity.LEFT);
+		else mDrawerLayout.openDrawer(Gravity.LEFT);
 	}
 
 	public boolean isDrawerOpen() {
-		Log.i(TAG, "isDrawerOpen");
-
 		return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mFragmentContainerView);
 	}
 
@@ -226,8 +227,6 @@ public class NavFragment extends Fragment {
 	 * @param drawerLayout The DrawerLayout containing this fragment's UI.
 	 */
 	public void setUp(int fragmentId, DrawerLayout drawerLayout) {
-		Log.i(TAG, "setUp");
-
 		mFragmentContainerView = getActivity().findViewById(fragmentId);
 		mDrawerLayout = drawerLayout;
 
@@ -243,16 +242,9 @@ public class NavFragment extends Fragment {
 				R.string.navigation_drawer_open,  /* "open drawer" description for accessibility */
 				R.string.navigation_drawer_close  /* "close drawer" description for accessibility */
 		) {
-//			@Override
-//			public void onDrawerSlide(View drawerView, float slideOffset) {
-//				materialMenu.setTransformationOffset(
-//						MaterialMenuDrawable.AnimationState.BURGER_ARROW,
-//						isDrawerOpened ? 2 - slideOffset : slideOffset);
-//			}
-
 			@Override
 			public void onDrawerClosed(View drawerView) {
-				Log.i(TAG, "onDrawerClosed");
+				Logger.i("onDrawerClosed");
 
 				super.onDrawerClosed(drawerView);
 				if (!isAdded()) {
@@ -264,8 +256,6 @@ public class NavFragment extends Fragment {
 
 			@Override
 			public void onDrawerOpened(View drawerView) {
-				Log.i(TAG, "onDrawerOpened");
-
 				super.onDrawerOpened(drawerView);
 				if (!isAdded()) {
 					return;
@@ -294,8 +284,6 @@ public class NavFragment extends Fragment {
 		mDrawerLayout.post(new Runnable() {
 			@Override
 			public void run() {
-				Log.i(TAG, "post syncState");
-
 				mDrawerToggle.syncState();
 			}
 		});
@@ -303,26 +291,8 @@ public class NavFragment extends Fragment {
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 	}
 
-	private void selectItem(int position) {
-		Log.i(TAG, String.format("selectItem, position: %d", position));
-
-		mCurrentSelectedPosition = position;
-		if (mDrawerListView != null) {
-			mDrawerListView.setItemChecked(position, true);
-		}
-		if (mDrawerLayout != null) {
-			mDrawerLayout.closeDrawer(mFragmentContainerView);
-		}
-		if (mCallbacks != null) {
-			mCallbacks.onNavigationDrawerItemSelected(position);
-		}
-	}
-
-
 	@Override
 	public void onAttach(Activity activity) {
-		Log.i(TAG, "onAttach");
-
 		super.onAttach(activity);
 		try {
 			mCallbacks = (NavigationDrawerCallbacks) activity;
@@ -333,23 +303,19 @@ public class NavFragment extends Fragment {
 
 	@Override
 	public void onDetach() {
-		Log.i(TAG, "onDetach");
-
 		super.onDetach();
 		mCallbacks = null;
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		Log.i(TAG, "onSaveInstanceState");
-
 		super.onSaveInstanceState(outState);
 		outState.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
 	}
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
-		Log.i(TAG, "onConfigurationChanged");
+		Logger.i("onConfigurationChanged");
 
 		super.onConfigurationChanged(newConfig);
 		// Forward the new configuration the drawer toggle component.
@@ -358,8 +324,6 @@ public class NavFragment extends Fragment {
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		Log.i(TAG, "onCreateOptionsMenu");
-
 		// If the drawer is open, show the global app actions in the action bar. See also
 		// showGlobalContextActionBar, which controls the top-left area of the action bar.
 		if (mDrawerLayout != null && isDrawerOpen()) {
@@ -378,17 +342,27 @@ public class NavFragment extends Fragment {
 		return super.onOptionsItemSelected(item);
 	}
 
+	private void selectItem(int position) {
+		Logger.i("selectItem, position: %d", position);
+
+		mCurrentSelectedPosition = position;
+		if (mDrawerListView != null) {
+			mDrawerListView.setItemChecked(position, true);
+		}
+		if (mDrawerLayout != null) {
+			mDrawerLayout.closeDrawer(mFragmentContainerView);
+		}
+		if (mCallbacks != null) {
+			mCallbacks.onNavigationDrawerItemSelected(position);
+		}
+	}
+
 	/**
 	 * Per the navigation drawer design guidelines, updates the action bar to show the global app
 	 * 'context', rather than just what's in the current screen.
 	 */
 	private void showGlobalContextActionBar() {
-		Log.i(TAG, "showGlobalContextActionBar");
-
-		ActionBar actionBar = getActionBar();
-		actionBar.setDisplayShowTitleEnabled(true);
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-		actionBar.setTitle(R.string.app_name);
+		activity.setTitle(R.string.app_name);
 	}
 
 	private ActionBar getActionBar() {

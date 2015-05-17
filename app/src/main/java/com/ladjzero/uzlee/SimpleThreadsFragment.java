@@ -198,7 +198,7 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 
 	@Override
 	public void onError(String error) {
-		((MainActivity) getActivity()).showToast(error);
+		((BaseActivity) getActivity()).showToast(error);
 	}
 
 	/**

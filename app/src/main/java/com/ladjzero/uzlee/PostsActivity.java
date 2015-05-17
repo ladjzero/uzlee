@@ -29,6 +29,7 @@ import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
+import com.orhanobut.logger.Logger;
 import com.r0adkll.slidr.Slidr;
 import com.r0adkll.slidr.model.SlidrInterface;
 import com.rey.material.widget.ProgressView;
@@ -77,8 +78,6 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.posts);
 
-		myid = Core.getUser().getId();
-
 		slidrInterface = Slidr.attach(this, slidrConfig);
 
 		LayoutInflater mInflater = LayoutInflater.from(this);
@@ -105,8 +104,6 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		mInitToLastPost = mPage == 9999;
 
 		setTitle(intent.getStringExtra("title"));
-
-		Log.d("POST_ID", ",tid=" + mTid + " page=" + mPage);
 
 		mProgressBar = (ProgressView) findViewById(R.id.progress_bar);
 
@@ -351,6 +348,8 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	}
 
 	private void fetch(int page, final Core.OnPostsListener onPostsListener) {
+		myid = Core.getUser().getId();
+
 		mIsFetching = true;
 		toggleMenus(false);
 
@@ -359,7 +358,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		mPage = page;
 		String url = getUri();
 
-		Log.i(TAG, "Fetching " + url);
+		Logger.i("Fetching: %s", url);
 
 		Core.getHtml(url, new Core.OnRequestListener() {
 			@Override
@@ -373,6 +372,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 			@Override
 			public void onSuccess(String html) {
+				mIsFetching = false;
 
 				new AsyncTask<String, Float, Posts>() {
 					@Override
@@ -382,7 +382,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 							public void progress(int current, int total) {
 								float progress = 1.0f * current / total;
 
-								Log.i(TAG, String.format("Progressing %f current %d total %d", progress, current, total));
+								Logger.i("Progressing %f current %d total %d", progress, current, total);
 
 								publishProgress(progress);
 							}
@@ -391,7 +391,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 					@Override
 					protected void onProgressUpdate(Float... floats) {
-						Log.i(TAG, "onProgressUpdate " + floats[0]);
+						Logger.i("onProgressUpdate %f", floats[0]);
 						mProgressBar.setProgress(floats[0]);
 					}
 
@@ -467,17 +467,33 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	protected void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
 		if (requestCode == EDIT_CODE && resultCode == EditActivity.EDIT_SUCCESS) {
 			mIsFetching = true;
-			setProgressBarIndeterminateVisibility(true);
 			toggleMenus(false);
 
 			if (returnIntent != null) {
 				String html = returnIntent.getStringExtra("html");
 
+				mProgressBar.start();
+
 				if (html != null && html.length() > 0) {
-					new AsyncTask<String, Void, Posts>() {
+					new AsyncTask<String, Float, Posts>() {
 						@Override
 						protected Posts doInBackground(String... strings) {
-							return Core.parsePosts(strings[0]);
+							return Core.parsePosts(strings[0], new Core.OnProgress() {
+								@Override
+								public void progress(int current, int total) {
+									float progress = 1.0f * current / total;
+
+									Logger.i("Progressing %f current %d total %d", progress, current, total);
+
+									publishProgress(progress);
+								}
+							});
+						}
+
+						@Override
+						protected void onProgressUpdate(Float... floats) {
+							Logger.i("onProgressUpdate %f", floats[0]);
+							mProgressBar.setProgress(floats[0]);
 						}
 
 						@Override
@@ -504,6 +520,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 							mPosts.merge(posts);
 							mAdapter.notifyDataSetChanged();
 							mListView.getRefreshableView().setSelection(posts.size() - 1);
+							mProgressBar.stop();
 						}
 					}.execute(html);
 				}

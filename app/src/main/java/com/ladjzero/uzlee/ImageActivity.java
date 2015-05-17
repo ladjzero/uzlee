@@ -25,6 +25,7 @@ import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.orhanobut.logger.Logger;
 import com.r0adkll.slidr.Slidr;
 import com.r0adkll.slidr.model.SlidrInterface;
 
@@ -143,7 +144,7 @@ public class ImageActivity extends BaseActivity {
 
 		public ImageFragment(String url) {
 			position = mUrls.indexOf(url);
-			Log.i(TAG, String.format("new ImageFragment %d %s", position, url));
+			Logger.i("new ImageFragment %d %s", position, url);
 			mUrl = url;
 		}
 

@@ -1,32 +1,29 @@
 package com.ladjzero.uzlee;
 
-import android.app.Fragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.daimajia.androidanimations.library.Techniques;
-import com.daimajia.androidanimations.library.YoYo;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Core.OnThreadsListener;
 import com.ladjzero.hipda.Thread;
-import com.nineoldandroids.animation.Animator;
+import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
+import com.orhanobut.logger.Logger;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -128,6 +125,8 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		mSwipe = (SwipeRefreshLayout) rootView.findViewById(R.id.thread_swipe);
 		mSwipe.setOnRefreshListener(this);
 		mSwipe.setColorSchemeResources(R.color.dark_primary, R.color.dark_primary, R.color.dark_primary, R.color.dark_primary);
+
+		Logger.i("enable pull to fresh %b", mEnablePullToRefresh);
 		mSwipe.setEnabled(mEnablePullToRefresh);
 
 		listView = (ListView) rootView.findViewById(R.id.threads);
@@ -345,17 +344,21 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	}
 
 	private void setRefreshSpinner(boolean visible) {
+		Logger.i("visible %b, enable refresh %b, is fetching %b", visible, mEnablePullToRefresh, mIsFetching);
+
 		if (visible) {
 			if (mOnFetch != null) mOnFetch.fetchStart();
 
 			if (mEnablePullToRefresh) {
 				// Hack. http://stackoverflow.com/questions/26858692/swiperefreshlayout-setrefreshing-not-showing-indicator-initially
-				mSwipe.post(new Runnable() {
+				mSwipe.postDelayed(new Runnable() {
 					@Override
 					public void run() {
+						Logger.i("is fetching %b", mIsFetching);
+
 						if (mIsFetching) mSwipe.setRefreshing(true);
 					}
-				});
+				}, 100);
 			} else {
 				mActivity.setProgressBarIndeterminateVisibility(true);
 			}
@@ -364,16 +367,14 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 			if (mEnablePullToRefresh) {
 				mSwipe.setRefreshing(false);
-			} else {
-				mActivity.setProgressBarIndeterminateVisibility(false);
 			}
 		}
 	}
 
-	public void onEventMainThread(Core.StatusChangeEvent statusChangeEvent) {
-		Log.i(TAG, String.format("onEventMainThread.statusChangeEvent : user is null? %b", statusChangeEvent.user == null));
+	public void onEventMainThread(User user) {
+		Logger.i("EventBus.onEventMainThread.statusChangeEvent : user is null? %b", user == null);
 
-		if (statusChangeEvent.user == null) {
+		if (user == null) {
 			mThreads.clear();
 			adapter.notifyDataSetChanged();
 		}

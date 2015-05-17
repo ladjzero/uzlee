@@ -25,12 +25,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.utils.L;
+import com.orhanobut.logger.Logger;
 import com.r0adkll.slidr.model.SlidrConfig;
 import com.r0adkll.slidr.model.SlidrPosition;
 import com.rey.material.app.Dialog;
@@ -190,10 +192,10 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 		super.onPause();
 	}
 
-	public void onEventMainThread(Core.StatusChangeEvent statusChangeEvent) {
-		Log.i(TAG, String.format("onEventMainThread.statusChangeEvent : user is null ? %b", statusChangeEvent.user == null));
+	public void onEventMainThread(User user) {
+		Logger.i("EventBus.onEventMainThread.statusChangeEvent : user is null ? %b", user == null);
 
-		if (statusChangeEvent.user == null) {
+		if (user == null) {
 			SimpleDialog.Builder builder = new SimpleDialog.Builder(R.style.Material_App_Dialog_Simple_Light) {
 
 				@Override
@@ -266,7 +268,7 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 			DialogFragment dialog = DialogFragment.newInstance(builder);
 
 			dialog.show(getSupportFragmentManager(), null);
-			Log.i(TAG, "login show");
+			Logger.i("login show");
 		}
 	}
 
@@ -292,7 +294,7 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 				DialogFragment dialog = DialogFragment.newInstance(builder);
 
 				dialog.show(getSupportFragmentManager(), null);
-				Log.i(TAG, "update show");
+				Logger.i("update show");
 			} else {
 				showToast("已是最新版");
 			}
@@ -351,7 +353,7 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 			boolean loadWifiOnly = setting.getBoolean("enable_image_only_wifi", false);
 
 			ImageLoader.getInstance().denyNetworkDownloads(!isWifi && loadWifiOnly);
-			Log.i(TAG, String.format("wifi %b load when wifi only %b", isWifi, loadWifiOnly));
+			Logger.i("wifi %b load when wifi only %b", isWifi, loadWifiOnly);
 		}
 	}
 

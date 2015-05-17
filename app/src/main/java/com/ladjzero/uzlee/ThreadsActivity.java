@@ -1,11 +1,10 @@
 package com.ladjzero.uzlee;
 
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
 import android.widget.TextView;
 
 import com.r0adkll.slidr.Slidr;
@@ -39,7 +38,7 @@ public class ThreadsActivity extends BaseActivity {
 		mTitleView = (TextView) customView.findViewById(R.id.title);
 
 		setContentView(R.layout.threads);
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		ft.replace(R.id.place_holder, mFragment);
 		ft.commit();
 
