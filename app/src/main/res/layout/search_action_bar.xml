@@ -11,6 +11,8 @@
         android:gravity="center_vertical"
         android:hint="搜索"
         android:imeOptions="actionSearch"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:singleLine="true"
         android:textCursorDrawable="@null"/>
 

@@ -1102,7 +1102,7 @@ public class Core {
 				return null;
 			}
 
-			String userId = userHref.substring("space.php?uid=".length());
+			String userId = Uri.parse(userHref).getQueryParameter("uid");
 			String commentNum = eThread.select("td.nums > strong").text().trim();
 
 			String forumLink = eThread.select(".forum a").attr("href");

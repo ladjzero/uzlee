@@ -12,10 +12,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.r0adkll.slidr.Slidr;
+import com.rey.material.widget.ProgressView;
 
 public class SearchActivity extends BaseActivity implements View.OnKeyListener, ThreadsFragment.OnFetch {
 
 	private ThreadsFragment mFragment;
+	private ProgressView proressbar;
 
 
 	private EditText mSearch;
@@ -30,6 +32,9 @@ public class SearchActivity extends BaseActivity implements View.OnKeyListener, 
 		mActionbar.setDisplayHomeAsUpEnabled(true);
 		mActionbar.setDisplayShowCustomEnabled(true);
 		mActionbar.setCustomView(R.layout.search_action_bar);
+
+		proressbar = (ProgressView) findViewById(R.id.progress_bar);
+		proressbar.setVisibility(View.GONE);
 
 		mFragment = new ThreadsFragment();
 		mFragment.setOnFetch(this);
@@ -64,9 +69,11 @@ public class SearchActivity extends BaseActivity implements View.OnKeyListener, 
 
 	@Override
 	public void fetchStart() {
+		proressbar.setVisibility(View.VISIBLE);
 	}
 
 	@Override
 	public void fetchEnd() {
+		proressbar.setVisibility(View.GONE);
 	}
 }

@@ -58,7 +58,7 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 			.showImageOnFail(R.color.snow_primary)
 			.cacheInMemory(true)
 			.cacheOnDisk(true)
-			.imageScaleType(ImageScaleType.NONE)
+			.imageScaleType(ImageScaleType.NONE_SAFE)
 			.build();
 
 	public static final DisplayImageOptions userImageInList = new DisplayImageOptions.Builder()
@@ -78,7 +78,7 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 			.showImageOnFail(R.color.snow_primary)
 			.cacheInMemory(true)
 			.cacheOnDisk(true)
-			.imageScaleType(ImageScaleType.NONE)
+			.imageScaleType(ImageScaleType.NONE_SAFE)
 			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
 			.build();
 
@@ -99,7 +99,7 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 			.showImageOnFail(android.R.color.transparent)
 			.cacheInMemory(true)
 			.cacheOnDisk(true)
-			.imageScaleType(ImageScaleType.NONE)
+			.imageScaleType(ImageScaleType.NONE_SAFE)
 			.build();
 
 	public static final SlidrConfig slidrConfig = new SlidrConfig.Builder()
@@ -149,7 +149,7 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 		mActionbarHeight = mActionbar.getHeight();
 
 		ImageLoaderConfiguration ilConfig = new ImageLoaderConfiguration.Builder(this)
-				.memoryCacheSize(IMAGE_MEM_CACHE_SIZE)
+				.memoryCacheSizePercentage(50)
 				.defaultDisplayImageOptions(userImageInList).build();
 		ImageLoader.getInstance().init(ilConfig);
 

@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@android:color/white"
-              android:clickable="true"
-              android:orientation="vertical">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/white"
+                android:clickable="true"
+                android:orientation="vertical">
+
+    <include layout="@layout/progress_bar"/>
 
     <FrameLayout
         android:id="@+id/place_holder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"></FrameLayout>
 
-</LinearLayout>
+</RelativeLayout>

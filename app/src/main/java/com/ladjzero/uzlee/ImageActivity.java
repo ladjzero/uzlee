@@ -2,6 +2,9 @@ package com.ladjzero.uzlee;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
@@ -110,10 +113,18 @@ public class ImageActivity extends BaseActivity {
 							mUrl.substring(mUrl.lastIndexOf("/") + 1)
 					);
 
-					Intent intent = new Intent();
-					intent.setAction(Intent.ACTION_VIEW);
-					intent.setDataAndType(Uri.parse(localUrl), "image/*");
-					startActivity(intent);
+					if (localUrl == null) {
+						showToast("保存失败，图像地址已复制到剪切板中");
+
+						ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+						ClipData clipData = ClipData.newPlainText("image url", mUrl);
+						clipboardManager.setPrimaryClip(clipData);
+					} else {
+						Intent intent = new Intent();
+						intent.setAction(Intent.ACTION_VIEW);
+						intent.setDataAndType(Uri.parse(localUrl), "image/*");
+						startActivity(intent);
+					}
 				}
 			});
 			return true;
