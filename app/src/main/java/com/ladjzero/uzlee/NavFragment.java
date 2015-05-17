@@ -150,7 +150,7 @@ public class NavFragment extends Fragment {
 					ImageLoader.getInstance().displayImage(Core.getUser().getImage(), imageView);
 					userName.setText(Core.getUser().getName());
 				}
-			}, 3000);
+			}, 300);
 		}
 
 		EventBus.getDefault().register(this);
@@ -170,17 +170,17 @@ public class NavFragment extends Fragment {
 		adapter.setAlert(messageEvent.count);
 	}
 
-	public void onEventMainThread(User user) {
-		Logger.i("EventBus.onEventMainThread -> userLayout, user %", user != null);
+	public void onEventMainThread(Core.UserEvent userEvent) {
+		Logger.i("EventBus.onEventMainThread -> userLayout, user %b", userEvent.user != null);
 
 		adapter.notifyDataSetChanged();
 		getView().invalidate();
 
-		if (user != null) {
+		if (userEvent.user != null) {
 			Logger.i("EventBase.onEventMainThread -> userLayout -> visible, current visible %b", userLayout.getVisibility() == View.VISIBLE);
 
 			if (userLayout.getVisibility() == View.GONE) {
-				Logger.i("EventBase.onEventMainThread -> userLayout -> visible, uid %d, name %s", user.getId(), user.getName());
+				Logger.i("EventBase.onEventMainThread -> userLayout -> visible, uid %d, name %s", userEvent.user.getId(), userEvent.user.getName());
 
 				userLayout.setVisibility(View.VISIBLE);
 				ImageLoader.getInstance().displayImage(Core.getUser().getImage(), imageView);
@@ -209,9 +209,6 @@ public class NavFragment extends Fragment {
 	// menu key triggers this
 	public void toggleDrawer() {
 		boolean isOpen = isDrawerOpen();
-
-		Logger.i("toggleDrawer, isOpen %b", isOpen);
-
 		if (isOpen) mDrawerLayout.closeDrawer(Gravity.LEFT);
 		else mDrawerLayout.openDrawer(Gravity.LEFT);
 	}
@@ -244,8 +241,6 @@ public class NavFragment extends Fragment {
 		) {
 			@Override
 			public void onDrawerClosed(View drawerView) {
-				Logger.i("onDrawerClosed");
-
 				super.onDrawerClosed(drawerView);
 				if (!isAdded()) {
 					return;

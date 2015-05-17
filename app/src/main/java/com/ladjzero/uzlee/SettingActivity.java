@@ -34,7 +34,7 @@ public class SettingActivity extends BaseActivity {
 		getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingFragment()).commit();
 	}
 
-	public class SettingFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+	public static class SettingFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
@@ -57,7 +57,7 @@ public class SettingActivity extends BaseActivity {
 			}
 
 			if (key.equals("enable_image_only_wifi")) {
-				setImageNetwork();
+				((BaseActivity) getActivity()).setImageNetwork();
 			}
 		}
 

@@ -255,20 +255,18 @@ public class Core {
 			String uid = uri.getQueryParameter("uid");
 
 			if (uid != null && uid.length() > 0) {
-				if (user == null) {
-					int id = Integer.valueOf(uid);
-					String name = eUser.text().trim();
+				int id = Integer.valueOf(uid);
+				String name = eUser.text().trim();
 
-					user = new User().setId(id).setName(name);
+				user = new User().setId(id).setName(name);
 
-					Logger.i("EventBus.StatusChangeEvent %d %s", user.getId(), user.getName());
-					EventBus.getDefault().post(user);
-				}
+				Logger.i("EventBus.StatusChangeEvent %d %s", user.getId(), user.getName());
 			} else {
 				user = null;
 				Logger.i("EventBus.StatusChangeEvent %d %s", 0, "null");
-				EventBus.getDefault().post(user);
 			}
+
+			EventBus.getDefault().post(new UserEvent(user));
 		} catch (Error e) {
 			Logger.e(TAG, e.toString());
 		}
@@ -293,7 +291,7 @@ public class Core {
 			code = "GBK";
 		}
 
-		Logger.i("%d ms",System.currentTimeMillis() - time);
+		Logger.i("%d ms", System.currentTimeMillis() - time);
 		return doc;
 	}
 
@@ -352,7 +350,8 @@ public class Core {
 			public void onSuccess(String html) {
 				Logger.i("logout succeed");
 
-				EventBus.getDefault().post(user = null);
+				user = null;
+				EventBus.getDefault().post(new UserEvent(user));
 				EventBus.getDefault().post(new MessageEvent(0));
 
 				onRequestListener.onSuccess(html);
@@ -373,10 +372,10 @@ public class Core {
 		Document doc = getDoc(html);
 
 		Element eFid = doc.select("#nav a").last();
-
-		Logger.i("eFid %s" + eFid.html());
-
 		String fidStr = eFid.attr("href");
+
+		Logger.i("html %s, eFid %s, fidStr %s", html, eFid.html(), fidStr);
+
 		int fid = Integer.valueOf(Uri.parse(fidStr).getQueryParameter("fid"));
 		String title = eFid.nextSibling().toString().replaceAll(" » ", "");
 
@@ -901,6 +900,8 @@ public class Core {
 	}
 
 	public static void deletePost(int fid, int tid, int pid, final OnRequestListener onRequestListener) {
+		Logger.i("fid %d, tid %d, pid %d", fid, tid, pid);
+
 		RequestParams params = new RequestParams();
 		params.setContentEncoding(code);
 		params.put("formhash", formhash);
@@ -920,12 +921,20 @@ public class Core {
 						params, new TextHttpResponseHandler(code) {
 							@Override
 							public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+								Logger.i("fail");
+
 								onRequestListener.onError(s);
 							}
 
 							@Override
 							public void onSuccess(int i, Header[] headers, String s) {
-								onRequestListener.onSuccess(s);
+								if (s.contains("未定义操作，请返回。")) {
+									onFailure(i, headers, "未定义操作", null);
+								} else {
+									Logger.i("succeed");
+
+									onRequestListener.onSuccess(s);
+								}
 							}
 						});
 	}
@@ -1721,6 +1730,14 @@ public class Core {
 
 	public interface OnImageCompressed {
 		void onImage(File imageFile);
+	}
+
+	public static class UserEvent{
+		public User user;
+
+		public UserEvent(User user) {
+			this.user = user;
+		}
 	}
 
 	public static class MessageEvent {

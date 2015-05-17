@@ -27,6 +27,6 @@ public class MyApplication extends Application {
 		super.onCreate();
 		ACRA.init(this);
 
-		Logger.init().setLogLevel(LogLevel.FULL);
+		Logger.init().setLogLevel(LogLevel.NONE);
 	}
 }

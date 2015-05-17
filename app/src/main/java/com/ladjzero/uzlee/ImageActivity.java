@@ -1,5 +1,6 @@
 package com.ladjzero.uzlee;
 
+import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.ClipData;
@@ -13,6 +14,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -134,18 +136,24 @@ public class ImageActivity extends BaseActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	public class ImageFragment extends Fragment {
+	@SuppressLint("ValidFragment")
+	public static class ImageFragment extends Fragment {
 
 		private static final String TAG = "ImageActivity";
 		private String mUrl;
+		private ArrayList<String> mUrls;
 		private ImageView mImageView;
 		PhotoViewAttacher mAttacher;
 		private int position;
+		private ActionBar mActionbar;
 
-		public ImageFragment(String url) {
+		@SuppressLint("ValidFragment")
+		public ImageFragment(Context context, String url, ArrayList<String> urls) {
+			mUrls = urls;
 			position = mUrls.indexOf(url);
 			Logger.i("new ImageFragment %d %s", position, url);
 			mUrl = url;
+			mActionbar = ((ImageActivity) context).mActionbar;
 		}
 
 		@Override
@@ -188,7 +196,7 @@ public class ImageActivity extends BaseActivity {
 
 		@Override
 		public Fragment getItem(int position) {
-			return new ImageFragment(mUrls.get(position));
+			return new ImageFragment(ImageActivity.this, mUrls.get(position), mUrls);
 		}
 	}
 }

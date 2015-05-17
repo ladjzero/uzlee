@@ -371,10 +371,10 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		}
 	}
 
-	public void onEventMainThread(User user) {
-		Logger.i("EventBus.onEventMainThread.statusChangeEvent : user is null? %b", user == null);
+	public void onEventMainThread(Core.UserEvent userEvent) {
+		Logger.i("EventBus.onEventMainThread.statusChangeEvent : user is null? %b", userEvent.user == null);
 
-		if (user == null) {
+		if (userEvent.user == null) {
 			mThreads.clear();
 			adapter.notifyDataSetChanged();
 		}

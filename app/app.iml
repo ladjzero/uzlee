@@ -85,7 +85,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="library-1.0.1" level="project" />
     <orderEntry type="library" exported="" name="library-2.0.3" level="project" />
-    <orderEntry type="library" exported="" name="imagezoom-2.1.1" level="project" />
+    <orderEntry type="library" exported="" name="logger-1.8" level="project" />
     <orderEntry type="library" exported="" name="flatui-3.0.0" level="project" />
     <orderEntry type="library" exported="" name="android-iconify-1.0.8" level="project" />
     <orderEntry type="library" exported="" name="fastjson-1.1.34.android" level="project" />

@@ -40,6 +40,7 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 	private Iconify.IconValue bsTypeIcon;
 	private ThreadsFragment bsFragment;
 	public int navPosition = 0;
+	private int uid = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -163,12 +164,12 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 	}
 
 	@Override
-	public void onEventMainThread(User user) {
-		Logger.i("EventBus.onEventMainThread.statusChangeEvent : user is null ? %b", user == null);
+	public void onEventMainThread(Core.UserEvent userEvent) {
+		Logger.i("EventBus.onEventMainThread.statusChangeEvent : user is null ? %b", userEvent.user == null);
 
-		super.onEventMainThread(user);
+		if (userEvent.user != null && uid != userEvent.user.getId()) {
+			super.onEventMainThread(userEvent);
 
-		if (user != null) {
 			switch (fid) {
 				case D_ID:
 					navPosition = 0;
@@ -180,7 +181,14 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 					navPosition = 2;
 			}
 
+			uid = userEvent.user.getId();
+
 			onNavigationDrawerItemSelected(navPosition);
+		}
+
+		if (userEvent.user == null) {
+			super.onEventMainThread(userEvent);
+			uid = 0;
 		}
 	}
 

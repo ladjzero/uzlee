@@ -192,10 +192,10 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 		super.onPause();
 	}
 
-	public void onEventMainThread(User user) {
-		Logger.i("EventBus.onEventMainThread.statusChangeEvent : user is null ? %b", user == null);
+	public void onEventMainThread(Core.UserEvent userEvent) {
+		Logger.i("EventBus.onEventMainThread.statusChangeEvent : user is null ? %b", userEvent.user == null);
 
-		if (user == null) {
+		if (userEvent.user == null) {
 			SimpleDialog.Builder builder = new SimpleDialog.Builder(R.style.Material_App_Dialog_Simple_Light) {
 
 				@Override

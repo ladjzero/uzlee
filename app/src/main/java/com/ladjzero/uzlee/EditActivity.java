@@ -252,7 +252,6 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 						}
 					})
 					.positiveAction("确认")
-					.negativeAction("取消")
 					.show();
 		} else if (id == R.id.reply_add_emoji) {
 			if (mEmojiSelector == null) {
