@@ -252,6 +252,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		intent.putExtra("fid", fid);
 		intent.putExtra("tid", t.getId());
 		intent.putExtra("title", t.getTitle());
+		intent.putExtra("pid", t.getToFind());
 
 		startActivity(intent);
 	}
@@ -343,16 +344,6 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		return super.onContextItemSelected(item);
 	}
 
-	class SaveData extends AsyncTask<String, Void, String> {
-
-		@Override
-		protected String doInBackground(String... params) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-	}
-
 	private void setRefreshSpinner(boolean visible) {
 		if (visible) {
 			if (mOnFetch != null) mOnFetch.fetchStart();
@@ -380,9 +371,9 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	}
 
 	public void onEventMainThread(Core.StatusChangeEvent statusChangeEvent) {
-		Log.i(TAG, String.format("onEventMainThread.statusChangeEvent : online %b", statusChangeEvent.online));
+		Log.i(TAG, String.format("onEventMainThread.statusChangeEvent : user is null? %b", statusChangeEvent.user == null));
 
-		if (!statusChangeEvent.online) {
+		if (statusChangeEvent.user == null) {
 			mThreads.clear();
 			adapter.notifyDataSetChanged();
 		}

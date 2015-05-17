@@ -250,7 +250,6 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 					if (!hasBitmap) {
 						ProgressView bar = (ProgressView) imageView.getTag(R.id.img_progress);
-						bar.setProgress(0);
 						bar.start();
 
 						ImageLoader.getInstance().displayImage(url, imageView, mDisplayOption, new SimpleImageLoadingListener() {

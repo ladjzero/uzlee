@@ -16,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -35,6 +34,8 @@ import com.r0adkll.slidr.model.SlidrInterface;
 import com.rey.material.widget.ProgressView;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -68,6 +69,8 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	private int myid;
 	SlidrInterface slidrInterface;
 	private int position = 0;
+	// Scroll to this post.
+	private int mPid = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +101,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		Intent intent = getIntent();
 		mTid = intent.getIntExtra("tid", 0);
 		mPage = intent.getIntExtra("page", 1);
+		mPid = intent.getIntExtra("pid", 0);
 		mInitToLastPost = mPage == 9999;
 
 		setTitle(intent.getStringExtra("title"));
@@ -244,7 +248,11 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	}
 
 	private String getUri() {
-		return "http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + mPage;
+		if (mPid > 0) {
+			return String.format("http://www.hi-pda.com/forum/redirect.php?goto=findpost&pid=%d&ptid=%d", mPid, mTid);
+		} else {
+			return "http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + mPage + "&ordertype=" + orderType;
+		}
 	}
 
 	@Override
@@ -348,7 +356,8 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 		mProgressBar.start();
 
-		String url = "http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + page + "&ordertype=" + orderType;
+		mPage = page;
+		String url = getUri();
 
 		Log.i(TAG, "Fetching " + url);
 
@@ -389,7 +398,6 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 					@Override
 					protected void onPostExecute(Posts posts) {
 						mIsFetching = false;
-						setProgressBarIndeterminateVisibility(false);
 						toggleMenus(true);
 						onPostsListener.onPosts(posts);
 						mProgressBar.stop();
@@ -427,11 +435,27 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 			mListView.setMode(currPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
 		}
 
-
 		mPosts.merge(posts);
 		mAdapter.notifyDataSetChanged();
-		mListView.getRefreshableView().setSelection(mInitToLastPost ? posts.size() - 1 : position);
-		mInitToLastPost = false;
+
+		if (mPid != 0) {
+			Post post = (Post) CollectionUtils.find(mPosts.getLastMerged(), new Predicate() {
+				@Override
+				public boolean evaluate(Object o) {
+					return ((Post) o).getId() == mPid;
+				}
+			});
+
+			if (post != null) {
+				// +1 for header.
+				mListView.getRefreshableView().setSelection(mPosts.getLastMerged().indexOf(post) + 1);
+			}
+		} else {
+			mListView.getRefreshableView().setSelection(mInitToLastPost ? posts.size() - 1 : position);
+			mInitToLastPost = false;
+		}
+
+		mPid = 0;
 	}
 
 	@Override

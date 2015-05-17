@@ -58,7 +58,7 @@ public class NavAdapter extends ArrayAdapter<String> {
 
 
 		if ("{fa-sign-out}".equals(iconAndText[0]) || "{fa-sign-in}".equals(iconAndText[0])) {
-			if (Core.isOnline()) {
+			if (Core.getUser() != null) {
 				icon.setText("{fa-sign-out}");
 				text.setText("登出");
 			} else {

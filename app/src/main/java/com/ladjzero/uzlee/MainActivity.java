@@ -102,7 +102,7 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 				startActivity(intent);
 				break;
 			case 4:
-				if (Core.isOnline()) {
+				if (Core.getUser() != null) {
 					intent = new Intent(this, MyPostsActivity.class);
 					startActivity(intent);
 				}
@@ -169,7 +169,7 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 	public void onEventMainThread(Core.StatusChangeEvent statusChangeEvent) {
 		super.onEventMainThread(statusChangeEvent);
 
-		if (statusChangeEvent.online && !statusChangeEvent.checkedEachDoc) {
+		if (statusChangeEvent.user != null && !statusChangeEvent.checkedEachDoc) {
 			switch (fid) {
 				case D_ID:
 					navPosition = 0;

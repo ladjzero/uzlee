@@ -21,6 +21,7 @@ public class Thread {
 	private boolean isBold;
 	private String color;
 	private boolean isStick;
+	private int toFind;
 
 	public User getAuthor() {
 		return author;
@@ -159,6 +160,15 @@ public class Thread {
 
 	public Thread setStick(boolean isStick) {
 		this.isStick = isStick;
+		return this;
+	}
+
+	public int getToFind() {
+		return toFind;
+	}
+
+	public Thread setToFind(int toFind) {
+		this.toFind = toFind;
 		return this;
 	}
 }

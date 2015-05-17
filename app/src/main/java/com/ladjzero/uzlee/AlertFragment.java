@@ -127,6 +127,7 @@ public class AlertFragment extends Fragment implements AbsListView.OnItemClickLi
 			intent.putExtra("tid", post.getTid());
 			intent.putExtra("fid", post.getFid());
 			intent.putExtra("title", post.getTitle());
+			intent.putExtra("pid", post.getId());
 			startActivity(intent);
 		}
 	}

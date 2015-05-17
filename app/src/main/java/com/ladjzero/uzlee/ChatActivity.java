@@ -1,18 +1,21 @@
 package com.ladjzero.uzlee;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.cengalabs.flatui.views.FlatButton;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
@@ -32,16 +35,39 @@ public class ChatActivity extends BaseActivity implements Core.OnPostsListener, 
 	private View mRootView;
 	private ListView mListView;
 	private EditText mMessage;
-	private Button mSend;
+	private FlatButton mSend;
 	private ChatsAdapter mAdapter;
 	private Posts mCharts;
 	private int uid;
 	private int _heightDiff = 0;
 	private String mName;
+	int[] snowTheme = {};
+	int[] blueTheme = {};
+	int white;
+	int darkersnow;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.chat);
+
+		Resources res = getResources();
+
+		snowTheme = new int[]{
+				res.getColor(R.color.snow_darker),
+				res.getColor(R.color.snow_dark),
+				res.getColor(R.color.snow_primary),
+				res.getColor(R.color.snow_light)
+		};
+
+		blueTheme = new int[]{
+				res.getColor(R.color.sky_darker),
+				res.getColor(R.color.sky_dark),
+				res.getColor(R.color.sky_primary),
+				res.getColor(R.color.sky_light)
+		};
+
+		white = res.getColor(android.R.color.white);
+		darkersnow = res.getColor(R.color.snow_darker);
 
 		Slidr.attach(this);
 		mActionbar.setDisplayHomeAsUpEnabled(true);
@@ -82,14 +108,14 @@ public class ChatActivity extends BaseActivity implements Core.OnPostsListener, 
 			}
 		});
 
-		mSend = (Button) findViewById(R.id.send_message);
+		mSend = (FlatButton) findViewById(R.id.send_message);
 
 		mSend.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				String message = mMessage.getText().toString();
 
-				if (message != null && message.length() > 0) {
+				if (message != null && message.trim().length() > 0) {
 					User user = Core.getUser();
 					Post.NiceBody body = new Post.NiceBody();
 					body.add(new AbstractMap.SimpleEntry<Post.BodyType, String>(Post.BodyType.TXT, message));
@@ -117,13 +143,42 @@ public class ChatActivity extends BaseActivity implements Core.OnPostsListener, 
 		mMessage = (EditText) findViewById(R.id.message);
 		mAdapter = new ChatsAdapter(this, mCharts);
 
+		mMessage.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				enableSend(s.toString().trim().length() > 0);
+			}
+		});
+
 		mListView.setAdapter(mAdapter);
 		mListView.setEmptyView(findViewById(R.id.empty_view));
+
+		enableSend(false);
 
 		Intent intent = getIntent();
 		uid = intent.getIntExtra("uid", -1);
 		mName = intent.getStringExtra("name");
 		setTitle(mName);
+	}
+
+	private void enableSend(boolean enable) {
+		if (enable) {
+			mSend.getAttributes().setColors(blueTheme);
+			mSend.setTextColor(white);
+		} else {
+			mSend.getAttributes().setColors(snowTheme);
+			mSend.setTextColor(darkersnow);
+		}
 	}
 
 	@Override

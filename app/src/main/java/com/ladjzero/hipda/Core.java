@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
+import com.ladjzero.uzlee.BaseActivity;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.PersistentCookieStore;
@@ -133,26 +134,24 @@ public class Core {
 	private static String hash;
 	private static Context context;
 	private static User user;
-	private static boolean isOnline = false;
 	private static PersistentCookieStore cookieStore;
 	private static SharedPreferences pref;
 	private static String code = "GBK";
 	private static final String STATS = "论坛统计";
+	private static boolean DEBUG;
 
 	private static final Pattern colorReg = Pattern.compile("#(\\d|[A-F])+");
 
-	public static void setup(Context context) {
+	public static void setup(Context context, boolean debug) {
 		if (Core.context == null) {
 			Core.context = context;
 			cookieStore = new PersistentCookieStore(context);
 			httpClient.setCookieStore(cookieStore);
 			pref = PreferenceManager.getDefaultSharedPreferences(context);
 			bans.addAll(getBanList());
-		}
-	}
 
-	public static boolean isOnline() {
-		return isOnline;
+			DEBUG = debug;
+		}
 	}
 
 	public static User getUser() {
@@ -255,21 +254,19 @@ public class Core {
 			String uid = uri.getQueryParameter("uid");
 
 			if (uid != null && uid.length() > 0) {
-				if (!isOnline) {
-					isOnline = true;
+				if (user == null) {
 					int id = Integer.valueOf(uid);
 					String name = eUser.text().trim();
 
 					user = new User().setId(id).setName(name);
 
-					Log.i(TAG, String.format("EventBus.StatusChangeEvent %b %b", isOnline, true));
-					EventBus.getDefault().post(new StatusChangeEvent(isOnline, true));
+					Log.i(TAG, String.format("EventBus.StatusChangeEvent %d %s %b", user.getId(), user.getName(), true));
+					EventBus.getDefault().post(new StatusChangeEvent(user, true));
 				}
 			} else {
-				isOnline = false;
-
-				Log.i(TAG, String.format("EventBus.StatusChangeEvent %b %b", isOnline, true));
-				EventBus.getDefault().post(new StatusChangeEvent(isOnline, true));
+				user = null;
+				Log.i(TAG, String.format("EventBus.StatusChangeEvent %d %s %b", 0, "null", true));
+				EventBus.getDefault().post(new StatusChangeEvent(user, true));
 			}
 		} catch (Error e) {
 			Log.e(TAG, "getDoc " + e.toString());
@@ -322,14 +319,14 @@ public class Core {
 
 							@Override
 							public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-								isOnline = true;
+								Log.i(TAG, "login");
 
 								String html;
 								try {
 									html = new String(responseBody, code);
 									if (html.contains("欢迎您回来")) {
 										getDoc(html);
-										EventBus.getDefault().post(new StatusChangeEvent(true, false));
+										EventBus.getDefault().post(new StatusChangeEvent(user, false));
 										onRequestListener.onSuccess("");
 									} else if (html.contains("密码错误次数过多，请 15 分钟后重新登录")) {
 										onRequestListener.onError("密码错误次数过多，请 15 分钟后重新登录");
@@ -353,9 +350,10 @@ public class Core {
 
 			@Override
 			public void onSuccess(String html) {
-				isOnline = false;
+				Log.i(TAG, "logout");
+
 				user = null;
-				EventBus.getDefault().post(new StatusChangeEvent(false, false));
+				EventBus.getDefault().post(new StatusChangeEvent(user, false));
 				EventBus.getDefault().post(new MessageEvent(0));
 
 				onRequestListener.onSuccess(html);
@@ -439,6 +437,8 @@ public class Core {
 	}
 
 	private static Post toPostObj(Element ePost) {
+		if (DEBUG) Log.i(TAG, "raw post" + ePost.html());
+
 		int idPrefixLength = "pid".length();
 
 		Post post = new Post();
@@ -479,14 +479,12 @@ public class Core {
 		String postIndex = ePost.select("a[id^=postnum] > em").text();
 		postIndex = postIndex.trim();
 
-		Element eUser = ePost.select("td.postauthor").get(0);
-		Elements eUinfo = eUser.select("div.postinfo a");
-		String userId = eUinfo.attr("href").substring("space.php?uid=".length());
+		Element eUinfo = ePost.select("a[href^=space.php?uid=]").get(0);
+		String url = eUinfo.attr("href");
+		String userId = Uri.parse(url).getQueryParameter("uid");
 		String userName = eUinfo.text();
-		String userImg = eUser.select("div.avatar img").attr("src");
 
-		User user = new User().setId(Integer.valueOf(userId)).setName(userName)
-				.setImage(userImg);
+		User user = new User().setId(Integer.valueOf(userId)).setName(userName);
 
 		post.setId(Integer.valueOf(id)).setNiceBody(niceBody)
 				.setAuthor(user).setTimeStr(timeStr).setPostIndex(Integer.valueOf(postIndex));
@@ -1278,8 +1276,7 @@ public class Core {
 							body = eSummary.select("dt").last().text() + eSummary.select("dd").last().text();
 							String viewPostLink = eNotice.select(">p>a").first().attr("href");
 
-							int fidIndex = viewPostLink.indexOf("&fid=");
-							fid = viewPostLink.substring(fidIndex + 5, viewPostLink.indexOf("&tid="));
+							fid = Uri.parse(viewPostLink).getQueryParameter("tid");
 //					} else if (findPostLink == null || findPostLink.length() == 0) {
 //						// other alerts, like thread being highlighted
 //						title = eNotice.text();
@@ -1456,12 +1453,21 @@ public class Core {
 
 					if (eTitle.size() > 0) {
 						String href = eTitle.attr("href");
-						String id = href.substring(href.indexOf("ptid=") + 5);
+						Uri uri = Uri.parse(href);
+						String id = uri.getQueryParameter("ptid");
+						String pid = uri.getQueryParameter("pid");
 						String title = eTitle.text();
 						String body = eThreads.get(i + 1).select("th.lighttxt").text().trim();
 						String forumStr = eThreads.get(i).select("td.forum > a").attr("href");
 						String fid = Uri.parse(forumStr).getQueryParameter("fid");
-						Thread thread = new Thread().setTitle(title).setId(Integer.valueOf(id)).setBody(body).setFid(Integer.valueOf(fid));
+
+						Thread thread = new Thread()
+								.setTitle(title)
+								.setId(Integer.valueOf(id))
+								.setBody(body)
+								.setFid(Integer.valueOf(fid))
+								.setToFind(Integer.valueOf(pid));
+
 						threads.add(thread);
 					}
 				}
@@ -1695,10 +1701,10 @@ public class Core {
 
 	public static class StatusChangeEvent {
 		public boolean checkedEachDoc;
-		public boolean online;
+		public User user;
 
-		public StatusChangeEvent(boolean online, boolean checkedEachDoc) {
-			this.online = online;
+		public StatusChangeEvent(User user, boolean checkedEachDoc) {
+			this.user = user;
 			this.checkedEachDoc = checkedEachDoc;
 		}
 	}

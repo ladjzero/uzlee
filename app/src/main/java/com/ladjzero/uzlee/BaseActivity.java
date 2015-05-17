@@ -139,7 +139,7 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Core.setup(this);
+		Core.setup(this, true);
 		emojiUtils = new EmojiUtils(this);
 
 		setting = PreferenceManager.getDefaultSharedPreferences(this);
@@ -191,9 +191,9 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 	}
 
 	public void onEventMainThread(Core.StatusChangeEvent statusChangeEvent) {
-		Log.i(TAG, String.format("onEventMainThread.statusChangeEvent : online %b", statusChangeEvent.online));
+		Log.i(TAG, String.format("onEventMainThread.statusChangeEvent : user is null ? %b", statusChangeEvent.user == null));
 
-		if (!statusChangeEvent.online) {
+		if (statusChangeEvent.user == null) {
 			SimpleDialog.Builder builder = new SimpleDialog.Builder(R.style.Material_App_Dialog_Simple_Light) {
 
 				@Override

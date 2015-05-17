@@ -27,4 +27,5 @@
         <item>@android:color/white</item>
         <item>@android:color/white</item>
     </integer-array>
+
 </resources>

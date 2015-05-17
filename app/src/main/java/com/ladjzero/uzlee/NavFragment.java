@@ -166,7 +166,7 @@ public class NavFragment extends Fragment {
 		adapter.notifyDataSetChanged();
 		getView().invalidate();
 
-		if (statusChangeEvent.online) {
+		if (statusChangeEvent.user != null) {
 			if (userLayout.getVisibility() == View.GONE) {
 				Log.i(TAG, "onEventMainThread -> userLayout -> visible");
 
