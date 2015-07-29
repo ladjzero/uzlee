@@ -374,9 +374,14 @@ public class Core {
 		Element eFid = doc.select("#nav a").last();
 		String fidStr = eFid.attr("href");
 
-//		Logger.i("html %s, eFid %s, fidStr %s", html, eFid.html(), fidStr);
+		int fid = -1;
 
-		int fid = Integer.valueOf(Uri.parse(fidStr).getQueryParameter("fid"));
+		try {
+			fid = Integer.valueOf(Uri.parse(fidStr).getQueryParameter("fid"));
+		} catch (Exception e) {
+			Logger.e(e, "can not parse fid, fidStr is %", fidStr);
+		}
+
 		String title = eFid.nextSibling().toString().replaceAll(" » ", "");
 
 		Elements pages = doc.select("div.pages");
