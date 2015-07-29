@@ -302,7 +302,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 					}
 				});
 
-				if (betterQuote != null) {
+				if (betterQuote != null && betterQuote.getNiceBody().size() > 0) {
 					User _user = betterQuote.getAuthor();
 					int _index = betterQuote.getPostIndex();
 					Map.Entry<Post.BodyType, String> _body = betterQuote.getNiceBody().get(0);
