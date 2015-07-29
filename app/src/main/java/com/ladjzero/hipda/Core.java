@@ -356,8 +356,10 @@ public class Core {
 
 				onRequestListener.onSuccess(html);
 
-				for (Cookie cookie : cookieStore.getCookies()) {
-					cookieStore.deleteCookie(cookie);
+				if (cookieStore != null && cookieStore.getCookies() != null) {
+					for (Cookie cookie : cookieStore.getCookies()) {
+						cookieStore.deleteCookie(cookie);
+					}
 				}
 			}
 		});
