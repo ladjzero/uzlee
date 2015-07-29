@@ -156,6 +156,10 @@ public class Core {
 	}
 
 	public static User getUser() {
+		if (user == null) {
+			user = new User().setId(pref.getInt("uid", 0)).setName(pref.getString("uname", ""));
+		}
+
 		return user;
 	}
 
@@ -259,6 +263,8 @@ public class Core {
 				String name = eUser.text().trim();
 
 				user = new User().setId(id).setName(name);
+
+				pref.edit().putInt("uid", id).putString("uname", name).commit();
 
 				Logger.i("EventBus.StatusChangeEvent %d %s", user.getId(), user.getName());
 			} else {
@@ -1349,20 +1355,23 @@ public class Core {
 				ArrayList<Thread> threads = new ArrayList<Thread>();
 
 				for (Element pm : pms) {
-					Elements eUser = pm.select("p.cite a");
-					String userName = eUser.text();
-					String userLink = eUser.attr("href");
-					String uid = userLink.substring(userLink.indexOf("uid=") + 4);
-					String uimg = pm.select("a.avatar img").attr("src");
+					try {
+						Elements eUser = pm.select("p.cite a");
+						String userName = eUser.text();
+						String userLink = eUser.attr("href");
+						String uid = Uri.parse(userLink).getQueryParameter("uid");
 
-					User u = new User().setId(Integer.valueOf(uid)).setName(userName);
+						User u = new User().setId(Integer.valueOf(uid)).setName(userName);
 
-					String title = pm.select("div.summary").text();
-					boolean isNew = pm.select("img[alt=NEW]").size() != 0;
-					String dateStr = ((TextNode) pm.select("p.cite").get(0).childNode(2)).text().replaceAll("\u00a0", "");
+						String title = pm.select("div.summary").text();
+						boolean isNew = pm.select("img[alt=NEW]").size() != 0;
+						String dateStr = ((TextNode) pm.select("p.cite").get(0).childNode(2)).text().replaceAll("\u00a0", "");
 
-					Thread thread = new Thread().setTitle(title).setAuthor(u).setNew(isNew).setDateStr(dateStr);
-					threads.add(thread);
+						Thread thread = new Thread().setTitle(title).setAuthor(u).setNew(isNew).setDateStr(dateStr);
+						threads.add(thread);
+					} catch (Exception e) {
+						Logger.e("Can not parse user in PMs, pm: %s", pm.html());
+					}
 				}
 
 				int currPage = 1;
