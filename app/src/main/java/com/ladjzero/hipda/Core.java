@@ -156,6 +156,10 @@ public class Core {
 	}
 
 	public static User getUser() {
+		if (user == null) {
+			user = new User().setId(pref.getInt("uid", 0)).setName(pref.getString("uname", ""));
+		}
+
 		return user;
 	}
 
@@ -259,6 +263,8 @@ public class Core {
 				String name = eUser.text().trim();
 
 				user = new User().setId(id).setName(name);
+
+				pref.edit().putInt("uid", id).putString("uname", name).commit();
 
 				Logger.i("EventBus.StatusChangeEvent %d %s", user.getId(), user.getName());
 			} else {
@@ -1371,7 +1377,7 @@ public class Core {
 						Thread thread = new Thread().setTitle(title).setAuthor(u).setNew(isNew).setDateStr(dateStr);
 						threads.add(thread);
 					} catch (Exception e) {
-						Logger.e(e, "can not parse user from PMs");
+						Logger.e("Can not parse user in PMs, pm: %s", pm.html());
 					}
 				}
 
