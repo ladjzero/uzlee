@@ -106,6 +106,8 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 
 	public static final SlidrConfig slidrConfig = new SlidrConfig.Builder()
 							.position(SlidrPosition.LEFT)
+							.distanceThreshold(0.25f)
+							.velocityThreshold(2400)
 							.sensitivity(0.47f)
 							.build();
 

@@ -7,12 +7,14 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.r0adkll.slidr.Slidr;
+import com.r0adkll.slidr.model.SlidrInterface;
 import com.rey.material.widget.ProgressView;
 
 public class SearchActivity extends BaseActivity implements View.OnKeyListener, ThreadsFragment.OnFetch {
 
 	private ThreadsFragment mFragment;
 	private ProgressView proressbar;
+	protected SlidrInterface slidrInterface;
 
 
 	private EditText mSearch;
@@ -22,7 +24,7 @@ public class SearchActivity extends BaseActivity implements View.OnKeyListener, 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.search);
 
-		Slidr.attach(this);
+		slidrInterface = Slidr.attach(this);
 
 		mActionbar.setDisplayHomeAsUpEnabled(true);
 		mActionbar.setDisplayShowCustomEnabled(true);

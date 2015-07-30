@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -24,6 +25,7 @@ import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 import com.orhanobut.logger.Logger;
+import com.r0adkll.slidr.model.SlidrInterface;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -60,6 +62,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private OnFetch mOnFetch;
 	private static int typeId = 0;
 	private View mTitleView;
+	private SlidrInterface slidrInterface;
 
 	public interface OnFetch {
 		void fetchStart();
@@ -130,6 +133,13 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		mSwipe.setEnabled(mEnablePullToRefresh);
 
 		listView = (ListView) rootView.findViewById(R.id.threads);
+
+		if (mActivity instanceof ThreadsActivity) {
+			slidrInterface = ((ThreadsActivity)mActivity).slidrInterface;
+		} else if (mActivity instanceof SearchActivity) {
+			slidrInterface = ((SearchActivity)mActivity).slidrInterface;
+		}
+
 		adapter = new ThreadsAdapter(mActivity, mThreads);
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(this);
@@ -151,6 +161,17 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 							}
 						}
 					}
+					@Override
+					public void onScrollStateChanged(AbsListView view, int scrollState) {
+						if (slidrInterface != null) {
+							if (scrollState == SCROLL_STATE_IDLE) {
+								slidrInterface.unlock();
+							} else {
+								slidrInterface.lock();
+							}
+						}
+					}
+
 				}));
 
 		registerForContextMenu(listView);

@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -126,7 +127,8 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 				position = 0;
 			}
 		});
-		mListView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), true, true));
+		mListView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), true, true, new LockOnScrollListener(slidrInterface)));
+
 		mListView.setOnPullEventListener(new PullToRefreshBase.OnPullEventListener<ListView>() {
 			@Override
 			public void onPullEvent(PullToRefreshBase<ListView> refreshView, PullToRefreshBase.State state, PullToRefreshBase.Mode direction) {
@@ -303,7 +305,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 				ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 				StringBuilder builder = new StringBuilder();
 
-				for (Map.Entry<Post.BodyType, String> body : post.getNiceBody()) {
+				for (Post.NiceBodyEntry body : post.getNiceBody()) {
 					if (body.getKey() == Post.BodyType.TXT) {
 						if (builder.length() > 0) builder.append("\n");
 						builder.append(body.getValue());

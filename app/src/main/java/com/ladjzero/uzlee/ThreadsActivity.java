@@ -8,10 +8,12 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.r0adkll.slidr.Slidr;
+import com.r0adkll.slidr.model.SlidrInterface;
 
 public class ThreadsActivity extends BaseActivity {
 
 	private ThreadsFragment mFragment;
+	protected SlidrInterface slidrInterface;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,6 @@ public class ThreadsActivity extends BaseActivity {
 		ft.replace(R.id.place_holder, mFragment);
 		ft.commit();
 
-		Slidr.attach(this);
+		slidrInterface = Slidr.attach(this);
 	}
 }
