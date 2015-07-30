@@ -25,6 +25,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.orhanobut.logger.Logger;
 import com.rey.material.widget.ProgressView;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -238,8 +239,15 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 				if (vParent != null) ((ViewGroup) vParent).removeView(view);
 				holder.body.addView(view);
 
-				Object childView = view.getTag();
-				if (childView instanceof PostImageView) {
+				Object childView = null;
+
+				try {
+					childView = view.getTag();
+				} catch (Exception e) {
+					Logger.e(e, "fail to get child view");
+				}
+
+				if (childView != null && childView instanceof PostImageView) {
 					PostImageView imageView = (PostImageView) childView;
 					final String url = (String) imageView.getTag(R.id.img_url);
 					boolean hasBitmap = (Boolean) imageView.getTag(R.id.img_has_bitmap);
