@@ -305,7 +305,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 				ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 				StringBuilder builder = new StringBuilder();
 
-				for (Post.NiceBodyEntry body : post.getNiceBody()) {
+				for (Map.Entry<Post.BodyType, String> body : post.getNiceBody()) {
 					if (body.getKey() == Post.BodyType.TXT) {
 						if (builder.length() > 0) builder.append("\n");
 						builder.append(body.getValue());

@@ -63,6 +63,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	private TYPE type;
 	private DisplayImageOptions mDisplayOption;
 	private ArrayList<String> mUrls;
+	private boolean mShowSig;
 
 	public static enum TYPE {
 		POST,
@@ -74,6 +75,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		this.context = (BaseActivity) context;
 		mPosts = posts;
 		mNow = new Date();
+		mShowSig = this.context.setting.getBoolean("show_sig", false);
 		this.type = type;
 
 		Resources res = context.getResources();
@@ -206,7 +208,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		holder.postNo.setText(index == 1 ? "楼主" : index + "楼");
 		row.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.uglee : android.R.color.transparent);
 
-		if (sig != null && sig.length() > 0) {
+		if (mShowSig && sig != null && sig.length() > 0) {
 			holder.sig.setVisibility(View.VISIBLE);
 			holder.sig.setText(sig);
 		} else {

@@ -190,7 +190,7 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 		int id = item.getItemId();
 
 		if (id == R.id.reply_send) {
-			String sig = setting.getBoolean("use_sig", true) ? "有只梨" : "";
+			String sig = setting.getBoolean("use_sig", false) ? "有只梨" : "";
 
 			String subject = subjectInput.getText().toString();
 			String message = mMessageInput.getText().toString();

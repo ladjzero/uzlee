@@ -8,6 +8,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,6 +45,8 @@ public class ImageActivity extends BaseActivity {
 	SlidrInterface slidrInterface;
 	ArrayList<String> mUrls;
 	HashMap<Integer, Fragment> mFragments;
+	ViewPager pager;
+	int mWidth;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +70,7 @@ public class ImageActivity extends BaseActivity {
 		if (index == 0) slidrInterface.unlock();
 		else slidrInterface.lock();
 
-		ViewPager pager = (ViewPager) findViewById(R.id.pager);
+		pager = (ViewPager) findViewById(R.id.pager);
 		pager.setAdapter(new PagerAdapter(getFragmentManager()));
 		pager.setCurrentItem(index, false);
 		pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -146,6 +150,7 @@ public class ImageActivity extends BaseActivity {
 		PhotoViewAttacher mAttacher;
 		private int position;
 		private ActionBar mActionbar;
+		int mWidth;
 
 		@SuppressLint("ValidFragment")
 		public ImageFragment(Context context, String url, ArrayList<String> urls) {
@@ -154,6 +159,11 @@ public class ImageActivity extends BaseActivity {
 			Logger.i("new ImageFragment %d %s", position, url);
 			mUrl = url;
 			mActionbar = ((ImageActivity) context).mActionbar;
+
+			Display display = ((ImageActivity)context).getWindowManager().getDefaultDisplay();
+			Point size = new Point();
+			display.getSize(size);
+			mWidth = size.x;
 		}
 
 		@Override
@@ -169,13 +179,6 @@ public class ImageActivity extends BaseActivity {
 				@Override
 				public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
 					mAttacher = new PhotoViewAttacher(mImageView);
-					mAttacher.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
-						@Override
-						public void onViewTap(View view, float x, float y) {
-							if (mActionbar.isShowing()) mActionbar.hide();
-							else mActionbar.show();
-						}
-					});
 				}
 			});
 
