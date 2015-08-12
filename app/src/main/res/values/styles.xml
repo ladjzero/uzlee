@@ -5,6 +5,12 @@
         <item name="android:windowBackground">@android:color/black</item>
     </style>
 
+    <style name="AppBaseTheme.Overlay" parent="AppBaseTheme" >
+        <item name="android:windowActionBarOverlay">true</item>
+        <!-- Support library compatibility -->
+        <item name="windowActionBarOverlay">true</item>
+    </style>
+
     <style name="AppBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowAnimationStyle">@style/AppBaseTheme.WindowAnimation</item>
         <!--remove action bar shadow-->

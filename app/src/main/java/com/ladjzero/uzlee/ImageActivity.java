@@ -8,7 +8,9 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -21,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageView;
 
 import com.joanzapata.android.iconify.IconDrawable;
@@ -51,7 +54,7 @@ public class ImageActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.view_pager);
 		mActionbar.setDisplayHomeAsUpEnabled(true);
-
+		mActionbar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#66454545")));
 		slidrInterface = Slidr.attach(this);
 
 
@@ -177,6 +180,16 @@ public class ImageActivity extends BaseActivity {
 				@Override
 				public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
 					mAttacher = new PhotoViewAttacher(mImageView);
+					mAttacher.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
+						@Override
+						public void onPhotoTap(View view, float v, float v1) {
+							if (mActionbar.isShowing()) {
+								mActionbar.hide();
+							} else {
+								mActionbar.show();
+							}
+						}
+					});
 				}
 			});
 

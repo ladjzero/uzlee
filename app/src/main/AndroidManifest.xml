@@ -73,6 +73,7 @@
             android:label="@string/title_activity_threads">
         </activity>
         <activity
+            android:theme="@style/AppBaseTheme.Overlay"
             android:name="com.ladjzero.uzlee.ImageActivity"
             android:label="图片">
         </activity>
