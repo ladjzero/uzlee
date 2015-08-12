@@ -272,6 +272,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		intent.putExtra("tid", t.getId());
 		intent.putExtra("title", t.getTitle());
 		intent.putExtra("pid", t.getToFind());
+		intent.putExtra("uid", t.getAuthor().getId());
 
 		startActivity(intent);
 	}
@@ -356,6 +357,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 				intent.putExtra("tid", thread.getId());
 				intent.putExtra("page", 9999);
 				intent.putExtra("title", thread.getTitle());
+				intent.putExtra("uid", thread.getAuthor().getId());
 
 				startActivity(intent);
 		}

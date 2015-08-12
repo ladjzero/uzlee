@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
-      tools:context="me.ladjzero.uzlee.ImageActivity">
+      tools:context="com.ladjzero.uzlee.ImageActivity">
     <item
         android:id="@+id/image_save"
         android:title="保存"

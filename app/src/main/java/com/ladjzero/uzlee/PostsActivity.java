@@ -51,6 +51,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	private final int EDIT_CODE = 99;
 	// 0 = asc, 1 = desc
 	public int orderType = 0;
+	private int mThreadUserId = 0;
 	private int mTid;
 	private int mPage;
 	private Posts mPosts = new Posts();
@@ -100,6 +101,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		mTid = intent.getIntExtra("tid", 0);
 		mPage = intent.getIntExtra("page", 1);
 		mPid = intent.getIntExtra("pid", 0);
+		mThreadUserId = intent.getIntExtra("uid", 0);
 		mInitToLastPost = mPage == 9999;
 
 		setTitle(intent.getStringExtra("title"));

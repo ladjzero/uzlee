@@ -47,6 +47,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	private Posts mPosts;
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	private Date mNow;
+	private int mThreadUserId;
 	private int mWhite;
 	private int mHoloBlue;
 	private int mTransparent;
@@ -68,13 +69,14 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		CHAT
 	}
 
-	public PostsAdapter(Context context, Posts posts, TYPE type) {
+	public PostsAdapter(Context context, Posts posts, TYPE type, int userId) {
 		super(context, R.layout.post, posts);
 		this.context = (BaseActivity) context;
 		mPosts = posts;
 		mNow = new Date();
 		mShowSig = this.context.setting.getBoolean("show_sig", false);
 		this.type = type;
+		mThreadUserId = userId;
 
 		Resources res = context.getResources();
 		mLinkColor = mHoloBlue = res.getColor(android.R.color.holo_blue_dark);
@@ -87,7 +89,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	}
 
 	public PostsAdapter(Context context, Posts posts) {
-		this(context, posts, TYPE.POST);
+		this(context, posts, TYPE.POST, 0);
 	}
 
 	private DisplayImageOptions getImageLoader() {
@@ -149,6 +151,10 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			for (Map.Entry<Post.BodyType, String> entry : post.getNiceBody()) {
 				if (entry.getKey() == Post.BodyType.IMG) mUrls.add(entry.getValue());
 			}
+
+			if (post.getPostIndex() == 1) {
+				mThreadUserId = post.getAuthor().getId();
+			}
 		}
 	}
 
@@ -171,6 +177,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			holder.img = (ImageView) row.findViewById(R.id.user_image);
 			holder.imageMask = (TextView) row.findViewById(R.id.user_image_mask);
 			holder.name = (TextView) row.findViewById(R.id.user_mini_name);
+			holder.userType = (TextView) row.findViewById(R.id.user_type);
 			holder.body = (LinearLayout) row.findViewById(R.id.post_body_layout);
 			holder.sig = (TextView) row.findViewById(R.id.post_body_sig);
 			holder.postNo = (TextView) row.findViewById(R.id.post_no);
@@ -199,6 +206,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		holder.name.setText(userName);
 		holder.name.setTag(author);
 		holder.name.setOnClickListener(this);
+		holder.userType.setVisibility(uid == mThreadUserId ? View.VISIBLE : View.INVISIBLE);
 		holder.img.setTag(author);
 		holder.img.setOnClickListener(this);
 		holder.imageMask.setText(Utils.getFirstChar(userName));
@@ -298,7 +306,6 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 		if (type == TYPE.POST) {
 			if (quote != null) {
-				holder.quoteLayout.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.ugleeQuote : R.color.snow_light);
 				holder.quoteLayout.setVisibility(View.VISIBLE);
 
 				final int quoteId = quote.getId();
@@ -321,6 +328,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 					if (Core.bans.contains(_user.getId())) {
 						holder.quoteBody.setText(context.getString(R.string.blocked));
 					} else {
+						holder.quoteBody.setMaxLines(8);
 						holder.quoteBody.setText(
 								_body.getKey() == Post.BodyType.TXT ? _body.getValue() : "[图像]");
 					}
@@ -504,7 +512,9 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 					break;
 				case QUOTE:
-					View quoteContainer = context.getLayoutInflater().inflate(R.layout.quote, null);
+					View quoteContainer = context.getLayoutInflater().inflate(R.layout.post_quote, null);
+					quoteContainer.setVisibility(View.VISIBLE);
+					quoteContainer.findViewById(R.id.user_for_quote).setVisibility(View.GONE);
 					TextView textView = (TextView) quoteContainer.findViewById(R.id.post_quote_text);
 					textView.setText(bodySnippet.getValue());
 					quoteContainer.setTag(Integer.valueOf(1));
@@ -545,6 +555,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		TextView quoteName;
 		LinearLayout body;
 		TextView sig;
+		TextView userType;
 		TextView quoteBody;
 		TextView postNo;
 		TextView postDate;

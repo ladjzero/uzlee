@@ -21,7 +21,7 @@ public class ChatsAdapter extends PostsAdapter {
 	private Posts mChats;
 
 	public ChatsAdapter(Context context, Posts posts) {
-		super(context, posts, TYPE.CHAT);
+		super(context, posts, TYPE.CHAT, 0);
 
 		mChats = posts;
 

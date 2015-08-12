@@ -1,4 +1,4 @@
-<pt.fjss.TextViewWithLinks.TextViewWithLinks
+<com.ladjzero.textViewWithLinks.TextViewWithLinks
     android:id="@+id/post_body_text_segment"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
