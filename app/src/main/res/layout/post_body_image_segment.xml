@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:paddingBottom="10dp">
 
-    <com.ladjzero.uzlee.PostImageView
+    <me.ladjzero.uzlee.PostImageView
         android:id="@+id/post_img"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

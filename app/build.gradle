@@ -10,7 +10,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.ladjzero.uzlee"
+        applicationId "me.ladjzero.uzlee"
         minSdkVersion 15
         targetSdkVersion 15
     }
