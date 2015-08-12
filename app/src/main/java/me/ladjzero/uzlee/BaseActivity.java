@@ -51,11 +51,12 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 	Dialog alert;
 	protected TextView mTitleView;
 
+	private static final int mTransparenty = android.R.color.transparent;
 
 	public static final DisplayImageOptions imageStandAlone = new DisplayImageOptions.Builder()
-			.showImageForEmptyUri(R.color.snow_primary)
-			.showImageOnLoading(R.color.snow_primary)
-			.showImageOnFail(R.color.snow_primary)
+			.showImageForEmptyUri(mTransparenty)
+			.showImageOnLoading(mTransparenty)
+			.showImageOnFail(mTransparenty)
 			.cacheInMemory(true)
 			.cacheOnDisk(true)
 			.imageScaleType(ImageScaleType.NONE_SAFE)
@@ -63,9 +64,9 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 
 	public static final DisplayImageOptions userImageInList = new DisplayImageOptions.Builder()
 			.delayBeforeLoading(800)
-			.showImageForEmptyUri(android.R.color.transparent)
-			.showImageOnLoading(android.R.color.transparent)
-			.showImageOnFail(android.R.color.transparent)
+			.showImageForEmptyUri(mTransparenty)
+			.showImageOnLoading(mTransparenty)
+			.showImageOnFail(mTransparenty)
 			.cacheInMemory(true)
 			.cacheOnDisk(true)
 			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
@@ -73,9 +74,9 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 
 	public static final DisplayImageOptions BestQualityDisplay = new DisplayImageOptions.Builder()
 			.delayBeforeLoading(800)
-			.showImageForEmptyUri(R.color.snow_primary)
-			.showImageOnLoading(R.color.snow_primary)
-			.showImageOnFail(R.color.snow_primary)
+			.showImageForEmptyUri(mTransparenty)
+			.showImageOnLoading(mTransparenty)
+			.showImageOnFail(mTransparenty)
 			.cacheInMemory(true)
 			.cacheOnDisk(true)
 			.imageScaleType(ImageScaleType.NONE_SAFE)
@@ -84,9 +85,9 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 
 	public static final DisplayImageOptions LowQualityDisplay = new DisplayImageOptions.Builder()
 			.delayBeforeLoading(800)
-			.showImageForEmptyUri(R.color.snow_primary)
-			.showImageOnLoading(R.color.snow_primary)
-			.showImageOnFail(R.color.snow_primary)
+			.showImageForEmptyUri(mTransparenty)
+			.showImageOnLoading(mTransparenty)
+			.showImageOnFail(mTransparenty)
 			.cacheInMemory(true)
 			.cacheOnDisk(true)
 			.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
@@ -94,9 +95,9 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 			.build();
 
 	public static final DisplayImageOptions BesetQualityForSingleImage = new DisplayImageOptions.Builder()
-			.showImageForEmptyUri(android.R.color.transparent)
-			.showImageOnLoading(android.R.color.transparent)
-			.showImageOnFail(android.R.color.transparent)
+			.showImageForEmptyUri(mTransparenty)
+			.showImageOnLoading(mTransparenty)
+			.showImageOnFail(mTransparenty)
 			.cacheInMemory(true)
 			.cacheOnDisk(true)
 			.imageScaleType(ImageScaleType.NONE_SAFE)

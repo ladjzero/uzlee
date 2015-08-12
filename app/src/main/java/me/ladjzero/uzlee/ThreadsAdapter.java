@@ -87,7 +87,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		row.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.uglee : android.R.color.white);
 		holder.imageMask.setText(Utils.getFirstChar(userName));
 
-		ImageLoader.getInstance().displayImage(imageUrl, holder.image, new SimpleImageLoadingListener() {
+		ImageLoader.getInstance().displayImage(imageUrl, holder.image, BaseActivity.LowQualityDisplay, new SimpleImageLoadingListener() {
 			@Override
 			public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
 				author.setImage(imageUri);
