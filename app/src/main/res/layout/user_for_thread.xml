@@ -40,7 +40,9 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="38dp">
+            android:layout_height="38dp"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp">
 
             <TextView
                 android:id="@+id/user_mini_name"

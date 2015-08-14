@@ -58,6 +58,10 @@ public class Core {
 	public static final String BASE_URL = "http://www.hi-pda.com/forum";
 	public static final String DIVIDER = "123~#~321";
 
+	public static class NoPermissionException extends Exception {
+
+	};
+
 	static {
 		icons.put("images/smilies/default/smile.gif", ":)");
 		icons.put("images/smilies/default/sweat.gif", ":sweat:");
@@ -230,7 +234,7 @@ public class Core {
 		});
 	}
 
-	public static Document getDoc(String html) {
+	public static Document getDoc(String html) throws NoPermissionException {
 		long time = System.currentTimeMillis();
 
 		Document doc = Jsoup.parse(html);
@@ -268,6 +272,10 @@ public class Core {
 			} else {
 				user = null;
 				Logger.i("EventBus.StatusChangeEvent %d %s", 0, "null");
+			}
+
+			if (doc.select("#wrap > form[name=login]").size() > 0) {
+				throw new NoPermissionException();
 			}
 
 			EventBus.getDefault().post(new UserEvent(user));

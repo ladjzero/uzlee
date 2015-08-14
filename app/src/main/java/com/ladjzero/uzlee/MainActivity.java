@@ -6,6 +6,7 @@ import com.ladjzero.hipda.*;
 import com.orhanobut.logger.Logger;
 
 import android.app.AlertDialog;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -15,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -68,7 +68,7 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 
 	@Override
 	public void onNavigationDrawerItemSelected(int position) {
-		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentManager fragmentManager = getFragmentManager();
 		Intent intent;
 		Bundle bundle = new Bundle();
 		navPosition = position;
@@ -78,25 +78,29 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 				fid = D_ID;
 				setTitle(title = "Discovery");
 				bundle.putInt("fid", fid);
-				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(bundle)).commit();
+//				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(bundle)).commit();
+				fragmentManager.beginTransaction().replace(R.id.container, ThreadsPagerFragment.newInstance(bundle)).commit();
 				break;
 			case 1:
-				fid = BS_ID;
-//				fid = 57;
-				setTitle(title = "Buy & Sell");
-				bundle = new Bundle();
-				bundle.putInt("fid", fid);
-				bundle.putInt("bs_type_id", bsTypeId);
-				bsFragment = ThreadsFragment.newInstance(bundle);
-				fragmentManager.beginTransaction().replace(R.id.container, bsFragment).commit();
+				intent = new Intent(this, GuidePicker.class);
+				startActivity(intent);
 				break;
-			case 2:
-				fid = EINK_ID;
-				bundle = new Bundle();
-				bundle.putInt("fid", fid);
-				setTitle(title = "E-INK");
-				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(bundle)).commit();
-				break;
+//				fid = BS_ID;
+////				fid = 57;
+//				setTitle(title = "Buy & Sell");
+//				bundle = new Bundle();
+//				bundle.putInt("fid", fid);
+//				bundle.putInt("bs_type_id", bsTypeId);
+//				bsFragment = ThreadsFragment.newInstance(bundle);
+//				fragmentManager.beginTransaction().replace(R.id.container, bsFragment).commit();
+//				break;
+//			case 2:
+//				fid = EINK_ID;
+//				bundle = new Bundle();
+//				bundle.putInt("fid", fid);
+//				setTitle(title = "E-INK");
+//				fragmentManager.beginTransaction().replace(R.id.container, ThreadsFragment.newInstance(bundle)).commit();
+//				break;
 			case 3:
 				intent = new Intent(this, AlertActivity.class);
 				startActivity(intent);
@@ -183,7 +187,7 @@ public class MainActivity extends BaseActivity implements NavFragment.Navigation
 
 			uid = userEvent.user.getId();
 
-			onNavigationDrawerItemSelected(navPosition);
+//			onNavigationDrawerItemSelected(navPosition);
 		}
 
 		if (userEvent.user == null) {

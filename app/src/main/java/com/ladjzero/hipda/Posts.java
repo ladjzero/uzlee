@@ -19,6 +19,7 @@ public class Posts extends ArrayList<Post> {
 	private int orderType;
 	private String title;
 	private Posts lastMerged;
+	private boolean noPermission;
 
 	public boolean merge(Posts posts) {
 		this.setFid(posts.getFid());
@@ -99,5 +100,13 @@ public class Posts extends ArrayList<Post> {
 			return this;
 		else
 			return lastMerged;
+	}
+
+	public boolean isNoPermission() {
+		return noPermission;
+	}
+
+	public void setNoPermission(boolean noPermission) {
+		this.noPermission = noPermission;
 	}
 }

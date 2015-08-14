@@ -1,12 +1,12 @@
 package com.ladjzero.uzlee;
 
+import android.app.Fragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.ContextMenu;
@@ -62,6 +62,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 	private static int typeId = 0;
 	private View mTitleView;
 	private SlidrInterface slidrInterface;
+	private boolean mRenderOnCreate = true;
 
 	public interface OnFetch {
 		void fetchStart();
@@ -79,6 +80,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		args.putInt("fid", fid);
 		fragment.setArguments(args);
 		fragment.fid = fid;
+		fragment.mRenderOnCreate = bundle.getBoolean("renderOnCreate", true);
 
 		return fragment;
 	}

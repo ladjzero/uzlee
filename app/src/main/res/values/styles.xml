@@ -42,4 +42,9 @@
     <!--</style>-->
 
     <style name="AppTheme" parent="AppBaseTheme"></style>
+
+    <style name="TabBarStyle" parent="@style/Base.TextAppearance.AppCompat.Subhead">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
 </resources>

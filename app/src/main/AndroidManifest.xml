@@ -82,6 +82,10 @@
             android:label="聊天"
             android:windowSoftInputMode="stateHidden">
         </activity>
+        <activity
+            android:name="com.ladjzero.uzlee.GuidePicker"
+            android:label="板块">
+        </activity>
     </application>
 
 </manifest>

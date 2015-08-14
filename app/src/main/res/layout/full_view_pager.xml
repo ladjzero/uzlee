@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="36dp"
+        android:background="@color/dark_primary">
+
+        <TextView
+            android:id="@+id/add"
+            android:layout_width="36dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:gravity="center"
+            android:text="+"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"/>
+
+        <com.rey.material.widget.TabPageIndicator
+            android:id="@+id/tabs"
+            style="@style/Material.Widget.TabPageIndicator"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="36dp"
+            android:textAppearance="@style/TabBarStyle"
+            app:tpi_indicatorColor="@android:color/holo_blue_light"
+            app:tpi_indicatorHeight="4dp"
+            app:tpi_mode="fixed"/>
+
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:paddingTop="36dp">
+
+        <include layout="@layout/view_pager"/>
+
+    </FrameLayout>
+
+</RelativeLayout>

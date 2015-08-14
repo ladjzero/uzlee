@@ -1,7 +1,7 @@
 package com.ladjzero.uzlee;
 
+import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -40,7 +40,7 @@ public class SearchActivity extends BaseActivity implements View.OnKeyListener, 
 		bundle.putBoolean("enablePullToRefresh", false);
 		mFragment.setArguments(bundle);
 
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		FragmentTransaction ft = getFragmentManager().beginTransaction();
 		ft.replace(R.id.place_holder, mFragment);
 		ft.commit();
 
