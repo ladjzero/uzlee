@@ -1,12 +1,12 @@
 package com.ladjzero.uzlee;
 
-import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Locale;
 
 
-public class MyPostsActivity extends BaseActivity implements ActionBar.TabListener, SimpleThreadsFragment.OnFragmentInteractionListener, ViewPager.OnPageChangeListener {
+public class ActivityMyPosts extends BaseActivity implements ActionBar.TabListener, SimpleThreadsFragment.OnFragmentInteractionListener, ViewPager.OnPageChangeListener {
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -43,13 +43,15 @@ public class MyPostsActivity extends BaseActivity implements ActionBar.TabListen
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 //		enableBackAction();
-		mActionbar.setDisplayHomeAsUpEnabled(true);
-		mActionbar.setDisplayShowCustomEnabled(true);
-		mActionbar.setCustomView(R.layout.view_page_bar);
+
 
 		fragmentCache = new HashMap<Integer, Fragment>();
-		setContentView(R.layout.view_pager);
+		setContentView(R.layout.activity_view_pager);
+		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setCustomView(R.layout.view_page_bar);
 		// Set up the action bar.
 //		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 //		actionBar.setDisplayShowHomeEnabled(false);
@@ -125,20 +127,6 @@ public class MyPostsActivity extends BaseActivity implements ActionBar.TabListen
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-		// When the given tab is selected, switch to the corresponding page in
-		// the ViewPager.
-		mViewPager.setCurrentItem(tab.getPosition());
-	}
-
-	@Override
-	public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-	}
-
-	@Override
-	public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-	}
 
 	@Override
 	public void onFragmentInteraction(String id) {
@@ -159,6 +147,22 @@ public class MyPostsActivity extends BaseActivity implements ActionBar.TabListen
 
 	@Override
 	public void onPageScrollStateChanged(int i) {
+
+	}
+
+	@Override
+	public void onTabSelected(ActionBar.Tab tab, android.support.v4.app.FragmentTransaction fragmentTransaction) {
+		mViewPager.setCurrentItem(tab.getPosition());
+
+	}
+
+	@Override
+	public void onTabUnselected(ActionBar.Tab tab, android.support.v4.app.FragmentTransaction fragmentTransaction) {
+
+	}
+
+	@Override
+	public void onTabReselected(ActionBar.Tab tab, android.support.v4.app.FragmentTransaction fragmentTransaction) {
 
 	}
 

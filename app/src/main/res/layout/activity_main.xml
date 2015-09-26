@@ -1,24 +1,50 @@
-<!-- A DrawerLayout is intended to be used as the top-level content view using match_parent for both width and height to consume the full space available. -->
 <android.support.v4.widget.DrawerLayout
     android:id="@+id/drawer_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.ladjzero.uzlee.MainActivity">
+    android:fitsSystemWindows="true"
+    tools:context="com.ladjzero.uzlee.ActivityMain">
 
-    <FrameLayout
-        android:id="@+id/container"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </FrameLayout>
-
-    <fragment
-        android:id="@+id/navigation_drawer"
-        android:name="com.ladjzero.uzlee.NavFragment"
-        android:layout_width="@dimen/navigation_drawer_width"
         android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/toolbar_height"
+            android:background="?attr/colorPrimary"
+            android:minHeight="@dimen/toolbar_height"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        </android.support.v7.widget.Toolbar>
+
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"/>
+    </LinearLayout>
+    <!-- android:layout_marginTop="?android:attr/actionBarSize"-->
+    <com.ladjzero.uzlee.ScrimInsetsFrameLayout
+        android:id="@+id/scrimInsetsFrameLayout"
+        android:layout_width="@dimen/navigation_drawer_width"
+        android:layout_height="wrap_content"
         android:layout_gravity="start"
-        tools:layout="@layout/nav"/>
+        android:elevation="10dp"
+        android:fitsSystemWindows="true">
+
+        <fragment
+            android:id="@+id/fragment_drawer"
+            android:name="com.ladjzero.uzlee.FragmentNav"
+            android:layout_width="@dimen/navigation_drawer_width"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true"
+            app:layout="@layout/nav"/>
+    </com.ladjzero.uzlee.ScrimInsetsFrameLayout>
 
 </android.support.v4.widget.DrawerLayout>

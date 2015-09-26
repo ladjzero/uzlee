@@ -15,6 +15,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +25,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.joanzapata.iconify.IconDrawable;
+import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.Core;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -36,13 +40,13 @@ import com.r0adkll.slidr.model.SlidrPosition;
 import com.rey.material.app.Dialog;
 import com.rey.material.app.DialogFragment;
 import com.rey.material.app.SimpleDialog;
+import com.rey.material.widget.FloatingActionButton;
 
 import de.greenrobot.event.EventBus;
 
 
 public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 	private static final String TAG = "BaseActivity";
-	protected ActionBar mActionbar;
 	protected int mActionbarHeight;
 	public static final int IMAGE_MEM_CACHE_SIZE = 16 * 1024 * 1024;
 
@@ -147,9 +151,9 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 
 		setting = PreferenceManager.getDefaultSharedPreferences(this);
 
-		mActionbar = getSupportActionBar();
+		ActionBar mActionbar = getSupportActionBar();
 //		mActionbar.setBackgroundDrawable(FlatUI.getActionBarDrawable(this, FlatUI.DARK, false));
-		mActionbarHeight = mActionbar.getHeight();
+//		mActionbarHeight = mActionbar.getHeight();
 
 		ImageLoaderConfiguration ilConfig = new ImageLoaderConfiguration.Builder(this)
 				.memoryCacheSizePercentage(50)
@@ -305,6 +309,23 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 	}
 
 
+	public ActionBar setCustomView(int toolbarId, int customViewLayoutId) {
+		Toolbar toolbar = (Toolbar) findViewById(toolbarId);
+		setSupportActionBar(toolbar);
+		ActionBar actionBar = getSupportActionBar();
+
+		if (customViewLayoutId > 0) {
+			LayoutInflater mInflater = LayoutInflater.from(this);
+			View customView = mInflater.inflate(customViewLayoutId, null);
+
+			actionBar.setTitle(null);
+			actionBar.setDisplayShowCustomEnabled(true);
+			actionBar.setCustomView(customView);
+		}
+
+		return getSupportActionBar();
+	};
+
 	public String getVersion() {
 		try {
 			return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
@@ -314,7 +335,7 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 	}
 
 	@Override
-	public void progress(int current, int total) {
+	public void progress(int current, int total, Object o) {
 	}
 
 	public static class VersionComparator implements Comparator<String> {

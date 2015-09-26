@@ -1,4 +1,4 @@
-<android.widget.IconTextView
+<com.joanzapata.iconify.widget.IconTextView
     android:id="@+id/post_body_fa_text_segment"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"

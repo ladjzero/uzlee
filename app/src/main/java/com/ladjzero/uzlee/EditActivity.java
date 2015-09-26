@@ -19,8 +19,9 @@ import android.widget.Toast;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
-import com.joanzapata.android.iconify.IconDrawable;
-import com.joanzapata.android.iconify.Iconify;
+import com.joanzapata.iconify.IconDrawable;
+import com.joanzapata.iconify.Iconify;
+import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.ladjzero.hipda.Core;
 import com.nineoldandroids.animation.Animator;
 import com.rey.material.app.Dialog;
@@ -60,7 +61,7 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 //		enableBackAction();
 
 		intent = getIntent();
-		mActionbar.setDisplayHomeAsUpEnabled(true);
+//		mActionbar.setDisplayHomeAsUpEnabled(true);
 
 		tid = intent.getIntExtra("tid", 0);
 		pid = intent.getIntExtra("pid", 0);
@@ -72,7 +73,7 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 		isReply = (tid != 0 && pid == 0 && fid == 0);
 		isEdit = (tid != 0 && pid != 0 && fid != 0);
 
-		mActionbar.setTitle(getIntent().getStringExtra("title"));
+//		mActionbar.setTitle(getIntent().getStringExtra("title"));
 		setContentView(R.layout.edit);
 		progress = new ProgressDialog(this);
 
@@ -159,12 +160,12 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.menu_reply, menu);
 
-		menu.findItem(R.id.reply_send).setIcon(new IconDrawable(this, Iconify.IconValue.fa_send).colorRes(android.R.color.white).actionBarSize());
-		menu.findItem(R.id.reply_add_image).setIcon(new IconDrawable(this, Iconify.IconValue.fa_image).colorRes(android.R.color.white).actionBarSize());
-		menu.findItem(R.id.reply_add_emoji).setIcon(new IconDrawable(this, Iconify.IconValue.fa_smile_o).colorRes(android.R.color.white).actionBarSize());
+		menu.findItem(R.id.reply_send).setIcon(new IconDrawable(this, FontAwesomeIcons.fa_send).colorRes(android.R.color.white).actionBarSize());
+		menu.findItem(R.id.reply_add_image).setIcon(new IconDrawable(this, FontAwesomeIcons.fa_image).colorRes(android.R.color.white).actionBarSize());
+		menu.findItem(R.id.reply_add_emoji).setIcon(new IconDrawable(this, FontAwesomeIcons.fa_smile_o).colorRes(android.R.color.white).actionBarSize());
 
 		if (fid != 0 && tid != 0 && pid != 0 && no != 1)
-			menu.findItem(R.id.delete_post).setIcon(new IconDrawable(this, Iconify.IconValue.fa_trash).colorRes(android.R.color.white).actionBarSize());
+			menu.findItem(R.id.delete_post).setIcon(new IconDrawable(this, FontAwesomeIcons.fa_trash).colorRes(android.R.color.white).actionBarSize());
 		else
 			menu.findItem(R.id.delete_post).setVisible(false);
 		return true;

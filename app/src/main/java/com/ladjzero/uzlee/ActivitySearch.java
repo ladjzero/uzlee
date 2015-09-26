@@ -2,7 +2,10 @@ package com.ladjzero.uzlee;
 
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
@@ -10,9 +13,9 @@ import com.r0adkll.slidr.Slidr;
 import com.r0adkll.slidr.model.SlidrInterface;
 import com.rey.material.widget.ProgressView;
 
-public class SearchActivity extends BaseActivity implements View.OnKeyListener, ThreadsFragment.OnFetch {
+public class ActivitySearch extends BaseActivity implements View.OnKeyListener, FragmentThreads.OnFetch {
 
-	private ThreadsFragment mFragment;
+	private FragmentThreads mFragment;
 	private ProgressView proressbar;
 	protected SlidrInterface slidrInterface;
 
@@ -22,21 +25,24 @@ public class SearchActivity extends BaseActivity implements View.OnKeyListener, 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.search);
+		setContentView(R.layout.activity_search);
 
 		slidrInterface = Slidr.attach(this);
 
-		mActionbar.setDisplayHomeAsUpEnabled(true);
-		mActionbar.setDisplayShowCustomEnabled(true);
-		mActionbar.setCustomView(R.layout.search_action_bar);
+		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+
+		ActionBar actionbar = getSupportActionBar();
+		actionbar.setDisplayHomeAsUpEnabled(true);
+		actionbar.setDisplayShowCustomEnabled(true);
+		actionbar.setCustomView(LayoutInflater.from(this).inflate(R.layout.search_action_bar, null));
 
 		proressbar = (ProgressView) findViewById(R.id.progress_bar);
 		proressbar.setVisibility(View.GONE);
 
-		mFragment = new ThreadsFragment();
+		mFragment = new FragmentThreads();
 		mFragment.setOnFetch(this);
 		Bundle bundle = new Bundle();
-		bundle.putInt("dataSource", ThreadsFragment.DATA_SOURCE_SEARCH);
+		bundle.putInt("dataSource", FragmentThreads.DATA_SOURCE_SEARCH);
 		bundle.putBoolean("enablePullToRefresh", false);
 		mFragment.setArguments(bundle);
 

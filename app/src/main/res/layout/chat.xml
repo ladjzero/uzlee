@@ -7,6 +7,8 @@
     android:layout_height="match_parent"
     android:background="@color/greyBackground">
 
+    <include layout="@layout/toolbar"></include>
+
     <RelativeLayout
         android:id="@+id/chat_edit"
         android:layout_width="fill_parent"

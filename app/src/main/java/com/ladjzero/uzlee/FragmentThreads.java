@@ -35,12 +35,12 @@ import java.util.Collection;
 
 import de.greenrobot.event.EventBus;
 
-public class ThreadsFragment extends Fragment implements OnRefreshListener, AdapterView.OnItemClickListener, OnThreadsListener {
+public class FragmentThreads extends Fragment implements OnRefreshListener, AdapterView.OnItemClickListener, OnThreadsListener {
 
 	public static final int DATA_SOURCE_THREADS = 0;
 	public static final int DATA_SOURCE_USER = 1;
 	public static final int DATA_SOURCE_SEARCH = 2;
-	private static final String TAG = "ThreadsFragment";
+	private static final String TAG = "FragmentThreads";
 
 	private BaseActivity mActivity;
 	private final ArrayList<Thread> mThreads = new ArrayList<Thread>();
@@ -70,11 +70,11 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		void fetchEnd();
 	}
 
-	public static ThreadsFragment newInstance(Bundle bundle) {
-		int fid = bundle.getInt("fid", MainActivity.D_ID);
+	public static FragmentThreads newInstance(Bundle bundle) {
+		int fid = bundle.getInt("fid", ActivityMain.D_ID);
 		typeId = bundle.getInt("bs_type_id", 0);
 
-		ThreadsFragment fragment = new ThreadsFragment();
+		FragmentThreads fragment = new FragmentThreads();
 		Bundle args = new Bundle();
 		args.putBoolean("enablePullToRefresh", true);
 		args.putInt("fid", fid);
@@ -128,17 +128,17 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 		mSwipe = (SwipeRefreshLayout) rootView.findViewById(R.id.thread_swipe);
 		mSwipe.setOnRefreshListener(this);
-		mSwipe.setColorSchemeResources(R.color.dark_primary, R.color.dark_primary, R.color.dark_primary, R.color.dark_primary);
+		mSwipe.setColorSchemeResources(R.color.primary, R.color.primary, R.color.primary, R.color.primary);
 
 		Logger.i("enable pull to fresh %b", mEnablePullToRefresh);
 		mSwipe.setEnabled(mEnablePullToRefresh);
 
 		listView = (ListView) rootView.findViewById(R.id.threads);
 
-		if (mActivity instanceof ThreadsActivity) {
-			slidrInterface = ((ThreadsActivity)mActivity).slidrInterface;
-		} else if (mActivity instanceof SearchActivity) {
-			slidrInterface = ((SearchActivity)mActivity).slidrInterface;
+		if (mActivity instanceof ActivityThreads) {
+			slidrInterface = ((ActivityThreads)mActivity).slidrInterface;
+		} else if (mActivity instanceof ActivitySearch) {
+			slidrInterface = ((ActivitySearch)mActivity).slidrInterface;
 		}
 
 		adapter = new ThreadsAdapter(mActivity, mThreads);
@@ -154,11 +154,11 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 
 							setRefreshSpinner(true);
 							if (mDataSource == DATA_SOURCE_USER) {
-								Core.getUserThreadsAtPage(mUserName, page, ThreadsFragment.this);
+								Core.getUserThreadsAtPage(mUserName, page, FragmentThreads.this);
 							} else if (mDataSource == DATA_SOURCE_SEARCH) {
-								Core.search(mQuery, page, ThreadsFragment.this);
+								Core.search(mQuery, page, FragmentThreads.this);
 							} else {
-								fetch(page, ThreadsFragment.this);
+								fetch(page, FragmentThreads.this);
 							}
 						}
 					}
@@ -199,7 +199,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 			Core.getUserThreadsAtPage(mUserName, page, this);
 		} else if (mDataSource == DATA_SOURCE_SEARCH) {
 			if (mQuery != null && mQuery.length() > 0)
-				Core.search(mQuery, page, ThreadsFragment.this);
+				Core.search(mQuery, page, FragmentThreads.this);
 		} else {
 			Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid") + "&page=" + page + "&filter=type&typeid=" + typeId + "&orderby=" + getOrder(), new Core.OnRequestListener() {
 				@Override
@@ -269,7 +269,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 		Thread t = (Thread) adapterView.getAdapter().getItem(i);
 		t.setNew(false);
 
-		Intent intent = new Intent(mActivity, PostsActivity.class);
+		Intent intent = new Intent(mActivity, ActivityPosts.class);
 		intent.putExtra("fid", fid);
 		intent.putExtra("tid", t.getId());
 		intent.putExtra("title", t.getTitle());
@@ -315,9 +315,9 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 			@Override
 			public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
 				mIsFetching = false;
-				ThreadsFragment.this.hasNextPage = hasNextPage;
-				ThreadsFragment.this.mThreads.clear();
-				ThreadsFragment.this.mThreads.addAll(threads);
+				FragmentThreads.this.hasNextPage = hasNextPage;
+				FragmentThreads.this.mThreads.clear();
+				FragmentThreads.this.mThreads.addAll(threads);
 				adapter.notifyDataSetChanged();
 				setRefreshSpinner(false);
 			}
@@ -355,7 +355,7 @@ public class ThreadsFragment extends Fragment implements OnRefreshListener, Adap
 				break;
 			case 2:
 
-				Intent intent = new Intent(mActivity, PostsActivity.class);
+				Intent intent = new Intent(mActivity, ActivityPosts.class);
 				intent.putExtra("tid", thread.getId());
 				intent.putExtra("page", 9999);
 				intent.putExtra("title", thread.getTitle());

@@ -28,7 +28,7 @@ public class GuidePicker extends BaseActivity {
 		super.onCreate(savedState);
 		setContentView(R.layout.guide_picker);
 		Slidr.attach(this);
-		mActionbar.setDisplayHomeAsUpEnabled(true);
+//		mActionbar.setDisplayHomeAsUpEnabled(true);
 
 		Guide.setStringify(new Guide.Stringify() {
 			@Override

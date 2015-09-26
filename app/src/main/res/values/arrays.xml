@@ -28,4 +28,12 @@
         <item>@android:color/white</item>
     </integer-array>
 
+    <string-array name="default_forums">
+        <item>6</item>
+        <item>2</item>
+        <item>7</item>
+        <item>59</item>
+        <item>9</item>
+    </string-array>
+
 </resources>

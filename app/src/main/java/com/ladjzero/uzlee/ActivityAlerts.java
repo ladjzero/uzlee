@@ -5,6 +5,8 @@ import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
 
 import com.r0adkll.slidr.Slidr;
@@ -16,7 +18,7 @@ import com.rey.material.widget.TabPageIndicator;
 /**
  * Created by ladjzero on 2015/1/1.
  */
-public class AlertActivity extends BaseActivity implements SimpleThreadsFragment.OnFragmentInteractionListener, ViewPager.OnPageChangeListener {
+public class ActivityAlerts extends BaseActivity implements SimpleThreadsFragment.OnFragmentInteractionListener, ViewPager.OnPageChangeListener {
 	SectionsPagerAdapter mSectionsPagerAdapter;
 	ViewPager mViewPager;
 	SparseArray<Fragment> mFragmentCache;
@@ -26,11 +28,13 @@ public class AlertActivity extends BaseActivity implements SimpleThreadsFragment
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.view_pager);
+		setContentView(R.layout.activity_view_pager);
+		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
-		mActionbar.setDisplayHomeAsUpEnabled(true);
-		mActionbar.setDisplayShowCustomEnabled(true);
-		mActionbar.setCustomView(R.layout.view_page_bar);
+		ActionBar actionBar = getSupportActionBar();
+
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setCustomView(R.layout.view_page_bar);
 
 		mFragmentCache = new SparseArray<>();
 		mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());

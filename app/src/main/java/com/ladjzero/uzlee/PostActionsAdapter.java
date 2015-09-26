@@ -8,7 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.joanzapata.android.iconify.Iconify;
+import com.joanzapata.iconify.Icon;
+import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 
 /**
  * Created by ladjzero on 2015/3/31.
@@ -29,12 +30,12 @@ public class PostActionsAdapter extends ArrayAdapter{
 			"{fa-link}",
 			"{fa-external-link}"
 	};
-	public final static Iconify.IconValue[] ICON_VALUES = new Iconify.IconValue[] {
-			Iconify.IconValue.fa_sort_numeric_desc,
-			Iconify.IconValue.fa_refresh,
-			Iconify.IconValue.fa_bookmark,
-			Iconify.IconValue.fa_link,
-			Iconify.IconValue.fa_external_link
+	public final static Icon[] ICON_VALUES = new Icon[] {
+			FontAwesomeIcons.fa_sort_numeric_desc,
+			FontAwesomeIcons.fa_refresh,
+			FontAwesomeIcons.fa_bookmark,
+			FontAwesomeIcons.fa_link,
+			FontAwesomeIcons.fa_external_link
 	};
 
 	public PostActionsAdapter(Context context) {
@@ -49,7 +50,7 @@ public class PostActionsAdapter extends ArrayAdapter{
 		TextView icon = (TextView) row.findViewById(R.id.icon);
 		TextView text = (TextView) row.findViewById(R.id.text);
 		if (position == 0) {
-			if (((PostsActivity)context).orderType == 0) {
+			if (((ActivityPosts)context).orderType == 0) {
 				icon.setText(ICONS[0]);
 				text.setText(TYPES[0]);
 			} else {

@@ -16,7 +16,7 @@
 
         <include layout="@layout/user_for_quote"/>
 
-        <android.widget.IconTextView
+        <com.joanzapata.iconify.widget.IconTextView
             android:id="@+id/post_quote_text"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

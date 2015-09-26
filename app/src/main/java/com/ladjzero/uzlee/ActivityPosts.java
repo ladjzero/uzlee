@@ -6,28 +6,40 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.ContextMenu;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.ConsoleMessage;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSON;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
-import com.joanzapata.android.iconify.IconDrawable;
-import com.joanzapata.android.iconify.Iconify;
+import com.handmark.pulltorefresh.library.PullToRefreshWebView;
+import com.joanzapata.iconify.IconDrawable;
+import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
+import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
 import com.r0adkll.slidr.Slidr;
 import com.r0adkll.slidr.model.SlidrInterface;
@@ -43,11 +55,11 @@ import java.util.Map;
 import me.drakeet.materialdialog.MaterialDialog;
 
 
-public class PostsActivity extends BaseActivity implements AdapterView.OnItemClickListener,
+public class ActivityPosts extends BaseActivity implements AdapterView.OnItemClickListener,
 		Core.OnPostsListener,
 		DiscreteSeekBar.OnProgressChangeListener {
 
-	private static final String TAG = "PostsActivity";
+	private static final String TAG = "ActivityPosts";
 	private final int EDIT_CODE = 99;
 	// 0 = asc, 1 = desc
 	public int orderType = 0;
@@ -55,7 +67,8 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	private int mTid;
 	private int mPage;
 	private Posts mPosts = new Posts();
-	private PullToRefreshListView mListView;
+	private PullToRefreshWebView mListView;
+	private WebView mWebView;
 	private PostsAdapter mAdapter;
 	private boolean mHasNextPage = false;
 	private DiscreteSeekBar mSeekBar;
@@ -72,30 +85,64 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	private int position = 0;
 	// Scroll to this post.
 	private int mPid = 0;
+	float downXValue, downYValue;
+	boolean mFirstTouch = true;
+	boolean mWebviewIsOnTouching = false;
+	boolean mWebviewIsScrolling = false;
+	private EditText mQuickEdit;
+	private PullToRefreshBase.State mPtrState;
+	private View mQuickReplyLayout;
+	private boolean mQuickVisible = true;
+	private boolean isFadingOut = false;
+	private TextView mQuickSend;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		this.setContentView(R.layout.posts);
+		this.setContentView(R.layout.activity_posts);
 
 		slidrInterface = Slidr.attach(this, slidrConfig);
 
 		LayoutInflater mInflater = LayoutInflater.from(this);
-		View customView =  mInflater.inflate(R.layout.toolbar_title_for_post, null);
+		View customView = mInflater.inflate(R.layout.toolbar_title_for_post, null);
 
+		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+
+		ActionBar mActionbar = getSupportActionBar();
 		mActionbar.setTitle(null);
 		mActionbar.setDisplayHomeAsUpEnabled(true);
 		mActionbar.setDisplayShowCustomEnabled(true);
 		mActionbar.setCustomView(customView);
 
 		mTitleView = (TextView) customView.findViewById(R.id.title);
-
-		mTitleView.setOnClickListener(new View.OnClickListener() {
+		mQuickEdit = (EditText) findViewById(R.id.quick_input);
+		mQuickEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 			@Override
-			public void onClick(View v) {
-				if (mListView != null) mListView.getRefreshableView().setSelection(0);
+			public void onFocusChange(View v, boolean hasFocus) {
+				mQuickReplyLayout.setAlpha(hasFocus ? 1.0f : 0.97f);
 			}
 		});
+		mQuickEdit.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				toggleQuickSend(count + start >= 5);
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+
+			}
+		});
+
+		mQuickReplyLayout = findViewById(R.id.quick_reply);
+		mQuickSend = (TextView) findViewById(R.id.quick_send);
+
 
 		Intent intent = getIntent();
 		mTid = intent.getIntExtra("tid", 0);
@@ -108,34 +155,195 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 		mProgressBar = (ProgressView) findViewById(R.id.progress_bar);
 
-		mListView = (PullToRefreshListView) this.findViewById(R.id.posts);
+		mListView = (PullToRefreshWebView) this.findViewById(R.id.posts);
+
+		mWebView = mListView.getRefreshableView();
+
+		mWebView.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				switch (event.getAction()) {
+
+					case MotionEvent.ACTION_DOWN: {
+						Logger.d("touch down");
+						mWebviewIsOnTouching = true;
+					}
+					case MotionEvent.ACTION_MOVE: {
+						Logger.d("touch move");
+
+						float x = event.getX(), y = event.getY();
+
+						if (mFirstTouch) {
+							downXValue = x;
+							downYValue = y;
+						} else {
+							if (Math.abs(x - downXValue) * 1.5 < Math.abs(y - downYValue)) {
+								slidrInterface.lock();
+							}
+						}
+
+						mFirstTouch = false;
+						// store the X value when the user's finger was pressed down
+
+						Logger.d("webview touch", "= " + downYValue);
+						break;
+					}
+
+					case MotionEvent.ACTION_CANCEL:
+					case MotionEvent.ACTION_UP: {
+						Logger.d("touch up");
+
+						mWebviewIsOnTouching = false;
+						mFirstTouch = true;
+						if (!mWebviewIsScrolling) mListView.postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								if (mPtrState == null || mPtrState == PullToRefreshBase.State.RESET)
+									slidrInterface.unlock();
+							}
+						}, 100);
+
+						// Get the X value when the user released his/her finger
+						float currentX = event.getX();
+						float currentY = event.getY();
+						// check if horizontal or vertical movement was bigger
+
+						if (Math.abs(downXValue - currentX) > Math.abs(downYValue
+								- currentY)) {
+							Logger.d("webview touch", "x");
+							// going backwards: pushing stuff to the right
+							if (downXValue < currentX) {
+								Logger.d("webview touch", "right");
+
+							}
+
+							// going forwards: pushing stuff to the left
+							if (downXValue > currentX) {
+								Logger.d("webview touch", "left");
+
+							}
+
+						} else {
+							Logger.d("webview touch", "y ");
+
+							if (downYValue < currentY) {
+								Logger.d("webview touch", "down");
+
+							}
+							if (downYValue > currentY) {
+								Logger.d("webview touch", "up");
+
+							}
+						}
+						break;
+					}
+
+				}
+
+				return false;
+			}
+		});
+
+		mWebView.loadUrl("file:///android_asset/posts.html");
+//		mWebView.loadUrl("file:///mnt/sdcard/airdroid/transfer/activity_posts.html");
+		mWebView.addJavascriptInterface(this, "ActivityPosts");
+		mWebView.getSettings().setJavaScriptEnabled(true);
+		mWebView.setWebViewClient(new WebViewClient() {
+			public boolean onConsoleMessage(ConsoleMessage cm) {
+				Logger.d(cm.message());
+				return true;
+			}
+		});
+
 		mAdapter = new PostsAdapter(this, mPosts);
-		mListView.setOnItemClickListener(this);
 		registerForContextMenu(mListView.getRefreshableView());
-		mListView.setAdapter(mAdapter);
 		mListView.setMode(PullToRefreshBase.Mode.DISABLED);
-		mListView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<ListView>() {
+
+		mListView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<WebView>() {
 			@Override
-			public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-				fetch(mPosts.getPage() - 1, PostsActivity.this);
+			public void onPullDownToRefresh(PullToRefreshBase<WebView> refreshView) {
+				fetch(mPosts.getPage() - 1, ActivityPosts.this);
 				position = 0;
 			}
 
 			@Override
-			public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
-				fetch(mPosts.getPage() + 1, PostsActivity.this);
+			public void onPullUpToRefresh(PullToRefreshBase<WebView> refreshView) {
+				fetch(mPosts.getPage() + 1, ActivityPosts.this);
 				position = 0;
 			}
 		});
-		mListView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), true, true, new LockOnScrollListener(slidrInterface)));
 
-		mListView.setOnPullEventListener(new PullToRefreshBase.OnPullEventListener<ListView>() {
+		mListView.setOnPullEventListener(new PullToRefreshBase.OnPullEventListener<WebView>() {
 			@Override
-			public void onPullEvent(PullToRefreshBase<ListView> refreshView, PullToRefreshBase.State state, PullToRefreshBase.Mode direction) {
-				if (state == PullToRefreshBase.State.PULL_TO_REFRESH) slidrInterface.lock();
-				if (state == PullToRefreshBase.State.RESET) slidrInterface.unlock();
+			public void onPullEvent(PullToRefreshBase<WebView> refreshView, PullToRefreshBase.State state, PullToRefreshBase.Mode direction) {
+				Logger.d("PL %s", state);
+				mPtrState = state;
+
+				if (state == PullToRefreshBase.State.RESET) {
+					slidrInterface.unlock();
+
+					if (direction == PullToRefreshBase.Mode.PULL_FROM_END && !mQuickVisible) {
+						Logger.d("Quick Edit FadeIn");
+						YoYo.with(Techniques.FadeIn).duration(100).withListener(new Animator.AnimatorListener() {
+							@Override
+							public void onAnimationStart(Animator animation) {
+
+							}
+
+							@Override
+							public void onAnimationEnd(Animator animation) {
+								mQuickReplyLayout.setAlpha(0.97f);
+								mQuickVisible = true;
+							}
+
+							@Override
+							public void onAnimationCancel(Animator animation) {
+
+							}
+
+							@Override
+							public void onAnimationRepeat(Animator animation) {
+
+							}
+						}).playOn(mQuickReplyLayout);
+					}
+				} else {
+					slidrInterface.lock();
+
+					if (direction == PullToRefreshBase.Mode.PULL_FROM_END && mQuickVisible && !isFadingOut) {
+						Logger.d("Quick Edit FadeOut");
+
+						isFadingOut = true;
+
+						YoYo.with(Techniques.FadeOut).duration(100).withListener(new Animator.AnimatorListener() {
+							@Override
+							public void onAnimationStart(Animator animation) {
+
+							}
+
+							@Override
+							public void onAnimationEnd(Animator animation) {
+								mQuickReplyLayout.setAlpha(0);
+								mQuickVisible = false;
+								isFadingOut = false;
+							}
+
+							@Override
+							public void onAnimationCancel(Animator animation) {
+
+							}
+
+							@Override
+							public void onAnimationRepeat(Animator animation) {
+
+							}
+						}).playOn(mQuickReplyLayout);
+
+					}
+				}
 			}
 		});
+
 
 		mMenuView = getLayoutInflater().inflate(R.layout.posts_actions_dialog, null);
 
@@ -171,16 +379,16 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 				switch (position) {
 					case 0:
 						orderType = orderType == 0 ? 1 : 0;
-						fetch(1, PostsActivity.this);
+						fetch(1, ActivityPosts.this);
 						// dismiss before data change, visual perfect
 						mMenuDialog.dismiss();
 						actionsAdapter.notifyDataSetChanged();
 						break;
 					case 1:
-						PostsActivity.this.position = mListView.getRefreshableView().getFirstVisiblePosition();
-						mAdapter.notifyDataSetChanged();
-						fetch(mPage, PostsActivity.this);
-						break;
+//						ActivityPosts.this.position = mListView.getRefreshableView().getFirstVisiblePosition();
+//						mAdapter.notifyDataSetChanged();
+//						fetch(mPage, ActivityPosts.this);
+//						break;
 					case 2:
 						Core.addToFavorite(mTid, new Core.OnRequestListener() {
 							@Override
@@ -194,7 +402,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 									showToast("收藏成功");
 								} else {
 									if (html.contains("您曾经收藏过这个主题")) {
-										final MaterialDialog dialog = new MaterialDialog(PostsActivity.this);
+										final MaterialDialog dialog = new MaterialDialog(ActivityPosts.this);
 										dialog.setCanceledOnTouchOutside(true)
 												.setMessage("已经收藏过该主题")
 												.setPositiveButton("移除收藏", new View.OnClickListener() {
@@ -246,6 +454,12 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		});
 	}
 
+	private void toggleQuickSend(boolean on) {
+		Resources res = getResources();
+		mQuickSend.setTextColor(res.getColor(on ? R.color.primary : R.color.snow_dark));
+		mQuickSend.setClickable(on);
+	}
+
 	private String getUri() {
 		if (mPid > 0) {
 			return String.format("http://www.hi-pda.com/forum/redirect.php?goto=findpost&pid=%d&ptid=%d", mPid, mTid);
@@ -262,7 +476,9 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 			fetch(mPage, this);
 		}
 
-		mAdapter.notifyDataSetChanged();
+		mWebView.loadUrl("javascript:loadPosts(" + JSON.toJSONString(mPosts) + ")");
+
+//		mAdapter.notifyDataSetChanged();
 	}
 
 	@Override
@@ -284,15 +500,15 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		}
 	}
 
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-		// Has header
-		Post post = mAdapter.getItem(((AdapterView.AdapterContextMenuInfo) menuInfo).position - 1);
+//	@Override
+//	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+	// Has header
+//		Post post = mAdapter.getItem(((AdapterView.AdapterContextMenuInfo) menuInfo).position - 1);
 
-		menu.add(0, 0, 0, "复制正文");
-		menu.add(0, 1, 1, post.getAuthor().getId() == myid ? "编辑" : "回复");
-		super.onCreateContextMenu(menu, v, menuInfo);
-	}
+//		menu.add(0, 0, 0, "复制正文");
+//		menu.add(0, 1, 1, post.getAuthor().getId() == myid ? "编辑" : "回复");
+//		super.onCreateContextMenu(menu, v, menuInfo);
+//	}
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
@@ -327,7 +543,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	private void startEditActivity(Post post) {
 		int uid = post.getAuthor().getId();
 		int postIndex = post.getPostIndex();
-		Intent intent = new Intent(PostsActivity.this, EditActivity.class);
+		Intent intent = new Intent(ActivityPosts.this, EditActivity.class);
 		intent.putExtra("title", myid == uid ? "编辑" : "回复" + (postIndex == 1 ? "楼主" : postIndex + "楼"));
 
 		if (myid == uid) {
@@ -343,6 +559,32 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		startActivityForResult(intent, EDIT_CODE);
 	}
 
+	public void onQuickReply(View v) {
+		showToast("send");
+		mQuickEdit.setEnabled(false);
+		mQuickSend.setText("{md-refresh spin}");
+		mQuickSend.setClickable(false);
+
+		Core.sendReply(mTid, mQuickEdit.getText().toString(), null, null, new Core.OnRequestListener() {
+			private void reset() {
+				mQuickSend.setClickable(true);
+				mQuickEdit.setEnabled(true);
+				mQuickSend.setText("{md-send}");
+			}
+
+			@Override
+			public void onError(String error) {
+				reset();
+			}
+
+			@Override
+			public void onSuccess(String html) {
+				reset();
+				// TODO: add this text to posts, do not parse all html
+			}
+		});
+	}
+
 	@Override
 	public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 		Post post = (Post) adapterView.getAdapter().getItem(i);
@@ -353,7 +595,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		myid = Core.getUser().getId();
 
 		mIsFetching = true;
-		toggleMenus(false);
+//		toggleMenus(false);
 
 		mProgressBar.start();
 
@@ -366,7 +608,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 			@Override
 			public void onError(String error) {
 				mIsFetching = false;
-				toggleMenus(true);
+//				toggleMenus(true);
 
 
 				onPostsListener.onError(error);
@@ -376,31 +618,41 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 			public void onSuccess(String html) {
 				mIsFetching = false;
 
-				new AsyncTask<String, Float, Posts>() {
+				new AsyncTask<String, Object, Posts>() {
 					@Override
 					protected Posts doInBackground(String... strings) {
 						return Core.parsePosts(strings[0], new Core.OnProgress() {
 							@Override
-							public void progress(int current, int total) {
+							public void progress(int current, int total, Object post) {
 								float progress = 1.0f * current / total;
 
 								Logger.i("Progressing %f current %d total %d", progress, current, total);
 
-								publishProgress(progress);
+								publishProgress(current, total, post);
+
 							}
 						});
 					}
 
 					@Override
-					protected void onProgressUpdate(Float... floats) {
-						Logger.i("onProgressUpdate %f", floats[0]);
-						mProgressBar.setProgress(floats[0]);
+					protected void onProgressUpdate(Object... objects) {
+						Integer current = (Integer) objects[0];
+						Integer total = (Integer) objects[1];
+						Post post = (Post) objects[2];
+
+						mProgressBar.setProgress(current * 1.0f / total);
+
+						if (current == 1) {
+							mWebView.loadUrl("javascript:loadPosts([])");
+						}
+
+						mWebView.loadUrl("javascript:addPost(" + JSON.toJSONString(post) + ")");
 					}
 
 					@Override
 					protected void onPostExecute(Posts posts) {
 						mIsFetching = false;
-						toggleMenus(true);
+//						toggleMenus(true);
 						onPostsListener.onPosts(posts);
 						mProgressBar.stop();
 					}
@@ -412,7 +664,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	@Override
 	public void onPosts(final Posts posts) {
 		setTitle(posts.getTitle());
-		toggleMenus(true);
+//		toggleMenus(true);
 
 		mListView.onRefreshComplete();
 		mAdapter.clearViewCache();
@@ -430,6 +682,8 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 		mHasNextPage = totalPage > currPage;
 		mPage = currPage;
+
+		Logger.d("current page: " + currPage);
 
 		if (mHasNextPage) {
 			mListView.setMode(currPage == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
@@ -450,14 +704,17 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 			if (post != null) {
 				// +1 for header.
-				mListView.getRefreshableView().setSelection(mPosts.getLastMerged().indexOf(post) + 1);
+//				mListView.getRefreshableView().setSelection(mPosts.getLastMerged().indexOf(post) + 1);
 			}
 		} else {
-			mListView.getRefreshableView().setSelection(mInitToLastPost ? posts.size() - 1 : position);
+//			mListView.getRefreshableView().setSelection(mInitToLastPost ? activity_posts.size() - 1 : position);
 			mInitToLastPost = false;
 		}
 
 		mPid = 0;
+
+
+//		mWebView.loadUrl("javascript:loadPosts({activity_posts:" + JSON.toJSONString(mPosts) + "})");
 	}
 
 	@Override
@@ -469,7 +726,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	protected void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
 		if (requestCode == EDIT_CODE && resultCode == EditActivity.EDIT_SUCCESS) {
 			mIsFetching = true;
-			toggleMenus(false);
+//			toggleMenus(false);
 
 			if (returnIntent != null) {
 				String html = returnIntent.getStringExtra("html");
@@ -482,7 +739,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 						protected Posts doInBackground(String... strings) {
 							return Core.parsePosts(strings[0], new Core.OnProgress() {
 								@Override
-								public void progress(int current, int total) {
+								public void progress(int current, int total, Object post) {
 									float progress = 1.0f * current / total;
 
 									Logger.i("Progressing %f current %d total %d", progress, current, total);
@@ -502,7 +759,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 						protected void onPostExecute(Posts posts) {
 							mIsFetching = false;
 							setProgressBarIndeterminateVisibility(false);
-							toggleMenus(true);
+//							toggleMenus(true);
 
 							mPage = posts.getPage();
 							int totalPage = posts.getTotalPage(),
@@ -521,7 +778,7 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 
 							mPosts.merge(posts);
 							mAdapter.notifyDataSetChanged();
-							mListView.getRefreshableView().setSelection(posts.size() - 1);
+//							mListView.getRefreshableView().setSelection(activity_posts.size() - 1);
 							mProgressBar.stop();
 						}
 					}.execute(html);
@@ -535,9 +792,9 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 		mMenu = menu;
 
 		getMenuInflater().inflate(R.menu.posts, menu);
-		menu.findItem(R.id.reply).setIcon(new IconDrawable(this, Iconify.IconValue.fa_comment_o).colorRes(android.R.color.white).actionBarSize());
+		menu.findItem(R.id.more).setIcon(new IconDrawable(this, MaterialIcons.md_more_vert).colorRes(android.R.color.white).actionBarSize());
 
-		menu.setGroupVisible(0, !mIsFetching);
+//		menu.setGroupVisible(0, !mIsFetching);
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -546,17 +803,19 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 
-		if (id == R.id.more) {
-			onKeyDown(KeyEvent.KEYCODE_MENU, null);
+		if (!mIsFetching) {
+			if (id == R.id.more) {
+				onKeyDown(KeyEvent.KEYCODE_MENU, null);
 
-			return true;
-		} else if (id == R.id.reply) {
-			Intent replyIntent = new Intent(this, EditActivity.class);
-			replyIntent.putExtra("tid", mTid);
-			replyIntent.putExtra("title", "回复主题");
-			replyIntent.putExtra("hideTitleInput", true);
-			startActivityForResult(replyIntent, EDIT_CODE);
-			return true;
+				return true;
+//		} else if (id == R.id.reply) {
+//			Intent replyIntent = new Intent(this, EditActivity.class);
+//			replyIntent.putExtra("tid", mTid);
+//			replyIntent.putExtra("title", "回复主题");
+//			replyIntent.putExtra("hideTitleInput", true);
+//			startActivityForResult(replyIntent, EDIT_CODE);
+//			return true;
+			}
 		}
 
 		return super.onOptionsItemSelected(item);
@@ -592,8 +851,53 @@ public class PostsActivity extends BaseActivity implements AdapterView.OnItemCli
 	@Override
 	public void onStopTrackingTouch(DiscreteSeekBar seekBar) {
 		if (mPage != seekBar.getProgress()) {
-			fetch(seekBar.getProgress(), PostsActivity.this);
+			fetch(seekBar.getProgress(), ActivityPosts.this);
 			mMenuDialog.dismiss();
+		}
+	}
+
+	@JavascriptInterface
+	public void onProfileClick(int uid, String name) {
+		showToast("user id is " + uid);
+
+		Intent intent = new Intent(this, ActivityUser.class);
+		intent.putExtra("uid", uid);
+		intent.putExtra("name", name);
+		startActivity(intent);
+	}
+
+	@JavascriptInterface
+	public void onPostClick(final int pid) {
+		showToast("postclick " + pid);
+		startEditActivity((Post) CollectionUtils.find(mPosts, new Predicate() {
+			@Override
+			public boolean evaluate(Object o) {
+				return ((Post) o).getId() == pid;
+			}
+		}));
+	}
+
+	@JavascriptInterface
+	public void onScroll(String state) {
+		Logger.d("scroll " + state);
+		if (mWebviewIsScrolling = state.equals("start")) {
+//			slidrInterface.lock();
+		} else {
+//			if (!mWebviewIsOnTouching) slidrInterface.unlock();
+		}
+	}
+
+	@JavascriptInterface
+	public void onLinkClick(String href) {
+		showToast(href);
+		Uri uri = Uri.parse(href);
+
+		if ("www.hi-pda.com".equals(uri.getHost())) {
+
+		} else {
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.setData(uri);
+			startActivity(intent);
 		}
 	}
 }

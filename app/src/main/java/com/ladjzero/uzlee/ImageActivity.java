@@ -23,11 +23,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ImageView;
 
-import com.joanzapata.android.iconify.IconDrawable;
-import com.joanzapata.android.iconify.Iconify;
+import com.joanzapata.iconify.IconDrawable;
+import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.orhanobut.logger.Logger;
@@ -52,9 +51,9 @@ public class ImageActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.view_pager);
-		mActionbar.setDisplayHomeAsUpEnabled(true);
-		mActionbar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#66454545")));
+		setContentView(R.layout.activity_view_pager);
+//		mActionbar.setDisplayHomeAsUpEnabled(true);
+//		mActionbar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#66454545")));
 		slidrInterface = Slidr.attach(this);
 
 
@@ -83,7 +82,7 @@ public class ImageActivity extends BaseActivity {
 			@Override
 			public void onPageSelected(int position) {
 				mUrl = mUrls.get(position);
-				mActionbar.setTitle(String.format("%d/%d", position + 1, mUrls.size()));
+//				mActionbar.setTitle(String.format("%d/%d", position + 1, mUrls.size()));
 
 				if (position == 0) slidrInterface.unlock();
 				else slidrInterface.lock();
@@ -95,14 +94,14 @@ public class ImageActivity extends BaseActivity {
 			}
 		});
 
-		mActionbar.setTitle(String.format("%d/%d", index + 1, mUrls.size()));
+//		mActionbar.setTitle(String.format("%d/%d", index + 1, mUrls.size()));
 	}
 
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.image, menu);
-		menu.findItem(R.id.image_save).setIcon(new IconDrawable(this, Iconify.IconValue.fa_save).colorRes(android.R.color.white).actionBarSize());
+		menu.findItem(R.id.image_save).setIcon(new IconDrawable(this, FontAwesomeIcons.fa_save).colorRes(android.R.color.white).actionBarSize());
 		return true;
 	}
 
@@ -159,7 +158,7 @@ public class ImageActivity extends BaseActivity {
 			position = mUrls.indexOf(url);
 			Logger.i("new ImageFragment %d %s", position, url);
 			mUrl = url;
-			mActionbar = ((ImageActivity) context).mActionbar;
+//			mActionbar = ((ImageActivity) context).mActionbar;
 
 			Display display = ((ImageActivity)context).getWindowManager().getDefaultDisplay();
 			Point size = new Point();

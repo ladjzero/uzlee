@@ -166,7 +166,7 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Thread thread = (Thread) parent.getAdapter().getItem(position);
-		Intent intent = new Intent(getActivity(), PostsActivity.class);
+		Intent intent = new Intent(getActivity(), ActivityPosts.class);
 		intent.putExtra("tid", thread.getId());
 		intent.putExtra("title", thread.getTitle());
 		intent.putExtra("fid", thread.getFid());

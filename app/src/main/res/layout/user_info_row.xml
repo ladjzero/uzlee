@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:background="@android:color/white">
 
-        <android.widget.IconTextView
+        <com.joanzapata.iconify.widget.IconTextView
             android:id="@+id/key"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
@@ -21,7 +21,7 @@
             android:textColor="@color/dark_primary"
             android:textSize="16sp"/>
 
-        <android.widget.IconTextView
+        <com.joanzapata.iconify.widget.IconTextView
             android:id="@+id/more"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
             android:textColor="@color/dark_light"
             android:textSize="24sp"/>
 
-        <android.widget.IconTextView
+        <com.joanzapata.iconify.widget.IconTextView
             android:id="@+id/value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

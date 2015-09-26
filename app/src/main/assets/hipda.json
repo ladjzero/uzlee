@@ -1,0 +1,508 @@
+[
+  {
+    "name": "Hi!PDA站务与公告",
+    "fid": 5
+  },
+  {
+    "name": "Buy & Sell 交易服务区",
+    "fid": 6,
+    "types": [
+      {
+        "name": "手机",
+        "id": 1
+      },
+      {
+        "name": "掌上电脑",
+        "id": 2
+      },
+      {
+        "name": "笔记本电脑",
+        "id": 3
+      },
+      {
+        "name": "无线产品",
+        "id": 4
+      },
+      {
+        "name": "数码相机",
+        "id": 5
+      },
+      {
+        "name": "MP3随身听",
+        "id": 6
+      },
+      {
+        "name": "各类配件",
+        "id": 7
+      },
+      {
+        "name": "其他好玩的",
+        "id": 8
+      },
+      {
+        "name": "站务",
+        "id": 19
+      }
+    ],
+    "children": [
+      {
+        "name": "已完成交易",
+        "fid": 63
+      }
+    ]
+  },
+  {
+    "name": "Geek Talks · 奇客怪谈",
+    "fid": 7,
+    "types": [
+      {
+        "name": "Gadgets",
+        "id": 20
+      },
+      {
+        "name": "无线",
+        "id": 21
+      },
+      {
+        "name": "嵌入式Linux",
+        "id": 22
+      },
+      {
+        "name": "业界",
+        "id": 41
+      },
+      {
+        "name": "安卓",
+        "id": 74
+      },
+      {
+        "name": "高清播放器",
+        "id": 76
+      },
+      {
+        "name": "站务",
+        "id": 19
+      }
+    ],
+    "children": [
+      {
+        "name": "E-INK",
+        "fid": 59,
+        "types": [
+          {
+            "name": "Kindle",
+            "id": 68
+          },
+          {
+            "name": "SONY",
+            "id": 69
+          },
+          {
+            "name": "国产",
+            "id": 70
+          },
+          {
+            "name": "资源",
+            "id": 72
+          },
+          {
+            "name": "综合",
+            "id": 73
+          },
+          {
+            "name": "交流",
+            "id": 75
+          },
+          {
+            "name": "Nook",
+            "id": 77
+          },
+          {
+            "name": "Kobo",
+            "id": 80
+          },
+          {
+            "name": "求助",
+            "id": 18
+          },
+          {
+            "name": "站务",
+            "id": 19
+          }
+        ]
+      },
+      {
+        "name": "Joggler",
+        "fid": 62,
+        "types": [
+          {
+            "name": "各类配件",
+            "id": 7
+          },
+          {
+            "name": "ROM",
+            "id": 16
+          },
+          {
+            "name": "硬件报告",
+            "id": 17
+          },
+          {
+            "name": "业界",
+            "id": 41
+          },
+          {
+            "name": "各类软件",
+            "id": 47
+          },
+          {
+            "name": "综合",
+            "id": 73
+          },
+          {
+            "name": "安卓",
+            "id": 74
+          },
+          {
+            "name": "交流",
+            "id": 75
+          },
+          {
+            "name": "求助",
+            "id": 18
+          },
+          {
+            "name": "站务",
+            "id": 19
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Smartphone",
+    "fid": 9,
+    "types": [
+      {
+        "name": "Symbian",
+        "id": 23
+      },
+      {
+        "name": "PalmOS",
+        "id": 24
+      },
+      {
+        "name": "Linux",
+        "id": 25
+      },
+      {
+        "name": "Windows Mobile",
+        "id": 26
+      },
+      {
+        "name": "运营商",
+        "id": 27
+      },
+      {
+        "name": "Other",
+        "id": 28
+      },
+      {
+        "name": "BlackBerry",
+        "id": 59
+      },
+      {
+        "name": "站务",
+        "id": 19
+      }
+    ]
+  },
+  {
+    "name": "iPhone, iPod Touch，iPad",
+    "fid": 56
+  },
+  {
+    "name": "Android, Chrome, & Google",
+    "fid": 60
+  },
+  {
+    "name": "PalmOS ，Treo",
+    "fid": 12,
+    "types": [
+      {
+        "name": "Treo",
+        "id": 43
+      },
+      {
+        "name": "Palm硬件",
+        "id": 45
+      },
+      {
+        "name": "Clie",
+        "id": 46
+      },
+      {
+        "name": "各类软件",
+        "id": 47
+      },
+      {
+        "name": "汉化",
+        "id": 48
+      },
+      {
+        "name": "Pre",
+        "id": 63
+      },
+      {
+        "name": "WebOS",
+        "id": 64
+      },
+      {
+        "name": "pixi",
+        "id": 78
+      },
+      {
+        "name": "求助",
+        "id": 18
+      },
+      {
+        "name": "站务",
+        "id": 19
+      }
+    ],
+    "children": [
+      {
+        "name": "芝麻宝典",
+        "fid": 40
+      }
+    ]
+  },
+  {
+    "name": "Windows Mobile，PocketPC，HPC",
+    "fid": 14,
+    "types": [
+      {
+        "name": "心得技巧",
+        "id": 10
+      },
+      {
+        "name": "绿色汉化",
+        "id": 11
+      },
+      {
+        "name": "游戏",
+        "id": 12
+      },
+      {
+        "name": "多媒体",
+        "id": 13
+      },
+      {
+        "name": "数据库",
+        "id": 14
+      },
+      {
+        "name": "实用工具",
+        "id": 15
+      },
+      {
+        "name": "ROM",
+        "id": 16
+      },
+      {
+        "name": "硬件报告",
+        "id": 17
+      },
+      {
+        "name": "HPC",
+        "id": 44
+      },
+      {
+        "name": "求助",
+        "id": 18
+      },
+      {
+        "name": "站务",
+        "id": 19
+      }
+    ]
+  },
+  {
+    "name": "麦客爱苹果:",
+    "fid": 22
+  },
+  {
+    "name": "DC,NB,MP3,Gadgets...",
+    "fid": 50,
+    "types": [
+      {
+        "name": "UMPC",
+        "id": 62
+      },
+      {
+        "name": "笔记本电脑",
+        "id": 3
+      },
+      {
+        "name": "MP3随身听",
+        "id": 6
+      },
+      {
+        "name": "Gadgets",
+        "id": 20
+      },
+      {
+        "name": "DC",
+        "id": 52
+      },
+      {
+        "name": "游戏机",
+        "id": 53
+      },
+      {
+        "name": "站务",
+        "id": 19
+      }
+    ]
+  },
+  {
+    "name": "Discovery",
+    "fid": 2,
+    "types": [
+      {
+        "name": "聚会",
+        "id": 9
+      },
+      {
+        "name": "汽车",
+        "id": 33
+      },
+      {
+        "name": "大杂烩",
+        "id": 38
+      },
+      {
+        "name": "助学",
+        "id": 40
+      },
+      {
+        "name": "Discovery",
+        "id": 56
+      },
+      {
+        "name": "投资",
+        "id": 57
+      },
+      {
+        "name": "职场",
+        "id": 58
+      },
+      {
+        "name": "文艺",
+        "id": 65
+      },
+      {
+        "name": "版喃",
+        "id": 66
+      },
+      {
+        "name": "显摆",
+        "id": 67
+      },
+      {
+        "name": "晒物劝败",
+        "id": 79
+      },
+      {
+        "name": "装修",
+        "id": 81
+      },
+      {
+        "name": "YY",
+        "id": 39
+      },
+      {
+        "name": "站务",
+        "id": 19
+      }
+    ],
+    "children": [
+      {
+        "name": "改版建议",
+        "fid": 65
+      },
+      {
+        "name": "只讨论2.0",
+        "fid": 64
+      }
+    ]
+  },
+  {
+    "name": "意欲蔓延",
+    "fid": 24,
+    "types": [
+      {
+        "name": "电影",
+        "id": 29
+      },
+      {
+        "name": "音乐",
+        "id": 30
+      },
+      {
+        "name": "读书",
+        "id": 31
+      },
+      {
+        "name": "美术",
+        "id": 32
+      },
+      {
+        "name": "English",
+        "id": 36
+      },
+      {
+        "name": "摄影",
+        "id": 51
+      },
+      {
+        "name": "站务",
+        "id": 19
+      }
+    ]
+  },
+  {
+    "name": "随笔与个人文集",
+    "fid": 23
+  },
+  {
+    "name": "吃喝玩乐",
+    "fid": 25,
+    "types": [
+      {
+        "name": "美食",
+        "id": 34
+      },
+      {
+        "name": "出游",
+        "id": 35
+      },
+      {
+        "name": "兴趣",
+        "id": 54
+      },
+      {
+        "name": "站务",
+        "id": 19
+      }
+    ]
+  },
+  {
+    "name": "La Femme",
+    "fid": 51
+  },
+  {
+    "name": "疑似机器人",
+    "fid": 57
+  }
+]

@@ -360,7 +360,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 	@Override
 	public void onClick(View view) {
 		User user = (User) view.getTag();
-		Intent intent = new Intent(context, UserActivity.class);
+		Intent intent = new Intent(context, ActivityUser.class);
 		intent.putExtra("uid", user.getId());
 		intent.putExtra("name", user.getName());
 		context.startActivity(intent);
@@ -413,7 +413,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 									if (page == null || page.length() == 0) page = "1";
 
 									if (tid != null && tid.length() > 0) {
-										Intent intent = new Intent(context, PostsActivity.class);
+										Intent intent = new Intent(context, ActivityPosts.class);
 										intent.putExtra("tid", Integer.valueOf(tid));
 										intent.putExtra("page", Integer.valueOf(page));
 										context.startActivity(intent);

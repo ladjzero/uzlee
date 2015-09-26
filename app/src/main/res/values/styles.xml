@@ -11,16 +11,28 @@
         <item name="windowActionBarOverlay">true</item>
     </style>
 
-    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppBaseThemeWithActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/purpleDark</item>
+        <item name="colorAccent">@color/purpleLight</item>
+    </style>
+
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+
         <item name="android:windowAnimationStyle">@style/AppBaseTheme.WindowAnimation</item>
         <!--remove action bar shadow-->
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>
 
-        <item name="colorPrimary">@color/dark_primary</item>
-        <item name="colorPrimaryDark">@color/dark_dark</item>
-        <item name="colorAccent">@android:color/holo_blue_light</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/purpleDark</item>
+        <item name="colorAccent">@color/purpleLight</item>
         <!--<item name="android:actionOverflowButtonStyle">@style/AppBaseTheme.OverFlow</item>-->
     </style>
 
@@ -32,8 +44,8 @@
     </style>
 
     <style name="DeterminateLinearProgressDrawableStyle" parent="Material.Drawable.LinearProgress.Determinate">
-        <item name="lpd_strokeColor">@android:color/holo_blue_dark</item>
-        <item name="lpd_strokeSecondaryColor">@android:color/holo_blue_bright</item>
+        <item name="lpd_strokeColor">@color/primary</item>
+        <item name="lpd_strokeSecondaryColor">@android:color/transparent</item>
         <item name="lpd_verticalAlign">top</item>
     </style>
 
@@ -44,7 +56,7 @@
     <style name="AppTheme" parent="AppBaseTheme"></style>
 
     <style name="TabBarStyle" parent="@style/Base.TextAppearance.AppCompat.Subhead">
-        <item name="android:textSize">12sp</item>
-        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@drawable/tab_text</item>
     </style>
 </resources>

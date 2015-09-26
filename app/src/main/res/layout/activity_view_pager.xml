@@ -1,8 +1,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical">
+
+    <include layout="@layout/toolbar"></include>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
@@ -10,5 +11,5 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.ladjzero.uzlee.MyPostsActivity"/>
+        tools:context="com.ladjzero.uzlee.ActivityMyPosts"/>
 </LinearLayout>

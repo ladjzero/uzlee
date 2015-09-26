@@ -6,6 +6,8 @@ import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -70,6 +72,10 @@ public class ChatActivity extends BaseActivity implements Core.OnPostsListener, 
 		darkersnow = res.getColor(R.color.snow_darker);
 
 		Slidr.attach(this);
+
+		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+
+		ActionBar mActionbar = getSupportActionBar();
 		mActionbar.setDisplayHomeAsUpEnabled(true);
 
 		LayoutInflater mInflater = LayoutInflater.from(this);

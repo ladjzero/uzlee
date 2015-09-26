@@ -8,7 +8,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.joanzapata.android.iconify.Iconify;
+import com.joanzapata.iconify.Icon;
+import com.joanzapata.iconify.Iconify;
+import com.joanzapata.iconify.fonts.FontAwesomeIcons;
+import com.joanzapata.iconify.fonts.MaterialCommunityIcons;
+import com.joanzapata.iconify.fonts.MaterialIcons;
+
 
 /**
  * Created by ladjzero on 2015/3/28.
@@ -33,14 +38,14 @@ public class BsTypeAdapter extends ArrayAdapter {
 			"{fa-camera-retro}",
 			"{fa-music}"
 	};
-	public final static Iconify.IconValue[] ICON_VALUES = new Iconify.IconValue[] {
-			Iconify.IconValue.fa_tags,
-			Iconify.IconValue.fa_mobile,
-			Iconify.IconValue.fa_tablet,
-			Iconify.IconValue.fa_laptop,
-			Iconify.IconValue.fa_wifi,
-			Iconify.IconValue.fa_camera_retro,
-			Iconify.IconValue.fa_music
+	public final static Icon[] ICON_VALUES = new Icon[] {
+			FontAwesomeIcons.fa_tags,
+			FontAwesomeIcons.fa_mobile,
+			FontAwesomeIcons.fa_tablet,
+			FontAwesomeIcons.fa_laptop,
+			FontAwesomeIcons.fa_wifi,
+			FontAwesomeIcons.fa_camera_retro,
+			FontAwesomeIcons.fa_music
 	};
 
 	public BsTypeAdapter(Context context) {

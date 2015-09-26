@@ -1,0 +1,99 @@
+@import "uzlee.scss";
+
+$profile-height: 34px;
+$toolbar-height: 48px;
+
+body {
+    margin: 0 12px;
+}
+
+
+
+.body {
+    line-height: 1.6;
+    padding-bottom: $toolbar-height;
+}
+
+.pstatus {
+    display: block;
+    font-style: normal;
+    text-align: center;
+    font-size: 12px;
+    color: gray;
+    margin: 12px 0;
+}
+
+blockquote {
+    border-left: 4px solid $purpleLight;
+    padding: 12px;
+    margin: 24px;
+}
+
+#post-list {
+    margin: 0 12px;
+
+    .post-header {
+        padding-top: 12px;
+
+        .profile-wrapper {
+            position: relative;
+            width: $profile-height;
+            height: $profile-height;
+            display: inline-block;
+            text-align: center;
+
+            > span {
+                width: 100%;
+                position: absolute;
+                line-height: $profile-height;
+                font-size: 20px;
+                color: #c8c8c8;
+            }
+
+            .profile {
+                visibility: hidden;
+                position: relative;
+                width: $profile-height;
+                height: $profile-height;
+            }
+        }
+
+        .name-and-date {
+            height: $profile-height;
+            margin-left: 12px;
+            display: inline-block;
+
+            .name {
+                color: $nameColor;
+                font-size: 14px;
+                display: block;
+                line-height: 20px;
+            }
+
+            .date {
+                color: $dateColor;
+                font-size: 10px;
+                line-height: 14px;
+            }
+        }
+    }
+
+    .body {
+        img {
+            vertical-align: top;
+            max-width: 100%;
+        }
+
+        img[smilieid] {
+            width: 20px;
+            height: 20px;
+        }
+
+        .content-image {
+            display: block;
+            margin: 0 auto;
+        }
+    }
+}
+
+

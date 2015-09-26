@@ -3,6 +3,7 @@ package com.ladjzero.uzlee;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -16,7 +17,7 @@ import com.r0adkll.slidr.Slidr;
 
 import java.util.ArrayList;
 
-public class UserActivity extends BaseActivity {
+public class ActivityUser extends BaseActivity {
 
 	LinearLayout mInfo;
 	FlatButton chat;
@@ -29,7 +30,7 @@ public class UserActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.user);
+		setContentView(R.layout.activity_user);
 
 		Resources res = getResources();
 
@@ -40,14 +41,15 @@ public class UserActivity extends BaseActivity {
 				res.getColor(R.color.blood_light)
 		};
 
-		grassTheme = new int[] {
+		grassTheme = new int[]{
 				res.getColor(R.color.grass_darker),
 				res.getColor(R.color.grass_dark),
 				res.getColor(R.color.grass_primary),
 				res.getColor(R.color.grass_light)
 		};
 
-		mActionbar.hide();
+		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		mInfo = (LinearLayout) findViewById(R.id.user_info_list);
 		chat = (FlatButton) findViewById(R.id.chat);
@@ -60,7 +62,7 @@ public class UserActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				if (user != null) {
-					Intent intent = new Intent(UserActivity.this, ChatActivity.class);
+					Intent intent = new Intent(ActivityUser.this, ChatActivity.class);
 					intent.putExtra("uid", user.getId());
 					intent.putExtra("name", user.getName());
 					startActivity(intent);
@@ -92,6 +94,7 @@ public class UserActivity extends BaseActivity {
 				TextView uid = (TextView) findViewById(R.id.uid);
 
 				name.setText(user.getName());
+				setTitle(user.getName());
 				name.getPaint().setFakeBoldText(true);
 				level.setText(user.getLevel());
 				uid.setText("No." + user.getId());
@@ -110,7 +113,7 @@ public class UserActivity extends BaseActivity {
 						view.setOnClickListener(new View.OnClickListener() {
 							@Override
 							public void onClick(View v) {
-								Intent intent = new Intent(UserActivity.this, ThreadsActivity.class);
+								Intent intent = new Intent(ActivityUser.this, ActivityThreads.class);
 								intent.putExtra("name", user.getName());
 								startActivity(intent);
 							}
@@ -127,9 +130,7 @@ public class UserActivity extends BaseActivity {
 		});
 
 		final String userName = getIntent().getStringExtra("name");
-
-//		searchPosts.setBackgroundResource(R.color.dark_primary);
-
+		setTitle(userName);
 
 		updateBlockButton();
 

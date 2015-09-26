@@ -140,7 +140,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 	@Override
 	public void onClick(View view) {
 		User user = (User) view.getTag();
-		Intent intent = new Intent(context, UserActivity.class);
+		Intent intent = new Intent(context, ActivityUser.class);
 		intent.putExtra("uid", user.getId());
 		intent.putExtra("name", user.getName());
 		context.startActivity(intent);

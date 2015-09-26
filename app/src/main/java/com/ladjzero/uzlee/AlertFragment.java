@@ -123,7 +123,7 @@ public class AlertFragment extends Fragment implements AbsListView.OnItemClickLi
 
 		} else {
 			Post post = (Post) parent.getAdapter().getItem(position);
-			Intent intent = new Intent(getActivity(), PostsActivity.class);
+			Intent intent = new Intent(getActivity(), ActivityPosts.class);
 			intent.putExtra("tid", post.getTid());
 			intent.putExtra("fid", post.getFid());
 			intent.putExtra("title", post.getTitle());

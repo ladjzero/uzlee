@@ -2,6 +2,26 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
         android:title="浏览">
+
+        <MultiSelectListPreference
+            android:defaultValue="@array/default_forums"
+            android:key="selected_forums"
+            android:title="显示板块"/>
+
+        <ListPreference
+            android:defaultValue="2"
+            android:entries="@array/thread_sort_by"
+            android:entryValues="@array/thread_sort_values"
+            android:key="sort_thread"
+            android:title="配色"/>
+
+        <ListPreference
+            android:defaultValue="2"
+            android:entries="@array/thread_sort_by"
+            android:entryValues="@array/thread_sort_values"
+            android:key="sort_thread"
+            android:title="正文字体"/>
+
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="show_fixed_threads"
@@ -33,8 +53,8 @@
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="detect_code"
-            android:title="自动切换编码"
-            android:summary="受乱码困扰的话可以试试"/>
+            android:summary="受乱码困扰的话可以试试"
+            android:title="自动切换编码"/>
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -43,5 +63,12 @@
             android:defaultValue="false"
             android:key="use_sig"
             android:title="使用签名"/>
+
+        <ListPreference
+            android:defaultValue="2"
+            android:entries="@array/thread_sort_by"
+            android:entryValues="@array/thread_sort_values"
+            android:key="sort_thread"
+            android:title="草稿箱"/>
     </PreferenceCategory>
 </PreferenceScreen>

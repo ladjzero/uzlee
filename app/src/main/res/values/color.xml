@@ -16,5 +16,14 @@
     <color name="hipda">#7d7897</color>
     <color name="hipda_light">#c97d7897</color>
 
+    <color name="primary">#ff8d6c9d</color>
+
+    <color name="purpleDark">#1b122a</color>
+    <color name="purpleMain">#ff937edc</color>
+    <color name="purpleLight">#735fa9</color>
+    <color name="purpleLightLight">#d4c3ff</color>
+    <color name="warmDark">#814a59</color>
+    <color name="warmMain">#ff8d6c9d</color>
+    <color name="warmLight">#d19996</color>
 
 </resources>

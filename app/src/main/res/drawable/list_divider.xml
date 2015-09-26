@@ -5,7 +5,6 @@
 
     <shape>
         <solid android:color="@color/snow_primary" />
-        <corners android:radius="2.0dip" />
     </shape>
 
 </inset>

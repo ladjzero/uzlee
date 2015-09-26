@@ -7,13 +7,11 @@
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="12dp"
-        android:padding="1px">
+        android:layout_marginRight="12dp">
 
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="1.5dp">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/user_image_mask"
@@ -94,7 +92,7 @@
                     android:textColor="@color/snow_darker"
                     android:textSize="10sp"/>
 
-                <android.widget.IconTextView
+                <com.joanzapata.iconify.widget.IconTextView
                     android:id="@+id/post_body_sig"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

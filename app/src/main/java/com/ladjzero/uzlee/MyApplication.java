@@ -2,6 +2,9 @@ package com.ladjzero.uzlee;
 
 import android.app.Application;
 
+import com.joanzapata.iconify.Iconify;
+import com.joanzapata.iconify.fonts.FontAwesomeModule;
+import com.joanzapata.iconify.fonts.MaterialModule;
 import com.orhanobut.logger.LogLevel;
 import com.orhanobut.logger.Logger;
 
@@ -25,8 +28,10 @@ public class MyApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		ACRA.init(this);
+//		ACRA.init(this);
 
-		Logger.init().setLogLevel(LogLevel.NONE);
+		Iconify.with(new FontAwesomeModule()).with(new MaterialModule());
+
+		Logger.init();
 	}
 }

@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
 import com.alibaba.fastjson.JSON;
+import com.ladjzero.uzlee.R;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.PersistentCookieStore;
@@ -37,14 +38,17 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.Map;
-import java.util.AbstractMap;
-import java.util.regex.*;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
 
@@ -57,10 +61,6 @@ public class Core {
 	public static final Collection<String> iconValues;
 	public static final String BASE_URL = "http://www.hi-pda.com/forum";
 	public static final String DIVIDER = "123~#~321";
-
-	public static class NoPermissionException extends Exception {
-
-	};
 
 	static {
 		icons.put("images/smilies/default/smile.gif", ":)");
@@ -234,7 +234,7 @@ public class Core {
 		});
 	}
 
-	public static Document getDoc(String html) throws NoPermissionException {
+	public static Document getDoc(String html) {
 		long time = System.currentTimeMillis();
 
 		Document doc = Jsoup.parse(html);
@@ -274,9 +274,9 @@ public class Core {
 				Logger.i("EventBus.StatusChangeEvent %d %s", 0, "null");
 			}
 
-			if (doc.select("#wrap > form[name=login]").size() > 0) {
-				throw new NoPermissionException();
-			}
+//			if (doc.select("#wrap > form[name=login]").size() > 0) {
+//				throw new NoPermissionException();
+//			}
 
 			EventBus.getDefault().post(new UserEvent(user));
 		} catch (Error e) {
@@ -427,9 +427,10 @@ public class Core {
 		int i = 0;
 
 		for (Element ePost : ePosts) {
-			posts.add(toPostObj(ePost));
+			Post post;
+			posts.add(post = toPostObj(ePost));
 
-			if (onProgress != null) onProgress.progress(++i, ePosts.size());
+			if (onProgress != null) onProgress.progress(++i, ePosts.size(), post);
 		}
 
 		int currPage = 1;
@@ -466,6 +467,61 @@ public class Core {
 		}
 
 		Elements eBody = ePost.select("td.t_msgfont");
+
+		ArrayList<Element> toRemove = new ArrayList<>();
+
+		int length, i;
+
+		for (length = eBody.size(), i = 0; i < length; i++) {
+			Element e = eBody.get(i);
+
+			if (e.tagName().toUpperCase() == "BR") {
+				toRemove.add(e);
+			} else {
+				break;
+			}
+		}
+
+		for (i = length - 1; i >= 0; i--) {
+			Element e = eBody.get(i);
+
+			if (e.tagName().toUpperCase() == "BR") {
+				toRemove.add(e);
+			} else {
+				break;
+			}
+		}
+
+		for (Element img : eBody.select("img")) {
+			String src = img.attr("file");
+
+			if (src.length() == 0) src = img.attr("src");
+
+			img.removeAttr("file")
+					.removeAttr("width")
+					.removeAttr("height")
+					.removeAttr("onclick")
+					.removeAttr("onmouseover");
+
+			if (!src.startsWith("images/smilies/")) {
+				img.addClass("content-image");
+			}
+
+			if (!src.startsWith("http")) {
+				img.attr("src", "http://www.hi-pda.com/forum/" + src);
+			}
+		}
+
+		for (Element a : eBody.select("a")) {
+			String href = a.attr("href");
+
+			if (!href.startsWith("http")) {
+				a.attr("href", "http://www.hi-pda.com/forum/" + href);
+			}
+		}
+
+		post.setBody(eBody.html());
+
 		Post.NiceBody niceBody = new Post.NiceBody();
 
 		if (eBody.size() == 0) {
@@ -511,7 +567,7 @@ public class Core {
 		}
 
 		boolean isTxt = false;
-		int i = 0;
+		i = 0;
 		Post.BodyType type;
 
 		while (i < niceBody.size()) {
@@ -1578,7 +1634,6 @@ public class Core {
 	}
 
 	/**
-	 *
 	 * If the length of image file is less than maxSize, quality will not be applied, and
 	 * image file will be returned directly.
 	 *
@@ -1642,7 +1697,7 @@ public class Core {
 
 				File tempDir = context.getCacheDir();
 				File tempFile = File.createTempFile("uzlee-compress", ".jpg", tempDir);
-				Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width , height, true);
+				Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
 				OutputStream os = new FileOutputStream(tempFile);
 				scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
 				os.close();
@@ -1661,7 +1716,6 @@ public class Core {
 	}
 
 	/**
-	 *
 	 * @param imageFile
 	 * @param maxSize
 	 * @param currentRate, 1.0f as the initial value.
@@ -1754,7 +1808,7 @@ public class Core {
 		void onImage(File imageFile);
 	}
 
-	public static class UserEvent{
+	public static class UserEvent {
 		public User user;
 
 		public UserEvent(User user) {
@@ -1771,7 +1825,7 @@ public class Core {
 	}
 
 //	public static class PostsRet {
-//		public ArrayList<Post> posts;
+//		public ArrayList<Post> activity_posts;
 //		public boolean hasNextPage;
 //		public int page;
 //		public int totalPage;
@@ -1808,12 +1862,51 @@ public class Core {
 	}
 
 	public interface OnProgress {
-		void progress(int current, int total);
+		void progress(int current, int total, Object o);
 	}
 
 	public static class ThreadsRet {
 		public ArrayList<Thread> threads;
 		public boolean hasNextPage;
 		public int page;
+	}
+
+	private static List<Forum> mForums = null;
+
+	public static List<Forum> getForums(Context context) {
+		if (mForums == null) {
+			mForums = Forum.buildFromJSON(context);
+		}
+
+		return mForums;
+	}
+
+	public static List<Forum> getFlattenForums(Context context) {
+		return Forum.flatten(getForums(context));
+	}
+
+	public static List<Forum> getSelectedForums(Context context) {
+		Collection<Integer> selected = CollectionUtils.collect(pref.getStringSet("selected_forums", new HashSet<String>()), new Transformer() {
+			@Override
+			public Object transform(Object o) {
+				return Integer.valueOf((String) o);
+			}
+		});
+
+		if (selected.size() == 0) {
+			List<String> selectedStrs = Arrays.asList(
+					context.getResources().getStringArray(R.array.default_forums));
+
+			selected = CollectionUtils.collect(selectedStrs, new Transformer() {
+				@Override
+				public Object transform(Object o) {
+					return Integer.valueOf((String) o);
+				}
+			});
+
+			pref.edit().putStringSet("selected_forums", new HashSet<>(selectedStrs));
+		}
+
+		return Forum.findByIds(getForums(context), selected);
 	}
 }

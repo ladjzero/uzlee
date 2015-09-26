@@ -1,7 +1,8 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/thread_swipe"
@@ -13,7 +14,6 @@
             android:id="@+id/threads"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/white"
             android:divider="@drawable/list_divider"
             android:dividerHeight="1px"/>
 
