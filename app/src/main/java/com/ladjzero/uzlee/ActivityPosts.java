@@ -57,7 +57,10 @@ import me.drakeet.materialdialog.MaterialDialog;
 
 public class ActivityPosts extends BaseActivity implements AdapterView.OnItemClickListener,
 		Core.OnPostsListener,
-		DiscreteSeekBar.OnProgressChangeListener {
+		DiscreteSeekBar.OnProgressChangeListener,
+		PullToRefreshBase.OnPullEventListener,
+		PullToRefreshBase.OnRefreshListener2,
+		View.OnTouchListener {
 
 	private static final String TAG = "ActivityPosts";
 	private final int EDIT_CODE = 99;
@@ -67,7 +70,7 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 	private int mTid;
 	private int mPage;
 	private Posts mPosts = new Posts();
-	private PullToRefreshWebView mListView;
+	private PullToRefreshWebView mPostsView;
 	private WebView mWebView;
 	private PostsAdapter mAdapter;
 	private boolean mHasNextPage = false;
@@ -155,97 +158,12 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 
 		mProgressBar = (ProgressView) findViewById(R.id.progress_bar);
 
-		mListView = (PullToRefreshWebView) this.findViewById(R.id.posts);
+		mPostsView = (PullToRefreshWebView) this.findViewById(R.id.posts);
 
-		mWebView = mListView.getRefreshableView();
+		mWebView = mPostsView.getRefreshableView();
 
-		mWebView.setOnTouchListener(new View.OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				switch (event.getAction()) {
-
-					case MotionEvent.ACTION_DOWN: {
-						Logger.d("touch down");
-						mWebviewIsOnTouching = true;
-					}
-					case MotionEvent.ACTION_MOVE: {
-						Logger.d("touch move");
-
-						float x = event.getX(), y = event.getY();
-
-						if (mFirstTouch) {
-							downXValue = x;
-							downYValue = y;
-						} else {
-							if (Math.abs(x - downXValue) * 1.5 < Math.abs(y - downYValue)) {
-								slidrInterface.lock();
-							}
-						}
-
-						mFirstTouch = false;
-						// store the X value when the user's finger was pressed down
-
-						Logger.d("webview touch", "= " + downYValue);
-						break;
-					}
-
-					case MotionEvent.ACTION_CANCEL:
-					case MotionEvent.ACTION_UP: {
-						Logger.d("touch up");
-
-						mWebviewIsOnTouching = false;
-						mFirstTouch = true;
-						if (!mWebviewIsScrolling) mListView.postDelayed(new Runnable() {
-							@Override
-							public void run() {
-								if (mPtrState == null || mPtrState == PullToRefreshBase.State.RESET)
-									slidrInterface.unlock();
-							}
-						}, 100);
-
-						// Get the X value when the user released his/her finger
-						float currentX = event.getX();
-						float currentY = event.getY();
-						// check if horizontal or vertical movement was bigger
-
-						if (Math.abs(downXValue - currentX) > Math.abs(downYValue
-								- currentY)) {
-							Logger.d("webview touch", "x");
-							// going backwards: pushing stuff to the right
-							if (downXValue < currentX) {
-								Logger.d("webview touch", "right");
-
-							}
-
-							// going forwards: pushing stuff to the left
-							if (downXValue > currentX) {
-								Logger.d("webview touch", "left");
-
-							}
-
-						} else {
-							Logger.d("webview touch", "y ");
-
-							if (downYValue < currentY) {
-								Logger.d("webview touch", "down");
-
-							}
-							if (downYValue > currentY) {
-								Logger.d("webview touch", "up");
-
-							}
-						}
-						break;
-					}
-
-				}
-
-				return false;
-			}
-		});
-
+		mWebView.setOnTouchListener(this);
 		mWebView.loadUrl("file:///android_asset/posts.html");
-//		mWebView.loadUrl("file:///mnt/sdcard/airdroid/transfer/activity_posts.html");
 		mWebView.addJavascriptInterface(this, "ActivityPosts");
 		mWebView.getSettings().setJavaScriptEnabled(true);
 		mWebView.setWebViewClient(new WebViewClient() {
@@ -256,93 +174,10 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		});
 
 		mAdapter = new PostsAdapter(this, mPosts);
-		registerForContextMenu(mListView.getRefreshableView());
-		mListView.setMode(PullToRefreshBase.Mode.DISABLED);
-
-		mListView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<WebView>() {
-			@Override
-			public void onPullDownToRefresh(PullToRefreshBase<WebView> refreshView) {
-				fetch(mPosts.getPage() - 1, ActivityPosts.this);
-				position = 0;
-			}
-
-			@Override
-			public void onPullUpToRefresh(PullToRefreshBase<WebView> refreshView) {
-				fetch(mPosts.getPage() + 1, ActivityPosts.this);
-				position = 0;
-			}
-		});
-
-		mListView.setOnPullEventListener(new PullToRefreshBase.OnPullEventListener<WebView>() {
-			@Override
-			public void onPullEvent(PullToRefreshBase<WebView> refreshView, PullToRefreshBase.State state, PullToRefreshBase.Mode direction) {
-				Logger.d("PL %s", state);
-				mPtrState = state;
-
-				if (state == PullToRefreshBase.State.RESET) {
-					slidrInterface.unlock();
-
-					if (direction == PullToRefreshBase.Mode.PULL_FROM_END && !mQuickVisible) {
-						Logger.d("Quick Edit FadeIn");
-						YoYo.with(Techniques.FadeIn).duration(100).withListener(new Animator.AnimatorListener() {
-							@Override
-							public void onAnimationStart(Animator animation) {
-
-							}
-
-							@Override
-							public void onAnimationEnd(Animator animation) {
-								mQuickReplyLayout.setAlpha(0.97f);
-								mQuickVisible = true;
-							}
-
-							@Override
-							public void onAnimationCancel(Animator animation) {
-
-							}
-
-							@Override
-							public void onAnimationRepeat(Animator animation) {
-
-							}
-						}).playOn(mQuickReplyLayout);
-					}
-				} else {
-					slidrInterface.lock();
-
-					if (direction == PullToRefreshBase.Mode.PULL_FROM_END && mQuickVisible && !isFadingOut) {
-						Logger.d("Quick Edit FadeOut");
-
-						isFadingOut = true;
-
-						YoYo.with(Techniques.FadeOut).duration(100).withListener(new Animator.AnimatorListener() {
-							@Override
-							public void onAnimationStart(Animator animation) {
-
-							}
-
-							@Override
-							public void onAnimationEnd(Animator animation) {
-								mQuickReplyLayout.setAlpha(0);
-								mQuickVisible = false;
-								isFadingOut = false;
-							}
-
-							@Override
-							public void onAnimationCancel(Animator animation) {
-
-							}
-
-							@Override
-							public void onAnimationRepeat(Animator animation) {
-
-							}
-						}).playOn(mQuickReplyLayout);
-
-					}
-				}
-			}
-		});
+		registerForContextMenu(mPostsView.getRefreshableView());
+		mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
+		mPostsView.setOnRefreshListener(this);
+		mPostsView.setOnPullEventListener(this);
 
 
 		mMenuView = getLayoutInflater().inflate(R.layout.posts_actions_dialog, null);
@@ -385,7 +220,7 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 						actionsAdapter.notifyDataSetChanged();
 						break;
 					case 1:
-//						ActivityPosts.this.position = mListView.getRefreshableView().getFirstVisiblePosition();
+//						ActivityPosts.this.position = mPostsView.getRefreshableView().getFirstVisiblePosition();
 //						mAdapter.notifyDataSetChanged();
 //						fetch(mPage, ActivityPosts.this);
 //						break;
@@ -666,7 +501,7 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		setTitle(posts.getTitle());
 //		toggleMenus(true);
 
-		mListView.onRefreshComplete();
+		mPostsView.onRefreshComplete();
 		mAdapter.clearViewCache();
 
 		int totalPage = posts.getTotalPage(),
@@ -686,9 +521,9 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		Logger.d("current page: " + currPage);
 
 		if (mHasNextPage) {
-			mListView.setMode(currPage == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
+			mPostsView.setMode(currPage == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
 		} else {
-			mListView.setMode(currPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
+			mPostsView.setMode(currPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
 		}
 
 		mPosts.merge(posts);
@@ -704,10 +539,10 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 
 			if (post != null) {
 				// +1 for header.
-//				mListView.getRefreshableView().setSelection(mPosts.getLastMerged().indexOf(post) + 1);
+//				mPostsView.getRefreshableView().setSelection(mPosts.getLastMerged().indexOf(post) + 1);
 			}
 		} else {
-//			mListView.getRefreshableView().setSelection(mInitToLastPost ? activity_posts.size() - 1 : position);
+//			mPostsView.getRefreshableView().setSelection(mInitToLastPost ? activity_posts.size() - 1 : position);
 			mInitToLastPost = false;
 		}
 
@@ -771,14 +606,14 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 							mSeekBar.setProgress(currPage);
 
 							if (mHasNextPage) {
-								mListView.setMode(mPage == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
+								mPostsView.setMode(mPage == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
 							} else {
-								mListView.setMode(mPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
+								mPostsView.setMode(mPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
 							}
 
 							mPosts.merge(posts);
 							mAdapter.notifyDataSetChanged();
-//							mListView.getRefreshableView().setSelection(activity_posts.size() - 1);
+//							mPostsView.getRefreshableView().setSelection(activity_posts.size() - 1);
 							mProgressBar.stop();
 						}
 					}.execute(html);
@@ -899,5 +734,169 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 			intent.setData(uri);
 			startActivity(intent);
 		}
+	}
+
+	@Override
+	public void onPullEvent(PullToRefreshBase refreshView, PullToRefreshBase.State state, PullToRefreshBase.Mode direction) {
+		Logger.d("PL %s", state);
+		mPtrState = state;
+
+		if (state == PullToRefreshBase.State.RESET) {
+			slidrInterface.unlock();
+
+			if (direction == PullToRefreshBase.Mode.PULL_FROM_END) {
+				Logger.d("Quick Edit FadeIn");
+				YoYo.with(Techniques.FadeIn).duration(100).withListener(new Animator.AnimatorListener() {
+					@Override
+					public void onAnimationStart(Animator animation) {
+
+					}
+
+					@Override
+					public void onAnimationEnd(Animator animation) {
+						mQuickReplyLayout.setAlpha(0.97f);
+						mQuickVisible = true;
+					}
+
+					@Override
+					public void onAnimationCancel(Animator animation) {
+
+					}
+
+					@Override
+					public void onAnimationRepeat(Animator animation) {
+
+					}
+				}).playOn(mQuickReplyLayout);
+			}
+		} else {
+			slidrInterface.lock();
+
+			if (direction == PullToRefreshBase.Mode.PULL_FROM_END && mQuickVisible && !isFadingOut) {
+				Logger.d("Quick Edit FadeOut");
+
+				isFadingOut = true;
+
+				YoYo.with(Techniques.FadeOut).duration(100).withListener(new Animator.AnimatorListener() {
+					@Override
+					public void onAnimationStart(Animator animation) {
+
+					}
+
+					@Override
+					public void onAnimationEnd(Animator animation) {
+						mQuickReplyLayout.setAlpha(0);
+						mQuickVisible = false;
+						isFadingOut = false;
+					}
+
+					@Override
+					public void onAnimationCancel(Animator animation) {
+
+					}
+
+					@Override
+					public void onAnimationRepeat(Animator animation) {
+
+					}
+				}).playOn(mQuickReplyLayout);
+
+			}
+		}
+	}
+
+	@Override
+	public void onPullDownToRefresh(PullToRefreshBase refreshView) {
+		fetch(mPosts.getPage() - 1, ActivityPosts.this);
+		position = 0;
+	}
+
+	@Override
+	public void onPullUpToRefresh(PullToRefreshBase refreshView) {
+		fetch(mPosts.getPage() + 1, ActivityPosts.this);
+		position = 0;
+	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		switch (event.getAction()) {
+
+			case MotionEvent.ACTION_DOWN: {
+				Logger.d("touch down");
+				mWebviewIsOnTouching = true;
+			}
+			case MotionEvent.ACTION_MOVE: {
+				Logger.d("touch move");
+
+				float x = event.getX(), y = event.getY();
+
+				if (mFirstTouch) {
+					downXValue = x;
+					downYValue = y;
+				} else {
+					if (Math.abs(x - downXValue) * 1.5 < Math.abs(y - downYValue)) {
+						slidrInterface.lock();
+					}
+				}
+
+				mFirstTouch = false;
+				// store the X value when the user's finger was pressed down
+
+				Logger.d("webview touch", "= " + downYValue);
+				break;
+			}
+
+			case MotionEvent.ACTION_CANCEL:
+			case MotionEvent.ACTION_UP: {
+				Logger.d("touch up");
+
+				mWebviewIsOnTouching = false;
+				mFirstTouch = true;
+				if (!mWebviewIsScrolling) mPostsView.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						if (mPtrState == null || mPtrState == PullToRefreshBase.State.RESET)
+							slidrInterface.unlock();
+					}
+				}, 100);
+
+				// Get the X value when the user released his/her finger
+				float currentX = event.getX();
+				float currentY = event.getY();
+				// check if horizontal or vertical movement was bigger
+
+				if (Math.abs(downXValue - currentX) > Math.abs(downYValue
+						- currentY)) {
+					Logger.d("webview touch", "x");
+					// going backwards: pushing stuff to the right
+					if (downXValue < currentX) {
+						Logger.d("webview touch", "right");
+
+					}
+
+					// going forwards: pushing stuff to the left
+					if (downXValue > currentX) {
+						Logger.d("webview touch", "left");
+
+					}
+
+				} else {
+					Logger.d("webview touch", "y ");
+
+					if (downYValue < currentY) {
+						Logger.d("webview touch", "down");
+
+					}
+					if (downYValue > currentY) {
+						Logger.d("webview touch", "up");
+
+					}
+				}
+				break;
+			}
+
+		}
+
+		return false;
 	}
 }

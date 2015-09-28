@@ -11,5 +11,6 @@
     <dimen name="navigation_drawer_width">240dp</dimen>
 
     <dimen name="toolbar_height">48dp</dimen>
+    <dimen name="profile_height">38dp</dimen>
 
 </resources>

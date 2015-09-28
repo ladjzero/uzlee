@@ -1,9 +1,4 @@
-$purpleDark:    #1b122a;
-$purpleMain:    #3b2d66;
-$purpleLight:   #735fa9;
-$warmDark:      #814a59;
-$warmMain:      #9d5b5e;
-$warmLight:     #d19996;
+$primary-purple:#8d6c9d;
 $borderColor:   #e8e8e8;
 $nameColor:     #686868;
 $dateColor:     #c8c8c8;
@@ -71,8 +66,8 @@ $dateColor:     #c8c8c8;
     }
 }
 
+* {box-sizing: border-box;}
 body {word-wrap: break-word;}
-a {color: $warmMain;}
 
 .unstyled {
     margin: 0;

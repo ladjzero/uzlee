@@ -1,38 +1,30 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="horizontal">
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="12dp"
-        android:padding="1px">
+        android:layout_marginRight="12dp">
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="1.5dp">
+        <TextView
+            android:id="@+id/user_image_mask"
+            android:layout_width="@dimen/profile_height"
+            android:layout_height="@dimen/profile_height"
+            android:gravity="center"
+            android:textColor="@color/snow_darker"
+            android:textSize="20dp"/>
 
-            <TextView
-                android:id="@+id/user_image_mask"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:gravity="center"
-                android:textColor="@color/snow_darker"
-                android:textSize="20dp"/>
+        <ImageView
+            android:id="@+id/user_image"
+            android:layout_width="@dimen/profile_height"
+            android:layout_height="@dimen/profile_height"
+            android:layout_gravity="center_vertical"
+            android:accessibilityLiveRegion="polite"
+            android:scaleType="centerCrop"/>
 
-            <ImageView
-                android:id="@+id/user_image"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:layout_gravity="center_vertical"
-                android:accessibilityLiveRegion="polite"
-                android:scaleType="centerCrop"/>
-
-        </RelativeLayout>
-    </FrameLayout>
+    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -40,7 +32,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="38dp"
+            android:layout_height="@dimen/profile_height"
             android:paddingBottom="2dp"
             android:paddingTop="2dp">
 
@@ -49,23 +41,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:layout_gravity="center_vertical"
-                android:gravity="center_horizontal"
+                android:includeFontPadding="false"
                 android:maxLines="1"
                 android:text="一二三四"
                 android:textColor="#ff686868"
-                android:textSize="14sp"/>
+                android:textSize="14dp"/>
 
             <TextView
                 android:id="@+id/thread_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:layout_centerVertical="true"
                 android:layout_toLeftOf="@+id/post_no"
+                android:includeFontPadding="false"
                 android:text="50"
                 android:textColor="@color/snow_darker"
-                android:textSize="10sp"/>
+                android:textSize="10dp"/>
         </RelativeLayout>
 
         <com.joanzapata.iconify.widget.IconTextView

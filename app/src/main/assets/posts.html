@@ -13,21 +13,23 @@
 <body class="unstyled">
 <p id="hello" style="position: fixed"></p>
     <script type="text/html" id="post-template">
-        <div class="post-header">
-            <div class="profile-wrapper">
-                <span data-bind="text: author.name.charAt(0).toUpperCase()"></span>
-                <img class="profile" data-bind="attr: {id: 'uid-' + author.id, src: author.image}, click: $root.onProfileClick, clickBubble: false, event: {load: $root.onProfileLoad}">
+        <div class="post-container list-border">
+            <div class="post-header">
+                <div class="profile-wrapper">
+                    <span data-bind="text: author.name.charAt(0).toUpperCase()"></span>
+                    <img class="profile" data-bind="attr: {id: 'uid-' + author.id, src: author.image}, click: $root.onProfileClick, clickBubble: false, event: {load: $root.onProfileLoad}">
+                </div>
+                <div class="name-and-date">
+                    <span class="name" data-bind="text: author.name"></span>
+                    <span class="date" data-bind="text: timeStr"></span>
+                </div>
             </div>
-            <div class="name-and-date">
-                <span class="name" data-bind="text: author.name"></span>
-                <span class="date" data-bind="text: timeStr"></span>
-            </div>
+            <p class="body" data-bind="html: body"></p>
         </div>
-        <p class="body" data-bind="html: body"></p>
     </script>
 
     <script type="text/html" id="posts-template">
-        <li class="list-border" data-bind="template: {name: 'post-template', data: post, afterRender: $root.onPostRender}, attr: {id: 'pid-' + id}, click: $root.onPostClick"></li>
+        <li data-bind="template: {name: 'post-template', data: post, afterRender: $root.onPostRender}, attr: {id: 'pid-' + id}, click: $root.onPostClick"></li>
     </script>
 
     <ol id="post-list" class="unstyled" data-bind="template: {name: 'posts-template', foreach: posts, as: 'post'}"></ol>

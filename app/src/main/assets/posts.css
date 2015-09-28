@@ -29,11 +29,11 @@
   .list-border {
     border-image: url(e8e8e8.png) 2 repeat;
     border-width: 1px; } }
+* {
+  box-sizing: border-box; }
+
 body {
   word-wrap: break-word; }
-
-a {
-  color: #9d5b5e; }
 
 .unstyled {
   margin: 0;
@@ -46,9 +46,14 @@ ul.unstyled, ol.unstyled {
 body {
   margin: 0 12px; }
 
+br + br {
+  display: none; }
+
+img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
+  display: none !important; }
+
 .body {
-  line-height: 1.6;
-  padding-bottom: 48px; }
+  line-height: 1.6; }
 
 .pstatus {
   display: block;
@@ -59,52 +64,58 @@ body {
   margin: 12px 0; }
 
 blockquote {
-  border-left: 4px solid #735fa9;
+  border-left: 4px solid #8d6d9d;
   padding: 12px;
   margin: 24px; }
 
-#post-list {
+#post-list li:last-child {
+  padding-bottom: 48px; }
+#post-list .post-container {
   margin: 0 12px; }
-  #post-list .post-header {
-    padding-top: 12px; }
-    #post-list .post-header .profile-wrapper {
+#post-list .post-header {
+  padding-top: 12px; }
+  #post-list .post-header .profile-wrapper {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    display: inline-block;
+    text-align: center; }
+    #post-list .post-header .profile-wrapper > span {
+      width: 100%;
+      position: absolute;
+      line-height: 38px;
+      font-size: 20px;
+      color: #c8c8c8; }
+    #post-list .post-header .profile-wrapper .profile {
+      visibility: hidden;
       position: relative;
-      width: 34px;
-      height: 34px;
-      display: inline-block;
-      text-align: center; }
-      #post-list .post-header .profile-wrapper > span {
-        width: 100%;
-        position: absolute;
-        line-height: 34px;
-        font-size: 20px;
-        color: #c8c8c8; }
-      #post-list .post-header .profile-wrapper .profile {
-        visibility: hidden;
-        position: relative;
-        width: 34px;
-        height: 34px; }
-    #post-list .post-header .name-and-date {
-      height: 34px;
-      margin-left: 12px;
-      display: inline-block; }
-      #post-list .post-header .name-and-date .name {
-        color: #686868;
-        font-size: 14px;
-        display: block;
-        line-height: 20px; }
-      #post-list .post-header .name-and-date .date {
-        color: #c8c8c8;
-        font-size: 10px;
-        line-height: 14px; }
-  #post-list .body img {
+      width: 38px;
+      height: 38px; }
+  #post-list .post-header .name-and-date {
     vertical-align: top;
-    max-width: 100%; }
-  #post-list .body img[smilieid] {
-    width: 20px;
-    height: 20px; }
-  #post-list .body .content-image {
-    display: block;
-    margin: 0 auto; }
+    height: 38px;
+    margin-left: 12px;
+    padding: 2px 0;
+    display: inline-block; }
+    #post-list .post-header .name-and-date .name {
+      color: #686868;
+      font-size: 14px;
+      display: block;
+      line-height: 16px; }
+    #post-list .post-header .name-and-date .date {
+      color: #c8c8c8;
+      font-size: 10px;
+      line-height: 12px; }
+#post-list .body img {
+  vertical-align: top;
+  max-width: 100%; }
+#post-list .body img[smilieid] {
+  width: 20px;
+  height: 20px; }
+#post-list .body .content-image {
+  display: block;
+  margin: 0 auto; }
+  #post-list .body .content-image + br {
+    display: none; }
 
 /*# sourceMappingURL=posts.css.map */

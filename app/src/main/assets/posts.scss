@@ -1,18 +1,25 @@
 @import "uzlee.scss";
 
-$profile-height: 34px;
+$profile-height: 38px;
 $toolbar-height: 48px;
 
 body {
     margin: 0 12px;
 }
 
+br + br {
+    display: none;
+}
 
+img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
+    display: none!important;
+}
 
 .body {
     line-height: 1.6;
-    padding-bottom: $toolbar-height;
 }
+
+//* {outline: 1px solid blue}
 
 .pstatus {
     display: block;
@@ -24,13 +31,19 @@ body {
 }
 
 blockquote {
-    border-left: 4px solid $purpleLight;
+    border-left: 4px solid lighten($primary-purple, .2);
     padding: 12px;
     margin: 24px;
 }
 
 #post-list {
-    margin: 0 12px;
+    li:last-child  {
+        padding-bottom: $toolbar-height;
+    }
+
+    .post-container {
+        margin: 0 12px;
+    }
 
     .post-header {
         padding-top: 12px;
@@ -59,21 +72,23 @@ blockquote {
         }
 
         .name-and-date {
+            vertical-align: top;
             height: $profile-height;
             margin-left: 12px;
+            padding: 2px 0;
             display: inline-block;
 
             .name {
                 color: $nameColor;
                 font-size: 14px;
                 display: block;
-                line-height: 20px;
+                line-height: 16px;
             }
 
             .date {
                 color: $dateColor;
                 font-size: 10px;
-                line-height: 14px;
+                line-height: 12px;
             }
         }
     }
@@ -92,6 +107,10 @@ blockquote {
         .content-image {
             display: block;
             margin: 0 auto;
+
+            & + br {
+                display: none;
+            }
         }
     }
 }
