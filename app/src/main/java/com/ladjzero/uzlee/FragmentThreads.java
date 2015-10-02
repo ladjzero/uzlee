@@ -63,6 +63,7 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 	private View mTitleView;
 	private SlidrInterface slidrInterface;
 	private boolean mRenderOnCreate = true;
+	private boolean mVisible;
 
 	public interface OnFetch {
 		void fetchStart();
@@ -105,7 +106,7 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mActivity = (BaseActivity) getActivity();
-		mTitleView = mActivity.mTitleView;
+//		mTitleView = mActivity.mTitleView;
 
 		if (mTitleView != null) {
 			mTitleView.setOnClickListener(new View.OnClickListener() {
@@ -232,10 +233,20 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 	}
 
 	@Override
+	public void setUserVisibleHint(boolean isVisibleToUser) {
+		super.setUserVisibleHint(isVisibleToUser);
+		mVisible = isVisibleToUser;
+
+		if (mVisible && getView() != null) {
+			if (mThreads.size() == 0 && mDataSource != DATA_SOURCE_SEARCH) fetch(1, this);
+		}
+	}
+
+	@Override
 	public void onResume() {
 		super.onResume();
 
-		if (mThreads.size() == 0 && mDataSource != DATA_SOURCE_SEARCH) fetch(1, this);
+		if (mVisible && mThreads.size() == 0 && mDataSource != DATA_SOURCE_SEARCH) fetch(1, this);
 		adapter.notifyDataSetChanged();
 
 		mSwipe.setEnabled(mEnablePullToRefresh);
@@ -246,7 +257,7 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 	@Override
 	public void onPause() {
 		EventBus.getDefault().unregister(this);
-		super.onPause();
+			super.onPause();
 	}
 
 	@Override
@@ -259,7 +270,7 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 			}
 			outState.putIntegerArrayList("ids", ids);
 		}
-		outState.putInt("index", listView.getFirstVisiblePosition());
+			outState.putInt("index", listView.getFirstVisiblePosition());
 		View v = listView.getChildAt(0);
 		outState.putInt("top", v == null ? 0 : v.getTop());
 	}
@@ -305,25 +316,25 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 	}
 
 	@Override
-	public void onError(String error) {
-		mActivity.showToast(error);
-	}
+		public void onError (String error){
+			mActivity.showToast(error);
+		}
 
-	@Override
-	public void onRefresh() {
-		fetch(1, new OnThreadsListener() {
-			@Override
-			public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
-				mIsFetching = false;
-				FragmentThreads.this.hasNextPage = hasNextPage;
-				FragmentThreads.this.mThreads.clear();
-				FragmentThreads.this.mThreads.addAll(threads);
-				adapter.notifyDataSetChanged();
-				setRefreshSpinner(false);
-			}
+		@Override
+		public void onRefresh () {
+			fetch(1, new OnThreadsListener() {
+				@Override
+				public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
+					mIsFetching = false;
+					FragmentThreads.this.hasNextPage = hasNextPage;
+					FragmentThreads.this.mThreads.clear();
+					FragmentThreads.this.mThreads.addAll(threads);
+					adapter.notifyDataSetChanged();
+					setRefreshSpinner(false);
+				}
 
-			@Override
-			public void onError(String error) {
+				@Override
+				public void onError(String error) {
 				mIsFetching = false;
 				setRefreshSpinner(false);
 				mActivity.showToast(error);
@@ -340,31 +351,35 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-		Thread thread = adapter.getItem(info.position);
+		if (getUserVisibleHint()) {
+			AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+			Thread thread = adapter.getItem(info.position);
 
-		switch (item.getItemId()) {
-			case 1:
+			switch (item.getItemId()) {
+				case 1:
 
-				ClipboardManager clipboardManager = (ClipboardManager) mActivity.getSystemService(Context.CLIPBOARD_SERVICE);
-				StringBuilder builder = new StringBuilder();
+					ClipboardManager clipboardManager = (ClipboardManager) mActivity.getSystemService(Context.CLIPBOARD_SERVICE);
+					StringBuilder builder = new StringBuilder();
 
-				ClipData clipData = ClipData.newPlainText("post content", thread.getTitle());
-				clipboardManager.setPrimaryClip(clipData);
-				mActivity.showToast("复制到剪切版");
-				break;
-			case 2:
+					ClipData clipData = ClipData.newPlainText("post content", thread.getTitle());
+					clipboardManager.setPrimaryClip(clipData);
+					mActivity.showToast("复制到剪切版");
+					break;
+				case 2:
 
-				Intent intent = new Intent(mActivity, ActivityPosts.class);
-				intent.putExtra("tid", thread.getId());
-				intent.putExtra("page", 9999);
-				intent.putExtra("title", thread.getTitle());
-				intent.putExtra("uid", thread.getAuthor().getId());
+					Intent intent = new Intent(mActivity, ActivityPosts.class);
+					intent.putExtra("tid", thread.getId());
+					intent.putExtra("page", 9999);
+					intent.putExtra("title", thread.getTitle());
+					intent.putExtra("uid", thread.getAuthor().getId());
 
-				startActivity(intent);
+					startActivity(intent);
+			}
+
+			return super.onContextItemSelected(item);
+		} else {
+			return false;
 		}
-
-		return super.onContextItemSelected(item);
 	}
 
 	private void setRefreshSpinner(boolean visible) {

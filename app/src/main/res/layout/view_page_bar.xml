@@ -9,8 +9,9 @@
         style="@style/Material.Widget.TabPageIndicator"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:tpi_indicatorColor="@android:color/holo_blue_light"
-        app:tpi_indicatorHeight="4dp"
+        android:textAppearance="@style/TabBarStyle2"
+        app:tpi_indicatorColor="@android:color/white"
+        app:tpi_indicatorHeight="2dp"
         app:tpi_mode="fixed"/>
 
 </RelativeLayout>

@@ -44,7 +44,7 @@
             <!--</intent-filter>-->
         </activity>
         <activity
-            android:name="com.ladjzero.uzlee.EditActivity"
+            android:name=".ActivityEdit"
             android:label="@string/title_activity_reply"
             android:windowSoftInputMode="adjustPan">
         </activity>

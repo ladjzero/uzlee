@@ -36,6 +36,8 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.utils.L;
 import com.orhanobut.logger.Logger;
 import com.r0adkll.slidr.model.SlidrConfig;
+import com.r0adkll.slidr.model.SlidrInterface;
+import com.r0adkll.slidr.model.SlidrListener;
 import com.r0adkll.slidr.model.SlidrPosition;
 import com.rey.material.app.Dialog;
 import com.rey.material.app.DialogFragment;
@@ -45,7 +47,7 @@ import com.rey.material.widget.FloatingActionButton;
 import de.greenrobot.event.EventBus;
 
 
-public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
+public class BaseActivity extends ActionBarActivity implements Core.OnProgress, SlidrListener {
 	private static final String TAG = "BaseActivity";
 	protected int mActionbarHeight;
 	public static final int IMAGE_MEM_CACHE_SIZE = 16 * 1024 * 1024;
@@ -53,7 +55,6 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 	SharedPreferences setting;
 	EmojiUtils emojiUtils;
 	Dialog alert;
-	protected TextView mTitleView;
 
 	private static final int mTransparenty = android.R.color.transparent;
 
@@ -107,12 +108,10 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 			.imageScaleType(ImageScaleType.NONE_SAFE)
 			.build();
 
-	public static final SlidrConfig slidrConfig = new SlidrConfig.Builder()
-							.position(SlidrPosition.LEFT)
-							.distanceThreshold(0.25f)
-							.velocityThreshold(2400)
-							.sensitivity(0.47f)
-							.build();
+	public SlidrConfig slidrConfig;
+	public SlidrConfig getSlidrConfig() {
+		return slidrConfig;
+	}
 
 	static {
 		L.writeLogs(false);
@@ -135,18 +134,18 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 	}
 
 	@Override
-	public void setTitle(CharSequence title) {
-		if (mTitleView == null) {
-			super.setTitle(title);
-		} else {
-			mTitleView.setText(title);
-		}
-	}
-
-	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Core.setup(this, true);
+
+		slidrConfig = new SlidrConfig.Builder()
+				.position(SlidrPosition.LEFT)
+				.distanceThreshold(0.25f)
+				.velocityThreshold(2400)
+				.sensitivity(0.47f)
+				.listener(this)
+				.build();
+
 		emojiUtils = new EmojiUtils(this);
 
 		setting = PreferenceManager.getDefaultSharedPreferences(this);
@@ -336,6 +335,26 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress {
 
 	@Override
 	public void progress(int current, int total, Object o) {
+	}
+
+	@Override
+	public void onSlideStateChanged(int state) {
+
+	}
+
+	@Override
+	public void onSlideChange(float percent) {
+
+	}
+
+	@Override
+	public void onSlideOpened() {
+
+	}
+
+	@Override
+	public void onSlideClosed() {
+
 	}
 
 	public static class VersionComparator implements Comparator<String> {

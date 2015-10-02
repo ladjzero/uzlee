@@ -17,6 +17,7 @@ import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 public class PostActionsAdapter extends ArrayAdapter{
 	private Context context;
 	public final static String[] TYPES = new String[]{
+			"回复",
 			"逆序阅读",
 			"刷新",
 			"收藏",
@@ -24,11 +25,12 @@ public class PostActionsAdapter extends ArrayAdapter{
 			"从浏览器打开"
 	};
 	public final static String[] ICONS = new String[] {
+			"{md-reply}",
 			"{fa-sort-numeric-desc}",
-			"{fa-refresh}",
-			"{fa-bookmark}",
-			"{fa-link}",
-			"{fa-external-link}"
+			"{md-autorenew}",
+			"{md-bookmark}",
+			"{md-link}",
+			"{md-launch}"
 	};
 	public final static Icon[] ICON_VALUES = new Icon[] {
 			FontAwesomeIcons.fa_sort_numeric_desc,

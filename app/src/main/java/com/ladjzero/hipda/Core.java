@@ -503,7 +503,7 @@ public class Core {
 					.removeAttr("onclick")
 					.removeAttr("onmouseover");
 
-			if (!src.startsWith("images/smilies/")) {
+			if (!src.startsWith("images/smilies/") && !src.endsWith("common/back.gif") && !src.endsWith("default/attachimg.gif")) {
 				img.addClass("content-image");
 			}
 

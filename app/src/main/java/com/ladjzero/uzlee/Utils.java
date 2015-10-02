@@ -1,11 +1,15 @@
 package com.ladjzero.uzlee;
 
 import android.content.Context;
+import android.view.View;
 
 import com.alibaba.fastjson.JSON;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.User;
+import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -49,5 +53,61 @@ public class Utils {
 				return "<img src=\"" + user.getImage() + "\" onclick=\"ActivityPosts.onUserClick(2)\"><h3>" + user.getName() + "</h3>" + JSON.toJSONString(post);
 			}
 		}), "");
+	}
+
+	public static void fadeOut(final View view) {
+		YoYo.with(Techniques.FadeOut).duration(100).withListener(new Animator.AnimatorListener() {
+			@Override
+			public void onAnimationStart(Animator animation) {
+
+			}
+
+			@Override
+			public void onAnimationEnd(Animator animation) {
+				view.setVisibility(View.INVISIBLE);
+			}
+
+			@Override
+			public void onAnimationCancel(Animator animation) {
+
+			}
+
+			@Override
+			public void onAnimationRepeat(Animator animation) {
+
+			}
+		}).playOn(view);
+	}
+
+	public static void fadeIn(final View view) {
+		YoYo.with(Techniques.FadeIn).duration(100).withListener(new Animator.AnimatorListener() {
+			@Override
+			public void onAnimationStart(Animator animation) {
+
+			}
+
+			@Override
+			public void onAnimationEnd(Animator animation) {
+				view.setVisibility(View.VISIBLE);
+			}
+
+			@Override
+			public void onAnimationCancel(Animator animation) {
+
+			}
+
+			@Override
+			public void onAnimationRepeat(Animator animation) {
+
+			}
+		}).playOn(view);
+	}
+
+	public static int parseInt(String str) {
+		try {
+			return Integer.parseInt(str);
+		} catch (Exception e) {
+			return 0;
+		}
 	}
 }

@@ -47,6 +47,7 @@ public class ChatActivity extends BaseActivity implements Core.OnPostsListener, 
 	int[] blueTheme = {};
 	int white;
 	int darkersnow;
+	TextView mTitleView;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

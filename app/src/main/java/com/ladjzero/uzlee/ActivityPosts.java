@@ -10,6 +10,7 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -36,43 +37,58 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
-import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
 import com.r0adkll.slidr.Slidr;
 import com.r0adkll.slidr.model.SlidrInterface;
-import com.rey.material.widget.ProgressView;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import me.drakeet.materialdialog.MaterialDialog;
 
+import static com.ladjzero.hipda.Core.OnPostsListener;
+import static com.ladjzero.hipda.Core.OnProgress;
+import static com.ladjzero.hipda.Core.OnRequestListener;
+import static com.ladjzero.hipda.Core.addToFavorite;
+import static com.ladjzero.hipda.Core.getHtml;
+import static com.ladjzero.hipda.Core.getUser;
+import static com.ladjzero.hipda.Core.parsePosts;
+import static com.ladjzero.hipda.Core.removeFromFavoriate;
+import static com.ladjzero.hipda.Core.sendReply;
+
 
 public class ActivityPosts extends BaseActivity implements AdapterView.OnItemClickListener,
-		Core.OnPostsListener,
+		OnPostsListener,
 		DiscreteSeekBar.OnProgressChangeListener,
 		PullToRefreshBase.OnPullEventListener,
 		PullToRefreshBase.OnRefreshListener2,
-		View.OnTouchListener {
+		View.OnTouchListener,
+		TextWatcher {
 
 	private static final String TAG = "ActivityPosts";
 	private final int EDIT_CODE = 99;
 	// 0 = asc, 1 = desc
 	public int orderType = 0;
+	PostActionsAdapter actionsAdapter;
+	SlidrInterface slidrInterface;
+	float downXValue, downYValue;
+	boolean mFirstTouch = true;
+	boolean mWebviewIsOnTouching = false;
+	boolean mWebviewIsScrolling = false;
+	private SwipeRefreshLayout mSwipe;
+	private View mSpinner;
 	private int mThreadUserId = 0;
 	private int mTid;
 	private int mPage;
 	private Posts mPosts = new Posts();
 	private PullToRefreshWebView mPostsView;
 	private WebView mWebView;
-	private PostsAdapter mAdapter;
 	private boolean mHasNextPage = false;
 	private DiscreteSeekBar mSeekBar;
 	private Menu mMenu;
@@ -82,23 +98,197 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 	private boolean mInitToLastPost = false;
 	// Help menu dialog to show a line.
 	private View _justALine;
-	private ProgressView mProgressBar;
 	private int myid;
-	SlidrInterface slidrInterface;
 	private int position = 0;
 	// Scroll to this post.
 	private int mPid = 0;
-	float downXValue, downYValue;
-	boolean mFirstTouch = true;
-	boolean mWebviewIsOnTouching = false;
-	boolean mWebviewIsScrolling = false;
+	private int mGestureAction = GestureAction.NONE;
 	private EditText mQuickEdit;
 	private PullToRefreshBase.State mPtrState;
 	private View mQuickReplyLayout;
 	private boolean mQuickVisible = true;
 	private boolean isFadingOut = false;
 	private TextView mQuickSend;
+	private boolean mWebviewTouchFirstMove = false;
+	private TextView mTitleView;
+	private CurrentState currentState = new CurrentState();
+	boolean lockAnyway;
 
+	@Override
+	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+	}
+
+	@Override
+	public void onTextChanged(CharSequence s, int start, int before, int count) {
+		toggleQuickSend(count + start >= 5);
+	}
+
+	@Override
+	public void afterTextChanged(Editable s) {
+
+	}
+
+	private void toggleQuickSend(boolean on) {
+		Resources res = getResources();
+		mQuickSend.setTextColor(res.getColor(on ? R.color.primary : R.color.snow_dark));
+		mQuickSend.setClickable(on);
+	}
+
+	// Menu item click.
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		switch (position) {
+			case 0:
+				Intent replyIntent = new Intent(this, ActivityEdit.class);
+				replyIntent.putExtra("tid", mTid);
+				replyIntent.putExtra("title", "回复主题");
+				replyIntent.putExtra("hideTitleInput", true);
+				startActivityForResult(replyIntent, EDIT_CODE);
+			case 1:
+				orderType = orderType == 0 ? 1 : 0;
+				fetch(1, ActivityPosts.this);
+				// dismiss before data change, visual perfect
+				mMenuDialog.dismiss();
+				actionsAdapter.notifyDataSetChanged();
+				break;
+			case 2:
+				fetch(mPage, ActivityPosts.this);
+				break;
+			case 3:
+				addToFavorite(mTid, new OnRequestListener() {
+					@Override
+					public void onError(String error) {
+						showToast(error);
+					}
+
+					@Override
+					public void onSuccess(String html) {
+						if (html.contains("此主题已成功添加到收藏夹中")) {
+							showToast("收藏成功");
+						} else {
+							if (html.contains("您曾经收藏过这个主题")) {
+								final MaterialDialog dialog = new MaterialDialog(ActivityPosts.this);
+								dialog.setCanceledOnTouchOutside(true)
+										.setMessage("已经收藏过该主题")
+										.setPositiveButton("移除收藏", new View.OnClickListener() {
+											@Override
+											public void onClick(View v) {
+												dialog.dismiss();
+
+												removeFromFavoriate(mTid, new OnRequestListener() {
+													@Override
+													public void onError(String error) {
+														showToast(error);
+													}
+
+													@Override
+													public void onSuccess(String html) {
+														if (html.contains("此主题已成功从您的收藏夹中移除")) {
+															showToast("移除成功");
+														} else {
+															showToast("移除失败");
+														}
+													}
+												});
+											}
+										});
+
+								dialog.show();
+							} else {
+								showToast("收藏失败");
+							}
+						}
+					}
+				});
+				break;
+			case 4:
+				ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+				ClipData clipData = ClipData.newPlainText("post url", getUri());
+				clipboardManager.setPrimaryClip(clipData);
+				showToast("复制到剪切版");
+				break;
+			case 5:
+				Intent intent = new Intent(Intent.ACTION_VIEW);
+				intent.setData(Uri.parse(getUri()));
+				startActivity(intent);
+				break;
+		}
+
+		mMenuDialog.dismiss();
+	}
+
+	private void fetch(int page, final OnPostsListener onPostsListener) {
+		myid = getUser().getId();
+
+		mIsFetching = true;
+		toogleSipnner(true);
+
+		mPage = page;
+		String url = getUri();
+
+		Logger.i("Fetching: %s", url);
+
+		getHtml(url, new OnRequestListener() {
+			@Override
+			public void onError(String error) {
+				mIsFetching = false;
+//				toggleMenus(true);
+				toogleSipnner(false);
+
+				onPostsListener.onError(error);
+				mPostsView.onRefreshComplete();
+
+			}
+
+			@Override
+			public void onSuccess(String html) {
+				mPostsView.onRefreshComplete();
+
+				mIsFetching = false;
+				toogleSipnner(false);
+
+				new AsyncTask<String, Object, Posts>() {
+					@Override
+					protected Posts doInBackground(String... strings) {
+						return parsePosts(strings[0], new OnProgress() {
+							@Override
+							public void progress(int current, int total, Object post) {
+								if (current == 1) publishProgress(current, total, post);
+							}
+						});
+					}
+
+					// Load the first post as soon as possible.
+					@Override
+					protected void onProgressUpdate(Object... objects) {
+						Post post = (Post) objects[2];
+						mWebView.loadUrl("javascript:loadPosts([" + JSON.toJSONString(post) + "], true)");
+					}
+
+					@Override
+					protected void onPostExecute(Posts posts) {
+						mPosts = posts;
+						mIsFetching = false;
+						onPostsListener.onPosts(posts);
+					}
+				}.execute(html);
+			}
+		});
+	}
+
+	private String getUri() {
+		if (mPid > 0) {
+			return String.format("http://www.hi-pda.com/forum/redirect.php?goto=findpost&pid=%d&ptid=%d", mPid, mTid);
+		} else {
+			return "http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + mPage + "&ordertype=" + orderType;
+		}
+	}
+
+	private void toogleSipnner(boolean on) {
+		Utils.fadeOut(on ? mTitleView : mSpinner);
+		Utils.fadeIn(on ? mSpinner : mTitleView);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +299,9 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 
 		LayoutInflater mInflater = LayoutInflater.from(this);
 		View customView = mInflater.inflate(R.layout.toolbar_title_for_post, null);
+		mSpinner = customView.findViewById(R.id.spinner);
+		mTitleView = (TextView) customView.findViewById(R.id.title);
+		mTitleView.setVisibility(View.INVISIBLE);
 
 		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
@@ -118,7 +311,6 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		mActionbar.setDisplayShowCustomEnabled(true);
 		mActionbar.setCustomView(customView);
 
-		mTitleView = (TextView) customView.findViewById(R.id.title);
 		mQuickEdit = (EditText) findViewById(R.id.quick_input);
 		mQuickEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 			@Override
@@ -126,26 +318,10 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 				mQuickReplyLayout.setAlpha(hasFocus ? 1.0f : 0.97f);
 			}
 		});
-		mQuickEdit.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-			}
-
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				toggleQuickSend(count + start >= 5);
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-
-			}
-		});
+		mQuickEdit.addTextChangedListener(this);
 
 		mQuickReplyLayout = findViewById(R.id.quick_reply);
 		mQuickSend = (TextView) findViewById(R.id.quick_send);
-
 
 		Intent intent = getIntent();
 		mTid = intent.getIntExtra("tid", 0);
@@ -154,14 +330,11 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		mThreadUserId = intent.getIntExtra("uid", 0);
 		mInitToLastPost = mPage == 9999;
 
-		setTitle(intent.getStringExtra("title"));
-
-		mProgressBar = (ProgressView) findViewById(R.id.progress_bar);
+		mTitleView.setText(intent.getStringExtra("title"));
 
 		mPostsView = (PullToRefreshWebView) this.findViewById(R.id.posts);
 
 		mWebView = mPostsView.getRefreshableView();
-
 		mWebView.setOnTouchListener(this);
 		mWebView.loadUrl("file:///android_asset/posts.html");
 		mWebView.addJavascriptInterface(this, "ActivityPosts");
@@ -173,8 +346,6 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 			}
 		});
 
-		mAdapter = new PostsAdapter(this, mPosts);
-		registerForContextMenu(mPostsView.getRefreshableView());
 		mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
 		mPostsView.setOnRefreshListener(this);
 		mPostsView.setOnPullEventListener(this);
@@ -206,101 +377,23 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		mMenuDialog.setCanceledOnTouchOutside(true);
 
 		ListView menuList = (ListView) mMenuView.findViewById(R.id.actions);
-		final PostActionsAdapter actionsAdapter = new PostActionsAdapter(this);
+		actionsAdapter = new PostActionsAdapter(this);
 		menuList.setAdapter(actionsAdapter);
-		menuList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-				switch (position) {
-					case 0:
-						orderType = orderType == 0 ? 1 : 0;
-						fetch(1, ActivityPosts.this);
-						// dismiss before data change, visual perfect
-						mMenuDialog.dismiss();
-						actionsAdapter.notifyDataSetChanged();
-						break;
-					case 1:
-//						ActivityPosts.this.position = mPostsView.getRefreshableView().getFirstVisiblePosition();
-//						mAdapter.notifyDataSetChanged();
-//						fetch(mPage, ActivityPosts.this);
-//						break;
-					case 2:
-						Core.addToFavorite(mTid, new Core.OnRequestListener() {
-							@Override
-							public void onError(String error) {
-								showToast(error);
-							}
+		menuList.setOnItemClickListener(this);
+	}
 
-							@Override
-							public void onSuccess(String html) {
-								if (html.contains("此主题已成功添加到收藏夹中")) {
-									showToast("收藏成功");
-								} else {
-									if (html.contains("您曾经收藏过这个主题")) {
-										final MaterialDialog dialog = new MaterialDialog(ActivityPosts.this);
-										dialog.setCanceledOnTouchOutside(true)
-												.setMessage("已经收藏过该主题")
-												.setPositiveButton("移除收藏", new View.OnClickListener() {
-													@Override
-													public void onClick(View v) {
-														dialog.dismiss();
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
 
-														Core.removeFromFavoriate(mTid, new Core.OnRequestListener() {
-															@Override
-															public void onError(String error) {
-																showToast(error);
-															}
-
-															@Override
-															public void onSuccess(String html) {
-																if (html.contains("此主题已成功从您的收藏夹中移除")) {
-																	showToast("移除成功");
-																} else {
-																	showToast("移除失败");
-																}
-															}
-														});
-													}
-												});
-
-										dialog.show();
-									} else {
-										showToast("收藏失败");
-									}
-								}
-							}
-						});
-						break;
-					case 3:
-						ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-						ClipData clipData = ClipData.newPlainText("post url", getUri());
-						clipboardManager.setPrimaryClip(clipData);
-						showToast("复制到剪切版");
-						break;
-					case 4:
-						Intent intent = new Intent(Intent.ACTION_VIEW);
-						intent.setData(Uri.parse(getUri()));
-						startActivity(intent);
-						break;
-				}
-
-				mMenuDialog.dismiss();
+		if (!mIsFetching) {
+			if (id == R.id.more) {
+				onKeyDown(KeyEvent.KEYCODE_MENU, null);
+				return true;
 			}
-		});
-	}
-
-	private void toggleQuickSend(boolean on) {
-		Resources res = getResources();
-		mQuickSend.setTextColor(res.getColor(on ? R.color.primary : R.color.snow_dark));
-		mQuickSend.setClickable(on);
-	}
-
-	private String getUri() {
-		if (mPid > 0) {
-			return String.format("http://www.hi-pda.com/forum/redirect.php?goto=findpost&pid=%d&ptid=%d", mPid, mTid);
-		} else {
-			return "http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + mPage + "&ordertype=" + orderType;
 		}
+
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -310,88 +403,16 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		if (mPosts.size() == 0) {
 			fetch(mPage, this);
 		}
-
-		mWebView.loadUrl("javascript:loadPosts(" + JSON.toJSONString(mPosts) + ")");
-
-//		mAdapter.notifyDataSetChanged();
 	}
 
 	@Override
-	public void onPause() {
-		mAdapter.clearViewCache();
-		super.onPause();
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		if (mPosts != null) {
-			ArrayList<Integer> ids = new ArrayList<Integer>();
-			for (Post p : mPosts) {
-				ids.add(p.getId());
-			}
-
-			outState.putIntegerArrayList("ids", ids);
-		}
-	}
-
-//	@Override
-//	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-	// Has header
-//		Post post = mAdapter.getItem(((AdapterView.AdapterContextMenuInfo) menuInfo).position - 1);
-
-//		menu.add(0, 0, 0, "复制正文");
-//		menu.add(0, 1, 1, post.getAuthor().getId() == myid ? "编辑" : "回复");
-//		super.onCreateContextMenu(menu, v, menuInfo);
-//	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-		// Has header
-		Post post = mAdapter.getItem(info.position - 1);
-
-		switch (item.getItemId()) {
-			case 0:
-				ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-				StringBuilder builder = new StringBuilder();
-
-				for (Map.Entry<Post.BodyType, String> body : post.getNiceBody()) {
-					if (body.getKey() == Post.BodyType.TXT) {
-						if (builder.length() > 0) builder.append("\n");
-						builder.append(body.getValue());
-					}
-				}
-
-				ClipData clipData = ClipData.newPlainText("post content", builder.toString());
-				clipboardManager.setPrimaryClip(clipData);
-				showToast("复制到剪切版");
-				break;
-			case 1:
-				startEditActivity(post);
-				break;
+	public boolean onKeyDown(int keyCode, KeyEvent ev) {
+		if (keyCode == KeyEvent.KEYCODE_MENU && (ev == null || ev.getAction() == 0) && mPosts.size() > 0) {
+			mMenuDialog.show();
+			return true;
 		}
 
-		return super.onContextItemSelected(item);
-	}
-
-	private void startEditActivity(Post post) {
-		int uid = post.getAuthor().getId();
-		int postIndex = post.getPostIndex();
-		Intent intent = new Intent(ActivityPosts.this, EditActivity.class);
-		intent.putExtra("title", myid == uid ? "编辑" : "回复" + (postIndex == 1 ? "楼主" : postIndex + "楼"));
-
-		if (myid == uid) {
-			intent.putExtra("fid", mPosts.getFid());
-		}
-
-		intent.putExtra("pid", post.getId());
-		intent.putExtra("tid", mTid);
-		intent.putExtra("uid", uid);
-		intent.putExtra("no", postIndex);
-		intent.putExtra("userName", post.getAuthor().getName());
-		intent.putExtra("hideTitleInput", postIndex != 1);
-		startActivityForResult(intent, EDIT_CODE);
+		return super.onKeyDown(keyCode, ev);
 	}
 
 	public void onQuickReply(View v) {
@@ -400,7 +421,7 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		mQuickSend.setText("{md-refresh spin}");
 		mQuickSend.setClickable(false);
 
-		Core.sendReply(mTid, mQuickEdit.getText().toString(), null, null, new Core.OnRequestListener() {
+		sendReply(mTid, mQuickEdit.getText().toString(), null, null, new OnRequestListener() {
 			private void reset() {
 				mQuickSend.setClickable(true);
 				mQuickEdit.setEnabled(true);
@@ -415,94 +436,51 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 			@Override
 			public void onSuccess(String html) {
 				reset();
-				// TODO: add this text to posts, do not parse all html
+				mQuickEdit.setText("");
+				onHtml(html);
 			}
 		});
 	}
 
-	@Override
-	public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-		Post post = (Post) adapterView.getAdapter().getItem(i);
-		startEditActivity(post);
-	}
+	private void onHtml(String html) {
+		if (html != null && html.length() > 0) {
+			new AsyncTask<String, Float, Posts>() {
+				@Override
+				protected Posts doInBackground(String... strings) {
+					return parsePosts(strings[0], null);
+				}
 
-	private void fetch(int page, final Core.OnPostsListener onPostsListener) {
-		myid = Core.getUser().getId();
+				@Override
+				protected void onPostExecute(Posts posts) {
+					mIsFetching = false;
+					mPosts = posts;
 
-		mIsFetching = true;
-//		toggleMenus(false);
+					mPage = posts.getPage();
+					int totalPage = posts.getTotalPage(),
+							currPage = posts.getPage();
 
-		mProgressBar.start();
+					mHasNextPage = totalPage > currPage;
 
-		mPage = page;
-		String url = getUri();
+					mSeekBar.setMax(totalPage);
+					mSeekBar.setProgress(currPage);
 
-		Logger.i("Fetching: %s", url);
-
-		Core.getHtml(url, new Core.OnRequestListener() {
-			@Override
-			public void onError(String error) {
-				mIsFetching = false;
-//				toggleMenus(true);
-
-
-				onPostsListener.onError(error);
-			}
-
-			@Override
-			public void onSuccess(String html) {
-				mIsFetching = false;
-
-				new AsyncTask<String, Object, Posts>() {
-					@Override
-					protected Posts doInBackground(String... strings) {
-						return Core.parsePosts(strings[0], new Core.OnProgress() {
-							@Override
-							public void progress(int current, int total, Object post) {
-								float progress = 1.0f * current / total;
-
-								Logger.i("Progressing %f current %d total %d", progress, current, total);
-
-								publishProgress(current, total, post);
-
-							}
-						});
+					if (mHasNextPage) {
+						mPostsView.setMode(mPage == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
+					} else {
+						mPostsView.setMode(mPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
 					}
 
-					@Override
-					protected void onProgressUpdate(Object... objects) {
-						Integer current = (Integer) objects[0];
-						Integer total = (Integer) objects[1];
-						Post post = (Post) objects[2];
-
-						mProgressBar.setProgress(current * 1.0f / total);
-
-						if (current == 1) {
-							mWebView.loadUrl("javascript:loadPosts([])");
-						}
-
-						mWebView.loadUrl("javascript:addPost(" + JSON.toJSONString(post) + ")");
-					}
-
-					@Override
-					protected void onPostExecute(Posts posts) {
-						mIsFetching = false;
-//						toggleMenus(true);
-						onPostsListener.onPosts(posts);
-						mProgressBar.stop();
-					}
-				}.execute(html);
-			}
-		});
+					mWebView.loadUrl("javascript:loadPosts(" + JSON.toJSONString(posts) + ", true)");
+					mPosts = posts;
+				}
+			}.execute(html);
+		}
 	}
 
 	@Override
 	public void onPosts(final Posts posts) {
-		setTitle(posts.getTitle());
-//		toggleMenus(true);
+		mTitleView.setText(posts.getTitle());
 
-		mPostsView.onRefreshComplete();
-		mAdapter.clearViewCache();
 
 		int totalPage = posts.getTotalPage(),
 				currPage = posts.getPage();
@@ -518,38 +496,24 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		mHasNextPage = totalPage > currPage;
 		mPage = currPage;
 
-		Logger.d("current page: " + currPage);
-
 		if (mHasNextPage) {
 			mPostsView.setMode(currPage == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
 		} else {
 			mPostsView.setMode(currPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
 		}
 
-		mPosts.merge(posts);
-		mAdapter.notifyDataSetChanged();
+		mWebView.loadUrl("javascript:loadPosts(" + JSON.toJSONString(posts) + ", true)");
 
+		// Locate to the specified post.
 		if (mPid != 0) {
-			Post post = (Post) CollectionUtils.find(mPosts.getLastMerged(), new Predicate() {
-				@Override
-				public boolean evaluate(Object o) {
-					return ((Post) o).getId() == mPid;
-				}
-			});
-
-			if (post != null) {
-				// +1 for header.
-//				mPostsView.getRefreshableView().setSelection(mPosts.getLastMerged().indexOf(post) + 1);
-			}
-		} else {
-//			mPostsView.getRefreshableView().setSelection(mInitToLastPost ? activity_posts.size() - 1 : position);
-			mInitToLastPost = false;
+			mWebView.loadUrl("javascript:scrollToPost(" + mPid + ")");
+			mPid = 0;
 		}
 
-		mPid = 0;
-
-
-//		mWebView.loadUrl("javascript:loadPosts({activity_posts:" + JSON.toJSONString(mPosts) + "})");
+		if (mInitToLastPost) {
+			mInitToLastPost = false;
+			mWebView.loadUrl("javascript:scrollToPost(" + posts.get(posts.size() - 1).getId() + ")");
+		}
 	}
 
 	@Override
@@ -559,66 +523,26 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
-		if (requestCode == EDIT_CODE && resultCode == EditActivity.EDIT_SUCCESS) {
+		if (requestCode == EDIT_CODE && resultCode == ActivityEdit.EDIT_SUCCESS) {
 			mIsFetching = true;
-//			toggleMenus(false);
 
 			if (returnIntent != null) {
 				String html = returnIntent.getStringExtra("html");
-
-				mProgressBar.start();
-
-				if (html != null && html.length() > 0) {
-					new AsyncTask<String, Float, Posts>() {
-						@Override
-						protected Posts doInBackground(String... strings) {
-							return Core.parsePosts(strings[0], new Core.OnProgress() {
-								@Override
-								public void progress(int current, int total, Object post) {
-									float progress = 1.0f * current / total;
-
-									Logger.i("Progressing %f current %d total %d", progress, current, total);
-
-									publishProgress(progress);
-								}
-							});
-						}
-
-						@Override
-						protected void onProgressUpdate(Float... floats) {
-							Logger.i("onProgressUpdate %f", floats[0]);
-							mProgressBar.setProgress(floats[0]);
-						}
-
-						@Override
-						protected void onPostExecute(Posts posts) {
-							mIsFetching = false;
-							setProgressBarIndeterminateVisibility(false);
-//							toggleMenus(true);
-
-							mPage = posts.getPage();
-							int totalPage = posts.getTotalPage(),
-									currPage = posts.getPage();
-
-							mHasNextPage = totalPage > currPage;
-
-							mSeekBar.setMax(totalPage);
-							mSeekBar.setProgress(currPage);
-
-							if (mHasNextPage) {
-								mPostsView.setMode(mPage == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
-							} else {
-								mPostsView.setMode(mPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
-							}
-
-							mPosts.merge(posts);
-							mAdapter.notifyDataSetChanged();
-//							mPostsView.getRefreshableView().setSelection(activity_posts.size() - 1);
-							mProgressBar.stop();
-						}
-					}.execute(html);
-				}
+				onHtml(html);
 			}
+		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (mPosts != null) {
+			ArrayList<Integer> ids = new ArrayList<Integer>();
+			for (Post p : mPosts) {
+				ids.add(p.getId());
+			}
+
+			outState.putIntegerArrayList("ids", ids);
 		}
 	}
 
@@ -629,48 +553,7 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		getMenuInflater().inflate(R.menu.posts, menu);
 		menu.findItem(R.id.more).setIcon(new IconDrawable(this, MaterialIcons.md_more_vert).colorRes(android.R.color.white).actionBarSize());
 
-//		menu.setGroupVisible(0, !mIsFetching);
-
 		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		int id = item.getItemId();
-
-		if (!mIsFetching) {
-			if (id == R.id.more) {
-				onKeyDown(KeyEvent.KEYCODE_MENU, null);
-
-				return true;
-//		} else if (id == R.id.reply) {
-//			Intent replyIntent = new Intent(this, EditActivity.class);
-//			replyIntent.putExtra("tid", mTid);
-//			replyIntent.putExtra("title", "回复主题");
-//			replyIntent.putExtra("hideTitleInput", true);
-//			startActivityForResult(replyIntent, EDIT_CODE);
-//			return true;
-			}
-		}
-
-		return super.onOptionsItemSelected(item);
-	}
-
-	private void toggleMenus(boolean visible) {
-		if (mMenu != null) {
-			invalidateOptionsMenu();
-			mMenu.setGroupVisible(0, visible);
-		}
-	}
-
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent ev) {
-		if (keyCode == KeyEvent.KEYCODE_MENU && (ev == null || ev.getAction() == 0) && mPosts.size() > 0) {
-			mMenuDialog.show();
-			return true;
-		}
-
-		return super.onKeyDown(keyCode, ev);
 	}
 
 	@Override
@@ -712,13 +595,68 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		}));
 	}
 
+	private void startEditActivity(Post post) {
+		int uid = post.getAuthor().getId();
+		int postIndex = post.getPostIndex();
+		Intent intent = new Intent(this, ActivityEdit.class);
+		intent.putExtra("title", myid == uid ? "编辑" : "回复" + (postIndex == 1 ? "楼主" : postIndex + "楼"));
+
+		if (myid == uid) {
+			intent.putExtra("fid", mPosts.getFid());
+		}
+
+		intent.putExtra("pid", post.getId());
+		intent.putExtra("tid", mTid);
+		intent.putExtra("uid", uid);
+		intent.putExtra("no", postIndex);
+		intent.putExtra("userName", post.getAuthor().getName());
+		intent.putExtra("hideTitleInput", postIndex != 1);
+		startActivityForResult(intent, EDIT_CODE);
+	}
+
 	@JavascriptInterface
 	public void onScroll(String state) {
-		Logger.d("scroll " + state);
-		if (mWebviewIsScrolling = state.equals("start")) {
-//			slidrInterface.lock();
-		} else {
-//			if (!mWebviewIsOnTouching) slidrInterface.unlock();
+		if (state.equals("start")) {
+			onStateChange(State.SCROLL_START);
+		} else if (state.equals("end")) {
+			onStateChange(State.SCROLL_END);
+		}
+	}
+
+	public void onStateChange(State state) {
+		if (lockAnyway) return;
+
+		switch (state) {
+			case TOUCH_START:
+				currentState.onTouch = true;
+				if (!currentState.onScroll) currentState.enableSlidr = true;
+				break;
+			case TOUCH_END:
+				currentState.onTouch = false;
+				break;
+			case SCROLL_START:
+				currentState.onScroll = true;
+				currentState.enableSlidr = false;
+				break;
+			case SCROLL_END:
+				currentState.onScroll = false;
+				if (!currentState.onTouch) currentState.enableSlidr = true;
+				break;
+			case SLIDE_START:
+				currentState.onSlide = true;
+				break;
+			case SLIDE_END:
+				currentState.onSlide = false;
+				break;
+		}
+
+		if (currentState.enableSlidr != currentState.enableSlidrBefore) {
+			if (currentState.enableSlidr)
+				slidrInterface.unlock();
+			else
+				slidrInterface.lock();
+
+			currentState.enableSlidrBefore = !currentState.enableSlidrBefore;
 		}
 	}
 
@@ -728,12 +666,54 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		Uri uri = Uri.parse(href);
 
 		if ("www.hi-pda.com".equals(uri.getHost())) {
+			String fid = uri.getQueryParameter("fid"),
+					tid = uri.getQueryParameter("tid"),
+					pid = uri.getQueryParameter("pid"),
+					page = uri.getQueryParameter("page");
 
-		} else {
-			Intent intent = new Intent(Intent.ACTION_VIEW);
-			intent.setData(uri);
-			startActivity(intent);
+			if (tid == null)
+				tid = uri.getQueryParameter("ptid");
+
+			int iTid = Utils.parseInt(tid),
+					iFid = Utils.parseInt(fid),
+					iPid = Utils.parseInt(pid),
+					iPage = Utils.parseInt(page);
+
+			if (iPage == 0) iPage = 1;
+
+			if (iTid > 0) {
+				Intent intent = new Intent(this, this.getClass());
+				intent.putExtra("tid", iTid);
+				intent.putExtra("fid", iFid);
+				intent.putExtra("pid", iPid);
+				intent.putExtra("page", iPage);
+				startActivity(intent);
+
+				return;
+			}
 		}
+
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.setData(uri);
+		startActivity(intent);
+	}
+
+	@JavascriptInterface
+	public void onImageShow(final boolean show) {
+		if (show) {
+			slidrInterface.lock();
+		} else {
+			slidrInterface.unlock();
+		}
+
+		lockAnyway = show;
+
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mQuickReplyLayout.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
+			}
+		});
 	}
 
 	@Override
@@ -743,6 +723,8 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 
 		if (state == PullToRefreshBase.State.RESET) {
 			slidrInterface.unlock();
+			Logger.d("unlock");
+
 
 			if (direction == PullToRefreshBase.Mode.PULL_FROM_END) {
 				Logger.d("Quick Edit FadeIn");
@@ -771,6 +753,8 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 			}
 		} else {
 			slidrInterface.lock();
+			Logger.d("lock");
+
 
 			if (direction == PullToRefreshBase.Mode.PULL_FROM_END && mQuickVisible && !isFadingOut) {
 				Logger.d("Quick Edit FadeOut");
@@ -817,86 +801,72 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		position = 0;
 	}
 
+	// Lock slidr while view is on touch but not scrolling.
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		switch (event.getAction()) {
-
 			case MotionEvent.ACTION_DOWN: {
-				Logger.d("touch down");
-				mWebviewIsOnTouching = true;
+				onStateChange(State.TOUCH_START);
 			}
 			case MotionEvent.ACTION_MOVE: {
 				Logger.d("touch move");
 
-				float x = event.getX(), y = event.getY();
+				if (mWebviewTouchFirstMove) {
+					if (mGestureAction == GestureAction.NONE) {
+						float x = event.getX(), y = event.getY();
 
-				if (mFirstTouch) {
-					downXValue = x;
-					downYValue = y;
-				} else {
-					if (Math.abs(x - downXValue) * 1.5 < Math.abs(y - downYValue)) {
-						slidrInterface.lock();
+						if (Math.abs(x - downXValue) * 1.3 < Math.abs(y - downYValue)) {
+							onStateChange(State.SCROLL_START);
+						}
+
+						mWebviewTouchFirstMove = false;
 					}
+				} else {
+					downXValue = event.getX();
+					downYValue = event.getY();
+					mWebviewTouchFirstMove = true;
 				}
 
-				mFirstTouch = false;
-				// store the X value when the user's finger was pressed down
-
-				Logger.d("webview touch", "= " + downYValue);
 				break;
 			}
 
 			case MotionEvent.ACTION_CANCEL:
 			case MotionEvent.ACTION_UP: {
-				Logger.d("touch up");
-
-				mWebviewIsOnTouching = false;
-				mFirstTouch = true;
-				if (!mWebviewIsScrolling) mPostsView.postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						if (mPtrState == null || mPtrState == PullToRefreshBase.State.RESET)
-							slidrInterface.unlock();
-					}
-				}, 100);
-
-				// Get the X value when the user released his/her finger
-				float currentX = event.getX();
-				float currentY = event.getY();
-				// check if horizontal or vertical movement was bigger
-
-				if (Math.abs(downXValue - currentX) > Math.abs(downYValue
-						- currentY)) {
-					Logger.d("webview touch", "x");
-					// going backwards: pushing stuff to the right
-					if (downXValue < currentX) {
-						Logger.d("webview touch", "right");
-
-					}
-
-					// going forwards: pushing stuff to the left
-					if (downXValue > currentX) {
-						Logger.d("webview touch", "left");
-
-					}
-
-				} else {
-					Logger.d("webview touch", "y ");
-
-					if (downYValue < currentY) {
-						Logger.d("webview touch", "down");
-
-					}
-					if (downYValue > currentY) {
-						Logger.d("webview touch", "up");
-
-					}
-				}
+				mWebviewTouchFirstMove = true;
+				onStateChange(State.TOUCH_END);
 				break;
 			}
 
 		}
 
 		return false;
+	}
+
+	private enum State {
+		TOUCH_START,
+		TOUCH_END,
+		SCROLL_START,
+		SCROLL_END,
+		SLIDE_START,
+		SLIDE_END
+	}
+
+	private static class GestureAction {
+		final static int SCROLL = 0;
+		final static int SLIDE = 1;
+		final static int NONE = 2;
+	}
+
+	private class CurrentState {
+		boolean onTouch;
+		boolean onScroll;
+		boolean onSlide;
+		boolean enableSlidrBefore = true;
+		boolean enableSlidr = true;
+
+		@Override
+		public String toString() {
+			return "onTouch: " + onTouch + ", onScroll: " + onScroll + ", onSlide: " + onSlide + ", enableSlidr: " + enableSlidr;
+		}
 	}
 }

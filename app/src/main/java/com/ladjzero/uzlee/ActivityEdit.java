@@ -8,6 +8,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,10 +22,11 @@ import android.widget.Toast;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.joanzapata.iconify.IconDrawable;
-import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
+import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.Core;
 import com.nineoldandroids.animation.Animator;
+import com.r0adkll.slidr.Slidr;
 import com.rey.material.app.Dialog;
 
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +35,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 
-public class EditActivity extends BaseActivity implements Core.OnRequestListener {
+public class ActivityEdit extends BaseActivity implements Core.OnRequestListener {
 	public static final int EDIT_SUCCESS = 10;
 
 	int tid;
@@ -51,17 +54,23 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 	private View mEmojiSelector;
 	private InputMethodManager mImeManager;
 	private boolean mIsAnimating = false;
-	private EditActivity that;
+	private ActivityEdit that;
 	ProgressDialog progress;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		setContentView(R.layout.activity_edit);
+
+		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
+
 		that = this;
-//		enableBackAction();
 
 		intent = getIntent();
-//		mActionbar.setDisplayHomeAsUpEnabled(true);
 
 		tid = intent.getIntExtra("tid", 0);
 		pid = intent.getIntExtra("pid", 0);
@@ -73,8 +82,8 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 		isReply = (tid != 0 && pid == 0 && fid == 0);
 		isEdit = (tid != 0 && pid != 0 && fid != 0);
 
+
 //		mActionbar.setTitle(getIntent().getStringExtra("title"));
-		setContentView(R.layout.edit);
 		progress = new ProgressDialog(this);
 
 		Core.getExistedAttach(new Core.OnRequestListener() {
@@ -104,6 +113,8 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 				if (mEmojiSelector != null) mEmojiSelector.setVisibility(View.GONE);
 			}
 		});
+
+		Slidr.attach(this, slidrConfig);
 	}
 
 	@Override
@@ -160,12 +171,12 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.menu_reply, menu);
 
-		menu.findItem(R.id.reply_send).setIcon(new IconDrawable(this, FontAwesomeIcons.fa_send).colorRes(android.R.color.white).actionBarSize());
-		menu.findItem(R.id.reply_add_image).setIcon(new IconDrawable(this, FontAwesomeIcons.fa_image).colorRes(android.R.color.white).actionBarSize());
-		menu.findItem(R.id.reply_add_emoji).setIcon(new IconDrawable(this, FontAwesomeIcons.fa_smile_o).colorRes(android.R.color.white).actionBarSize());
+		menu.findItem(R.id.reply_send).setIcon(new IconDrawable(this, MaterialIcons.md_send).colorRes(android.R.color.white).actionBarSize());
+		menu.findItem(R.id.reply_add_image).setIcon(new IconDrawable(this, MaterialIcons.md_image).colorRes(android.R.color.white).actionBarSize());
+		menu.findItem(R.id.reply_add_emoji).setIcon(new IconDrawable(this, MaterialIcons.md_tag_faces).colorRes(android.R.color.white).actionBarSize());
 
 		if (fid != 0 && tid != 0 && pid != 0 && no != 1)
-			menu.findItem(R.id.delete_post).setIcon(new IconDrawable(this, FontAwesomeIcons.fa_trash).colorRes(android.R.color.white).actionBarSize());
+			menu.findItem(R.id.delete_post).setIcon(new IconDrawable(this, MaterialIcons.md_delete).colorRes(android.R.color.white).actionBarSize());
 		else
 			menu.findItem(R.id.delete_post).setVisible(false);
 		return true;
@@ -234,7 +245,7 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 						@Override
 						public void onClick(View v) {
 							mDialog.dismiss();
-							Core.deletePost(fid, tid, pid, EditActivity.this);
+							Core.deletePost(fid, tid, pid, ActivityEdit.this);
 						}
 					})
 					.positiveAction("确认")
@@ -373,7 +384,7 @@ public class EditActivity extends BaseActivity implements Core.OnRequestListener
 
 	@Override
 	public void onError(String error) {
-		Toast.makeText(EditActivity.this, error, Toast.LENGTH_LONG).show();
+		Toast.makeText(ActivityEdit.this, error, Toast.LENGTH_LONG).show();
 	}
 
 	@Override

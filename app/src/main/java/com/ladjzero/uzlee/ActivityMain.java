@@ -1,9 +1,7 @@
 package com.ladjzero.uzlee;
 
 import android.app.AlertDialog;
-import android.app.FragmentManager;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
@@ -145,7 +143,7 @@ public class ActivityMain extends BaseActivity implements ViewPager.OnPageChange
 		int id = item.getItemId();
 
 		if (id == R.id.thread_publish) {
-			Intent intent = new Intent(this, EditActivity.class);
+			Intent intent = new Intent(this, ActivityEdit.class);
 			intent.putExtra("title", "新主题");
 			intent.putExtra("fid", fid);
 
