@@ -74,7 +74,7 @@ public class ActivityMain extends BaseActivity implements ViewPager.OnPageChange
 		mFid = mForums.get(0).getFid();
 
 		Bundle bundle = new Bundle();
-		getFragmentManager().beginTransaction().replace(R.id.container, FragmentThreadsPager.newInstance(bundle)).commit();
+		getSupportFragmentManager().beginTransaction().replace(R.id.container, FragmentThreadsPager.newInstance(bundle)).commit();
 	}
 
 	@Override

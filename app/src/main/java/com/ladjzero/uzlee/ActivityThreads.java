@@ -1,8 +1,8 @@
 package com.ladjzero.uzlee;
 
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 
 import com.r0adkll.slidr.Slidr;
@@ -33,7 +33,7 @@ public class ActivityThreads extends BaseActivity {
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		setTitle(bundle.getString("title"));
 
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		ft.replace(R.id.place_holder, mFragment);
 		ft.commit();
 
