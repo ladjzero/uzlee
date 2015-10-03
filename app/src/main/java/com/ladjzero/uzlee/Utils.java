@@ -15,13 +15,20 @@ import com.orhanobut.logger.Logger;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 
-import java.util.Collection;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by ladjzero on 2015/2/28.
  */
 public class Utils {
+	private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
 	public static String getFirstChar(String input) {
 		if (input.length() > 0) {
 			String first = input.substring(0, 1);
@@ -108,6 +115,26 @@ public class Utils {
 			return Integer.parseInt(str);
 		} catch (Exception e) {
 			return 0;
+		}
+	}
+
+	public static String prettyTime(String timeStr) {
+		Date mNow = new Date();
+
+		try {
+			Date thatDate = dateFormat.parse(timeStr);
+
+			if (DateUtils.isSameDay(thatDate, mNow)) {
+				return DateFormatUtils.format(thatDate, "HH:mm");
+			} else if (DateUtils.isSameDay(DateUtils.addDays(thatDate, 1), mNow)) {
+				return DateFormatUtils.format(thatDate, "昨天 HH:mm");
+			} else if (mNow.getYear() == thatDate.getYear()) {
+				return DateFormatUtils.format(thatDate, "M月d日");
+			} else {
+				return DateFormatUtils.format(thatDate, "yyyy年M月d日");
+			}
+		} catch (ParseException e) {
+			return timeStr;
 		}
 	}
 }

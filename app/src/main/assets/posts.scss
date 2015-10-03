@@ -91,6 +91,27 @@ blockquote {
                 line-height: 12px;
             }
         }
+
+        .actions {
+            float: right;
+            color: $nameColor;
+
+            .is-lz {
+                font-size: 0.8em;
+                color: white;
+                border-radius: 3px;
+                padding: 3px;
+                background-color: $primary-purple;
+            }
+
+            .reply {
+                font-size: 0.8em;
+                border-radius: 3px;
+                padding: 3px;
+                background-color: $actionBgColor;
+                margin-right: 6px;
+            }
+        }
     }
 
     .body {

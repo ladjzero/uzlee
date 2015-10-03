@@ -116,7 +116,7 @@ public class AlertFragment extends Fragment implements AbsListView.OnItemClickLi
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		if (tabIndex == 0) {
 			Thread chat = (Thread) parent.getAdapter().getItem(position);
-			Intent intent = new Intent(getActivity(), ChatActivity.class);
+			Intent intent = new Intent(getActivity(), ActivityChat.class);
 			intent.putExtra("name", chat.getAuthor().getName());
 			intent.putExtra("uid", chat.getAuthor().getId());
 			startActivity(intent);

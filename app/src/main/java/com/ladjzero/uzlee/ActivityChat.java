@@ -33,7 +33,7 @@ import java.util.Date;
 /**
  * Created by ladjzero on 2015/4/25.
  */
-public class ChatActivity extends BaseActivity implements Core.OnPostsListener, Core.OnRequestListener {
+public class ActivityChat extends BaseActivity implements Core.OnPostsListener, Core.OnRequestListener {
 	private View mRootView;
 	private ListView mListView;
 	private EditText mMessage;
@@ -138,7 +138,7 @@ public class ChatActivity extends BaseActivity implements Core.OnPostsListener, 
 
 					mListView.setSelection(mAdapter.getCount() - 1);
 
-					Core.sendMessage(mName, message, ChatActivity.this);
+					Core.sendMessage(mName, message, ActivityChat.this);
 
 					mMessage.setText("");
 				}

@@ -23,6 +23,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -81,6 +82,7 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 	boolean mFirstTouch = true;
 	boolean mWebviewIsOnTouching = false;
 	boolean mWebviewIsScrolling = false;
+	boolean lockAnyway;
 	private SwipeRefreshLayout mSwipe;
 	private View mSpinner;
 	private int mThreadUserId = 0;
@@ -112,7 +114,6 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 	private boolean mWebviewTouchFirstMove = false;
 	private TextView mTitleView;
 	private CurrentState currentState = new CurrentState();
-	boolean lockAnyway;
 
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -263,6 +264,9 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 					@Override
 					protected void onProgressUpdate(Object... objects) {
 						Post post = (Post) objects[2];
+						if (post.getId() == 1) mThreadUserId = post.getAuthor().getId();
+						post.setIsLz(post.getAuthor().getId() == mThreadUserId);
+
 						mWebView.loadUrl("javascript:loadPosts([" + JSON.toJSONString(post) + "], true)");
 					}
 
@@ -270,6 +274,12 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 					protected void onPostExecute(Posts posts) {
 						mPosts = posts;
 						mIsFetching = false;
+
+						for (Post post : posts) {
+							if (post.getId() == 1) mThreadUserId = post.getAuthor().getId();
+							post.setIsLz(post.getAuthor().getId() == mThreadUserId);
+						}
+
 						onPostsListener.onPosts(posts);
 					}
 				}.execute(html);
@@ -338,7 +348,9 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		mWebView.setOnTouchListener(this);
 		mWebView.loadUrl("file:///android_asset/posts.html");
 		mWebView.addJavascriptInterface(this, "ActivityPosts");
-		mWebView.getSettings().setJavaScriptEnabled(true);
+		WebSettings settings = mWebView.getSettings();
+		settings.setJavaScriptEnabled(true);
+		settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
 		mWebView.setWebViewClient(new WebViewClient() {
 			public boolean onConsoleMessage(ConsoleMessage cm) {
 				Logger.d(cm.message());
@@ -468,6 +480,11 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 						mPostsView.setMode(mPage == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
 					} else {
 						mPostsView.setMode(mPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
+					}
+
+					for (Post post : posts) {
+						if (post.getId() == 1) mThreadUserId = post.getAuthor().getId();
+						post.setIsLz(post.getAuthor().getId() == mThreadUserId);
 					}
 
 					mWebView.loadUrl("javascript:loadPosts(" + JSON.toJSONString(posts) + ", true)");
@@ -699,21 +716,10 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 	}
 
 	@JavascriptInterface
-	public void onImageShow(final boolean show) {
-		if (show) {
-			slidrInterface.lock();
-		} else {
-			slidrInterface.unlock();
-		}
-
-		lockAnyway = show;
-
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				mQuickReplyLayout.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
-			}
-		});
+	public void onImageClick(String src) {
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.setData(Uri.parse(src));
+		startActivity(intent);
 	}
 
 	@Override

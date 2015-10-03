@@ -73,12 +73,7 @@
             android:label="@string/title_activity_threads">
         </activity>
         <activity
-            android:theme="@style/AppBaseTheme.Overlay"
-            android:name="com.ladjzero.uzlee.ImageActivity"
-            android:label="图片">
-        </activity>
-        <activity
-            android:name="com.ladjzero.uzlee.ChatActivity"
+            android:name=".ActivityChat"
             android:label="聊天"
             android:windowSoftInputMode="stateHidden">
         </activity>

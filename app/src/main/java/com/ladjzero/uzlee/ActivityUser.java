@@ -62,7 +62,7 @@ public class ActivityUser extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				if (user != null) {
-					Intent intent = new Intent(ActivityUser.this, ChatActivity.class);
+					Intent intent = new Intent(ActivityUser.this, ActivityChat.class);
 					intent.putExtra("uid", user.getId());
 					intent.putExtra("name", user.getName());
 					startActivity(intent);

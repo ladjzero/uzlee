@@ -28,6 +28,7 @@ public class Post {
 	private ArrayList<Core.Attachment> attachments;
 	private boolean isPending;
 	private boolean isRead;
+	private boolean isLz;
 
 	public User getAuthor() {
 		return author;
@@ -217,6 +218,14 @@ public class Post {
 	public Post setPending(boolean isPending) {
 		this.isPending = isPending;
 		return this;
+	}
+
+	public boolean isLz() {
+		return isLz;
+	}
+
+	public void setIsLz(boolean isLz) {
+		this.isLz = isLz;
 	}
 
 	public static enum BodyType {

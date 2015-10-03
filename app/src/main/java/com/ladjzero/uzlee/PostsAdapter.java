@@ -461,16 +461,16 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 					imageView.setTag(R.id.img_has_bitmap, false);
 					imageView.setTag(R.id.img_progress, imageContainer.findViewById(R.id.progress_bar));
 
-					imageView.setOnClickListener(new OnClickListener() {
-						@Override
-						public void onClick(View view) {
-							Intent intent = new Intent(context, ImageActivity.class);
-							intent.putExtra("url", url);
-							intent.putExtra("tid", post.getTid());
-							intent.putStringArrayListExtra("urls", mUrls);
-							context.startActivity(intent);
-						}
-					});
+//					imageView.setOnClickListener(new OnClickListener() {
+//						@Override
+//						public void onClick(View view) {
+//							Intent intent = new Intent(context, ActivityGallery.class);
+//							intent.putExtra("url", url);
+//							intent.putExtra("tid", post.getTid());
+//							intent.putStringArrayListExtra("urls", mUrls);
+//							context.startActivity(intent);
+//						}
+//					});
 
 					imageView.setOnLongClickListener(new View.OnLongClickListener() {
 						@Override
