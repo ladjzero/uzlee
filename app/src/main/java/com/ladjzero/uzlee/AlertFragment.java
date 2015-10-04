@@ -90,7 +90,7 @@ public class AlertFragment extends Fragment implements AbsListView.OnItemClickLi
 
 					@Override
 					public void onError(String error) {
-						((BaseActivity) getActivity()).showToast(error);
+						((ActivityBase) getActivity()).showToast(error);
 					}
 				});
 				break;
@@ -103,7 +103,7 @@ public class AlertFragment extends Fragment implements AbsListView.OnItemClickLi
 
 					@Override
 					public void onError(String error) {
-						((BaseActivity) getActivity()).showToast(error);
+						((ActivityBase) getActivity()).showToast(error);
 					}
 				});
 				break;

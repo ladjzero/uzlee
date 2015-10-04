@@ -30,13 +30,13 @@ import java.util.Date;
 public class MessageSummaryAdapter extends ArrayAdapter<Thread> implements View.OnClickListener{
 	private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 	private final Date NOW = new Date();
-	BaseActivity context;
+	ActivityBase context;
 	Core core;
 
 
 	public MessageSummaryAdapter(Context context, ArrayList<Thread> threads) {
 		super(context, R.layout.message_row, threads);
-		this.context = (BaseActivity) context;
+		this.context = (ActivityBase) context;
 	}
 
 	@Override

@@ -35,7 +35,7 @@ import java.util.List;
 
 import me.drakeet.materialdialog.MaterialDialog;
 
-public class ActivityMain extends BaseActivity implements ViewPager.OnPageChangeListener {
+public class ActivityMain extends ActivityBase implements ViewPager.OnPageChangeListener {
 
 	private FragmentNav mFragmentNav;
 	int fid;

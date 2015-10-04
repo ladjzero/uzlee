@@ -1,6 +1,8 @@
 package com.ladjzero.uzlee;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.View;
 
 import com.alibaba.fastjson.JSON;
@@ -136,5 +138,11 @@ public class Utils {
 		} catch (ParseException e) {
 			return timeStr;
 		}
+	}
+
+	public static void openInBrowser(Context context, String url) {
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.setData(Uri.parse(url));
+		context.startActivity(intent);
 	}
 }

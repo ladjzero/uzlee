@@ -3,16 +3,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-    <!--<com.joanzapata.iconify.widget.IconTextView-->
-    <!--android:id="@+id/spinner"-->
-    <!--android:layout_width="@dimen/toolbar_height"-->
-    <!--android:layout_height="@dimen/toolbar_height"-->
-    <!--android:layout_alignParentRight="true"-->
-    <!--android:gravity="center"-->
-    <!--android:text="{md-refresh spin}"-->
-    <!--android:textColor="@android:color/white"-->
-    <!--android:textSize="24dp"/>-->
-
     <ProgressBar
         android:id="@+id/spinner"
         style="?android:attr/progressBarStyle"

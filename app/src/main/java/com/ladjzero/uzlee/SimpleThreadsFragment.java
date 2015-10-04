@@ -1,6 +1,5 @@
 package com.ladjzero.uzlee;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
@@ -187,7 +186,7 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 
 	@Override
 	public void onError(String error) {
-		((BaseActivity) getActivity()).showToast(error);
+		((ActivityBase) getActivity()).showToast(error);
 	}
 
 	/**

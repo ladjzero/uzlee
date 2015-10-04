@@ -42,7 +42,7 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 	public static final int DATA_SOURCE_SEARCH = 2;
 	private static final String TAG = "FragmentThreads";
 
-	private BaseActivity mActivity;
+	private ActivityBase mActivity;
 	private final ArrayList<Thread> mThreads = new ArrayList<Thread>();
 	private SwipeRefreshLayout mSwipe;
 	private ListView listView;
@@ -105,7 +105,7 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		mActivity = (BaseActivity) getActivity();
+		mActivity = (ActivityBase) getActivity();
 //		mTitleView = mActivity.mTitleView;
 
 		if (mTitleView != null) {

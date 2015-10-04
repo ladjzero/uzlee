@@ -8,7 +8,7 @@ import android.support.v7.widget.Toolbar;
 import com.r0adkll.slidr.Slidr;
 import com.r0adkll.slidr.model.SlidrInterface;
 
-public class ActivityThreads extends BaseActivity {
+public class ActivityThreads extends ActivityBase {
 
 	private FragmentThreads mFragment;
 	protected SlidrInterface slidrInterface;

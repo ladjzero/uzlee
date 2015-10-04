@@ -707,16 +707,18 @@ public class Core {
 		return eBody;
 	}
 
-	public static Posts parseMessages(String html) {
+	public static String parseMessagesToHtml(String html) {
 		Posts posts = new Posts();
 		Document doc = getDoc(html);
-		Elements ePosts = doc.select("#pmlist > ul > li.s_clear");
+		Element ePosts = doc.select("#pmlist > .pm_list").first();
+		Elements avatars = ePosts.select("a.avatar > img");
 
-		for (Element ePost : ePosts) {
-			posts.add(toMessageObj(ePost));
+		for (Element avatar : avatars) {
+			String src = avatar.attr("src");
+			avatar.attr("src", src.replaceAll("_avatar_small", "_avatar_middle"));
 		}
 
-		return posts;
+		return ePosts == null ? "" : ePosts.outerHtml();
 	}
 
 	public static void sendMessage(String name, String message, final OnRequestListener onRequestListener) {

@@ -22,7 +22,6 @@ import android.widget.Toast;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.joanzapata.iconify.IconDrawable;
-import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.Core;
 import com.nineoldandroids.animation.Animator;
@@ -35,7 +34,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 
-public class ActivityEdit extends BaseActivity implements Core.OnRequestListener {
+public class ActivityEdit extends ActivityBase implements Core.OnRequestListener {
 	public static final int EDIT_SUCCESS = 10;
 
 	int tid;

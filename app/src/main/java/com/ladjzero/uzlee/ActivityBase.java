@@ -22,11 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.joanzapata.iconify.IconDrawable;
-import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.Core;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -36,19 +33,17 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.utils.L;
 import com.orhanobut.logger.Logger;
 import com.r0adkll.slidr.model.SlidrConfig;
-import com.r0adkll.slidr.model.SlidrInterface;
 import com.r0adkll.slidr.model.SlidrListener;
 import com.r0adkll.slidr.model.SlidrPosition;
 import com.rey.material.app.Dialog;
 import com.rey.material.app.DialogFragment;
 import com.rey.material.app.SimpleDialog;
-import com.rey.material.widget.FloatingActionButton;
 
 import de.greenrobot.event.EventBus;
 
 
-public class BaseActivity extends ActionBarActivity implements Core.OnProgress, SlidrListener {
-	private static final String TAG = "BaseActivity";
+public class ActivityBase extends ActionBarActivity implements Core.OnProgress, SlidrListener {
+	private static final String TAG = "ActivityBase";
 	protected int mActionbarHeight;
 	public static final int IMAGE_MEM_CACHE_SIZE = 16 * 1024 * 1024;
 
@@ -117,7 +112,7 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress, 
 		L.writeLogs(false);
 	}
 
-	public BaseActivity() {
+	public ActivityBase() {
 	}
 
 	private boolean enableSwipe() {
@@ -218,7 +213,7 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress, 
 
 					String username = ((EditText) dialog.findViewById(R.id.user_name)).getText().toString();
 					String password = ((EditText) dialog.findViewById(R.id.user_password)).getText().toString();
-					final ProgressDialog progress = ProgressDialog.show(BaseActivity.this, "", getString(R.string.login) + "...", true);
+					final ProgressDialog progress = ProgressDialog.show(ActivityBase.this, "", getString(R.string.login) + "...", true);
 					Spinner question = (Spinner) dialog.findViewById(R.id.question);
 					EditText answer = (EditText) dialog.findViewById(R.id.answer);
 
@@ -231,13 +226,13 @@ public class BaseActivity extends ActionBarActivity implements Core.OnProgress, 
 						@Override
 						public void onError(String error) {
 							progress.dismiss();
-							Toast.makeText(BaseActivity.this, error, Toast.LENGTH_LONG).show();
+							Toast.makeText(ActivityBase.this, error, Toast.LENGTH_LONG).show();
 						}
 
 						@Override
 						public void onSuccess(String html) {
 							progress.dismiss();
-							Toast.makeText(BaseActivity.this, getString(R.string.login_succeed), Toast.LENGTH_LONG).show();
+							Toast.makeText(ActivityBase.this, getString(R.string.login_succeed), Toast.LENGTH_LONG).show();
 						}
 					});
 

@@ -10,7 +10,6 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -19,13 +18,9 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -43,7 +38,6 @@ import com.ladjzero.hipda.Posts;
 import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
 import com.r0adkll.slidr.Slidr;
-import com.r0adkll.slidr.model.SlidrInterface;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import org.apache.commons.collections.CollectionUtils;
@@ -64,7 +58,7 @@ import static com.ladjzero.hipda.Core.removeFromFavoriate;
 import static com.ladjzero.hipda.Core.sendReply;
 
 
-public class ActivityPosts extends BaseActivity implements AdapterView.OnItemClickListener,
+public class ActivityPosts extends ActivityWithWebView implements AdapterView.OnItemClickListener,
 		OnPostsListener,
 		DiscreteSeekBar.OnProgressChangeListener,
 		PullToRefreshBase.OnPullEventListener,
@@ -77,13 +71,6 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 	// 0 = asc, 1 = desc
 	public int orderType = 0;
 	PostActionsAdapter actionsAdapter;
-	SlidrInterface slidrInterface;
-	float downXValue, downYValue;
-	boolean mFirstTouch = true;
-	boolean mWebviewIsOnTouching = false;
-	boolean mWebviewIsScrolling = false;
-	boolean lockAnyway;
-	private SwipeRefreshLayout mSwipe;
 	private View mSpinner;
 	private int mThreadUserId = 0;
 	private int mTid;
@@ -104,16 +91,12 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 	private int position = 0;
 	// Scroll to this post.
 	private int mPid = 0;
-	private int mGestureAction = GestureAction.NONE;
 	private EditText mQuickEdit;
-	private PullToRefreshBase.State mPtrState;
 	private View mQuickReplyLayout;
 	private boolean mQuickVisible = true;
 	private boolean isFadingOut = false;
 	private TextView mQuickSend;
-	private boolean mWebviewTouchFirstMove = false;
 	private TextView mTitleView;
-	private CurrentState currentState = new CurrentState();
 
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -305,8 +288,6 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.activity_posts);
 
-		slidrInterface = Slidr.attach(this, slidrConfig);
-
 		LayoutInflater mInflater = LayoutInflater.from(this);
 		View customView = mInflater.inflate(R.layout.toolbar_title_for_post, null);
 		mSpinner = customView.findViewById(R.id.spinner);
@@ -345,18 +326,6 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		mPostsView = (PullToRefreshWebView) this.findViewById(R.id.posts);
 
 		mWebView = mPostsView.getRefreshableView();
-		mWebView.setOnTouchListener(this);
-		mWebView.loadUrl("file:///android_asset/posts.html");
-		mWebView.addJavascriptInterface(this, "ActivityPosts");
-		WebSettings settings = mWebView.getSettings();
-		settings.setJavaScriptEnabled(true);
-		settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-		mWebView.setWebViewClient(new WebViewClient() {
-			public boolean onConsoleMessage(ConsoleMessage cm) {
-				Logger.d(cm.message());
-				return true;
-			}
-		});
 
 		mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
 		mPostsView.setOnRefreshListener(this);
@@ -395,6 +364,25 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 	}
 
 	@Override
+	public void onResume() {
+		super.onResume();
+
+		if (mPosts.size() == 0) {
+			fetch(mPage, this);
+		}
+	}
+
+	@Override
+	public WebView getWebView() {
+		return mWebView;
+	}
+
+	@Override
+	public String getHTMLFilePath() {
+		return "file:///android_asset/posts.html";
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 
@@ -406,15 +394,6 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		}
 
 		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-
-		if (mPosts.size() == 0) {
-			fetch(mPage, this);
-		}
 	}
 
 	@Override
@@ -632,52 +611,6 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 	}
 
 	@JavascriptInterface
-	public void onScroll(String state) {
-		if (state.equals("start")) {
-			onStateChange(State.SCROLL_START);
-		} else if (state.equals("end")) {
-			onStateChange(State.SCROLL_END);
-		}
-	}
-
-	public void onStateChange(State state) {
-		if (lockAnyway) return;
-
-		switch (state) {
-			case TOUCH_START:
-				currentState.onTouch = true;
-				if (!currentState.onScroll) currentState.enableSlidr = true;
-				break;
-			case TOUCH_END:
-				currentState.onTouch = false;
-				break;
-			case SCROLL_START:
-				currentState.onScroll = true;
-				currentState.enableSlidr = false;
-				break;
-			case SCROLL_END:
-				currentState.onScroll = false;
-				if (!currentState.onTouch) currentState.enableSlidr = true;
-				break;
-			case SLIDE_START:
-				currentState.onSlide = true;
-				break;
-			case SLIDE_END:
-				currentState.onSlide = false;
-				break;
-		}
-
-		if (currentState.enableSlidr != currentState.enableSlidrBefore) {
-			if (currentState.enableSlidr)
-				slidrInterface.unlock();
-			else
-				slidrInterface.lock();
-
-			currentState.enableSlidrBefore = !currentState.enableSlidrBefore;
-		}
-	}
-
-	@JavascriptInterface
 	public void onLinkClick(String href) {
 		showToast(href);
 		Uri uri = Uri.parse(href);
@@ -715,20 +648,14 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 		startActivity(intent);
 	}
 
-	@JavascriptInterface
-	public void onImageClick(String src) {
-		Intent intent = new Intent(Intent.ACTION_VIEW);
-		intent.setData(Uri.parse(src));
-		startActivity(intent);
-	}
+
 
 	@Override
 	public void onPullEvent(PullToRefreshBase refreshView, PullToRefreshBase.State state, PullToRefreshBase.Mode direction) {
 		Logger.d("PL %s", state);
-		mPtrState = state;
 
 		if (state == PullToRefreshBase.State.RESET) {
-			slidrInterface.unlock();
+			getSlidrInterface().unlock();
 			Logger.d("unlock");
 
 
@@ -758,7 +685,7 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 				}).playOn(mQuickReplyLayout);
 			}
 		} else {
-			slidrInterface.lock();
+			getSlidrInterface().lock();
 			Logger.d("lock");
 
 
@@ -805,74 +732,5 @@ public class ActivityPosts extends BaseActivity implements AdapterView.OnItemCli
 	public void onPullUpToRefresh(PullToRefreshBase refreshView) {
 		fetch(mPosts.getPage() + 1, ActivityPosts.this);
 		position = 0;
-	}
-
-	// Lock slidr while view is on touch but not scrolling.
-	@Override
-	public boolean onTouch(View v, MotionEvent event) {
-		switch (event.getAction()) {
-			case MotionEvent.ACTION_DOWN: {
-				onStateChange(State.TOUCH_START);
-			}
-			case MotionEvent.ACTION_MOVE: {
-				Logger.d("touch move");
-
-				if (mWebviewTouchFirstMove) {
-					if (mGestureAction == GestureAction.NONE) {
-						float x = event.getX(), y = event.getY();
-
-						if (Math.abs(x - downXValue) * 1.3 < Math.abs(y - downYValue)) {
-							onStateChange(State.SCROLL_START);
-						}
-
-						mWebviewTouchFirstMove = false;
-					}
-				} else {
-					downXValue = event.getX();
-					downYValue = event.getY();
-					mWebviewTouchFirstMove = true;
-				}
-
-				break;
-			}
-
-			case MotionEvent.ACTION_CANCEL:
-			case MotionEvent.ACTION_UP: {
-				mWebviewTouchFirstMove = true;
-				onStateChange(State.TOUCH_END);
-				break;
-			}
-
-		}
-
-		return false;
-	}
-
-	private enum State {
-		TOUCH_START,
-		TOUCH_END,
-		SCROLL_START,
-		SCROLL_END,
-		SLIDE_START,
-		SLIDE_END
-	}
-
-	private static class GestureAction {
-		final static int SCROLL = 0;
-		final static int SLIDE = 1;
-		final static int NONE = 2;
-	}
-
-	private class CurrentState {
-		boolean onTouch;
-		boolean onScroll;
-		boolean onSlide;
-		boolean enableSlidrBefore = true;
-		boolean enableSlidr = true;
-
-		@Override
-		public String toString() {
-			return "onTouch: " + onTouch + ", onScroll: " + onScroll + ", onSlide: " + onSlide + ", enableSlidr: " + enableSlidr;
-		}
 	}
 }

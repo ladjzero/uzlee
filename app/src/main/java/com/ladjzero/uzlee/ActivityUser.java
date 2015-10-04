@@ -17,7 +17,7 @@ import com.r0adkll.slidr.Slidr;
 
 import java.util.ArrayList;
 
-public class ActivityUser extends BaseActivity {
+public class ActivityUser extends ActivityBase {
 
 	LinearLayout mInfo;
 	FlatButton chat;

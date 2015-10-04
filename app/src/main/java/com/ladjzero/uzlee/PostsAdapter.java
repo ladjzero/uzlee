@@ -43,7 +43,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener {
-	private BaseActivity context;
+	private ActivityBase context;
 	private Posts mPosts;
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	private Date mNow;
@@ -71,7 +71,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 
 	public PostsAdapter(Context context, Posts posts, TYPE type, int userId) {
 		super(context, R.layout.post, posts);
-		this.context = (BaseActivity) context;
+		this.context = (ActivityBase) context;
 		mPosts = posts;
 		mNow = new Date();
 		mShowSig = this.context.setting.getBoolean("show_sig", false);
@@ -101,7 +101,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			}
 		}
 
-		return imageCount > 3 ? BaseActivity.LowQualityDisplay : BaseActivity.BestQualityDisplay;
+		return imageCount > 3 ? ActivityBase.LowQualityDisplay : ActivityBase.BestQualityDisplay;
 	}
 
 	public void clearViewCache() {
@@ -221,7 +221,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 			holder.sig.setVisibility(View.GONE);
 		}
 
-		ImageLoader.getInstance().displayImage(imageUrl, holder.img, BaseActivity.LowQualityDisplay, new SimpleImageLoadingListener() {
+		ImageLoader.getInstance().displayImage(imageUrl, holder.img, ActivityBase.LowQualityDisplay, new SimpleImageLoadingListener() {
 			@Override
 			public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
 				author.setImage(imageUri);

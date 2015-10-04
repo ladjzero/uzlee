@@ -84,4 +84,6 @@ window.addEventListener('touchmove', touchHandler);
 window.addEventListener('touchcancel', touchHandler);
 window.addEventListener('scroll', scrollHandler1);
 window.addEventListener('scroll', scrollHandler2);
+
+window.ON_SCROLL_LISTENER = true;
 })(window);

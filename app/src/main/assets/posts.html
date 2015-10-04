@@ -44,32 +44,32 @@
         var galleryOnShow = false;
 
         window.onScrollStateChange = function (state) {
-            ActivityPosts.onScroll(state);
+            UZLEE.onScroll(state);
         };
 
         var linkClickHandler = function (e) {
             if (!galleryOnShow) {
                 e.preventDefault();
                 e.cancelBubble = true;
-                ActivityPosts.onLinkClick(this.href);
+                UZLEE.onLinkClick(this.href);
             }
         };
 
         var imageClickHandler = function (e) {
             e.preventDefault();
             e.cancelBubble = true;
-            ActivityPosts.onImageClick(this.src);
+            UZLEE.onImageClick(this.src);
         };
 
         var model = {
             onProfileClick: function (post) {
-                ActivityPosts.onProfileClick(post.author.id, post.author.name);
+                UZLEE.onProfileClick(post.author.id, post.author.name);
             },
             onProfileLoad: function (data, e) {
                 e.target.style.visibility = 'visible';
             },
             onPostClick: function (post, e) {
-                !galleryOnShow && ActivityPosts.onPostClick(post.id);
+                !galleryOnShow && UZLEE.onPostClick(post.id);
             },
             posts: ko.observableArray(),
             onPostRender: function (elements) {

@@ -18,7 +18,7 @@ import com.rey.material.widget.TabPageIndicator;
 /**
  * Created by chenzhuo on 15-10-2.
  */
-public abstract class ActivityPagerBase extends BaseActivity implements ViewPager.OnPageChangeListener{
+public abstract class ActivityPagerBase extends ActivityBase implements ViewPager.OnPageChangeListener{
 	SectionsPagerAdapter mSectionsPagerAdapter;
 	ViewPager mViewPager;
 	SparseArray<Fragment> mFragmentCache;

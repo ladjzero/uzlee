@@ -31,7 +31,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 
 	private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 	private final Date NOW = new Date();
-	BaseActivity context;
+	ActivityBase context;
 	Core core;
 	private int mCommentBgColor;
 	private int mWhite;
@@ -41,7 +41,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 
 	public ThreadsAdapter(Context context, ArrayList<Thread> threads) {
 		super(context, R.layout.thread, threads);
-		this.context = (BaseActivity) context;
+		this.context = (ActivityBase) context;
 
 		mHighlightUnread = this.context.setting.getBoolean("highlight_unread", true);
 
@@ -87,7 +87,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		row.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.uglee : android.R.color.white);
 		holder.imageMask.setText(Utils.getFirstChar(userName));
 
-		ImageLoader.getInstance().displayImage(imageUrl, holder.image, BaseActivity.LowQualityDisplay, new SimpleImageLoadingListener() {
+		ImageLoader.getInstance().displayImage(imageUrl, holder.image, ActivityBase.LowQualityDisplay, new SimpleImageLoadingListener() {
 			@Override
 			public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
 				author.setImage(imageUri);

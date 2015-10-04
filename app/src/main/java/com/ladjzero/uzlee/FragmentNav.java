@@ -518,7 +518,7 @@ public class FragmentNav extends Fragment {
 //	}
 //
 //	private ActionBar getActionBar() {
-//		return ((BaseActivity) getActivity()).getSupportActionBar();
+//		return ((ActivityBase) getActivity()).getSupportActionBar();
 //	}
 //
 //	public static interface NavigationDrawerCallbacks {

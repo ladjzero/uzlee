@@ -24,7 +24,7 @@ import java.util.Set;
 
 import de.greenrobot.event.EventBus;
 
-public class ActivitySettings extends BaseActivity {
+public class ActivitySettings extends ActivityBase {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -50,13 +50,13 @@ public class ActivitySettings extends BaseActivity {
 	}
 
 	public static class SettingFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
-		private BaseActivity mActivity;
+		private ActivityBase mActivity;
 
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.preference);
-			mActivity = (BaseActivity) getActivity();
+			mActivity = (ActivityBase) getActivity();
 
 			MultiSelectListPreference selectedForums = (MultiSelectListPreference) findPreference("selected_forums");
 			List<Forum> forums = Core.getFlattenForums(mActivity);
@@ -95,7 +95,7 @@ public class ActivitySettings extends BaseActivity {
 			}
 
 			if (key.equals("enable_image_only_wifi")) {
-				((BaseActivity) getActivity()).setImageNetwork();
+				((ActivityBase) getActivity()).setImageNetwork();
 			}
 
 			if (key.equals("selected_forums")) {
