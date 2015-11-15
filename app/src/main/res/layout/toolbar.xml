@@ -7,6 +7,5 @@
     android:layout_height="@dimen/toolbar_height"
     android:minHeight="@dimen/toolbar_height"
     android:background="?attr/colorPrimary"
-    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-    app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+    app:theme="?attr/toolbarStyle2">
 </android.support.v7.widget.Toolbar>

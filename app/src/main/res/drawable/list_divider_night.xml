@@ -4,7 +4,7 @@
        android:insetRight="12dp" >
 
     <shape>
-        <solid android:color="@color/snow_primary" />
+        <solid android:color="#686868" />
     </shape>
 
 </inset>

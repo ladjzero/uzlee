@@ -29,6 +29,7 @@ import java.util.Date;
  * Created by ladjzero on 2015/2/28.
  */
 public class Utils {
+
 	private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
 	public static String getFirstChar(String input) {
@@ -144,5 +145,17 @@ public class Utils {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setData(Uri.parse(url));
 		context.startActivity(intent);
+	}
+
+	public static int getTheme(String color) {
+		if ("red".equals(color)) return R.style.AppBaseTheme_Red;
+		if ("carrot".equals(color)) return R.style.AppBaseTheme_Carrot;
+		if ("orange".equals(color)) return R.style.AppBaseTheme_Orange;
+		if ("green".equals(color)) return R.style.AppBaseTheme_Green;
+		if ("blueGrey".equals(color)) return R.style.AppBaseTheme_BlueGrey;
+		if ("blue".equals(color)) return R.style.AppBaseTheme_Blue;
+		if ("dark".equals(color)) return R.style.AppBaseTheme_Dark;
+		if ("night".equals(color)) return R.style.AppBaseTheme_Night;
+		return R.style.AppBaseTheme_Purple;
 	}
 }

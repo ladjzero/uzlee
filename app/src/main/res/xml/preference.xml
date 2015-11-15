@@ -9,10 +9,10 @@
             android:title="显示板块"/>
 
         <ListPreference
-            android:defaultValue="2"
-            android:entries="@array/thread_sort_by"
-            android:entryValues="@array/thread_sort_values"
-            android:key="sort_thread"
+            android:defaultValue="purple"
+            android:entries="@array/theme_color"
+            android:entryValues="@array/theme_color_val"
+            android:key="theme_color"
             android:title="配色"/>
 
         <ListPreference

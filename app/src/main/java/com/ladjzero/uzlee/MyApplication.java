@@ -30,6 +30,7 @@ public class MyApplication extends Application {
 		super.onCreate();
 //		ACRA.init(this);
 
+
 		Iconify.with(new FontAwesomeModule()).with(new MaterialModule());
 
 		Logger.init();

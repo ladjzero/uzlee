@@ -50,6 +50,7 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress, 
 	SharedPreferences setting;
 	EmojiUtils emojiUtils;
 	Dialog alert;
+	private int mThemeId;
 
 	private static final int mTransparenty = android.R.color.transparent;
 
@@ -130,6 +131,11 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress, 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		setting = PreferenceManager.getDefaultSharedPreferences(this);
+		String themeColor = setting.getString("theme_color", "purple");
+
+		setTheme(mThemeId = Utils.getTheme(themeColor));
+
 		super.onCreate(savedInstanceState);
 		Core.setup(this, true);
 
@@ -143,7 +149,6 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress, 
 
 		emojiUtils = new EmojiUtils(this);
 
-		setting = PreferenceManager.getDefaultSharedPreferences(this);
 
 		ActionBar mActionbar = getSupportActionBar();
 //		mActionbar.setBackgroundDrawable(FlatUI.getActionBarDrawable(this, FlatUI.DARK, false));
@@ -166,7 +171,6 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress, 
 		}
 
 		setImageNetwork();
-
 
 	}
 
@@ -350,6 +354,10 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress, 
 	@Override
 	public void onSlideClosed() {
 
+	}
+
+	public int getThemeId() {
+		return mThemeId;
 	}
 
 	public static class VersionComparator implements Comparator<String> {

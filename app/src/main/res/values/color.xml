@@ -16,14 +16,17 @@
     <color name="hipda">#7d7897</color>
     <color name="hipda_light">#c97d7897</color>
 
-    <color name="primary">#ff8d6c9d</color>
+    <color name="redPrimary">#ca463e</color>
+    <color name="carrotPrimary">#cd7034</color>
+    <color name="orangePrimary">#dfb338</color>
+    <color name="greenPrimary">#56a08b</color>
+    <color name="blueGreyPrimary">#2b3949</color>
+    <color name="bluePrimary">#4286cb</color>
+    <color name="darkPrimary">@color/dark</color>
+    <color name="purplePrimary">#8d6c9d</color>
+    <color name="nightPrimary">@color/dark_dark</color>
+    <color name="nightTextPrimary">#686868</color>
+    <color name="nightTextMinor">#464646</color>
 
-    <color name="purpleDark">#1b122a</color>
-    <color name="purpleMain">#937edc</color>
-    <color name="purpleLight">#735fa9</color>
-    <color name="purpleLightLight">#d4c3ff</color>
-    <color name="warmDark">#814a59</color>
-    <color name="warmMain">#ff8d6c9d</color>
-    <color name="warmLight">#d19996</color>
 
 </resources>

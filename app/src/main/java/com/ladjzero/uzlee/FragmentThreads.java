@@ -129,7 +129,8 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 
 		mSwipe = (SwipeRefreshLayout) rootView.findViewById(R.id.thread_swipe);
 		mSwipe.setOnRefreshListener(this);
-		mSwipe.setColorSchemeResources(R.color.primary, R.color.primary, R.color.primary, R.color.primary);
+		mSwipe.setProgressBackgroundColorSchemeResource(mActivity.getThemeId() == R.style.AppBaseTheme_Night ? R.color.dark_darker : android.R.color.white);
+//		mSwipe.setColorSchemeResources(R.color.purplePrimary, R.color.purplePrimary, R.color.purplePrimary, R.color.purplePrimary);
 
 		Logger.i("enable pull to fresh %b", mEnablePullToRefresh);
 		mSwipe.setEnabled(mEnablePullToRefresh);

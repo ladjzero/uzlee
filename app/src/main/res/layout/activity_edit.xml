@@ -27,7 +27,7 @@
             android:singleLine="true"
             android:textSize="16sp"
             app:met_floatingLabel="normal"
-            app:met_primaryColor="@color/primary"/>
+            app:met_primaryColor="?attr/colorPrimary"/>
 
 
         <com.rengwuxian.materialedittext.MaterialEditText
@@ -44,7 +44,7 @@
             android:padding="8dp"
             android:textSize="16sp"
             app:met_floatingLabel="normal"
-            app:met_primaryColor="@color/primary"/>
+            app:met_primaryColor="?attr/colorPrimary"/>
 
         <ViewStub
             android:id="@+id/emoji_viewstub"

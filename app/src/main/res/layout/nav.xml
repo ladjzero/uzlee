@@ -11,7 +11,7 @@
         android:id="@+id/nav_user"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary"
+        android:background="?attr/colorPrimary"
         android:clickable="true"
         android:paddingBottom="60dp"
         android:paddingTop="24dp">
@@ -31,6 +31,7 @@
             android:layout_below="@+id/nav_user_image"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="12dp"
+            android:text="登录"
             android:textColor="@android:color/white"
             android:textSize="14sp"/>
     </RelativeLayout>

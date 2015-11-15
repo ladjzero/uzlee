@@ -36,4 +36,28 @@
         <item>9</item>
     </string-array>
 
+    <string-array name="theme_color">
+        <item>茜素红</item>
+        <item>胡萝卜</item>
+        <item>橘</item>
+        <item>绿海</item>
+        <item>瓦青</item>
+        <item>湖蓝</item>
+        <item>紫</item>
+        <item>灰黑</item>
+        <item>黑夜</item>
+    </string-array>
+
+    <string-array name="theme_color_val">
+        <item>red</item>
+        <item>carrot</item>
+        <item>orange</item>
+        <item>green</item>
+        <item>blueGrey</item>
+        <item>blue</item>
+        <item>purple</item>
+        <item>dark</item>
+        <item>night</item>
+    </string-array>
+
 </resources>

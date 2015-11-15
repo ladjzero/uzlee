@@ -22,8 +22,8 @@
         android:layout_height="54dp"
         android:gravity="center"
         android:padding="10dp"
-        app:dsb_indicatorColor="@color/primary"
-        app:dsb_progressColor="@color/primary"
+        app:dsb_indicatorColor="?attr/colorPrimary"
+        app:dsb_progressColor="?attr/colorPrimary"
         app:dsb_trackColor="@color/snow_dark"/>
 
 </LinearLayout>

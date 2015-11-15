@@ -65,7 +65,8 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
 		ActionBar mActionbar = getSupportActionBar();
 		setTitle(null);
 		mFragmentNav = (FragmentNav) getSupportFragmentManager().findFragmentById(R.id.fragment_drawer);
@@ -134,7 +135,7 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		}
 
 		menu.findItem(R.id.thread_sort).setVisible(sortVisible).setTitle(sortVisible ? type.getName() : "");
-		menu.findItem(R.id.thread_publish).setIcon(new IconDrawable(this, MaterialIcons.md_edit).colorRes(android.R.color.white).actionBarSize());
+		menu.findItem(R.id.thread_publish).setIcon(new IconDrawable(this, MaterialIcons.md_edit).colorRes(getThemeId() == R.style.AppBaseTheme_Night ? R.color.nightTextPrimary : android.R.color.white).actionBarSize());
 		return super.onCreateOptionsMenu(menu);
 	}
 

@@ -84,7 +84,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		int count = thread.getCommentCount();
 		boolean isNew = thread.isNew();
 
-		row.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.uglee : android.R.color.white);
+		row.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.uglee : android.R.color.transparent);
 		holder.imageMask.setText(Utils.getFirstChar(userName));
 
 		ImageLoader.getInstance().displayImage(imageUrl, holder.image, ActivityBase.LowQualityDisplay, new SimpleImageLoadingListener() {
@@ -119,7 +119,10 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		if (color != null && color.length() > 0) {
 			holder.title.setTextColor(lowerSaturation(Color.parseColor(color)));
 		} else {
-			holder.title.setTextColor(Color.BLACK);
+			TypedValue c = new TypedValue();
+			context.getTheme().resolveAttribute(android.R.attr.textColor, c, true);
+
+			holder.title.setTextColor(c.data);
 		}
 
 		if (mHighlightUnread) {

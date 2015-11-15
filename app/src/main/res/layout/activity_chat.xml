@@ -49,7 +49,7 @@
                 android:layout_marginRight="12dp"
                 android:layout_toLeftOf="@+id/send_message"
                 android:textSize="18sp"
-                app:met_primaryColor="@color/primary"/>
+                app:met_primaryColor="?attr/colorPrimary"/>
 
         </RelativeLayout>
     </RelativeLayout>
