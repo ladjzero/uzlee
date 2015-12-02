@@ -1,9 +1,11 @@
 package com.ladjzero.uzlee;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
@@ -22,6 +24,7 @@ public class ActivityLogin extends ActionBarActivity {
 	@Bind(R.id.user_password) TextView passwd;
 	@Bind(R.id.answer) TextView answer;
 	@Bind(R.id.question) Spinner spn;
+	@Bind(R.id.login_background) WebView webview;
 
 	@OnClick(R.id.login) void onLogin() {
 		Core.login(name.getText().toString(), passwd.getText().toString(), spn.getSelectedItemPosition(), answer.getText().toString(), new Core.OnRequestListener() {
@@ -38,13 +41,23 @@ public class ActivityLogin extends ActionBarActivity {
 		});
 	}
 
+	@OnClick(R.id.register) void onRegister() {
+		String url = "http://www.hi-pda.com/forum/tobenew.php";
+
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.setData(Uri.parse(url));
+		startActivity(intent);
+	}
+
 	@Override
 	protected void onCreate(Bundle bundle) {
 		super.onCreate(bundle);
-		setContentView(R.layout.activity_start);
+		setContentView(R.layout.activity_login);
 		ButterKnife.bind(this);
 
 		Core.setup(this, false);
+
+		webview.loadUrl("file:///android_asset/login_bg.html");
 
 		String[] questions = getResources().getStringArray(R.array.questions);
 		spn.setAdapter(new ArrayAdapter<>(this, R.layout.item_spinner, questions));

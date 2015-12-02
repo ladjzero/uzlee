@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.view.View;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.daimajia.androidanimations.library.Techniques;
@@ -157,5 +158,9 @@ public class Utils {
 		if ("dark".equals(color)) return R.style.AppBaseTheme_Dark;
 		if ("night".equals(color)) return R.style.AppBaseTheme_Night;
 		return R.style.AppBaseTheme_Purple;
+	}
+
+	public static void showToast(Context context, String message) {
+		Toast.makeText(context, message, Toast.LENGTH_LONG).show();
 	}
 }

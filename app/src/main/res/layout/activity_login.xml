@@ -6,14 +6,31 @@
                 android:background="@android:color/white"
                 android:orientation="vertical">
 
+    <WebView
+        android:id="@+id/login_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></WebView>
+
+    <TextView
+        android:id="@+id/register"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="12dp"
+        android:padding="12dp"
+        android:text="注册"/>
+
     <LinearLayout
         android:id="@+id/options"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:orientation="vertical"
-        android:paddingLeft="64dp"
-        android:paddingRight="64dp">
+        android:paddingBottom="48dp"
+        android:paddingLeft="48dp"
+        android:paddingRight="48dp">
 
         <com.cengalabs.flatui.views.FlatButton
             android:id="@+id/view_as_visitor"
@@ -82,41 +99,16 @@
             app:met_floatingLabel="normal"
             app:met_primaryColor="@color/grape_primary"/>
 
-        <LinearLayout
+        <com.cengalabs.flatui.views.FlatButton
+            android:id="@+id/login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <com.cengalabs.flatui.views.FlatButton
-                android:id="@+id/register"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="0dp"
-                android:layout_weight="1"
-                android:text="注册"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                app:fl_cornerRadius="3dp"
-                app:fl_theme="@array/grape"
-                app:fl_touchEffect="fl_ripple"/>
-
-            <com.cengalabs.flatui.views.FlatButton
-                android:id="@+id/login"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="0dp"
-                android:layout_weight="1"
-                android:text="登入"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                app:fl_cornerRadius="3dp"
-                app:fl_theme="@array/grape"
-                app:fl_touchEffect="fl_ripple"/>
-        </LinearLayout>
-
-
+            android:text="登入"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:fl_cornerRadius="3dp"
+            app:fl_theme="@array/grape"
+            app:fl_touchEffect="fl_ripple"/>
     </LinearLayout>
 
     <ImageView
