@@ -22,28 +22,26 @@
         android:padding="12dp"
         android:text="注册"/>
 
+    <TextView
+        android:id="@+id/view_as_visitor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="12dp"
+        android:padding="12dp"
+        android:text="游客访问"/>
+
     <LinearLayout
         android:id="@+id/options"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_marginBottom="24dp"
         android:orientation="vertical"
-        android:paddingBottom="48dp"
         android:paddingLeft="48dp"
         android:paddingRight="48dp">
-
-        <com.cengalabs.flatui.views.FlatButton
-            android:id="@+id/view_as_visitor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:layout_marginTop="0dp"
-            android:text="游客访问"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
-            app:fl_cornerRadius="3dp"
-            app:fl_theme="@array/grape"
-            app:fl_touchEffect="fl_ripple"/>
 
         <com.rengwuxian.materialedittext.MaterialEditText
             android:id="@+id/user_name"

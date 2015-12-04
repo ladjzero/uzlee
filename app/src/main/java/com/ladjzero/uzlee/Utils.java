@@ -149,15 +149,15 @@ public class Utils {
 	}
 
 	public static int getTheme(String color) {
-		if ("red".equals(color)) return R.style.AppBaseTheme_Red;
-		if ("carrot".equals(color)) return R.style.AppBaseTheme_Carrot;
-		if ("orange".equals(color)) return R.style.AppBaseTheme_Orange;
-		if ("green".equals(color)) return R.style.AppBaseTheme_Green;
-		if ("blueGrey".equals(color)) return R.style.AppBaseTheme_BlueGrey;
-		if ("blue".equals(color)) return R.style.AppBaseTheme_Blue;
-		if ("dark".equals(color)) return R.style.AppBaseTheme_Dark;
+		if ("red".equals(color)) return R.style.AppBaseTheme_Day_Red;
+		if ("carrot".equals(color)) return R.style.AppBaseTheme_Day_Carrot;
+		if ("orange".equals(color)) return R.style.AppBaseTheme_Day_Orange;
+		if ("green".equals(color)) return R.style.AppBaseTheme_Day_Green;
+		if ("blueGrey".equals(color)) return R.style.AppBaseTheme_Day_BlueGrey;
+		if ("blue".equals(color)) return R.style.AppBaseTheme_Day_Blue;
+		if ("dark".equals(color)) return R.style.AppBaseTheme_Day_Dark;
 		if ("night".equals(color)) return R.style.AppBaseTheme_Night;
-		return R.style.AppBaseTheme_Purple;
+		return R.style.AppBaseTheme_Day_Purple;
 	}
 
 	public static void showToast(Context context, String message) {

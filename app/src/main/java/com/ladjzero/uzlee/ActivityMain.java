@@ -258,7 +258,14 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 	public void onSettingsClick(View view) {
 		mFragmentNav.closeDrawer();
 		Intent intent = new Intent(this, ActivitySettings.class);
-		startActivity(intent);
+		startActivityForResult(intent, 0);
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (data.getBooleanExtra("reload", false)) {
+			reload();
+		}
 	}
 
 	public void onInfoClick(View view) {

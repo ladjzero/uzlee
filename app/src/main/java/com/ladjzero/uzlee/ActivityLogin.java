@@ -57,15 +57,19 @@ public class ActivityLogin extends ActionBarActivity {
 
 		Core.setup(this, false);
 
-		webview.loadUrl("file:///android_asset/login_bg.html");
+		if (Core.getUser() != null) {
+			startActivity(new Intent(this, ActivityMain.class));
+		} else {
+			webview.loadUrl("file:///android_asset/login_bg.html");
 
-		String[] questions = getResources().getStringArray(R.array.questions);
-		spn.setAdapter(new ArrayAdapter<>(this, R.layout.item_spinner, questions));
-		spn.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
-			@Override
-			public void onItemSelected(Spinner spinner, View view, int i, long l) {
-				answer.setVisibility(i == 0 ? View.GONE : View.VISIBLE);
-			}
-		});
+			String[] questions = getResources().getStringArray(R.array.questions);
+			spn.setAdapter(new ArrayAdapter<>(this, R.layout.item_spinner, questions));
+			spn.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+				@Override
+				public void onItemSelected(Spinner spinner, View view, int i, long l) {
+					answer.setVisibility(i == 0 ? View.GONE : View.VISIBLE);
+				}
+			});
+		}
 	}
 }

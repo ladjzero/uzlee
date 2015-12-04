@@ -1,5 +1,7 @@
 package com.ladjzero.uzlee;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -101,6 +103,14 @@ public class ActivitySettings extends ActivityBase {
 			if (key.equals("selected_forums")) {
 				MultiSelectListPreference p = (MultiSelectListPreference) preference;
 				EventBus.getDefault().post(new SelectedForumsChangeEvent(p.getValues()));
+			}
+
+			if (key.equals("theme_color")) {
+				Intent intent = new Intent();
+				intent.putExtra("reload", true);
+				mActivity.setResult(0, intent);
+
+				mActivity.reload();
 			}
 		}
 
