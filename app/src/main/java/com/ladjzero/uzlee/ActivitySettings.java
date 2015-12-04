@@ -41,6 +41,8 @@ public class ActivitySettings extends ActivityBase {
 		getFragmentManager().beginTransaction().replace(R.id.content, new SettingFragment()).commit();
 
 		Slidr.attach(this);
+
+		this.setResult(0, new Intent());
 	}
 
 	public static class SelectedForumsChangeEvent {

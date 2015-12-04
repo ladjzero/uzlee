@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import com.ladjzero.hipda.Core;
 import com.rey.material.widget.Spinner;
+import com.tencent.stat.StatConfig;
+import com.tencent.stat.StatService;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -71,5 +73,8 @@ public class ActivityLogin extends ActionBarActivity {
 				}
 			});
 		}
+
+		StatConfig.setDebugEnable(true);
+		StatService.trackCustomEvent(this, "onCreate", "");
 	}
 }
