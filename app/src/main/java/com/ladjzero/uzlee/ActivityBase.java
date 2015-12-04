@@ -129,6 +129,14 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress, 
 		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 	}
 
+	public void reload() {
+		finish();
+		Intent intent = new Intent(this, this.getClass());
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(intent);
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setting = PreferenceManager.getDefaultSharedPreferences(this);
@@ -141,10 +149,10 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress, 
 
 		slidrConfig = new SlidrConfig.Builder()
 				.position(SlidrPosition.LEFT)
-				.distanceThreshold(0.25f)
-				.velocityThreshold(2400)
-				.sensitivity(0.47f)
-				.listener(this)
+//				.distanceThreshold(0.25f)
+//				.velocityThreshold(2400)
+//				.sensitivity(0.47f)
+//				.listener(this)
 				.build();
 
 		emojiUtils = new EmojiUtils(this);
