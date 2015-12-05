@@ -15,7 +15,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application
-        android:name="com.ladjzero.uzlee.MyApplication"
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:theme="@style/AppBaseTheme"
@@ -53,7 +53,7 @@
             android:label="">
         </activity>
         <activity
-            android:name="com.ladjzero.uzlee.ActivitySettings"
+            android:name=".ActivitySettings"
             android:label="设置">
         </activity>
         <activity
@@ -74,7 +74,7 @@
             android:windowSoftInputMode="stateHidden">
         </activity>
         <activity
-            android:name="com.ladjzero.uzlee.GuidePicker"
+            android:name=".GuidePicker"
             android:label="板块">
         </activity>
     </application>

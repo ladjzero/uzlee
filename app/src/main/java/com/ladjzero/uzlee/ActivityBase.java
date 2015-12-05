@@ -126,7 +126,7 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress, 
 	}
 
 	public void showToast(String message) {
-		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+		Utils.showToast(this, message);
 	}
 
 	public void reload() {

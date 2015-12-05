@@ -2,7 +2,9 @@ package com.ladjzero.uzlee;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
 
@@ -158,6 +160,13 @@ public class Utils {
 		if ("dark".equals(color)) return R.style.AppBaseTheme_Day_Dark;
 		if ("night".equals(color)) return R.style.AppBaseTheme_Night;
 		return R.style.AppBaseTheme_Day_Purple;
+	}
+
+	public static int getThemeColor(Context context, int attrId) {
+		TypedValue typedValue = new TypedValue();
+		Resources.Theme theme = context.getTheme();
+		theme.resolveAttribute(attrId, typedValue, true);
+		return typedValue.data;
 	}
 
 	public static void showToast(Context context, String message) {

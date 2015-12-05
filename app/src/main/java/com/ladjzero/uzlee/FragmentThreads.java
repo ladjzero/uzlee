@@ -33,6 +33,8 @@ import org.apache.commons.collections.Transformer;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 
 public class FragmentThreads extends Fragment implements OnRefreshListener, AdapterView.OnItemClickListener, OnThreadsListener {
@@ -44,8 +46,10 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 
 	private ActivityBase mActivity;
 	private final ArrayList<Thread> mThreads = new ArrayList<Thread>();
-	private SwipeRefreshLayout mSwipe;
-	private ListView listView;
+
+	@Bind(R.id.thread_swipe) SwipeRefreshLayout mSwipe;
+	@Bind(R.id.threads) ListView listView;
+
 	private ThreadsAdapter adapter;
 	private boolean hasNextPage = false;
 	private int fid;
@@ -126,16 +130,18 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 		mQuery = args.getString("query");
 
 		View rootView = inflater.inflate(R.layout.threads_can_refresh, container, false);
+		ButterKnife.bind(this, rootView);
 
-		mSwipe = (SwipeRefreshLayout) rootView.findViewById(R.id.thread_swipe);
 		mSwipe.setOnRefreshListener(this);
-		mSwipe.setProgressBackgroundColorSchemeResource(mActivity.getThemeId() == R.style.AppBaseTheme_Night ? R.color.dark_darker : android.R.color.white);
-//		mSwipe.setColorSchemeResources(R.color.purplePrimary, R.color.purplePrimary, R.color.purplePrimary, R.color.purplePrimary);
+		mSwipe.setProgressBackgroundColorSchemeResource(
+				mActivity.getThemeId() == R.style.AppBaseTheme_Night ?
+						R.color.dark_darker : android.R.color.white);
+		int primaryColor = Utils.getThemeColor(getActivity(), R.attr.colorPrimary);
+		mSwipe.setColorSchemeColors(primaryColor, primaryColor, primaryColor, primaryColor);
 
 		Logger.i("enable pull to fresh %b", mEnablePullToRefresh);
 		mSwipe.setEnabled(mEnablePullToRefresh);
 
-		listView = (ListView) rootView.findViewById(R.id.threads);
 
 		if (mActivity instanceof ActivityThreads) {
 			slidrInterface = ((ActivityThreads)mActivity).slidrInterface;
