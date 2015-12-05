@@ -2,7 +2,9 @@
 
     <style name="AppBaseTheme.Day">
         <item name="android:colorBackground">@android:color/white</item>
-        <item name="android:textColor">#686868</item>
+        <item name="colorAccent">?attr/colorPrimary</item>
+        <item name="colorText">#686868</item>
+        <item name="colorTextInverse">@android:color/white</item>
         <item name="dividerDrawable">@drawable/list_divider</item>
         <item name="drawerArrowStyle">@style/DrawerArrowToggle</item>
         <item name="colorPrimary">@color/nightPrimary</item>
@@ -12,41 +14,55 @@
     </style>
 
     <style name="AppBaseTheme.Day.Red">
+        <item name="colorSecondary">@color/redSecondary</item>
         <item name="colorPrimary">@color/redPrimary</item>
     </style>
 
     <style name="AppBaseTheme.Day.Carrot">
+        <item name="colorSecondary">@color/carrotSecondary</item>
         <item name="colorPrimary">@color/carrotPrimary</item>
     </style>
 
     <style name="AppBaseTheme.Day.Orange">
+        <item name="colorSecondary">@color/orangeSecondary</item>
         <item name="colorPrimary">@color/orangePrimary</item>
     </style>
 
     <style name="AppBaseTheme.Day.Green">
+        <item name="colorSecondary">@color/greenSecondary</item>
         <item name="colorPrimary">@color/greenPrimary</item>
     </style>
 
     <style name="AppBaseTheme.Day.BlueGrey">
+        <item name="colorSecondary">@color/blueGreySecondary</item>
         <item name="colorPrimary">@color/blueGreyPrimary</item>
     </style>
 
     <style name="AppBaseTheme.Day.Blue">
+        <item name="colorSecondary">@color/blueSecondary</item>
         <item name="colorPrimary">@color/bluePrimary</item>
     </style>
 
     <style name="AppBaseTheme.Day.Purple">
+        <item name="colorSecondary">@color/purpleSecondary</item>
         <item name="colorPrimary">@color/purplePrimary</item>
     </style>
 
     <style name="AppBaseTheme.Day.Dark">
-        <item name="colorPrimary">@color/dark_primary</item>
+        <item name="colorSecondary">@color/darkSecondary</item>
+        <item name="colorPrimary">@color/darkPrimary</item>
     </style>
 
     <style name="AppBaseTheme.Night">
+        <item name="android:textColor">@color/nightTextPrimary</item>
+        <item name="android:textColorSecondary">@color/nightTextPrimary</item>
+
+        <item name="colorAccent">@color/nightTextPrimary</item>
+        <item name="colorSecondary">@color/nightSecondary</item>
         <item name="colorPrimary">@color/nightPrimary</item>
         <item name="android:colorBackground">#373737</item>
-        <item name="android:textColor">@color/nightTextPrimary</item>
+        <item name="colorText">@color/nightTextPrimary</item>
+        <item name="colorTextInverse">@color/nightTextPrimary</item>
         <item name="dividerDrawable">@drawable/list_divider_night</item>
         <item name="tabBarStyle">@style/TabBarStyle.Night</item>
         <item name="toolbarStyle2">@style/Toolbar.Night</item>
@@ -123,5 +139,9 @@
 
     <style name="DrawerArrowToggle.Night" parent="Widget.AppCompat.DrawerArrowToggle">
         <item name="color">@color/nightTextPrimary</item>
+    </style>
+
+    <style name="toolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:textColorPrimary">?attr/colorTextInverse</item>
     </style>
 </resources>

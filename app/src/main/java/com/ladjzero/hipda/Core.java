@@ -158,9 +158,9 @@ public class Core {
 	}
 
 	public static User getUser() {
-		if (user == null) {
-			user = new User().setId(pref.getInt("uid", 0)).setName(pref.getString("uname", ""));
-		}
+//		if (user == null) {
+//			user = new User().setId(pref.getInt("uid", 0)).setName(pref.getString("uname", ""));
+//		}
 
 		return user;
 	}

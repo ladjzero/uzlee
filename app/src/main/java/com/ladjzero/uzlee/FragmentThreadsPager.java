@@ -13,7 +13,9 @@ import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
 import com.rey.material.widget.TabPageIndicator;
 
-public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTypeSelect {
+import java.util.List;
+
+public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTypeChange {
 	private MyFragmentPagerAdapter mPagerAdapter;
 	private ViewPager mViewPager;
 	private TabPageIndicator mTabs;
@@ -29,7 +31,7 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.full_view_pager, container, false);
 		mActivity = (ActivityMain) getActivity();
-		mActivity.setOnTypeSelect(this);
+		mActivity.setOnTypeChange(this);
 
 		mPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager()) {
 

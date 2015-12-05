@@ -119,10 +119,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		if (color != null && color.length() > 0) {
 			holder.title.setTextColor(lowerSaturation(Color.parseColor(color)));
 		} else {
-			TypedValue c = new TypedValue();
-			context.getTheme().resolveAttribute(android.R.attr.textColor, c, true);
-
-			holder.title.setTextColor(c.data);
+			holder.title.setTextColor(Utils.getThemeColor(context, R.attr.colorText));
 		}
 
 		if (mHighlightUnread) {

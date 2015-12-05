@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -37,7 +38,6 @@ import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
-import com.r0adkll.slidr.Slidr;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import org.apache.commons.collections.CollectionUtils;
@@ -87,7 +87,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	private boolean mInitToLastPost = false;
 	// Help menu dialog to show a line.
 	private View _justALine;
-	private int myid;
+	private int myid = 0;
 	private int position = 0;
 	// Scroll to this post.
 	private int mPid = 0;
@@ -203,7 +203,10 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	}
 
 	private void fetch(int page, final OnPostsListener onPostsListener) {
-		myid = getUser().getId();
+		try {
+			myid = getUser().getId();
+		} catch (Exception e) {
+		}
 
 		mIsFetching = true;
 		toogleSipnner(true);
@@ -326,6 +329,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mPostsView = (PullToRefreshWebView) this.findViewById(R.id.posts);
 
 		mWebView = mPostsView.getRefreshableView();
+		mWebView.setBackgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground));
 
 		mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
 		mPostsView.setOnRefreshListener(this);
@@ -592,6 +596,8 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	}
 
 	private void startEditActivity(Post post) {
+		if (myid == 0) return;
+
 		int uid = post.getAuthor().getId();
 		int postIndex = post.getPostIndex();
 		Intent intent = new Intent(this, ActivityEdit.class);
@@ -647,7 +653,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		intent.setData(uri);
 		startActivity(intent);
 	}
-
 
 
 	@Override

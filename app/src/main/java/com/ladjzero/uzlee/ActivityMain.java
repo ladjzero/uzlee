@@ -18,13 +18,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.joanzapata.iconify.Icon;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
-import com.orhanobut.logger.Logger;
-import com.rey.material.widget.FloatingActionButton;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -33,37 +30,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import me.drakeet.materialdialog.MaterialDialog;
 
 public class ActivityMain extends ActivityBase implements ViewPager.OnPageChangeListener {
 
-	private FragmentNav mFragmentNav;
+	protected List<Forum> mForums;
 	int fid;
 	String title = "";
-
-	public static final int D_ID = 2;
-	public static final int BS_ID = 6;
-	public static final int EINK_ID = 59;
-
-	private MenuItem bsType;
-	private int bsTypeId;
-	private Icon bsTypeIcon;
-	private FragmentThreads bsFragment;
-	public int navPosition = 0;
-	private int uid = 0;
 	Toolbar toolbar;
-	FloatingActionButton mEditButton;
-	protected List<Forum> mForums;
+	boolean doubleBackToExitPressedOnce = false;
+	private FragmentNav mFragmentNav;
 	private List<Forum.Type> mTypes;
-	private ArrayList<Integer> mFids = new ArrayList<>();
 	private int mFid;
 	private HashMap<Integer, Integer> mLastSelectedType = new HashMap<>();
-	private OnTypeSelect onTypeSelect;
+	private OnTypeChange onTypeChange;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		ButterKnife.bind(this);
 
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
@@ -75,68 +63,11 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		mFid = mForums.get(0).getFid();
 
 		Bundle bundle = new Bundle();
-		getSupportFragmentManager().beginTransaction().replace(R.id.container, FragmentThreadsPager.newInstance(bundle)).commit();
-	}
 
-	@Override
-	public void onEventMainThread(Core.UserEvent userEvent) {
-		Logger.i("EventBus.onEventMainThread.statusChangeEvent : user is null ? %b", userEvent.user == null);
-
-		if (userEvent.user != null && uid != userEvent.user.getId()) {
-			super.onEventMainThread(userEvent);
-
-			switch (fid) {
-				case D_ID:
-					navPosition = 0;
-					break;
-				case BS_ID:
-					navPosition = 1;
-					break;
-				default:
-					navPosition = 2;
-			}
-
-			uid = userEvent.user.getId();
-
-			Bundle bundle = new Bundle();
-			bundle.putInt("fid", fid);
-//			getFragmentManager().beginTransaction().replace(R.id.container, FragmentThreadsPager.newInstance(bundle)).commit();
-		}
-
-		if (userEvent.user == null) {
-			super.onEventMainThread(userEvent);
-			uid = 0;
-		}
-	}
-
-	public void restoreActionBar() {
-//		setTitle(title);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.threads, menu);
-
-		boolean sortVisible = mTypes != null && mTypes.size() > 0;
-		Forum.Type type = null;
-
-		if (sortVisible) {
-			Integer typeId = mLastSelectedType.get(mFid);
-			if (typeId == null) typeId = -1;
-
-			final Integer finalTypeId = typeId;
-
-			type = (Forum.Type) CollectionUtils.find(mTypes, new Predicate() {
-				@Override
-				public boolean evaluate(Object o) {
-					return ((Forum.Type) o).getId() == finalTypeId;
-				}
-			});
-		}
-
-		menu.findItem(R.id.thread_sort).setVisible(sortVisible).setTitle(sortVisible ? type.getName() : "");
-		menu.findItem(R.id.thread_publish).setIcon(new IconDrawable(this, MaterialIcons.md_edit).colorRes(getThemeId() == R.style.AppBaseTheme_Night ? R.color.nightTextPrimary : android.R.color.white).actionBarSize());
-		return super.onCreateOptionsMenu(menu);
+		getSupportFragmentManager()
+				.beginTransaction()
+				.replace(R.id.container, FragmentThreadsPager.newInstance(bundle))
+				.commit();
 	}
 
 	@Override
@@ -167,7 +98,7 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 					public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 						Forum.Type type = (Forum.Type) adapterView.getItemAtPosition(i);
 						mLastSelectedType.put(mFid, type.getId());
-						if (onTypeSelect != null) onTypeSelect.onTypeSelect(mFid, type.getId());
+						if (onTypeChange != null) onTypeChange.onTypeSelect(mFid, type.getId());
 						invalidateOptionsMenu();
 						alertDialog.dismiss();
 					}
@@ -179,9 +110,6 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 
 		return super.onOptionsItemSelected(item);
 	}
-
-
-	boolean doubleBackToExitPressedOnce = false;
 
 	@Override
 	public void onBackPressed() {
@@ -202,23 +130,6 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 	}
 
 	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_MENU) {
-			mFragmentNav.toggleDrawer();
-			return true;
-		}
-		return super.onKeyUp(keyCode, event);
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		outState.putIntegerArrayList("fids", new ArrayList<Integer>(mLastSelectedType.keySet()));
-		outState.putIntegerArrayList("types", new ArrayList<Integer>(mLastSelectedType.values()));
-
-		super.onSaveInstanceState(outState);
-	}
-
-	@Override
 	public void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
 
@@ -233,14 +144,55 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 			}
 	}
 
-	public void onMessageClick(View view) {
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_MENU) {
+			mFragmentNav.toggleDrawer();
+			return true;
+		}
+		return super.onKeyUp(keyCode, event);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.threads, menu);
+
+		boolean sortVisible = mTypes != null && mTypes.size() > 0;
+		Forum.Type type = null;
+
+		if (sortVisible) {
+			Integer typeId = mLastSelectedType.get(mFid);
+			if (typeId == null) typeId = -1;
+
+			final Integer finalTypeId = typeId;
+
+			type = (Forum.Type) CollectionUtils.find(mTypes, new Predicate() {
+				@Override
+				public boolean evaluate(Object o) {
+					return ((Forum.Type) o).getId() == finalTypeId;
+				}
+			});
+		}
+
+		menu.findItem(R.id.thread_sort)
+				.setVisible(sortVisible)
+				.setTitle(sortVisible ? type.getName() : "");
+
+		menu.findItem(R.id.thread_publish)
+				.setIcon(new IconDrawable(this, MaterialIcons.md_edit)
+						.color(Utils.getThemeColor(this, R.attr.colorTextInverse))
+						.actionBarSize());
+
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@OnClick(R.id.message) void onMessageClick() {
 		mFragmentNav.closeDrawer();
 		Intent intent = new Intent(this, ActivityAlerts.class);
 		startActivity(intent);
 	}
 
-
-	public void onMyPostsClick(View view) {
+	@OnClick(R.id.my_posts) void onMyPostsClick() {
 		mFragmentNav.closeDrawer();
 
 		if (Core.getUser() != null) {
@@ -249,13 +201,13 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		}
 	}
 
-	public void onSearchClick(View view) {
+	@OnClick(R.id.search) void onSearchClick() {
 		mFragmentNav.closeDrawer();
 		Intent intent = new Intent(this, ActivitySearch.class);
 		startActivity(intent);
 	}
 
-	public void onSettingsClick(View view) {
+	@OnClick(R.id.settings) void onSettingsClick() {
 		mFragmentNav.closeDrawer();
 		Intent intent = new Intent(this, ActivitySettings.class);
 		startActivityForResult(intent, 0);
@@ -266,6 +218,14 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		if (data.getBooleanExtra("reload", false)) {
 			reload();
 		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		outState.putIntegerArrayList("fids", new ArrayList<Integer>(mLastSelectedType.keySet()));
+		outState.putIntegerArrayList("types", new ArrayList<Integer>(mLastSelectedType.values()));
+
+		super.onSaveInstanceState(outState);
 	}
 
 	public void onInfoClick(View view) {
@@ -295,23 +255,6 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 
 	}
 
-	public void onExitClick(View view) {
-		mFragmentNav.closeDrawer();
-
-		Core.logout(new Core.OnRequestListener() {
-			@Override
-			public void onError(String error) {
-				showToast(error);
-			}
-
-			@Override
-			public void onSuccess(String html) {
-				showToast("登出成功");
-			}
-		});
-
-	}
-
 	@Override
 	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -329,11 +272,11 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 
 	}
 
-	public void setOnTypeSelect(OnTypeSelect onTypeSelect) {
-		this.onTypeSelect = onTypeSelect;
+	public void setOnTypeChange(OnTypeChange onTypeChange) {
+		this.onTypeChange = onTypeChange;
 	}
 
-	interface OnTypeSelect {
+	interface OnTypeChange {
 		void onTypeSelect(int fid, int typeId);
 	}
 }

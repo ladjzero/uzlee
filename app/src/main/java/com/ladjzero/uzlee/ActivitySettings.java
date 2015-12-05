@@ -1,6 +1,5 @@
 package com.ladjzero.uzlee;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -8,6 +7,7 @@ import android.preference.ListPreference;
 import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -81,12 +81,33 @@ public class ActivitySettings extends ActivityBase {
 
 			selectedForums.setEntries(forumNames);
 			selectedForums.setEntryValues(forumIds);
+
+			Preference button = findPreference("logout");
+			button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+				@Override
+				public boolean onPreferenceClick(Preference preference) {
+					Core.logout(new Core.OnRequestListener() {
+						@Override
+						public void onError(String error) {
+							mActivity.showToast(error);
+						}
+
+						@Override
+						public void onSuccess(String html) {
+							mActivity.toLoginPage();
+						}
+					});
+
+					return false;
+				}
+			});
+
 		}
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 			View view = super.onCreateView(inflater, container, savedInstanceState);
-			view.setBackgroundColor(getResources().getColor(android.R.color.white));
+			view.setBackgroundColor(Utils.getThemeColor(getActivity(), android.R.attr.colorBackground));
 			return view;
 		}
 
@@ -111,8 +132,9 @@ public class ActivitySettings extends ActivityBase {
 				Intent intent = new Intent();
 				intent.putExtra("reload", true);
 				mActivity.setResult(0, intent);
-
 				mActivity.reload();
+
+//				preference.setSummary(((ListPreference) preference).getEntry());
 			}
 		}
 

@@ -1,8 +1,11 @@
 package com.ladjzero.uzlee;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.webkit.WebView;
@@ -10,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.User;
 import com.rey.material.widget.Spinner;
 import com.tencent.stat.StatConfig;
 import com.tencent.stat.StatService;
@@ -51,15 +55,25 @@ public class ActivityLogin extends ActionBarActivity {
 		startActivity(intent);
 	}
 
+	@OnClick(R.id.view_as_visitor) void viewAsVisitor() {
+		startActivity(new Intent(this, ActivityMain.class));
+	}
+
 	@Override
 	protected void onCreate(Bundle bundle) {
+		SharedPreferences setting = PreferenceManager.getDefaultSharedPreferences(this);
+		String themeColor = setting.getString("theme_color", "purple");
+		setTheme(Utils.getTheme(themeColor));
+
 		super.onCreate(bundle);
 		setContentView(R.layout.activity_login);
 		ButterKnife.bind(this);
 
 		Core.setup(this, false);
 
-		if (Core.getUser() != null) {
+		User user = Core.getUser();
+
+		if (user != null && user.getId() > 0) {
 			startActivity(new Intent(this, ActivityMain.class));
 		} else {
 			webview.loadUrl("file:///android_asset/login_bg.html");
@@ -74,7 +88,7 @@ public class ActivityLogin extends ActionBarActivity {
 			});
 		}
 
-		StatConfig.setDebugEnable(true);
-		StatService.trackCustomEvent(this, "onCreate", "");
+//		StatConfig.setDebugEnable(true);
+//		StatService.trackCustomEvent(this, "onCreate", "");
 	}
 }

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Telephony;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
@@ -35,6 +36,7 @@ import java.util.Collection;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 
 public class FragmentThreads extends Fragment implements OnRefreshListener, AdapterView.OnItemClickListener, OnThreadsListener {
@@ -49,6 +51,7 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 
 	@Bind(R.id.thread_swipe) SwipeRefreshLayout mSwipe;
 	@Bind(R.id.threads) ListView listView;
+	@Bind(R.id.error_info) View errorInfo;
 
 	private ThreadsAdapter adapter;
 	private boolean hasNextPage = false;
@@ -68,6 +71,12 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 	private SlidrInterface slidrInterface;
 	private boolean mRenderOnCreate = true;
 	private boolean mVisible;
+	private Progress mProgress;
+
+	@OnClick(R.id.login) void login() {
+		Intent intent = new Intent(getActivity(), ActivityLogin.class);
+		startActivity(intent);
+	}
 
 	public interface OnFetch {
 		void fetchStart();
@@ -76,7 +85,7 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 	}
 
 	public static FragmentThreads newInstance(Bundle bundle) {
-		int fid = bundle.getInt("fid", ActivityMain.D_ID);
+		int fid = bundle.getInt("fid", /* D */ 2);
 		typeId = bundle.getInt("bs_type_id", 0);
 
 		FragmentThreads fragment = new FragmentThreads();
@@ -112,6 +121,10 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 		mActivity = (ActivityBase) getActivity();
 //		mTitleView = mActivity.mTitleView;
 
+		if (mActivity instanceof Progress) {
+			mProgress = (Progress) mActivity;
+		}
+
 		if (mTitleView != null) {
 			mTitleView.setOnClickListener(new View.OnClickListener() {
 				@Override
@@ -135,7 +148,7 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 		mSwipe.setOnRefreshListener(this);
 		mSwipe.setProgressBackgroundColorSchemeResource(
 				mActivity.getThemeId() == R.style.AppBaseTheme_Night ?
-						R.color.dark_darker : android.R.color.white);
+						R.color.dark_light : android.R.color.white);
 		int primaryColor = Utils.getThemeColor(getActivity(), R.attr.colorPrimary);
 		mSwipe.setColorSchemeColors(primaryColor, primaryColor, primaryColor, primaryColor);
 
@@ -203,6 +216,8 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 
 		setRefreshSpinner(true);
 
+//		mProgress.beforeFetch(fid);
+
 		if (mDataSource == DATA_SOURCE_USER) {
 			Core.getUserThreadsAtPage(mUserName, page, this);
 		} else if (mDataSource == DATA_SOURCE_SEARCH) {
@@ -258,12 +273,12 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 
 		mSwipe.setEnabled(mEnablePullToRefresh);
 
-		EventBus.getDefault().register(this);
+//		EventBus.getDefault().register(this);
 	}
 
 	@Override
 	public void onPause() {
-		EventBus.getDefault().unregister(this);
+//		EventBus.getDefault().unregister(this);
 			super.onPause();
 	}
 
@@ -299,27 +314,33 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 
 	@Override
 	public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
-		this.hasNextPage = hasNextPage;
-		mPage = page;
-		mIsFetching = false;
-		setRefreshSpinner(false);
+		if (threads.size() == 0) {
+			errorInfo.setVisibility(View.VISIBLE);
+		} else {
+			errorInfo.setVisibility(View.GONE);
 
-		final Collection<Integer> ids = CollectionUtils.collect(mThreads, new Transformer() {
-			@Override
-			public Object transform(Object o) {
-				return ((Thread) o).getId();
-			}
-		});
+			this.hasNextPage = hasNextPage;
+			mPage = page;
+			mIsFetching = false;
+			setRefreshSpinner(false);
 
-		threads = (ArrayList<Thread>) CollectionUtils.selectRejected(threads, new Predicate() {
-			@Override
-			public boolean evaluate(Object o) {
-				return ids.contains(((Thread) o).getId());
-			}
-		});
+			final Collection<Integer> ids = CollectionUtils.collect(mThreads, new Transformer() {
+				@Override
+				public Object transform(Object o) {
+					return ((Thread) o).getId();
+				}
+			});
 
-		mThreads.addAll(threads);
-		adapter.notifyDataSetChanged();
+			threads = (ArrayList<Thread>) CollectionUtils.selectRejected(threads, new Predicate() {
+				@Override
+				public boolean evaluate(Object o) {
+					return ids.contains(((Thread) o).getId());
+				}
+			});
+
+			mThreads.addAll(threads);
+			adapter.notifyDataSetChanged();
+		}
 	}
 
 	@Override
@@ -342,11 +363,11 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 
 				@Override
 				public void onError(String error) {
-				mIsFetching = false;
-				setRefreshSpinner(false);
-				mActivity.showToast(error);
-			}
-		});
+					mIsFetching = false;
+					setRefreshSpinner(false);
+					mActivity.showToast(error);
+				}
+			});
 	}
 
 	@Override
@@ -417,12 +438,19 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 		}
 	}
 
-	public void onEventMainThread(Core.UserEvent userEvent) {
-		Logger.i("EventBus.onEventMainThread.statusChangeEvent : user is null? %b", userEvent.user == null);
-
-		if (userEvent.user == null) {
-			mThreads.clear();
-			adapter.notifyDataSetChanged();
-		}
+	public interface Progress {
+		void beforeFetch(int fid);
+		void fetch(int fid);
+		void fetched(int fid, ArrayList<Thread> threads);
+		void failed(int fid, String error);
 	}
+
+//	public void onEventMainThread(Core.UserEvent userEvent) {
+//		Logger.i("EventBus.onEventMainThread.statusChangeEvent : user is null? %b", userEvent.user == null);
+//
+//		if (userEvent.user == null) {
+//			mThreads.clear();
+//			adapter.notifyDataSetChanged();
+//		}
+//	}
 }

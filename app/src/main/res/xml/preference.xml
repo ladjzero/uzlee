@@ -13,6 +13,7 @@
             android:entries="@array/theme_color"
             android:entryValues="@array/theme_color_val"
             android:key="theme_color"
+            android:summary="%s"
             android:title="配色"/>
 
         <ListPreference
@@ -71,4 +72,17 @@
             android:key="sort_thread"
             android:title="草稿箱"/>
     </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="其他">
+        <Preference
+            android:key="about"
+            android:title="关于"/>
+
+        <Preference
+            android:key="logout"
+            android:title="登出"/>
+    </PreferenceCategory>
+
+
 </PreferenceScreen>

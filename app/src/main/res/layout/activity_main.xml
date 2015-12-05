@@ -33,7 +33,7 @@
     <com.ladjzero.uzlee.ScrimInsetsFrameLayout
         android:id="@+id/scrimInsetsFrameLayout"
         android:layout_width="@dimen/navigation_drawer_width"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="start"
         android:elevation="10dp"
         android:fitsSystemWindows="true">

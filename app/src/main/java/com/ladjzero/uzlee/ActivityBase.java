@@ -42,7 +42,7 @@ import com.rey.material.app.SimpleDialog;
 import de.greenrobot.event.EventBus;
 
 
-public class ActivityBase extends ActionBarActivity implements Core.OnProgress, SlidrListener {
+public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 	private static final String TAG = "ActivityBase";
 	protected int mActionbarHeight;
 	public static final int IMAGE_MEM_CACHE_SIZE = 16 * 1024 * 1024;
@@ -149,10 +149,9 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress, 
 
 		slidrConfig = new SlidrConfig.Builder()
 				.position(SlidrPosition.LEFT)
-//				.distanceThreshold(0.25f)
-//				.velocityThreshold(2400)
-//				.sensitivity(0.47f)
-//				.listener(this)
+				.distanceThreshold(0.25f)
+				.velocityThreshold(2400)
+				.sensitivity(0.47f)
 				.build();
 
 		emojiUtils = new EmojiUtils(this);
@@ -208,81 +207,10 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress, 
 	public void onEventMainThread(Core.UserEvent userEvent) {
 		Logger.i("EventBus.onEventMainThread.statusChangeEvent : user is null ? %b", userEvent.user == null);
 
-		if (userEvent.user == null) {
-			SimpleDialog.Builder builder = new SimpleDialog.Builder(R.style.Material_App_Dialog_Simple_Light) {
-
-				@Override
-				protected Dialog onBuild(Context context, int styleId) {
-					Dialog dialog = super.onBuild(context, styleId);
-					dialog.canceledOnTouchOutside(false);
-					dialog.layoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-					return dialog;
-				}
-
-				@Override
-				public void onPositiveActionClicked(DialogFragment fragment) {
-					android.app.Dialog dialog = fragment.getDialog();
-
-					String username = ((EditText) dialog.findViewById(R.id.user_name)).getText().toString();
-					String password = ((EditText) dialog.findViewById(R.id.user_password)).getText().toString();
-					final ProgressDialog progress = ProgressDialog.show(ActivityBase.this, "", getString(R.string.login) + "...", true);
-					Spinner question = (Spinner) dialog.findViewById(R.id.question);
-					EditText answer = (EditText) dialog.findViewById(R.id.answer);
-
-					boolean questionShow = question.getVisibility() == View.VISIBLE;
-					int questionId = questionShow ? question.getSelectedItemPosition() : 0;
-					String answerStr = questionShow ? answer.getText().toString() : "";
-
-					Core.login(username, password, questionId, answerStr, new Core.OnRequestListener() {
-
-						@Override
-						public void onError(String error) {
-							progress.dismiss();
-							Toast.makeText(ActivityBase.this, error, Toast.LENGTH_LONG).show();
-						}
-
-						@Override
-						public void onSuccess(String html) {
-							progress.dismiss();
-							Toast.makeText(ActivityBase.this, getString(R.string.login_succeed), Toast.LENGTH_LONG).show();
-						}
-					});
-
-					super.onPositiveActionClicked(fragment);
-				}
-
-				@Override
-				public void onNegativeActionClicked(DialogFragment fragment) {
-					android.app.Dialog dialog = fragment.getDialog();
-
-					final Spinner question = (Spinner) dialog.findViewById(R.id.question);
-					final EditText answer = (EditText) dialog.findViewById(R.id.answer);
-
-					if (question.getVisibility() == View.GONE) {
-						question.setVisibility(View.VISIBLE);
-						answer.setVisibility(View.VISIBLE);
-						answer.setText("");
-						mDialog.negativeAction("关闭验证问题");
-					} else {
-						question.setVisibility(View.GONE);
-						answer.setVisibility(View.GONE);
-						answer.setText("");
-						mDialog.negativeAction("显示验证问题");
-					}
-				}
-			};
-
-			builder
-					.contentView(R.layout.login_dialog)
-					.title(getString(R.string.login_hipda))
-					.positiveAction("登录")
-					.negativeAction("显示验证问题");
-
-			DialogFragment dialog = DialogFragment.newInstance(builder);
-
-			dialog.show(getSupportFragmentManager(), null);
-			Logger.i("login show");
-		}
+//		if (userEvent.user == null || userEvent.user.getId() <= 0) {
+//			Intent intent = new Intent(this, ActivityLogin.class);
+//			startActivity(intent);
+//		}
 	}
 
 	public void onEventMainThread(final Core.UpdateInfo updateInfo) {
@@ -344,26 +272,6 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress, 
 	public void progress(int current, int total, Object o) {
 	}
 
-	@Override
-	public void onSlideStateChanged(int state) {
-
-	}
-
-	@Override
-	public void onSlideChange(float percent) {
-
-	}
-
-	@Override
-	public void onSlideOpened() {
-
-	}
-
-	@Override
-	public void onSlideClosed() {
-
-	}
-
 	public int getThemeId() {
 		return mThemeId;
 	}
@@ -416,5 +324,9 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress, 
 		public void onReceive(Context context, Intent intent) {
 			setImageNetwork();
 		}
+	}
+
+	public void toLoginPage() {
+		startActivity(new Intent(this, ActivityLogin.class));
 	}
 }
