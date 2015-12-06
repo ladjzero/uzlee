@@ -1,3 +1,46 @@
+$redPrimary       :#ca463e;
+$redSecondary     :#e19a89;
+$carrotPrimary    :#cd7034;
+$carrotSecondary  :#ddaf86;
+$orangePrimary    :#dfb338;
+$orangeSecondary  :#e7d180;
+$greenPrimary     :#56a08b;
+$greenSecondary   :#9dc8bd;
+$blueGreyPrimary  :#2b3949;
+$blueGreySecondary:#88929b;
+$bluePrimary      :#4286cb;
+$blueSecondary    :#92badc;
+$darkPrimary      :#343440;
+$darkSecondary    :#8f8f96;
+$purplePrimary    :#8d6c9d;
+$purpleSecondary  :#beadc7;
+$nightPrimary     :#202020;
+$nightSecondary   :#828282;
+$nightTextPrimary :#ff969696;
+$nightTextMinor   :#464646;
+
+$themes: ('red', 'carrot', 'orange', 'green', 'blueGrey', 'blue', 'dark', 'purple', 'night');
+
+$fontSizes: (
+    'font-size-normal': 16px,
+    'font-size-big'   : 20px,
+    'font-size-bigger': 24px
+);
+
+$primaries: (
+    'red': $redPrimary,
+    'carrot': $carrotPrimary,
+    'orange': $orangePrimary,
+    'green': $greenPrimary,
+    'blueGrey': $blueGreyPrimary,
+    'blue': $bluePrimary,
+    'dark': $darkPrimary,
+    'purple': $purplePrimary,
+    'night': $nightPrimary
+);
+
+
+
 $primary-purple:#8d6c9d;
 $borderColor:   #e8e8e8;
 $nameColor:     #686868;

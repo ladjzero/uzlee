@@ -3,4 +3,5 @@
     <attr name="colorSecondary" format="color"></attr>
     <attr name="colorText" format="color"></attr>
     <attr name="colorTextInverse" format="color"></attr>
+    <attr name="colorUnread" format="color"></attr>
 </resources>

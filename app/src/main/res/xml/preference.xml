@@ -17,11 +17,12 @@
             android:title="配色"/>
 
         <ListPreference
-            android:defaultValue="2"
-            android:entries="@array/thread_sort_by"
-            android:entryValues="@array/thread_sort_values"
-            android:key="sort_thread"
-            android:title="正文字体"/>
+            android:defaultValue="normal"
+            android:entries="@array/font_size"
+            android:entryValues="@array/font_size_val"
+            android:key="font_size"
+            android:summary="%s"
+            android:title="正文字体大小"/>
 
         <CheckBoxPreference
             android:defaultValue="false"

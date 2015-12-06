@@ -3,6 +3,7 @@ package com.ladjzero.uzlee;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.net.Uri;
 import android.util.TypedValue;
 import android.view.View;
@@ -48,6 +49,15 @@ public class Utils {
 		} else {
 			return "";
 		}
+	}
+
+	public static int changeColorSaturability(int color, float s) {
+		float[] hsv = new float[3];
+		Color.colorToHSV(color, hsv);
+		float newS = hsv[1] * s;
+		hsv[1] = newS;
+
+		return Color.HSVToColor(hsv);
 	}
 
 	public static int getColor(Context context, int resId) {

@@ -7,7 +7,7 @@
 
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:background="?attr/colorSecondary"
+        android:background="?android:attr/colorBackground"
         android:layout_height="36dp">
 
         <com.rey.material.widget.TabPageIndicator

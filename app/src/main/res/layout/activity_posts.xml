@@ -28,44 +28,46 @@
             ptr:ptrOverScroll="false"
             ptr:ptrShowIndicator="false"/>
 
-        <RelativeLayout
-            android:id="@+id/quick_reply"
-            android:layout_width="fill_parent"
-            android:layout_height="@dimen/toolbar_height"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
+            android:background="?attr/colorPrimary"
             android:alpha="0.97"
-            android:background="@drawable/up_border">
+            android:paddingTop="1px">
 
-            <com.joanzapata.iconify.widget.IconTextView
-                android:id="@+id/quick_send"
-                android:layout_width="@dimen/toolbar_height"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:gravity="center"
-                android:minHeight="@dimen/toolbar_height"
-                android:onClick="onQuickReply"
-                android:text="{md-send}"
-                android:textColor="@color/snow_dark"
-                android:textSize="28sp"/>
+            <RelativeLayout
+                android:id="@+id/quick_reply"
+                android:layout_width="fill_parent"
+                android:layout_height="@dimen/toolbar_height"
+                android:background="?android:attr/colorBackground">
 
-            <com.rengwuxian.materialedittext.MaterialEditText
-                android:id="@+id/quick_input"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="false"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="12dp"
-                android:layout_marginRight="12dp"
-                android:layout_toLeftOf="@+id/quick_send"
-                android:hint="快速回复"
-                android:textSize="18sp"
-                app:met_minCharacters="5"
-                app:met_primaryColor="@color/primary"/>
+                <com.joanzapata.iconify.widget.IconTextView
+                    android:id="@+id/quick_send"
+                    android:layout_width="@dimen/toolbar_height"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:gravity="center"
+                    android:minHeight="@dimen/toolbar_height"
+                    android:onClick="onQuickReply"
+                    android:text="{md-send}"
+                    android:textColor="@color/snow_dark"
+                    android:textSize="28sp"/>
 
-
-        </RelativeLayout>
-
-
+                <com.rengwuxian.materialedittext.MaterialEditText
+                    android:id="@+id/quick_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="false"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_toLeftOf="@+id/quick_send"
+                    android:hint="快速回复"
+                    android:textSize="18sp"
+                    app:met_minCharacters="5"
+                    app:met_primaryColor="@color/primary"/>
+            </RelativeLayout>
+        </LinearLayout>
     </RelativeLayout>
-
 </LinearLayout>

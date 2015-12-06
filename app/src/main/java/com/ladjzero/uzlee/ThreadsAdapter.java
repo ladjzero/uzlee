@@ -37,6 +37,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 	private int mWhite;
 	private int mUserNameColor;
 	private boolean mHighlightUnread = true;
+	private float mFontSize;
 
 
 	public ThreadsAdapter(Context context, ArrayList<Thread> threads) {
@@ -49,6 +50,16 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 		mCommentBgColor = res.getColor(R.color.commentNoBg);
 		mWhite = res.getColor(android.R.color.white);
 		mUserNameColor = res.getColor(R.color.snow_darker);
+
+		String fontsize = this.context.getSettings().getString("font_size", "normal");
+
+		if (fontsize.equals("normal")) {
+			mFontSize = 16f;
+		} else if (fontsize.equals("big")) {
+			mFontSize = 20f;
+		} else {
+			mFontSize = 24f;
+		}
 	}
 
 	@Override
@@ -122,8 +133,17 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 			holder.title.setTextColor(Utils.getThemeColor(context, R.attr.colorText));
 		}
 
+		holder.title.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
+
 		if (mHighlightUnread) {
-			holder.commentCount.setBackgroundResource(isNew ? R.color.commentNoBg : R.color.border);
+			int commentBg = Utils.getThemeColor(context, R.attr.colorUnread);
+
+			int newCommentBg = Utils.changeColorSaturability(commentBg, isNew ?
+					(count > 50 ? 1f : 0.5f + 0.01f * count) :
+					0f);
+
+			holder.commentCount.setBackgroundColor(newCommentBg);
+//			holder.commentCount.setBackgroundResource(isNew ? R.color.commentNoBg : R.color.border);
 			holder.commentCount.setTextColor(mWhite);
 			holder.commentCount.setText(String.valueOf(count));
 			holder.commentCount.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);

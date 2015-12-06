@@ -60,4 +60,16 @@
         <item>night</item>
     </string-array>
 
+    <string-array name="font_size">
+        <item>正常</item>
+        <item>更大</item>
+        <item>比更大还大</item>
+    </string-array>
+
+    <string-array name="font_size_val">
+        <item>normal</item>
+        <item>big</item>
+        <item>bigger</item>
+    </string-array>
+
 </resources>

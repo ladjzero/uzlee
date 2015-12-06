@@ -8,6 +8,8 @@ import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
@@ -30,7 +32,7 @@ public class ActivityLogin extends ActionBarActivity {
 	@Bind(R.id.user_password) TextView passwd;
 	@Bind(R.id.answer) TextView answer;
 	@Bind(R.id.question) Spinner spn;
-	@Bind(R.id.login_background) WebView webview;
+	@Bind(R.id.logo) View logo;
 
 	@OnClick(R.id.login) void onLogin() {
 		Core.login(name.getText().toString(), passwd.getText().toString(), spn.getSelectedItemPosition(), answer.getText().toString(), new Core.OnRequestListener() {
@@ -71,13 +73,14 @@ public class ActivityLogin extends ActionBarActivity {
 
 		Core.setup(this, false);
 
+		Animation animation = AnimationUtils.loadAnimation(this, R.anim.rotate);
+		logo.setAnimation(animation);
+
 		User user = Core.getUser();
 
 		if (user != null && user.getId() > 0) {
 			startActivity(new Intent(this, ActivityMain.class));
 		} else {
-			webview.loadUrl("file:///android_asset/login_bg.html");
-
 			String[] questions = getResources().getStringArray(R.array.questions);
 			spn.setAdapter(new ArrayAdapter<>(this, R.layout.item_spinner, questions));
 			spn.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {

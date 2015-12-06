@@ -51,6 +51,7 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 	EmojiUtils emojiUtils;
 	Dialog alert;
 	private int mThemeId;
+	public static final String DefaultTheme = "purple";
 
 	private static final int mTransparenty = android.R.color.transparent;
 
@@ -137,10 +138,14 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 		startActivity(intent);
 	}
 
+	public SharedPreferences getSettings() {
+		return setting;
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setting = PreferenceManager.getDefaultSharedPreferences(this);
-		String themeColor = setting.getString("theme_color", "purple");
+		String themeColor = setting.getString("theme_color", DefaultTheme);
 
 		setTheme(mThemeId = Utils.getTheme(themeColor));
 

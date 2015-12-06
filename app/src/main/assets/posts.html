@@ -39,6 +39,29 @@
     <ol id="post-list" class="unstyled" data-bind="template: {name: 'posts-template', foreach: posts, as: 'post'}"></ol>
 
     <script>
+        var parseQueryString = function() {
+            var str = window.location.search;
+            var objURL = {};
+
+            str.replace(
+                new RegExp( "([^?=&]+)(=([^&]*))?", "g" ),
+                function( $0, $1, $2, $3 ){
+                    objURL[ $1 ] = $3;
+                }
+            );
+            return objURL;
+        };
+
+        var queries = parseQueryString();
+        var theme = queries.theme;
+        var fontsize = queries.fontsize;
+
+        var bodyClassList = document.body.classList;
+
+        bodyClassList.add(theme);
+        bodyClassList.add('night' == theme ? 'night' : 'day');
+        bodyClassList.add('font-size-' + fontsize);
+
         // webview click through bug.
         // If gallery is on show, prevent click event behind the gallery layout.
         var galleryOnShow = false;

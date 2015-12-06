@@ -28,10 +28,18 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
     margin: 12px 0;
 }
 
-blockquote {
-    border-left: 4px solid lighten($primary-purple, .2);
-    padding: 12px;
-    margin: 24px;
+@each $theme, $primary in $primaries {
+    .#{$theme} blockquote {
+        border-left: 4px solid lighten($primary, .2);
+        padding: 12px;
+        margin: 24px;
+    }
+}
+
+@each $font_size, $font_size_val in $fontSizes {
+    .#{$font_size} .body {
+        font-size: $font_size_val;
+    }
 }
 
 #post-list {

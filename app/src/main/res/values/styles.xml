@@ -11,6 +11,7 @@
         <item name="tabBarStyle">@style/TabBarStyle.Night</item>
         <item name="toolbarStyle2">@style/Toolbar</item>
         <item name="actionMenuTextColor">@android:color/white</item>
+        <item name="colorUnread">#f6708b</item>
     </style>
 
     <style name="AppBaseTheme.Day.Red">
@@ -54,9 +55,11 @@
     </style>
 
     <style name="AppBaseTheme.Night">
+        <!--for setting page-->
         <item name="android:textColor">@color/nightTextPrimary</item>
         <item name="android:textColorSecondary">@color/nightTextPrimary</item>
 
+        <item name="colorUnread">@color/nightTextPrimary</item>
         <item name="colorAccent">@color/nightTextPrimary</item>
         <item name="colorSecondary">@color/nightSecondary</item>
         <item name="colorPrimary">@color/nightPrimary</item>

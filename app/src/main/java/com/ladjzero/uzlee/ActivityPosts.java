@@ -6,8 +6,8 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -45,6 +45,8 @@ import org.apache.commons.collections.Predicate;
 
 import java.util.ArrayList;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import me.drakeet.materialdialog.MaterialDialog;
 
 import static com.ladjzero.hipda.Core.OnPostsListener;
@@ -71,12 +73,19 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	// 0 = asc, 1 = desc
 	public int orderType = 0;
 	PostActionsAdapter actionsAdapter;
+	@Bind(R.id.posts)
+	PullToRefreshWebView mPostsView;
+	@Bind(R.id.quick_input)
+	EditText mQuickEdit;
+	@Bind(R.id.quick_reply)
+	View mQuickReplyLayout;
+	@Bind(R.id.quick_send)
+	TextView mQuickSend;
 	private View mSpinner;
 	private int mThreadUserId = 0;
 	private int mTid;
 	private int mPage;
 	private Posts mPosts = new Posts();
-	private PullToRefreshWebView mPostsView;
 	private WebView mWebView;
 	private boolean mHasNextPage = false;
 	private DiscreteSeekBar mSeekBar;
@@ -91,11 +100,8 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	private int position = 0;
 	// Scroll to this post.
 	private int mPid = 0;
-	private EditText mQuickEdit;
-	private View mQuickReplyLayout;
 	private boolean mQuickVisible = true;
 	private boolean isFadingOut = false;
-	private TextView mQuickSend;
 	private TextView mTitleView;
 
 	@Override
@@ -115,7 +121,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	private void toggleQuickSend(boolean on) {
 		Resources res = getResources();
-		mQuickSend.setTextColor(res.getColor(R.color.snow_dark));
+		mQuickSend.setTextColor(on ? Utils.getThemeColor(this, R.attr.colorPrimary) : res.getColor(R.color.snow_dark));
 		mQuickSend.setClickable(on);
 	}
 
@@ -290,12 +296,14 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.activity_posts);
+		ButterKnife.bind(this);
 
 		LayoutInflater mInflater = LayoutInflater.from(this);
 		View customView = mInflater.inflate(R.layout.toolbar_title_for_post, null);
 		mSpinner = customView.findViewById(R.id.spinner);
 		mTitleView = (TextView) customView.findViewById(R.id.title);
 		mTitleView.setVisibility(View.INVISIBLE);
+		mTitleView.setTextColor(Utils.getThemeColor(this, R.attr.colorTextInverse));
 
 		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
@@ -305,7 +313,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mActionbar.setDisplayShowCustomEnabled(true);
 		mActionbar.setCustomView(customView);
 
-		mQuickEdit = (EditText) findViewById(R.id.quick_input);
 		mQuickEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) {
@@ -313,9 +320,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			}
 		});
 		mQuickEdit.addTextChangedListener(this);
-
-		mQuickReplyLayout = findViewById(R.id.quick_reply);
-		mQuickSend = (TextView) findViewById(R.id.quick_send);
 
 		Intent intent = getIntent();
 		mTid = intent.getIntExtra("tid", 0);
@@ -326,7 +330,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		mTitleView.setText(intent.getStringExtra("title"));
 
-		mPostsView = (PullToRefreshWebView) this.findViewById(R.id.posts);
 
 		mWebView = mPostsView.getRefreshableView();
 		mWebView.setBackgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground));
@@ -383,7 +386,11 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@Override
 	public String getHTMLFilePath() {
-		return "file:///android_asset/posts.html";
+		SharedPreferences setting = getSettings();
+
+		return "file:///android_asset/posts.html?theme=" +
+				setting.getString("theme_color", DefaultTheme) +
+				"&fontsize=" + setting.getString("font_size", "normal");
 	}
 
 	@Override
@@ -551,7 +558,10 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mMenu = menu;
 
 		getMenuInflater().inflate(R.menu.posts, menu);
-		menu.findItem(R.id.more).setIcon(new IconDrawable(this, MaterialIcons.md_more_vert).colorRes(android.R.color.white).actionBarSize());
+		menu.findItem(R.id.more)
+				.setIcon(new IconDrawable(this, MaterialIcons.md_more_vert)
+						.color(Utils.getThemeColor(this, R.attr.colorTextInverse))
+						.actionBarSize());
 
 		return super.onCreateOptionsMenu(menu);
 	}

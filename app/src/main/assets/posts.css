@@ -63,10 +63,59 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
   color: gray;
   margin: 12px 0; }
 
-blockquote {
+.red blockquote {
+  border-left: 4px solid #ca473f;
+  padding: 12px;
+  margin: 24px; }
+
+.carrot blockquote {
+  border-left: 4px solid #cd7135;
+  padding: 12px;
+  margin: 24px; }
+
+.orange blockquote {
+  border-left: 4px solid #dfb339;
+  padding: 12px;
+  margin: 24px; }
+
+.green blockquote {
+  border-left: 4px solid #56a18c;
+  padding: 12px;
+  margin: 24px; }
+
+.blueGrey blockquote {
+  border-left: 4px solid #2b3a4a;
+  padding: 12px;
+  margin: 24px; }
+
+.blue blockquote {
+  border-left: 4px solid #4387cb;
+  padding: 12px;
+  margin: 24px; }
+
+.dark blockquote {
+  border-left: 4px solid #343441;
+  padding: 12px;
+  margin: 24px; }
+
+.purple blockquote {
   border-left: 4px solid #8d6d9d;
   padding: 12px;
   margin: 24px; }
+
+.night blockquote {
+  border-left: 4px solid #212121;
+  padding: 12px;
+  margin: 24px; }
+
+.font-size-normal .body {
+  font-size: 16px; }
+
+.font-size-big .body {
+  font-size: 20px; }
+
+.font-size-bigger .body {
+  font-size: 24px; }
 
 #post-list li:last-child {
   padding-bottom: 48px; }
