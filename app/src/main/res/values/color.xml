@@ -34,7 +34,7 @@
     <color name="purpleSecondary">#beadc7</color>
     <color name="nightPrimary">#202020</color>
     <color name="nightSecondary">#828282</color>
-    <color name="nightTextPrimary">#ff969696</color>
+    <color name="nightTextPrimary">#969696</color>
     <color name="nightTextMinor">#464646</color>
 
 </resources>

@@ -63,7 +63,7 @@
     <string-array name="font_size">
         <item>正常</item>
         <item>更大</item>
-        <item>比更大还大</item>
+        <item>比更大还更大</item>
     </string-array>
 
     <string-array name="font_size_val">

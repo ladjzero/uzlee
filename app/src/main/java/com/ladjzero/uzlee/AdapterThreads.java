@@ -2,6 +2,7 @@ package com.ladjzero.uzlee;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.util.TypedValue;
@@ -27,7 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClickListener {
+public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClickListener {
 
 	private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 	private final Date NOW = new Date();
@@ -40,32 +41,37 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> implements View.OnClick
 	private float mFontSize;
 
 
-	public ThreadsAdapter(Context context, ArrayList<Thread> threads) {
+	public AdapterThreads(Context context, ArrayList<Thread> threads) {
 		super(context, R.layout.thread, threads);
 		this.context = (ActivityBase) context;
-
-		mHighlightUnread = this.context.setting.getBoolean("highlight_unread", true);
 
 		Resources res = context.getResources();
 		mCommentBgColor = res.getColor(R.color.commentNoBg);
 		mWhite = res.getColor(android.R.color.white);
 		mUserNameColor = res.getColor(R.color.snow_darker);
 
-		String fontsize = this.context.getSettings().getString("font_size", "normal");
+		initalPreferences();
+	}
+
+	private void initalPreferences() {
+		SharedPreferences setting = context.getSettings();
+		String fontsize = setting.getString("font_size", "normal");
 
 		if (fontsize.equals("normal")) {
 			mFontSize = 16f;
 		} else if (fontsize.equals("big")) {
-			mFontSize = 20f;
+			mFontSize =  20f;
 		} else {
-			mFontSize = 24f;
+			mFontSize =  24f;
 		}
+
+		mHighlightUnread = setting.getBoolean("highlight_unread", true);
 	}
 
 	@Override
 	public void notifyDataSetChanged() {
+		initalPreferences();
 		super.notifyDataSetChanged();
-		mHighlightUnread = this.context.setting.getBoolean("highlight_unread", true);
 	}
 
 	@Override

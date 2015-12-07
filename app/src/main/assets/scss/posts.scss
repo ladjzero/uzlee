@@ -17,6 +17,10 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
     line-height: 1.6;
 }
 
+.night .body {
+    color: $nightTextPrimary
+}
+
 //* {outline: 1px solid blue}
 
 .pstatus {
@@ -45,10 +49,6 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
 #post-list {
     li:last-child  {
         padding-bottom: $toolbar-height;
-    }
-
-    .post-container {
-        margin: 0 12px;
     }
 
     .post-header {

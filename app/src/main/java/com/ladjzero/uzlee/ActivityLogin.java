@@ -44,7 +44,7 @@ public class ActivityLogin extends ActionBarActivity {
 			@Override
 			public void onSuccess(String html) {
 				Utils.showToast(ActivityLogin.this, "登录成功");
-				startActivity(new Intent(ActivityLogin.this, ActivityMain.class));
+				Utils.replaceActivity(ActivityLogin.this, ActivityMain.class);
 			}
 		});
 	}
@@ -58,7 +58,7 @@ public class ActivityLogin extends ActionBarActivity {
 	}
 
 	@OnClick(R.id.view_as_visitor) void viewAsVisitor() {
-		startActivity(new Intent(this, ActivityMain.class));
+		Utils.replaceActivity(this, ActivityMain.class);
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class ActivityLogin extends ActionBarActivity {
 		User user = Core.getUser();
 
 		if (user != null && user.getId() > 0) {
-			startActivity(new Intent(this, ActivityMain.class));
+			Utils.replaceActivity(this, ActivityMain.class);
 		} else {
 			String[] questions = getResources().getStringArray(R.array.questions);
 			spn.setAdapter(new ArrayAdapter<>(this, R.layout.item_spinner, questions));

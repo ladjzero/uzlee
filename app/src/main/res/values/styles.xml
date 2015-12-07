@@ -8,10 +8,10 @@
         <item name="dividerDrawable">@drawable/list_divider</item>
         <item name="drawerArrowStyle">@style/DrawerArrowToggle</item>
         <item name="colorPrimary">@color/nightPrimary</item>
-        <item name="tabBarStyle">@style/TabBarStyle.Night</item>
         <item name="toolbarStyle2">@style/Toolbar</item>
         <item name="actionMenuTextColor">@android:color/white</item>
         <item name="colorUnread">#f6708b</item>
+        <item name="tabBarStyle">@style/TabBarStyle</item>
     </style>
 
     <style name="AppBaseTheme.Day.Red">
@@ -67,10 +67,10 @@
         <item name="colorText">@color/nightTextPrimary</item>
         <item name="colorTextInverse">@color/nightTextPrimary</item>
         <item name="dividerDrawable">@drawable/list_divider_night</item>
-        <item name="tabBarStyle">@style/TabBarStyle.Night</item>
         <item name="toolbarStyle2">@style/Toolbar.Night</item>
         <item name="drawerArrowStyle">@style/DrawerArrowToggle.Night</item>
         <item name="actionMenuTextColor">@color/nightTextPrimary</item>
+        <item name="tabBarStyle">@style/TabBarStyle.Night</item>
     </style>
 
     <style name="AppBaseTheme.NoTransparent" parent="AppBaseTheme">
@@ -120,6 +120,7 @@
 
     <style name="TabBarStyle" parent="@style/Base.TextAppearance.AppCompat.Subhead">
         <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@drawable/tab_text</item>
     </style>
 
     <style name="TabBarStyle.Night" parent="@style/TabBarStyle">

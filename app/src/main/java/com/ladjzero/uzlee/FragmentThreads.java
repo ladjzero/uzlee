@@ -4,9 +4,9 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.Telephony;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
@@ -37,9 +37,8 @@ import java.util.Collection;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
 
-public class FragmentThreads extends Fragment implements OnRefreshListener, AdapterView.OnItemClickListener, OnThreadsListener {
+public class FragmentThreads extends Fragment implements OnRefreshListener, AdapterView.OnItemClickListener, OnThreadsListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
 	public static final int DATA_SOURCE_THREADS = 0;
 	public static final int DATA_SOURCE_USER = 1;
@@ -53,7 +52,7 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 	@Bind(R.id.threads) ListView listView;
 	@Bind(R.id.error_info) View errorInfo;
 
-	private ThreadsAdapter adapter;
+	private AdapterThreads adapter;
 	private boolean hasNextPage = false;
 	private int fid;
 	private boolean mIsAnimating = false;
@@ -74,8 +73,14 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 	private Progress mProgress;
 
 	@OnClick(R.id.login) void login() {
-		Intent intent = new Intent(getActivity(), ActivityLogin.class);
-		startActivity(intent);
+		Utils.replaceActivity(getActivity(), ActivityLogin.class);
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if ("font_size".equals(key) || "highlight_unread".equals(key)) {
+			adapter.notifyDataSetChanged();
+		}
 	}
 
 	public interface OnFetch {
@@ -162,7 +167,7 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 			slidrInterface = ((ActivitySearch)mActivity).slidrInterface;
 		}
 
-		adapter = new ThreadsAdapter(mActivity, mThreads);
+		adapter = new AdapterThreads(mActivity, mThreads);
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(this);
 
@@ -268,6 +273,8 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 	public void onResume() {
 		super.onResume();
 
+		mActivity.getSettings().registerOnSharedPreferenceChangeListener(this);
+
 		if (mVisible && mThreads.size() == 0 && mDataSource != DATA_SOURCE_SEARCH) fetch(1, this);
 		adapter.notifyDataSetChanged();
 
@@ -280,6 +287,7 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 	public void onPause() {
 //		EventBus.getDefault().unregister(this);
 			super.onPause();
+		mActivity.getSettings().unregisterOnSharedPreferenceChangeListener(this);
 	}
 
 	@Override

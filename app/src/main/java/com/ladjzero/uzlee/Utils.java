@@ -1,5 +1,6 @@
 package com.ladjzero.uzlee;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -181,5 +182,12 @@ public class Utils {
 
 	public static void showToast(Context context, String message) {
 		Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+	}
+
+	public static void replaceActivity(Activity current, Class next) {
+		Intent intent = new Intent(current, next);
+		intent.setFlags(Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_NEW_TASK);
+		current.startActivity(intent);
+		current.finish();
 	}
 }

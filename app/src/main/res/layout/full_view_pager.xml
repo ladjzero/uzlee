@@ -7,7 +7,7 @@
 
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:background="?android:attr/colorBackground"
+        android:background="?attr/colorPrimary"
         android:layout_height="36dp">
 
         <com.rey.material.widget.TabPageIndicator
@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:textAppearance="?attr/tabBarStyle"
-            app:tpi_indicatorColor="?attr/colorPrimary"
+            app:tpi_indicatorColor="?attr/colorSecondary"
             app:tpi_indicatorHeight="2dp"
             app:tpi_mode="scroll"
             app:tpi_tabPadding="12dp"/>

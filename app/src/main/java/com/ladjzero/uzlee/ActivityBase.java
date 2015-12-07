@@ -332,6 +332,6 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 	}
 
 	public void toLoginPage() {
-		startActivity(new Intent(this, ActivityLogin.class));
+		Utils.replaceActivity(this, ActivityLogin.class);
 	}
 }
