@@ -43,6 +43,7 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 
 	public AdapterThreads(Context context, ArrayList<Thread> threads) {
 		super(context, R.layout.thread, threads);
+
 		this.context = (ActivityBase) context;
 
 		Resources res = context.getResources();
@@ -101,7 +102,7 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 		int count = thread.getCommentCount();
 		boolean isNew = thread.isNew();
 
-		row.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.uglee : android.R.color.transparent);
+//		row.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.uglee : android.R.color.transparent);
 		holder.imageMask.setText(Utils.getFirstChar(userName));
 
 		ImageLoader.getInstance().displayImage(imageUrl, holder.image, ActivityBase.LowQualityDisplay, new SimpleImageLoadingListener() {

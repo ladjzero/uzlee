@@ -71,6 +71,7 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 	private boolean mRenderOnCreate = true;
 	private boolean mVisible;
 	private Progress mProgress;
+	private OnScrollUpOrDown mOnScrollUpOrDown;
 
 	@OnClick(R.id.login) void login() {
 		Utils.replaceActivity(getActivity(), ActivityLogin.class);
@@ -81,6 +82,10 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 		if ("font_size".equals(key) || "highlight_unread".equals(key)) {
 			adapter.notifyDataSetChanged();
 		}
+	}
+
+	public void setScrollUpOrDownListener(OnScrollUpOrDown onScrollUpOrDown) {
+		this.mOnScrollUpOrDown = onScrollUpOrDown;
 	}
 
 	public interface OnFetch {
@@ -156,6 +161,7 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 						R.color.dark_light : android.R.color.white);
 		int primaryColor = Utils.getThemeColor(getActivity(), R.attr.colorPrimary);
 		mSwipe.setColorSchemeColors(primaryColor, primaryColor, primaryColor, primaryColor);
+		mSwipe.setProgressViewOffset(false, - Utils.dp2px(mActivity, 12), Utils.dp2px(mActivity, 60));
 
 		Logger.i("enable pull to fresh %b", mEnablePullToRefresh);
 		mSwipe.setEnabled(mEnablePullToRefresh);
@@ -172,37 +178,68 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 		listView.setOnItemClickListener(this);
 
 		listView.setOnScrollListener(
-				new PauseOnScrollListener(ImageLoader.getInstance(), true, true, new EndlessScrollListener() {
-					@Override
-					public void onLoadMore(int page, int totalItemsCount) {
-						if (hasNextPage) {
-							mActivity.showToast("载入下一页");
-
-							setRefreshSpinner(true);
-							if (mDataSource == DATA_SOURCE_USER) {
-								Core.getUserThreadsAtPage(mUserName, page, FragmentThreads.this);
-							} else if (mDataSource == DATA_SOURCE_SEARCH) {
-								Core.search(mQuery, page, FragmentThreads.this);
-							} else {
-								fetch(page, FragmentThreads.this);
-							}
-						}
-					}
-					@Override
-					public void onScrollStateChanged(AbsListView view, int scrollState) {
-						if (slidrInterface != null) {
-							if (scrollState == SCROLL_STATE_IDLE) {
-								slidrInterface.unlock();
-							} else {
-								slidrInterface.lock();
-							}
-						}
-					}
-
-				}));
+				new PauseOnScrollListener(ImageLoader.getInstance(), true, true, new DirectionDetectScrollListener()));
 
 		registerForContextMenu(listView);
 		return rootView;
+	}
+
+	interface OnScrollUpOrDown {
+		void onUp(int ms);
+		void onDown(int ms);
+	}
+
+	class DirectionDetectScrollListener extends EndlessScrollListener {
+		private int mLastFirstVisibleItem = -1;
+		private int mState = SCROLL_STATE_IDLE;
+
+		@Override
+		public void onLoadMore(int page, int totalItemsCount) {
+			if (hasNextPage) {
+				mActivity.showToast("载入下一页");
+
+				setRefreshSpinner(true);
+				if (mDataSource == DATA_SOURCE_USER) {
+					Core.getUserThreadsAtPage(mUserName, page, FragmentThreads.this);
+				} else if (mDataSource == DATA_SOURCE_SEARCH) {
+					Core.search(mQuery, page, FragmentThreads.this);
+				} else {
+					fetch(page, FragmentThreads.this);
+				}
+			}
+		}
+		@Override
+		public void onScrollStateChanged(AbsListView view, int scrollState) {
+			if (slidrInterface != null) {
+				if (scrollState == SCROLL_STATE_IDLE) {
+					slidrInterface.unlock();
+				} else {
+					slidrInterface.lock();
+				}
+			}
+
+			mState = scrollState;
+		}
+
+		@Override
+		public void onScroll(AbsListView view, int firstVisibleItem,
+							 int visibleItemCount, int totalItemCount) {
+
+			super.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+
+			if (mState == SCROLL_STATE_IDLE) return;
+
+			if (mLastFirstVisibleItem != -1 && mOnScrollUpOrDown != null) {
+				if (mLastFirstVisibleItem < firstVisibleItem && firstVisibleItem > 3) {
+					mOnScrollUpOrDown.onDown(100);
+				} if (mLastFirstVisibleItem > firstVisibleItem) {
+					mOnScrollUpOrDown.onUp(100);
+				}
+			}
+
+			mLastFirstVisibleItem = firstVisibleItem;
+
+		}
 	}
 
 	private String getOrder() {

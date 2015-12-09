@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
@@ -189,5 +190,30 @@ public class Utils {
 		intent.setFlags(Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_NEW_TASK);
 		current.startActivity(intent);
 		current.finish();
+	}
+
+	public static int dp2px(Context context, int dp) {
+		DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+		int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+		return px;
+	}
+
+	public static abstract class OnAnimatorStartEndListener implements Animator.AnimatorListener {
+
+		@Override
+		public abstract void onAnimationStart(Animator animation);
+
+		@Override
+		public abstract void onAnimationEnd(Animator animation);
+
+		@Override
+		public void onAnimationCancel(Animator animation) {
+
+		}
+
+		@Override
+		public void onAnimationRepeat(Animator animation) {
+
+		}
 	}
 }

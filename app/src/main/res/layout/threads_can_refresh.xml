@@ -5,21 +5,6 @@
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground">
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/thread_swipe"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <ListView
-            android:id="@+id/threads"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:divider="?attr/dividerDrawable"
-            android:dividerHeight="1px"/>
-
-    </android.support.v4.widget.SwipeRefreshLayout>
-
     <RelativeLayout
         android:id="@+id/error_info"
         android:layout_width="match_parent"
@@ -31,14 +16,14 @@
             style="@style/Material.Drawable.Ripple.Touch.MatchView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             android:background="?attr/colorPrimary"
             android:text="登录"
             android:textColor="?attr/colorTextInverse"
             android:textSize="16dp"
             app:rd_cornerRadius="3dp"
             app:rd_enable="true"
-            app:rd_padding="0dp"
-            android:layout_centerInParent="true"/>
+            app:rd_padding="0dp"/>
 
         <TextView
             android:id="@+id/info"
@@ -50,5 +35,22 @@
             android:text="没有权限浏览"/>
 
     </RelativeLayout>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/thread_swipe"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ListView
+            android:id="@+id/threads"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:divider="?attr/dividerDrawable"
+            android:dividerHeight="1px"
+            android:paddingTop="36dp"/>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </RelativeLayout>
