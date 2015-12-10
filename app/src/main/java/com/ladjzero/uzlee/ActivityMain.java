@@ -22,6 +22,7 @@ import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
+import com.orhanobut.logger.Logger;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -36,16 +37,16 @@ import me.drakeet.materialdialog.MaterialDialog;
 
 public class ActivityMain extends ActivityBase implements ViewPager.OnPageChangeListener {
 
-	protected List<Forum> mForums;
-	int fid;
 	String title = "";
 	Toolbar toolbar;
 	boolean doubleBackToExitPressedOnce = false;
 	private FragmentNav mFragmentNav;
 	private List<Forum.Type> mTypes;
-	private int mFid;
 	private HashMap<Integer, Integer> mLastSelectedType = new HashMap<>();
-	private OnTypeChange onTypeChange;
+	private OnTypeChange mOnTypeChange;
+	private FragmentThreadsPager mFragment;
+	private int mCurrentPagePosition = -1;
+	private int mFid = -1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -59,14 +60,15 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		setTitle(null);
 		mFragmentNav = (FragmentNav) getSupportFragmentManager().findFragmentById(R.id.fragment_drawer);
 		mFragmentNav.setup(R.id.fragment_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), (Toolbar) findViewById(R.id.toolbar));
-		mForums = Core.getSelectedForums(this);
-		mFid = mForums.get(0).getFid();
 
 		Bundle bundle = new Bundle();
 
+		mFragment =  FragmentThreadsPager.newInstance(bundle);
+		setOnTypeChangeListener(mFragment);
+
 		getSupportFragmentManager()
 				.beginTransaction()
-				.replace(R.id.container, FragmentThreadsPager.newInstance(bundle))
+				.replace(R.id.container, mFragment)
 				.commit();
 	}
 
@@ -77,12 +79,12 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		if (id == R.id.thread_publish) {
 			Intent intent = new Intent(this, ActivityEdit.class);
 			intent.putExtra("title", "新主题");
-			intent.putExtra("fid", fid);
+			intent.putExtra("fid", mFid);
 
 			startActivity(intent);
 
 			return true;
-		} else if (id == R.id.thread_sort) {
+		} else if (id == R.id.thread_types) {
 			if (mTypes != null) {
 				ListView listView = new ListView(this);
 				listView.setAdapter(new ArrayAdapter<>(this, R.layout.list_item_of_dialog, R.id.text, mTypes));
@@ -98,7 +100,7 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 					public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 						Forum.Type type = (Forum.Type) adapterView.getItemAtPosition(i);
 						mLastSelectedType.put(mFid, type.getId());
-						if (onTypeChange != null) onTypeChange.onTypeSelect(mFid, type.getId());
+						if (mOnTypeChange != null) mOnTypeChange.onTypeSelect(mFid, type.getId());
 						invalidateOptionsMenu();
 						alertDialog.dismiss();
 					}
@@ -109,6 +111,18 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mFragment.registerPageChangeListener(this);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		mFragment.unregisterPageChangeListener(this);
 	}
 
 	@Override
@@ -157,26 +171,21 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.threads, menu);
 
-		boolean sortVisible = mTypes != null && mTypes.size() > 0;
-		Forum.Type type = null;
+		Integer typeId = mLastSelectedType.get(mFid);
 
-		if (sortVisible) {
-			Integer typeId = mLastSelectedType.get(mFid);
-			if (typeId == null) typeId = -1;
-
+		if (typeId != null) {
 			final Integer finalTypeId = typeId;
 
-			type = (Forum.Type) CollectionUtils.find(mTypes, new Predicate() {
+			Forum.Type type = (Forum.Type) CollectionUtils.find(mTypes, new Predicate() {
 				@Override
 				public boolean evaluate(Object o) {
 					return ((Forum.Type) o).getId() == finalTypeId;
 				}
 			});
-		}
 
-		menu.findItem(R.id.thread_sort)
-				.setVisible(sortVisible)
-				.setTitle(sortVisible ? type.getName() : "");
+			menu.findItem(R.id.thread_types)
+					.setTitle(type.getName());
+		}
 
 		menu.findItem(R.id.thread_publish)
 				.setIcon(new IconDrawable(this, MaterialIcons.md_edit)
@@ -257,23 +266,29 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 
 	@Override
 	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
+		Logger.d("ActivityMain onPageScrolled position %d", position);
+		// onPageScrolled is always called after initializing.
+		// However onPageSelected will not be called until dragging.
+		if (mCurrentPagePosition != position) {
+			mCurrentPagePosition = position;
+			mFid = Core.getSelectedForums(this).get(position).getFid();
+			mTypes = Forum.findById(Core.getForums(this), mFid).getTypes();
+			invalidateOptionsMenu();
+		}
 	}
 
 	@Override
 	public void onPageSelected(int position) {
-		mFid = Core.getSelectedForums(this).get(position).getFid();
-		mTypes = Forum.findById(Core.getForums(this), mFid).getTypes();
-		invalidateOptionsMenu();
+		Logger.d("ActivityMain onPageSelected position %d", position);
 	}
 
 	@Override
 	public void onPageScrollStateChanged(int state) {
-
+		Logger.d("ActivityMain onPageScrollStateChanged state %d", state);
 	}
 
-	public void setOnTypeChange(OnTypeChange onTypeChange) {
-		this.onTypeChange = onTypeChange;
+	public void setOnTypeChangeListener(OnTypeChange onTypeChange) {
+		this.mOnTypeChange = onTypeChange;
 	}
 
 	interface OnTypeChange {

@@ -62,7 +62,7 @@ public class Forum {
 	private static void addALLType(List<Forum> forums) {
 		Type all = new Type();
 		all.setId(-1);
-		all.setName("全部");
+		all.setName("所有类别");
 
 		for (Forum f : forums) {
 			List<Type> types = f.getTypes();

@@ -17,6 +17,9 @@ import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
 import com.rey.material.widget.TabPageIndicator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
@@ -32,11 +35,21 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 	private ActivityMain mActivity;
 	private boolean mTabsContainerVisible = true;
 	private boolean mLockAnimation = false;
+	private List<ViewPager.OnPageChangeListener> mOnPageChangeListeners;
 
 	public static FragmentThreadsPager newInstance(Bundle bundle) {
 		FragmentThreadsPager fragment = new FragmentThreadsPager();
+		fragment.mOnPageChangeListeners = new ArrayList<>();
 
 		return fragment;
+	}
+
+	public void registerPageChangeListener(ViewPager.OnPageChangeListener l) {
+		mOnPageChangeListeners.add(l);
+	}
+
+	public void unregisterPageChangeListener(ViewPager.OnPageChangeListener l) {
+		mOnPageChangeListeners.remove(l);
 	}
 
 	@Override
@@ -45,7 +58,6 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 		ButterKnife.bind(this, rootView);
 
 		mActivity = (ActivityMain) getActivity();
-		mActivity.setOnTypeChange(this);
 		mPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager());
 		mViewPager.setAdapter(mPagerAdapter);
 		mTabs.setViewPager(mViewPager);
@@ -59,7 +71,11 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 
 			@Override
 			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-				mActivity.onPageScrolled(position, positionOffset, positionOffsetPixels);
+				if (mOnPageChangeListeners != null) {
+					for (ViewPager.OnPageChangeListener l : mOnPageChangeListeners) {
+						l.onPageScrolled(position, positionOffset, positionOffsetPixels);
+					}
+				}
 
 				// Skip initial state.
 				if (mState == ViewPager.SCROLL_STATE_IDLE) return;
@@ -76,7 +92,11 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 
 			@Override
 			public void onPageSelected(int position) {
-				mActivity.onPageSelected(position);
+				if (mOnPageChangeListeners != null) {
+					for (ViewPager.OnPageChangeListener l : mOnPageChangeListeners) {
+						l.onPageSelected(position);
+					}
+				}
 
 				mChanged = true;
 				mLastPosition = position;
@@ -84,18 +104,27 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 
 			@Override
 			public void onPageScrollStateChanged(int state) {
-				mActivity.onPageScrollStateChanged(state);
-
-				if (state == ViewPager.SCROLL_STATE_DRAGGING) {
-					if (!mTabsContainerVisible) YoYo.with(Techniques.SlideInDown).duration(0).playOn(tabsContainer);
-				} else if (state == ViewPager.SCROLL_STATE_IDLE) {
-					mCurrentPosition = POSITION_NOT_READY;
+				if (mOnPageChangeListeners != null) {
+					for (ViewPager.OnPageChangeListener l : mOnPageChangeListeners) {
+						l.onPageScrollStateChanged(state);
+					}
 				}
 
-				// If position has been changed successfully, show tabs.
-				if (mChanged) {
-					onUp(0);
-					mChanged = false;
+				if (state == ViewPager.SCROLL_STATE_DRAGGING) {
+					if (!mTabsContainerVisible)
+						YoYo.with(Techniques.SlideInDown).duration(0).playOn(tabsContainer);
+				} else if (state == ViewPager.SCROLL_STATE_IDLE) {
+					mCurrentPosition = POSITION_NOT_READY;
+
+					// If position has been changed successfully, show tabs.
+					if (mChanged) {
+						onUp(0);
+						mChanged = false;
+					} else {
+						YoYo.with(mTabsContainerVisible ? Techniques.SlideInDown: Techniques.SlideOutUp)
+								.duration(0)
+								.playOn(tabsContainer);
+					}
 				}
 
 				mState = state;

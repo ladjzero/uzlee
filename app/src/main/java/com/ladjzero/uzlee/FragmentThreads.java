@@ -231,9 +231,9 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 
 			if (mLastFirstVisibleItem != -1 && mOnScrollUpOrDown != null) {
 				if (mLastFirstVisibleItem < firstVisibleItem && firstVisibleItem > 3) {
-					mOnScrollUpOrDown.onDown(100);
+					mOnScrollUpOrDown.onDown(300);
 				} if (mLastFirstVisibleItem > firstVisibleItem) {
-					mOnScrollUpOrDown.onUp(100);
+					mOnScrollUpOrDown.onUp(300);
 				}
 			}
 

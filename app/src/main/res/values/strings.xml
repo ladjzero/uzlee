@@ -46,4 +46,6 @@
     <item type="id" name="img_has_bitmap" />
     <item type="id" name="img_width_height" />
     <item type="id" name="img_progress" />
+
+	<string name="all_types">所有类别</string>
 </resources>
