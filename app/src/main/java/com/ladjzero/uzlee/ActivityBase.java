@@ -145,7 +145,7 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setting = PreferenceManager.getDefaultSharedPreferences(this);
-		String themeColor = setting.getString("theme_color", DefaultTheme);
+		String themeColor = setting.getString("theme", DefaultTheme);
 
 		setTheme(mThemeId = Utils.getTheme(themeColor));
 

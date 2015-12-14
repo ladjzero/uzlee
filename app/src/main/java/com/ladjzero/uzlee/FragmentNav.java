@@ -43,8 +43,11 @@ public class FragmentNav extends Fragment {
 	/**
 	 * A pointer to the current callbacks instance (the Activity).
 	 */
+	@Bind(R.id.nav_user_image)
 	ImageView imageView;
+	@Bind(R.id.nav_user_name)
 	TextView userName;
+	@Bind(R.id.nav_user)
 	View userLayout;
 	/**
 	 * Helper component that ties the action bar to the navigation drawer.
@@ -78,10 +81,6 @@ public class FragmentNav extends Fragment {
 		final View view = inflater.inflate(R.layout.nav, container, false);
 		ButterKnife.bind(this, view);
 
-		userLayout = view.findViewById(R.id.nav_user);
-		imageView = (ImageView) view.findViewById(R.id.nav_user_image);
-		userName = (TextView) view.findViewById(R.id.nav_user_name);
-
 		final User user = Core.getUser();
 
 		if (user == null || user.getId() == 0) {
@@ -92,13 +91,12 @@ public class FragmentNav extends Fragment {
 		userLayout.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-
-				if (user != null && user.getId() > 0) {
+				if (user == null || user.getId() == 0) {
+					((ActivityBase) getActivity()).toLoginPage();
+				} else {
 					Intent intent = new Intent(getActivity(), ActivityUser.class);
 					intent.putExtra("uid", Core.getUser().getId());
 					startActivity(intent);
-				} else {
-					((ActivityBase) getActivity()).toLoginPage();
 				}
 			}
 		});
@@ -114,7 +112,7 @@ public class FragmentNav extends Fragment {
 
 		super.onResume();
 
-		if (user != null) {
+		if (user != null && user.getId() > 0) {
 			Logger.i("set user layout visible, user %d %s", user.getId(), user.getName());
 
 			userLayout.postDelayed(new Runnable() {
@@ -229,7 +227,7 @@ public class FragmentNav extends Fragment {
 		Logger.i("EventBus.onEventMainThread -> set message count %d", messageEvent.count);
 
 	}
-
+/*
 	public void onEventMainThread(Core.UserEvent userEvent) {
 		Logger.i("EventBus.onEventMainThread -> userLayout, user %b", userEvent.user != null);
 
@@ -261,7 +259,7 @@ public class FragmentNav extends Fragment {
 
 		}
 	}
-
+*/
 	// menu key triggers this
 	public void toggleDrawer() {
 		boolean isOpen = isDrawerOpen();

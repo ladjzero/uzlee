@@ -75,7 +75,7 @@
             android:windowSoftInputMode="stateHidden">
         </activity>
         <activity
-            android:name=".GuidePicker"
+            android:name=".ActivityForumPicker"
             android:label="板块">
         </activity>
     </application>

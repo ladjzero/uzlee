@@ -84,7 +84,8 @@
                 android:layout_alignParentLeft="false"
                 android:orientation="vertical">
 
-                <com.cengalabs.flatui.views.FlatButton
+                <com.rey.material.widget.Button
+                    style="@style/Material.Drawable.Ripple.Touch.MatchView"
                     android:id="@+id/chat"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -95,13 +96,11 @@
                     android:layout_weight="1"
                     android:text="短信"
                     android:textColor="@android:color/black"
-                    android:textSize="16sp"
-                    app:fl_cornerRadius="3dp"
-                    app:fl_textAppearance="fl_dark"
-                    app:fl_theme="@array/white_flat_theme"
-                    app:fl_touchEffect="fl_ripple"/>
+                    android:background="@android:color/white"
+                    android:textSize="16sp"/>
 
-                <com.cengalabs.flatui.views.FlatButton
+                <com.rey.material.widget.Button
+                    style="@style/Material.Drawable.Ripple.Touch.MatchView"
                     android:id="@+id/block"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -112,10 +111,7 @@
                     android:layout_weight="1"
                     android:text="屏蔽TA的发言"
                     android:textColor="@android:color/white"
-                    android:textSize="16sp"
-                    app:fl_cornerRadius="3dp"
-                    app:fl_theme="@array/blood"
-                    app:fl_touchEffect="fl_ripple"/>
+                    android:textSize="16sp"/>
             </LinearLayout>
 
         </LinearLayout>

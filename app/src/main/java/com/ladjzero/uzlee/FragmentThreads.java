@@ -177,6 +177,10 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(this);
 
+		if (mDataSource != DATA_SOURCE_THREADS) {
+			listView.setPadding(0, 0, 0, 0);
+		}
+
 		listView.setOnScrollListener(
 				new PauseOnScrollListener(ImageLoader.getInstance(), true, true, new DirectionDetectScrollListener()));
 
@@ -263,8 +267,9 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 		if (mDataSource == DATA_SOURCE_USER) {
 			Core.getUserThreadsAtPage(mUserName, page, this);
 		} else if (mDataSource == DATA_SOURCE_SEARCH) {
-			if (mQuery != null && mQuery.length() > 0)
+			if (mQuery != null && mQuery.length() > 0) {
 				Core.search(mQuery, page, FragmentThreads.this);
+			}
 		} else {
 			Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + getArguments().getInt("fid") + "&page=" + page + "&filter=type&typeid=" + typeId + "&orderby=" + getOrder(), new Core.OnRequestListener() {
 				@Override
@@ -296,6 +301,7 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 		}
 	}
 
+	// Lazy load.
 	@Override
 	public void setUserVisibleHint(boolean isVisibleToUser) {
 		super.setUserVisibleHint(isVisibleToUser);
@@ -312,7 +318,19 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 
 		mActivity.getSettings().registerOnSharedPreferenceChangeListener(this);
 
-		if (mVisible && mThreads.size() == 0 && mDataSource != DATA_SOURCE_SEARCH) fetch(1, this);
+		switch (mDataSource) {
+			case DATA_SOURCE_THREADS:
+				if (mVisible && mThreads.size() == 0) {
+					fetch(1, this);
+				}
+				break;
+			case DATA_SOURCE_SEARCH:
+				fetch(1, this);
+				break;
+			case DATA_SOURCE_USER:
+				fetch(1, this);
+				break;
+		}
 		adapter.notifyDataSetChanged();
 
 		mSwipe.setEnabled(mEnablePullToRefresh);
@@ -461,24 +479,28 @@ public class FragmentThreads extends Fragment implements OnRefreshListener, Adap
 		if (visible) {
 			if (mOnFetch != null) mOnFetch.fetchStart();
 
-			if (mEnablePullToRefresh) {
+//			if (mEnablePullToRefresh) {
 				// Hack. http://stackoverflow.com/questions/26858692/swiperefreshlayout-setrefreshing-not-showing-indicator-initially
 				mSwipe.postDelayed(new Runnable() {
 					@Override
 					public void run() {
 						Logger.i("is fetching %b", mIsFetching);
-
+						if (mDataSource == DATA_SOURCE_SEARCH) mSwipe.setEnabled(true);
 						if (mIsFetching) mSwipe.setRefreshing(true);
 					}
 				}, 100);
-			} else {
-				mActivity.setProgressBarIndeterminateVisibility(true);
-			}
+//			} else {
+//				mActivity.setProgressBarIndeterminateVisibility(true);
+//			}
 		} else {
 			if (mOnFetch != null) mOnFetch.fetchEnd();
 
-			if (mEnablePullToRefresh) {
+//			if (mEnablePullToRefresh) {
 				mSwipe.setRefreshing(false);
+//			}
+
+			if (mDataSource == DATA_SOURCE_SEARCH) {
+				mSwipe.setEnabled(false);
 			}
 		}
 	}

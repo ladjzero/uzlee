@@ -2,6 +2,7 @@ package com.ladjzero.uzlee;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
@@ -224,7 +225,7 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (data.getBooleanExtra("reload", false)) {
+		if (data != null && data.getBooleanExtra("reload", false)) {
 			reload();
 		}
 	}

@@ -64,7 +64,7 @@ public class ActivityLogin extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle bundle) {
 		SharedPreferences setting = PreferenceManager.getDefaultSharedPreferences(this);
-		String themeColor = setting.getString("theme_color", "purple");
+		String themeColor = setting.getString("theme", "purple");
 		setTheme(Utils.getTheme(themeColor));
 
 		super.onCreate(bundle);

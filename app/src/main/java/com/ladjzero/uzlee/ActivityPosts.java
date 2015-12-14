@@ -34,8 +34,10 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
+import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
+import com.ladjzero.hipda.User;
 import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
 
@@ -586,12 +588,18 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@JavascriptInterface
 	public void onProfileClick(int uid, String name) {
-		showToast("user id is " + uid);
+		User me = Core.getUser();
 
-		Intent intent = new Intent(this, ActivityUser.class);
-		intent.putExtra("uid", uid);
-		intent.putExtra("name", name);
-		startActivity(intent);
+		if (me == null || me.getId() == 0) {
+			showToast(getResources().getString(R.string.error_login_required));
+		} else {
+			showToast("user id is " + uid);
+
+			Intent intent = new Intent(this, ActivityUser.class);
+			intent.putExtra("uid", uid);
+			intent.putExtra("name", name);
+			startActivity(intent);
+		}
 	}
 
 	@JavascriptInterface

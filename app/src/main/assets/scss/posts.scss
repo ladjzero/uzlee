@@ -6,7 +6,11 @@ body {
 }
 
 br + br {
-    position: absolute;
+    display: none;
+}
+
+[size] {
+    font-size: inherit;
 }
 
 img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
@@ -17,7 +21,7 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
     line-height: 1.6;
 }
 
-.night .body {
+.night .body, .night [color] {
     color: $nightTextPrimary
 }
 
@@ -37,6 +41,10 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
         border-left: 4px solid lighten($primary, .2);
         padding: 12px;
         margin: 24px;
+    }
+
+    .#{$theme} a {
+        color: $primary
     }
 }
 

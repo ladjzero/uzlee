@@ -136,7 +136,7 @@ public class Core {
 	private static String formhash;
 	private static String hash;
 	private static Context context;
-	private static User user;
+//	private static User user;
 	private static PersistentCookieStore cookieStore;
 	private static SharedPreferences pref;
 	private static String code = "GBK";
@@ -157,12 +157,14 @@ public class Core {
 		}
 	}
 
-	public static User getUser() {
-//		if (user == null) {
-//			user = new User().setId(pref.getInt("uid", 0)).setName(pref.getString("uname", ""));
-//		}
+	private static void saveUser(int id, String name) {
+		if (pref != null) {
+			pref.edit().putInt("uid", id).putString("uname", name).commit();
+		}
+	}
 
-		return user;
+	public static User getUser() {
+		return new User().setId(pref.getInt("uid", 0)).setName(pref.getString("uname", ""));
 	}
 
 	public static void requestUpdate() {
@@ -192,11 +194,14 @@ public class Core {
 			@Override
 			public void onSuccess(int i, Header[] headers, String s) {
 				getDoc(s);
+				int uid = pref.getInt("uid", 0);
+
+				if (uid == 0) return;
 
 				try {
 					RequestParams params = new RequestParams();
 					params.setContentEncoding(code);
-					params.put("uid", user.getId());
+					params.put("uid", pref.getInt("uid", 0));
 					params.put("hash", hash);
 					params.put("Filedata", imageFile);
 					params.put("filename", imageFile.getName());
@@ -264,13 +269,10 @@ public class Core {
 				int id = Integer.valueOf(uid);
 				String name = eUser.text().trim();
 
-				user = new User().setId(id).setName(name);
+				saveUser(id, name);
 
-				pref.edit().putInt("uid", id).putString("uname", name).commit();
-
-				Logger.i("EventBus.StatusChangeEvent %d %s", user.getId(), user.getName());
 			} else {
-				user = null;
+				saveUser(0, "");
 				Logger.i("EventBus.StatusChangeEvent %d %s", 0, "null");
 			}
 
@@ -278,7 +280,7 @@ public class Core {
 //				throw new NoPermissionException();
 //			}
 
-			EventBus.getDefault().post(new UserEvent(user));
+			EventBus.getDefault().post(new UserEvent(getUser()));
 		} catch (Error e) {
 			Logger.e(TAG, e.toString());
 		}
@@ -362,8 +364,9 @@ public class Core {
 			public void onSuccess(String html) {
 				Logger.i("logout succeed");
 
-				user = null;
-				EventBus.getDefault().post(new UserEvent(user));
+				pref.edit().putInt("uid", 0).putString("uname", "").commit();
+
+				EventBus.getDefault().post(new UserEvent(getUser()));
 				EventBus.getDefault().post(new MessageEvent(0));
 
 				onRequestListener.onSuccess(html);
@@ -459,15 +462,15 @@ public class Core {
 		Post post = new Post();
 
 		String id = ePost.attr("id").substring(idPrefixLength);
-
+/*
 		Post quote = findQuote(ePost);
 
 		if (quote != null) {
 			post.setQuote(quote);
 		}
-
+*/
 		Elements eBody = ePost.select("td.t_msgfont");
-
+/*
 		ArrayList<Element> toRemove = new ArrayList<>();
 
 		int length, i;
@@ -491,7 +494,7 @@ public class Core {
 				break;
 			}
 		}
-
+*/
 		for (Element img : eBody.select("img")) {
 			String src = img.attr("file");
 
@@ -522,7 +525,7 @@ public class Core {
 
 		post.setBody(eBody.html());
 
-		Post.NiceBody niceBody = new Post.NiceBody();
+/*		Post.NiceBody niceBody = new Post.NiceBody();
 
 		if (eBody.size() == 0) {
 			niceBody.add(new AbstractMap.SimpleEntry<Post.BodyType, String>(Post.BodyType.TXT, "blocked!"));
@@ -538,7 +541,7 @@ public class Core {
 					eAttachments,
 					eAttachImages);
 		}
-
+*/
 		String timeStr = ePost.select(".authorinfo > em").text();
 
 		if (timeStr.startsWith("发表于")) {
@@ -556,9 +559,9 @@ public class Core {
 
 		User user = new User().setId(Integer.valueOf(userId)).setName(userName);
 
-		post.setId(Integer.valueOf(id)).setNiceBody(niceBody)
+		post.setId(Integer.valueOf(id))/*.setNiceBody(niceBody)*/
 				.setAuthor(user).setTimeStr(timeStr).setPostIndex(Integer.valueOf(postIndex));
-
+/*
 		for (Map.Entry<Post.BodyType, String> body : niceBody) {
 			if (body.getKey() == Post.BodyType.SIG) {
 				post.setSig(body.getValue());
@@ -592,7 +595,7 @@ public class Core {
 		}
 
 		compress(niceBody);
-
+*/
 		return post;
 	}
 
@@ -745,7 +748,7 @@ public class Core {
 							}
 						});
 	}
-
+/*
 	private static Post toMessageObj(Element ePost) {
 		Element eCite = ePost.select("> p.cite").first();
 		String name = eCite.select("> cite").text();
@@ -766,7 +769,7 @@ public class Core {
 								.setImage(image.replace("_small", "_middle"))
 				);
 	}
-
+*/
 	/**
 	 * Convert to String Array smartly. Prepend `txt:` to content string.
 	 * Prepend `img:` to image source. Try to return absolute image path.
@@ -1888,14 +1891,18 @@ public class Core {
 	}
 
 	public static List<Forum> getSelectedForums(Context context) {
-		Collection<Integer> selected = CollectionUtils.collect(pref.getStringSet("selected_forums", new HashSet<String>()), new Transformer() {
+		Collection<Integer> selected = CollectionUtils.collect(Arrays.asList(pref.getString("selected_forums", "").split(",")), new Transformer() {
 			@Override
 			public Object transform(Object o) {
-				return Integer.valueOf((String) o);
+				try {
+					return Integer.valueOf((String) o);
+				} catch (Exception e) {
+					return -1;
+				}
 			}
 		});
 
-		if (selected.size() == 0) {
+		if (selected.size() == 0 || selected.contains(-1)) {
 			List<String> selectedStrs = Arrays.asList(
 					context.getResources().getStringArray(R.array.default_forums));
 
@@ -1906,7 +1913,7 @@ public class Core {
 				}
 			});
 
-			pref.edit().putStringSet("selected_forums", new HashSet<>(selectedStrs));
+			pref.edit().putString("selected_forums", StringUtils.join(selectedStrs, ','));
 		}
 
 		return Forum.findByIds(getForums(context), selected);

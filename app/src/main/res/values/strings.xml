@@ -48,4 +48,15 @@
     <item type="id" name="img_progress" />
 
 	<string name="all_types">所有类别</string>
+	<string name="error_login_required">还没有登录</string>
+
+	<string name="red">茜素红</string>
+	<string name="carrot">胡萝卜</string>
+	<string name="orange">橘</string>
+	<string name="green">绿海</string>
+	<string name="blueGrey">瓦青</string>
+	<string name="blue">湖蓝</string>
+	<string name="purple">紫</string>
+	<string name="dark">灰黑</string>
+	<string name="night">黑夜</string>
 </resources>

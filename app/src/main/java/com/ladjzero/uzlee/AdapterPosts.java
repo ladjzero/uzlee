@@ -42,7 +42,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener {
+public class AdapterPosts extends ArrayAdapter<Post> implements OnClickListener {
 	private ActivityBase context;
 	private Posts mPosts;
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -69,7 +69,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		CHAT
 	}
 
-	public PostsAdapter(Context context, Posts posts, TYPE type, int userId) {
+	public AdapterPosts(Context context, Posts posts, TYPE type, int userId) {
 		super(context, R.layout.post, posts);
 		this.context = (ActivityBase) context;
 		mPosts = posts;
@@ -88,7 +88,7 @@ public class PostsAdapter extends ArrayAdapter<Post> implements OnClickListener 
 		mUrls = new ArrayList<>();
 	}
 
-	public PostsAdapter(Context context, Posts posts) {
+	public AdapterPosts(Context context, Posts posts) {
 		this(context, posts, TYPE.POST, 0);
 	}
 

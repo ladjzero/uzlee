@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="用户名"
-            android:inputType="text"
+            android:inputType="text|textNoSuggestions"
             app:met_floatingLabel="normal"
             app:met_primaryColor="?attr/colorPrimary"/>
 

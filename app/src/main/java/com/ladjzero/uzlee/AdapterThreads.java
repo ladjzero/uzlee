@@ -166,11 +166,17 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 
 	@Override
 	public void onClick(View view) {
-		User user = (User) view.getTag();
-		Intent intent = new Intent(context, ActivityUser.class);
-		intent.putExtra("uid", user.getId());
-		intent.putExtra("name", user.getName());
-		context.startActivity(intent);
+		User me = Core.getUser();
+
+		if (me == null || me.getId() == 0) {
+			context.showToast(context.getResources().getString(R.string.error_login_required));
+		} else {
+			User user = (User) view.getTag();
+			Intent intent = new Intent(context, ActivityUser.class);
+			intent.putExtra("uid", user.getId());
+			intent.putExtra("name", user.getName());
+			context.startActivity(intent);
+		}
 	}
 
 	private String prettyTime(String timeStr) {

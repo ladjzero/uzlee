@@ -4,6 +4,9 @@ import android.content.Context;
 
 import com.alibaba.fastjson.JSON;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,11 +36,19 @@ public class Forum {
 	public static List<Forum> findByIds(List<Forum> forums, Collection<Integer> fids) {
 		ArrayList<Forum> ret = new ArrayList<>();
 
-		for (Forum f : forums) {
-			List<Forum> children = f.getChildren();
+		List<Forum> forums2 = flatten(forums);
 
-			if (fids.contains(f.getFid())) ret.add(f);
-			if (children != null) ret.addAll(findByIds(children, fids));
+		for (final int fid : fids) {
+			Forum f = (Forum) CollectionUtils.find(forums2, new Predicate() {
+				@Override
+				public boolean evaluate(Object o) {
+					return ((Forum) o).getFid() == fid;
+				}
+			});
+
+			if (f != null) {
+				ret.add(f);
+			}
 		}
 
 		return ret;

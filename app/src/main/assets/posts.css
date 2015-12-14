@@ -67,7 +67,10 @@ body {
   margin: 0 12px; }
 
 br + br {
-  position: absolute; }
+  display: none; }
+
+[size] {
+  font-size: inherit; }
 
 img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
   display: none !important; }
@@ -75,7 +78,7 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
 .body {
   line-height: 1.6; }
 
-.night .body {
+.night .body, .night [color] {
   color: #969696; }
 
 .pstatus {
@@ -91,45 +94,72 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
   padding: 12px;
   margin: 24px; }
 
+.red a {
+  color: #ca463e; }
+
 .carrot blockquote {
   border-left: 4px solid #cd7135;
   padding: 12px;
   margin: 24px; }
+
+.carrot a {
+  color: #cd7034; }
 
 .orange blockquote {
   border-left: 4px solid #dfb339;
   padding: 12px;
   margin: 24px; }
 
+.orange a {
+  color: #dfb338; }
+
 .green blockquote {
   border-left: 4px solid #56a18c;
   padding: 12px;
   margin: 24px; }
+
+.green a {
+  color: #56a08b; }
 
 .blueGrey blockquote {
   border-left: 4px solid #2b3a4a;
   padding: 12px;
   margin: 24px; }
 
+.blueGrey a {
+  color: #2b3949; }
+
 .blue blockquote {
   border-left: 4px solid #4387cb;
   padding: 12px;
   margin: 24px; }
+
+.blue a {
+  color: #4286cb; }
 
 .dark blockquote {
   border-left: 4px solid #343441;
   padding: 12px;
   margin: 24px; }
 
+.dark a {
+  color: #343440; }
+
 .purple blockquote {
   border-left: 4px solid #8d6d9d;
   padding: 12px;
   margin: 24px; }
 
+.purple a {
+  color: #8d6c9d; }
+
 .night blockquote {
   border-left: 4px solid #212121;
   padding: 12px;
   margin: 24px; }
+
+.night a {
+  color: #202020; }
 
 .font-size-normal .body {
   font-size: 16px; }

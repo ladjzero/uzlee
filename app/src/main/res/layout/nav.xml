@@ -41,7 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:orientation="horizontal"
-        android:paddingLeft="12dp">
+        android:paddingLeft="24dp">
 
         <com.joanzapata.iconify.widget.IconTextView
             android:layout_width="24sp"
@@ -67,7 +67,7 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:orientation="horizontal"
-        android:paddingLeft="12dp">
+        android:paddingLeft="24dp">
 
         <com.joanzapata.iconify.widget.IconTextView
             android:layout_width="24sp"
@@ -93,7 +93,7 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:orientation="horizontal"
-        android:paddingLeft="12dp">
+        android:paddingLeft="24dp">
 
         <com.joanzapata.iconify.widget.IconTextView
             android:layout_width="24sp"
@@ -119,7 +119,7 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:orientation="horizontal"
-        android:paddingLeft="12dp">
+        android:paddingLeft="24dp">
 
         <com.joanzapata.iconify.widget.IconTextView
             android:layout_width="24sp"

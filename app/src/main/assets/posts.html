@@ -15,9 +15,9 @@
     <script type="text/html" id="post-template">
         <div class="post-container">
             <div class="post-header">
-                <div class="profile-wrapper">
+                <div class="profile-wrapper" data-bind="click: $root.onProfileClick, clickBubble: false">
                     <span data-bind="text: author.name.charAt(0).toUpperCase()"></span>
-                    <img class="profile" data-bind="attr: {id: 'uid-' + author.id, src: author.image}, click: $root.onProfileClick, clickBubble: false, event: {load: $root.onProfileLoad}">
+                    <img class="profile" data-bind="attr: {id: 'uid-' + author.id, src: author.image}, event: {load: $root.onProfileLoad}">
                 </div>
                 <div class="name-and-date">
                     <span class="name" data-bind="text: author.name"></span>

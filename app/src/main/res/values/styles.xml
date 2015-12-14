@@ -3,7 +3,7 @@
     <style name="AppBaseTheme.Day">
         <item name="android:colorBackground">@android:color/white</item>
         <item name="colorAccent">?attr/colorPrimary</item>
-        <item name="colorText">#686868</item>
+        <item name="colorText">@android:color/black</item>
         <item name="colorTextInverse">@android:color/white</item>
         <item name="dividerDrawable">@drawable/list_divider</item>
         <item name="drawerArrowStyle">@style/DrawerArrowToggle</item>

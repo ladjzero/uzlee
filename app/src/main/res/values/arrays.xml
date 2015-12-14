@@ -37,15 +37,15 @@
     </string-array>
 
     <string-array name="theme_color">
-        <item>茜素红</item>
-        <item>胡萝卜</item>
-        <item>橘</item>
-        <item>绿海</item>
-        <item>瓦青</item>
-        <item>湖蓝</item>
-        <item>紫</item>
-        <item>灰黑</item>
-        <item>黑夜</item>
+        <item>@string/red</item>
+        <item>@string/carrot</item>
+        <item>@string/orange</item>
+        <item>@string/green</item>
+        <item>@string/blueGrey</item>
+        <item>@string/blue</item>
+        <item>@string/purple</item>
+        <item>@string/dark</item>
+        <item>@string/night</item>
     </string-array>
 
     <string-array name="theme_color_val">

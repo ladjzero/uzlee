@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -20,8 +21,8 @@ import java.util.ArrayList;
 public class ActivityUser extends ActivityBase {
 
 	LinearLayout mInfo;
-	FlatButton chat;
-	FlatButton block;
+	View chat;
+	Button block;
 	User user;
 	int[] bloodTheme = {};
 	int[] grassTheme = {};
@@ -52,8 +53,8 @@ public class ActivityUser extends ActivityBase {
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		mInfo = (LinearLayout) findViewById(R.id.user_info_list);
-		chat = (FlatButton) findViewById(R.id.chat);
-		block = (FlatButton) findViewById(R.id.block);
+		chat = findViewById(R.id.chat);
+		block = (Button) findViewById(R.id.block);
 
 		chat.setVisibility(View.GONE);
 		block.setVisibility(View.GONE);
@@ -70,7 +71,7 @@ public class ActivityUser extends ActivityBase {
 			}
 		});
 
-		uid = getIntent().getIntExtra("uid", -1);
+		uid = getIntent().getIntExtra("uid", 0);
 
 		final ImageView imageView = (ImageView) findViewById(R.id.user_info_img);
 
@@ -150,10 +151,10 @@ public class ActivityUser extends ActivityBase {
 	private void updateBlockButton() {
 		if (Core.bans.contains(uid)) {
 			block.setText("移除黑名单");
-			block.getAttributes().setColors(grassTheme);
+			block.setBackgroundResource(R.color.greenPrimary);
 		} else {
 			block.setText("加入黑名单");
-			block.getAttributes().setColors(bloodTheme);
+			block.setBackgroundResource(R.color.redPrimary);
 		}
 	}
 
