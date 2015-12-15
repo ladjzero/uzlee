@@ -14,7 +14,6 @@ import com.daimajia.androidanimations.library.YoYo;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
 import com.nineoldandroids.animation.Animator;
-import com.orhanobut.logger.Logger;
 import com.rey.material.widget.TabPageIndicator;
 
 import java.util.ArrayList;
@@ -23,7 +22,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTypeChange, FragmentThreads.OnScrollUpOrDown {
+public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTypeChange, FragmentThreadsAbs.OnScrollUpOrDown {
 	@Bind(R.id.pager)
 	ViewPager mViewPager;
 	@Bind(R.id.tabs)
@@ -172,7 +171,7 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 	@Override
 	public void onTypeSelect(int fid, int typeId) {
 		Fragment fragment = mPagerAdapter.getCurrentFragment();
-		((FragmentThreads) fragment).setTypeId(typeId);
+		((FragmentNormalThreads) fragment).setTypeId(typeId);
 	}
 
 	public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
@@ -197,10 +196,14 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 
 		@Override
 		public Fragment getItem(int position) {
-			Bundle bundle = new Bundle();
 			int fid = Core.getSelectedForums(getActivity()).get(position).getFid();
-			bundle.putInt("fid", fid);
-			FragmentThreads fragment = FragmentThreads.newInstance(bundle);
+
+			Bundle args = new Bundle();
+			args.putInt("fid", fid);
+			args.putBoolean("enablePullToRefresh", true);
+
+			FragmentThreadsAbs fragment = FragmentNormalThreads.newInstance();
+			fragment.setArguments(args);
 			fragment.setScrollUpOrDownListener(FragmentThreadsPager.this);
 
 			return fragment;

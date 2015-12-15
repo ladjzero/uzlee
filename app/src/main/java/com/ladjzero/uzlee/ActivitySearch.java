@@ -13,9 +13,9 @@ import com.r0adkll.slidr.Slidr;
 import com.r0adkll.slidr.model.SlidrInterface;
 import com.rey.material.widget.ProgressView;
 
-public class ActivitySearch extends ActivityBase implements View.OnKeyListener, FragmentThreads.OnFetch {
+public class ActivitySearch extends ActivityBase implements View.OnKeyListener, FragmentThreadsAbs.OnFetch {
 
-	private FragmentThreads mFragment;
+	private FragmentSearchThreads mFragment;
 	private ProgressView proressbar;
 	protected SlidrInterface slidrInterface;
 
@@ -39,12 +39,12 @@ public class ActivitySearch extends ActivityBase implements View.OnKeyListener, 
 		proressbar = (ProgressView) findViewById(R.id.progress_bar);
 		proressbar.setVisibility(View.GONE);
 
-		mFragment = new FragmentThreads();
-		mFragment.setOnFetch(this);
-		Bundle bundle = new Bundle();
-		bundle.putInt("dataSource", FragmentThreads.DATA_SOURCE_SEARCH);
-		bundle.putBoolean("enablePullToRefresh", false);
-		mFragment.setArguments(bundle);
+		mFragment = new FragmentSearchThreads();
+		mFragment.setFetchListener(this);
+		Bundle args = new Bundle();
+//		bundle.putInt("dataSource", FragmentThreadsAbs.DATA_SOURCE_SEARCH);
+		args.putBoolean("enablePullToRefresh", false);
+		mFragment.setArguments(args);
 
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		ft.replace(R.id.place_holder, mFragment);

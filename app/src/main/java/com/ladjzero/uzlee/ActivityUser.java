@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.cengalabs.flatui.views.FlatButton;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -114,7 +113,7 @@ public class ActivityUser extends ActivityBase {
 						view.setOnClickListener(new View.OnClickListener() {
 							@Override
 							public void onClick(View v) {
-								Intent intent = new Intent(ActivityUser.this, ActivityThreads.class);
+								Intent intent = new Intent(ActivityUser.this, ActivityUserThreads.class);
 								intent.putExtra("name", user.getName());
 								startActivity(intent);
 							}
