@@ -31,6 +31,16 @@ public class FragmentUserThreads extends FragmentThreadsAbs {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        if (mThreads != null && mThreads.size() == 0) {
+            fetch(1);
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
     void fetchPageAt(int page) {
         Core.getUserThreadsAtPage(userName, page, this);
     }

@@ -5,7 +5,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -21,7 +20,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.alibaba.fastjson.JSON;
-import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Core.OnThreadsListener;
 import com.ladjzero.hipda.Thread;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -65,7 +63,6 @@ public abstract class FragmentThreadsAbs extends Fragment implements
     private OnFetch mOnFetch;
     private SlidrInterface slidrInterface;
     private OnScrollUpOrDown mOnScrollUpOrDown;
-    private boolean mVisibleInPager = false;
 
     @OnClick(R.id.login)
     void login() {
@@ -83,16 +80,9 @@ public abstract class FragmentThreadsAbs extends Fragment implements
         this.mOnScrollUpOrDown = onScrollUpOrDown;
     }
 
-    public interface OnFetch {
-        void fetchStart();
-
-        void fetchEnd();
-    }
-
     public void setFetchListener(OnFetch onFetch) {
         mOnFetch = onFetch;
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -118,7 +108,6 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 
         mEnablePullToRefresh = args.getBoolean("enablePullToRefresh", true);
 
-
         View rootView = inflater.inflate(R.layout.threads_can_refresh, container, false);
         ButterKnife.bind(this, rootView);
 
@@ -129,6 +118,7 @@ public abstract class FragmentThreadsAbs extends Fragment implements
         mSwipe.setProgressBackgroundColorSchemeResource(
                 mActivity.getThemeId() == R.style.AppBaseTheme_Night ?
                         R.color.dark_light : android.R.color.white);
+
         int primaryColor = Utils.getThemeColor(getActivity(), R.attr.colorPrimary);
         mSwipe.setColorSchemeColors(primaryColor, primaryColor, primaryColor, primaryColor);
         mSwipe.setProgressViewOffset(false, -Utils.dp2px(mActivity, 12), Utils.dp2px(mActivity, 60));
@@ -225,29 +215,10 @@ public abstract class FragmentThreadsAbs extends Fragment implements
         }
     }
 
-
-    // Lazy load.
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        mVisibleInPager = isVisibleToUser;
-
-        if (isVisibleToUser && getView() != null && mThreads.size() == 0) {
-            fetch(1);
-        }
-    }
-
     @Override
     public void onResume() {
         super.onResume();
-
         mActivity.getSettings().registerOnSharedPreferenceChangeListener(this);
-
-        if (mVisibleInPager && mThreads != null && mThreads.size() == 0) {
-            fetch(1);
-            mAdapter.notifyDataSetChanged();
-        }
-
         mSwipe.setEnabled(mEnablePullToRefresh);
     }
 
@@ -395,4 +366,9 @@ public abstract class FragmentThreadsAbs extends Fragment implements
     }
 
     protected abstract String keyOfThreadsToCache();
+}
+
+interface OnFetch {
+    void fetchStart();
+    void fetchEnd();
 }

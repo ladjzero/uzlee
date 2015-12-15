@@ -13,7 +13,7 @@ import com.r0adkll.slidr.Slidr;
 import com.r0adkll.slidr.model.SlidrInterface;
 import com.rey.material.widget.ProgressView;
 
-public class ActivitySearch extends ActivityBase implements View.OnKeyListener, FragmentThreadsAbs.OnFetch {
+public class ActivitySearch extends ActivityBase implements View.OnKeyListener, OnFetch {
 
 	private FragmentSearchThreads mFragment;
 	private ProgressView proressbar;

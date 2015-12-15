@@ -16,7 +16,9 @@ import android.widget.ListView;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
 import com.mobeta.android.dslv.DragSortListView;
+import com.r0adkll.slidr.Slidr;
 import com.rey.material.app.Dialog;
+import com.rey.material.widget.Slider;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -45,6 +47,7 @@ public class ActivityForumPicker extends ActivityBase {
         super.onCreate(bundle);
         setContentView(R.layout.activity_forum_picker);
         ButterKnife.bind(this);
+        Slidr.attach(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

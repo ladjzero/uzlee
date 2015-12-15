@@ -16,6 +16,7 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 
     private int mFid;
     private int mTypeId;
+    private boolean mVisibleInPager = false;
 
     public static FragmentThreadsAbs newInstance() {
         return new FragmentNormalThreads();
@@ -51,6 +52,27 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
         assert mTypeId != -1;
 
         return rootView;
+    }
+
+    // Lazy load.
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        mVisibleInPager = isVisibleToUser;
+
+        if (isVisibleToUser && getView() != null && mThreads.size() == 0) {
+            fetch(1);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (mVisibleInPager && mThreads != null && mThreads.size() == 0) {
+            fetch(1);
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override

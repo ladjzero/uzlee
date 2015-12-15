@@ -57,7 +57,7 @@ public class ActivitySettings extends ActivityBase implements SharedPreferences.
 
         if (key.equals("selected_forums")) {
             Intent intent = new Intent();
-            intent.putExtra("reload",  true);
+            intent.putExtra("reload", true);
             this.setResult(0, intent);
         }
 
@@ -226,7 +226,7 @@ public class ActivitySettings extends ActivityBase implements SharedPreferences.
 
             if (key.equals("selected_forums")) {
                 Intent intent = new Intent();
-                intent.putExtra("reload",  true);
+                intent.putExtra("reload", true);
                 getActivity().setResult(0, intent);
             }
 
@@ -255,7 +255,17 @@ public class ActivitySettings extends ActivityBase implements SharedPreferences.
             View contentView = context.getLayoutInflater().inflate(layoutId, null);
             ButterKnife.bind(this, contentView);
 
+            dialog.negativeActionClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+
             dialog.title(title)
+                    .titleColor(Utils.getThemeColor(context, R.attr.colorText))
+                    .backgroundColor(Utils.getThemeColor(context, android.R.attr.colorBackground))
+                    .negativeAction("取消")
                     .contentView(contentView);
         }
 
