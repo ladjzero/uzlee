@@ -4,21 +4,17 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.User;
 import com.rey.material.widget.Spinner;
-import com.tencent.stat.StatConfig;
-import com.tencent.stat.StatService;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
