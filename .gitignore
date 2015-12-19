@@ -50,3 +50,9 @@ app/build/
 build/
 app/manifest-merger-release-report.txt
 *.apk
+AndroidManifest.xml
+
+
+*.css.map
+*.scssc
+webview/node_modules/
