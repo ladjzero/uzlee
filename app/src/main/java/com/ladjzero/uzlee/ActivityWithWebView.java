@@ -11,6 +11,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.orhanobut.logger.Logger;
 import com.r0adkll.slidr.Slidr;
@@ -41,6 +42,11 @@ public abstract class ActivityWithWebView extends ActivityBase implements OnTouc
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setData(Uri.parse(src));
 		startActivity(intent);
+	}
+
+	@JavascriptInterface
+	public void onWebViewReady() {
+		Logger.i("WebView is ready.");
 	}
 
 	public void onStateChange(State state) {
@@ -102,7 +108,6 @@ public abstract class ActivityWithWebView extends ActivityBase implements OnTouc
 			WebView webView = getWebView();
 
 			webView.setOnTouchListener(this);
-			webView.loadUrl(getHTMLFilePath());
 			webView.addJavascriptInterface(this, "UZLEE");
 			webView.setWebChromeClient(new WebChromeClient() {
 				@Override
@@ -116,6 +121,7 @@ public abstract class ActivityWithWebView extends ActivityBase implements OnTouc
 			settings.setJavaScriptEnabled(true);
 			settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
 
+			webView.loadUrl(getHTMLFilePath());
 			initialized = true;
 		}
 	}

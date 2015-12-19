@@ -105,6 +105,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	private boolean mQuickVisible = true;
 	private boolean isFadingOut = false;
 	private TextView mTitleView;
+	private boolean mWebViewReady = false;
 
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -260,8 +261,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 						Post post = (Post) objects[2];
 						if (post.getId() == 1) mThreadUserId = post.getAuthor().getId();
 						post.setIsLz(post.getAuthor().getId() == mThreadUserId);
-
-						mWebView.loadUrl("javascript:loadPosts([" + JSON.toJSONString(post) + "], true)");
 					}
 
 					@Override
@@ -391,7 +390,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		SharedPreferences setting = getSettings();
 
 		return "file:///android_asset/posts.html?theme=" +
-				setting.getString("theme_color", DefaultTheme) +
+				setting.getString("theme", DefaultTheme) +
 				"&fontsize=" + setting.getString("font_size", "normal");
 	}
 
@@ -479,7 +478,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 						post.setIsLz(post.getAuthor().getId() == mThreadUserId);
 					}
 
-					mWebView.loadUrl("javascript:loadPosts(" + JSON.toJSONString(posts) + ", true)");
+					commitPosts(posts);
 					mPosts = posts;
 				}
 			}.execute(html);
@@ -511,7 +510,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			mPostsView.setMode(currPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
 		}
 
-		mWebView.loadUrl("javascript:loadPosts(" + JSON.toJSONString(posts) + ", true)");
+		commitPosts(posts);
 
 		// Locate to the specified post.
 		if (mPid != 0) {
@@ -604,13 +603,19 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@JavascriptInterface
 	public void onPostClick(final int pid) {
-		showToast("postclick " + pid);
-		startEditActivity((Post) CollectionUtils.find(mPosts, new Predicate() {
-			@Override
-			public boolean evaluate(Object o) {
-				return ((Post) o).getId() == pid;
-			}
-		}));
+		User me = Core.getUser();
+
+		if (me == null || me.getId() == 0) {
+			showToast(getResources().getString(R.string.error_login_required));
+		} else {
+			startEditActivity((Post) CollectionUtils.find(mPosts, new Predicate() {
+				@Override
+				public boolean evaluate(Object o) {
+					return ((Post) o).getId() == pid;
+				}
+			}));
+		}
+
 	}
 
 	private void startEditActivity(Post post) {
@@ -671,7 +676,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		intent.setData(uri);
 		startActivity(intent);
 	}
-
 
 	@Override
 	public void onPullEvent(PullToRefreshBase refreshView, PullToRefreshBase.State state, PullToRefreshBase.Mode direction) {
@@ -755,5 +759,24 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	public void onPullUpToRefresh(PullToRefreshBase refreshView) {
 		fetch(mPosts.getPage() + 1, ActivityPosts.this);
 		position = 0;
+	}
+
+	@Override
+	public void onWebViewReady() {
+		super.onWebViewReady();
+
+		mWebViewReady = true;
+		commitPosts(mPosts);
+	}
+
+	private void commitPosts(final Posts posts) {
+		if (mWebViewReady) {
+			mWebView.post(new Runnable() {
+				@Override
+				public void run() {
+					mWebView.loadUrl("javascript:loadPosts(" + JSON.toJSONString(posts) + ", true)");
+				}
+			});
+		}
 	}
 }
