@@ -56,6 +56,27 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
     }
 }
 
+.reply {
+    font-size: 0.6em;
+    border-radius: 3px;
+    padding: 6px;
+    margin-right: 6px;
+}
+
+@each $theme, $primary in $primaries {
+    .#{$theme} .reply {
+        background-color: $primary;
+    }
+}
+
+.day .reply {
+    color: white;
+}
+
+.night .reply {
+    color: #969696;
+}
+
 #post-list {
     li:last-child  {
         padding-bottom: $toolbar-height;
@@ -69,7 +90,6 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
             width: $profile-height;
             height: $profile-height;
             display: inline-block;
-            text-align: center;
 
             > span {
                 width: 100%;
@@ -77,13 +97,15 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
                 line-height: $profile-height;
                 font-size: 20px;
                 color: #c8c8c8;
+                text-align: center;
             }
 
             .profile {
-                visibility: hidden;
                 position: relative;
                 width: $profile-height;
                 height: $profile-height;
+                background-size: cover;
+                background-position: center;
             }
         }
 
@@ -113,19 +135,7 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
             color: $nameColor;
 
             .is-lz {
-                font-size: 0.8em;
-                color: white;
-                border-radius: 3px;
-                padding: 3px;
-                background-color: $primary-purple;
-            }
-
-            .reply {
-                font-size: 0.8em;
-                border-radius: 3px;
-                padding: 3px;
-                background-color: $actionBgColor;
-                margin-right: 6px;
+                text-decoration: underline;
             }
         }
     }

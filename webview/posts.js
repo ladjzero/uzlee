@@ -13,12 +13,6 @@ var parseQueryString = function() {
     return objURL;
 };
 
-var queries = parseQueryString();
-var theme = queries.theme;
-var fontsize = queries.fontsize;
-
-
-
 window.onScrollStateChange = function(state) {
     UZLEE.onScroll(state);
 };
@@ -75,11 +69,17 @@ var model = {
 };
 
 document.addEventListener('DOMContentLoaded', function () {
+    var queries = parseQueryString();
+    var theme = queries.theme;
+    var fontsize = queries.fontsize;
+
     var bodyClassList = document.body.classList;
 
     bodyClassList.add(theme);
     bodyClassList.add('night' == theme ? 'night' : 'day');
     bodyClassList.add('font-size-' + fontsize);
+
+    console.log("theme " + theme + ", fontsize " + fontsize);
 
     ko.applyBindings(model, document.getElementById('post-list'));
 

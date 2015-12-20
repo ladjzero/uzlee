@@ -19,8 +19,8 @@
             <div class="profile-wrapper"
                  data-bind="click: $root.onProfileClick, clickBubble: false">
                 <span data-bind="text: author.name.charAt(0).toUpperCase()"></span>
-                <img class="profile"
-                     data-bind="attr: {id: 'uid-' + author.id, src: author.image}, event: {load: $root.onProfileLoad}">
+                <div class="profile"
+                     data-bind="attr: {id: 'uid-' + author.id}, style: {'background-image': 'url(' + author.image + ')'}"></div>
             </div>
             <div class="name-and-date">
                 <span class="name" data-bind="text: author.name"></span>

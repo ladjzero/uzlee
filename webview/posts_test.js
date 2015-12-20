@@ -5,7 +5,7 @@ loadPosts([{
         "image": "http://www.hi-pda.com/forum/uc_server/data/avatar/000/59/26/17_avatar_middle.jpg",
         "name": "ladjzero"
     },
-    "body": "测试发帖测试发帖测试发帖测试发帖测试发帖测试发帖测试发帖测试发帖测试发帖",
+    "body": "<td class=\"t_msgfont\" id=\"postmessage_23963127\"><i class=\"pstatus\"> 本帖最后由 iloven900 于 2014-8-25 14:07 编辑 </i><br> <br> 今天试了 Sports Tracker v4.22下打开软件手机装进衣兜里，E73可以当基本的码表了<img src=\"http://www.hi-pda.com/forum/images/smilies/grapeman/23.gif\" smilieid=\"79\" border=\"0\" alt=\"\"> <br> <br> 利用手机与GPS建立运动者的全球定位测量工具。比如速度，距离和时间等数据会自动地被储存到你的训练日记，<br> 比如跑步，骑自行车、可以有计步器、跑步的速度、里程等等， <br> 计步器应该是软件调用手机的重力感应器计算出你的步速、步数等等，<br> 特别是对于跑步、滑雪、等低速活动的统计很有意义。<br> 软件可以导出你的GPS轨迹，输出数据为KML格式，比如可以导入到谷歌地图里面。<br> 诺基亚还为此软件专门设计了一个官网 <a href=\"http://www.sports-tracker.com/\" target=\"_blank\">http://www.sports-tracker.com/</a> ，在注册后， 可以看到你的每日运动数据、地图信息等等。 <br> <br> <br> 附件里是dospy挖过来的，在此感谢作者的辛苦劳动。 </td>hello",
     "commentCount": 0,
     "fid": 0,
     "id": 29456784,

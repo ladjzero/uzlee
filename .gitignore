@@ -55,4 +55,8 @@ AndroidManifest.xml
 
 *.css.map
 *.scssc
+*.css
 webview/node_modules/
+app/src/main/assets/*.css
+app/src/main/assets/*.js
+app/src/main/assets/*.html
