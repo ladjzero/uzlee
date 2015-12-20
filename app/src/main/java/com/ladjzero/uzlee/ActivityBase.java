@@ -33,13 +33,11 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.utils.L;
 import com.orhanobut.logger.Logger;
 import com.r0adkll.slidr.model.SlidrConfig;
-import com.r0adkll.slidr.model.SlidrListener;
 import com.r0adkll.slidr.model.SlidrPosition;
 import com.rey.material.app.Dialog;
 import com.rey.material.app.DialogFragment;
 import com.rey.material.app.SimpleDialog;
 
-import de.greenrobot.event.EventBus;
 
 
 public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
@@ -195,27 +193,6 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 			default:
 				return super.onOptionsItemSelected(item);
 		}
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		EventBus.getDefault().register(this);
-	}
-
-	@Override
-	protected void onPause() {
-		EventBus.getDefault().unregister(this);
-		super.onPause();
-	}
-
-	public void onEventMainThread(Core.UserEvent userEvent) {
-		Logger.i("EventBus.onEventMainThread.statusChangeEvent : user is null ? %b", userEvent.user == null);
-
-//		if (userEvent.user == null || userEvent.user.getId() <= 0) {
-//			Intent intent = new Intent(this, ActivityLogin.class);
-//			startActivity(intent);
-//		}
 	}
 
 	public void onEventMainThread(final Core.UpdateInfo updateInfo) {

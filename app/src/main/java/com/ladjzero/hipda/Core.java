@@ -50,7 +50,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import de.greenrobot.event.EventBus;
 
 public class Core {
 	public final static int MAX_UPLOAD_LENGTH = 299 * 1024;
@@ -178,8 +177,7 @@ public class Core {
 
 					@Override
 					public void onSuccess(int i, Header[] headers, String s) {
-						UpdateInfo updateInfo = JSON.parseObject(s, UpdateInfo.class);
-						EventBus.getDefault().post(updateInfo);
+						pref.edit().putString("updateInfo", s).commit();
 					}
 				});
 	}
@@ -258,7 +256,7 @@ public class Core {
 				}
 			}
 
-			EventBus.getDefault().post(new MessageEvent(msgCount));
+			pref.edit().putInt("unread", msgCount).commit();
 
 			Elements eUser = doc.select("#umenu > cite > a");
 			String uidHref = eUser.attr("href");
@@ -273,14 +271,7 @@ public class Core {
 
 			} else {
 				saveUser(0, "");
-				Logger.i("EventBus.StatusChangeEvent %d %s", 0, "null");
 			}
-
-//			if (doc.select("#wrap > form[name=login]").size() > 0) {
-//				throw new NoPermissionException();
-//			}
-
-			EventBus.getDefault().post(new UserEvent(getUser()));
 		} catch (Error e) {
 			Logger.e(TAG, e.toString());
 		}
@@ -364,10 +355,7 @@ public class Core {
 			public void onSuccess(String html) {
 				Logger.i("logout succeed");
 
-				pref.edit().putInt("uid", 0).putString("uname", "").commit();
-
-				EventBus.getDefault().post(new UserEvent(getUser()));
-				EventBus.getDefault().post(new MessageEvent(0));
+				pref.edit().putInt("uid", 0).putString("uname", "").putInt("unread", 0).commit();
 
 				onRequestListener.onSuccess(html);
 

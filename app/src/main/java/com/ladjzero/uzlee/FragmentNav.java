@@ -23,7 +23,6 @@ import com.orhanobut.logger.Logger;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import de.greenrobot.event.EventBus;
 
 public class FragmentNav extends Fragment {
 	/**
@@ -108,8 +107,6 @@ public class FragmentNav extends Fragment {
 	public void onResume() {
 		User user = Core.getUser();
 
-		Logger.i("EventBus.register, Core.user %b", user != null);
-
 		super.onResume();
 
 		if (user != null && user.getId() > 0) {
@@ -124,8 +121,6 @@ public class FragmentNav extends Fragment {
 				}
 			}, 300);
 		}
-
-		EventBus.getDefault().register(this);
 	}
 
 	@Override
@@ -139,14 +134,6 @@ public class FragmentNav extends Fragment {
 		super.onConfigurationChanged(newConfig);
 		// Forward the new configuration the drawer toggle component.
 		mActionBarDrawerToggle.onConfigurationChanged(newConfig);
-	}
-
-	@Override
-	public void onPause() {
-		Logger.i("EventBus.unregister");
-
-		EventBus.getDefault().unregister(this);
-		super.onPause();
 	}
 
 	@Override
@@ -223,43 +210,6 @@ public class FragmentNav extends Fragment {
 		mDrawerLayout.closeDrawer(mFragmentContainerView);
 	}
 
-	public void onEventMainThread(Core.MessageEvent messageEvent) {
-		Logger.i("EventBus.onEventMainThread -> set message count %d", messageEvent.count);
-
-	}
-/*
-	public void onEventMainThread(Core.UserEvent userEvent) {
-		Logger.i("EventBus.onEventMainThread -> userLayout, user %b", userEvent.user != null);
-
-		getView().invalidate();
-
-		if (userEvent.user != null) {
-			Logger.i("EventBase.onEventMainThread -> userLayout -> visible, current visible %b", userLayout.getVisibility() == View.VISIBLE);
-
-			if (userLayout.getVisibility() == View.GONE) {
-				Logger.i("EventBase.onEventMainThread -> userLayout -> visible, uid %d, name %s", userEvent.user.getId(), userEvent.user.getName());
-
-				userLayout.setVisibility(View.VISIBLE);
-				ImageLoader.getInstance().displayImage(Core.getUser().getImage(), imageView);
-				userName.setText(Core.getUser().getName());
-			}
-		} else {
-			Logger.i("EventBus.onEventMainThread -> userLayout -> gone");
-
-//			userLayout.setVisibility(View.GONE);
-		}
-	}
-
-	public void onEventMainThread(final Core.UpdateInfo updateInfo) {
-		Logger.i("EventBus.onEventMainThread -> update info");
-
-		if (updateInfo != null) {
-			String version = ((ActivityMain) getActivity()).getVersion();
-			String newVersion = updateInfo.getVersion();
-
-		}
-	}
-*/
 	// menu key triggers this
 	public void toggleDrawer() {
 		boolean isOpen = isDrawerOpen();

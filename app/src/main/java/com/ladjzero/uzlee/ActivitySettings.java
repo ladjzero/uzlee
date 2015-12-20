@@ -27,7 +27,6 @@ import java.util.Set;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import de.greenrobot.event.EventBus;
 
 
 public class ActivitySettings extends ActivityBase implements SharedPreferences.OnSharedPreferenceChangeListener {

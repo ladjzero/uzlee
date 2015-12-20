@@ -32,7 +32,6 @@ dependencies {
     compile files('libs/jsoup-1.8.1.jar')
     compile files('libs/universal-image-loader-1.9.3.jar')
     compile files('libs/acra-4.5.0.jar')
-    compile files('libs/eventbus-2.4.0.jar')
     compile files('libs/mta-mid-sdk-2.20.jar')
     compile files('libs/mta-stats-sdk-2.0.4.jar')
 
