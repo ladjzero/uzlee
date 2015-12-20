@@ -27,14 +27,12 @@ import java.util.Date;
 /**
  * Created by ladjzero on 2015/4/25.
  */
-public class MessageSummaryAdapter extends ArrayAdapter<Thread> implements View.OnClickListener{
-	private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-	private final Date NOW = new Date();
+public class AdapterMessageSummary extends ArrayAdapter<Thread> implements View.OnClickListener{
 	ActivityBase context;
 	Core core;
 
 
-	public MessageSummaryAdapter(Context context, ArrayList<Thread> threads) {
+	public AdapterMessageSummary(Context context, ArrayList<Thread> threads) {
 		super(context, R.layout.message_row, threads);
 		this.context = (ActivityBase) context;
 	}
@@ -70,7 +68,6 @@ public class MessageSummaryAdapter extends ArrayAdapter<Thread> implements View.
 		int count = thread.getCommentCount();
 		boolean isNew = thread.isNew();
 
-		row.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.uglee : android.R.color.white);
 		holder.imageMask.setText(Utils.getFirstChar(userName));
 
 		ImageLoader.getInstance().displayImage(imageUrl, holder.image, new SimpleImageLoadingListener() {
@@ -92,7 +89,7 @@ public class MessageSummaryAdapter extends ArrayAdapter<Thread> implements View.
 //		holder.name.getPaint().setFakeBoldText(true);
 		holder.image.setOnClickListener(this);
 		holder.name.setOnClickListener(this);
-		holder.date.setText(prettyTime(thread.getDateStr()));
+		holder.date.setText(Utils.prettyTime(thread.getDateStr()));
 		holder.name.setText(thread.getAuthor().getName());
 
 		if (Core.bans.contains(uid)) {
@@ -100,12 +97,6 @@ public class MessageSummaryAdapter extends ArrayAdapter<Thread> implements View.
 		} else {
 			holder.title.setText(thread.getTitle());
 			holder.title.getPaint().setFakeBoldText(thread.getBold());
-		}
-
-		if (color != null && color.length() > 0) {
-			holder.title.setTextColor(lowerSaturation(Color.parseColor(color)));
-		} else {
-			holder.title.setTextColor(Color.BLACK);
 		}
 
 		return row;
@@ -118,24 +109,6 @@ public class MessageSummaryAdapter extends ArrayAdapter<Thread> implements View.
 		intent.putExtra("uid", user.getId());
 		intent.putExtra("name", user.getName());
 		context.startActivity(intent);
-	}
-
-	private String prettyTime(String timeStr) {
-		try {
-			Date thatDate = DATE_FORMAT.parse(timeStr);
-
-			if (DateUtils.isSameDay(thatDate, NOW)) {
-				return "今天";
-			} else if (DateUtils.isSameDay(DateUtils.addDays(thatDate, 1), NOW)) {
-				return "昨天";
-			} else if (NOW.getYear() == thatDate.getYear()) {
-				return DateFormatUtils.format(thatDate, "M月d日");
-			} else {
-				return DateFormatUtils.format(thatDate, "yyyy年M月d日");
-			}
-		} catch (ParseException e) {
-			return timeStr;
-		}
 	}
 
 	private int lowerSaturation(int color) {

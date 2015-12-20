@@ -333,7 +333,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 
 		mWebView = mPostsView.getRefreshableView();
-		mWebView.setBackgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground));
 
 		mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
 		mPostsView.setOnRefreshListener(this);

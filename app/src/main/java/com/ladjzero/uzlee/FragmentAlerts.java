@@ -19,14 +19,14 @@ import java.util.ArrayList;
 /**
  * Created by ladjzero on 2015/1/1.
  */
-public class AlertFragment extends Fragment implements AbsListView.OnItemClickListener {
+public class FragmentAlerts extends Fragment implements AbsListView.OnItemClickListener {
 	Core core;
 	private int tabIndex = -1;
 	private AbsListView mListView;
 	private ArrayAdapter mAdapter;
 
-	public static AlertFragment newInstance(int position) {
-		AlertFragment fragment = new AlertFragment();
+	public static FragmentAlerts newInstance(int position) {
+		FragmentAlerts fragment = new FragmentAlerts();
 		Bundle args = new Bundle();
 		args.putInt("tab_index", position);
 		fragment.setArguments(args);
@@ -41,7 +41,7 @@ public class AlertFragment extends Fragment implements AbsListView.OnItemClickLi
 
 		switch (tabIndex) {
 			case 0:
-				mAdapter = new MessageSummaryAdapter(getActivity(), new ArrayList<Thread>());
+				mAdapter = new AdapterMessageSummary(getActivity(), new ArrayList<Thread>());
 				break;
 			case 1:
 				mAdapter = new ArrayAdapter<Post>(getActivity(), R.layout.simple_post, R.id.simple_thread_text) {

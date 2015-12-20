@@ -4,8 +4,7 @@
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground">
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/thread_swipe"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -17,6 +16,7 @@
             android:clipToPadding="false"
             android:divider="?attr/dividerDrawable"
             android:dividerHeight="1px"
+            android:listSelector="@android:color/transparent"
             android:paddingTop="36dp" />
 
     </android.support.v4.widget.SwipeRefreshLayout>

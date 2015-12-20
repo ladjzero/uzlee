@@ -65,7 +65,7 @@
                     android:hint="快速回复"
                     android:textSize="18sp"
                     app:met_minCharacters="5"
-                    app:met_primaryColor="@color/primary" />
+                    app:met_primaryColor="?attr/colorPrimary" />
             </RelativeLayout>
         </LinearLayout>
     </RelativeLayout>

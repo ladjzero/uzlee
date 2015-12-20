@@ -11,16 +11,14 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/snow_light"
         android:padding="1.5dp">
 
         <TextView
             android:id="@+id/user_image_mask"
             android:layout_width="34dp"
             android:layout_height="34dp"
-            android:background="@color/dark_light"
             android:gravity="center"
-            android:textColor="@android:color/white"
+            android:textColor="@color/snow_darker"
             android:textSize="20dp"/>
 
         <ImageView
@@ -60,7 +58,7 @@
             android:layout_centerVertical="true"
             android:gravity="center_horizontal"
             android:text="50"
-            android:textColor="@color/snow_darker"
+            android:textColor="?attr/colorText"
             android:textSize="10sp"/>
 
 

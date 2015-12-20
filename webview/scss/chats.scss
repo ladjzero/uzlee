@@ -14,6 +14,30 @@ ul.pm_list {
     }
 }
 
+@each $theme, $primary in $primaries {
+    .#{$theme} .self div.summary {
+        background: $primary;
+        color: white;
+
+        a {color: white}
+
+        &::after {
+            border-left-color: $primary;
+        }
+    }
+}
+
+.night li.s_clear .summary {
+    background: $nightPrimary;
+    color: $nightTextPrimary;
+
+    a {color: $nightTextPrimary;}
+
+    &::before {
+        border-right-color: $nightPrimary;
+    }
+}
+
 li.s_clear {
     & > * {
         float: left;
@@ -33,6 +57,8 @@ li.s_clear {
         width: $profile-height;
         height: $profile-height;
     }
+
+  
 
     div.summary {
         $bg: #E2E2E2;
@@ -67,9 +93,6 @@ li.s_clear {
     }
 
     &.self div.summary {
-        $selfBg: #79D8FF;
-
-        background: $selfBg;
         margin-right: 12px;
         margin-left: 0;
 
@@ -84,7 +107,6 @@ li.s_clear {
             right: -12px;
             top: 12px;
             border-width: 6px;
-            border-left-color: $selfBg;
             border-style: solid;
             border-top-color: transparent;
             border-right-color: transparent;
@@ -103,6 +125,11 @@ li.pm_date {
         color: white;
         border-radius: 3px;
     }
+}
+
+.night li.pm_date strong {
+    background: $nightPrimary;
+    color: $nightTextPrimary;
 }
 
 span.action {

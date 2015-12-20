@@ -8,7 +8,7 @@ public class ActivityAlerts extends ActivityPagerBase {
 		Fragment ret = mFragmentCache.get(position);
 
 		if (ret == null) {
-			ret = AlertFragment.newInstance(position);
+			ret = FragmentAlerts.newInstance(position);
 			mFragmentCache.put(position, ret);
 		}
 

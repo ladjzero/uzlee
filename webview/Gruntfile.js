@@ -9,7 +9,8 @@ module.exports = function(grunt) {
           sourcemap: 'none'
         },
         files: {
-         'posts.css': 'scss/posts.scss'
+         'posts.css': 'scss/posts.scss',
+         'chats.css': 'scss/chats.scss'
         }
       }
     },

@@ -36,12 +36,10 @@ import java.util.Date;
  * Created by ladjzero on 2015/4/25.
  */
 public class ActivityChat extends ActivityWithWebView implements Core.OnRequestListener {
-	int[] snowTheme = {};
-	int[] blueTheme = {};
+//	int[] snowTheme = {};
+//	int[] blueTheme = {};
 	int white;
 	int darkersnow;
-	View mSpinner;
-	TextView mTitleView;
 	private View mRootView;
 	private EditText mMessage;
 	private TextView mSend;
@@ -57,20 +55,6 @@ public class ActivityChat extends ActivityWithWebView implements Core.OnRequestL
 
 		Resources res = getResources();
 
-		snowTheme = new int[]{
-				res.getColor(R.color.snow_darker),
-				res.getColor(R.color.snow_dark),
-				res.getColor(R.color.snow_primary),
-				res.getColor(R.color.snow_light)
-		};
-
-		blueTheme = new int[]{
-				res.getColor(R.color.sky_darker),
-				res.getColor(R.color.sky_dark),
-				res.getColor(R.color.sky_primary),
-				res.getColor(R.color.sky_light)
-		};
-
 		white = res.getColor(android.R.color.white);
 		darkersnow = res.getColor(R.color.snow_darker);
 
@@ -80,15 +64,9 @@ public class ActivityChat extends ActivityWithWebView implements Core.OnRequestL
 		mActionbar.setDisplayHomeAsUpEnabled(true);
 
 		LayoutInflater mInflater = LayoutInflater.from(this);
-		View customView = mInflater.inflate(R.layout.toolbar_title_for_post, null);
-		mSpinner = customView.findViewById(R.id.spinner);
-		mTitleView = (TextView) customView.findViewById(R.id.title);
-		mTitleView.setVisibility(View.INVISIBLE);
 
-		mActionbar.setTitle(null);
 		mActionbar.setDisplayHomeAsUpEnabled(true);
 		mActionbar.setDisplayShowCustomEnabled(true);
-		mActionbar.setCustomView(customView);
 
 		mWebView = (WebView) findViewById(R.id.webview);
 
@@ -163,7 +141,7 @@ public class ActivityChat extends ActivityWithWebView implements Core.OnRequestL
 		Intent intent = getIntent();
 		uid = intent.getIntExtra("uid", -1);
 		mName = intent.getStringExtra("name");
-		mTitleView.setText(mName);
+		setTitle(mName);
 	}
 
 	private void enableSend(boolean enable) {
@@ -186,7 +164,9 @@ public class ActivityChat extends ActivityWithWebView implements Core.OnRequestL
 
 	@Override
 	public String getHTMLFilePath() {
-		return "file:///android_asset/chats.html";
+		return "file:///android_asset/chats.html?theme=" +
+				setting.getString("theme", DefaultTheme) +
+				"&fontsize=" + setting.getString("font_size", "normal");
 	}
 
 	private void fetch(int page) {
@@ -211,9 +191,6 @@ public class ActivityChat extends ActivityWithWebView implements Core.OnRequestL
 
 					@Override
 					protected void onPostExecute(String html) {
-						mSpinner.setVisibility(View.GONE);
-						mTitleView.setVisibility(View.VISIBLE);
-
 						String js = "javascript:loadHTML(\"" + html.replaceAll("\"", "\\\\\"").replaceAll("[\\t\\n\\r]", "") + "\")";
 						Logger.d(js);
 						mWebView.loadUrl(js);

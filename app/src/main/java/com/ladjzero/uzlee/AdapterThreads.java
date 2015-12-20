@@ -39,6 +39,7 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 	private int mUserNameColor;
 	private boolean mHighlightUnread = true;
 	private float mFontSize;
+	private String mTheme;
 
 
 	public AdapterThreads(Context context, ArrayList<Thread> threads) {
@@ -50,6 +51,7 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 		mCommentBgColor = res.getColor(R.color.commentNoBg);
 		mWhite = res.getColor(android.R.color.white);
 		mUserNameColor = res.getColor(R.color.snow_darker);
+		mTheme = this.context.getSettings().getString("theme", ActivityBase.DefaultTheme);
 
 		initalPreferences();
 	}
@@ -61,9 +63,9 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 		if (fontsize.equals("normal")) {
 			mFontSize = 16f;
 		} else if (fontsize.equals("big")) {
-			mFontSize =  20f;
+			mFontSize = 20f;
 		} else {
-			mFontSize =  24f;
+			mFontSize = 24f;
 		}
 
 		mHighlightUnread = setting.getBoolean("highlight_unread", true);
@@ -83,6 +85,7 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 		if (row == null) {
 			row = context.getLayoutInflater().inflate(R.layout.thread, parent, false);
 
+			holder.userWrapper = row.findViewById(R.id.user_wrapper);
 			holder.image = (ImageView) row.findViewById(R.id.user_image);
 			holder.imageMask = (TextView) row.findViewById(R.id.user_image_mask);
 			holder.name = (TextView) row.findViewById(R.id.user_mini_name);
@@ -92,6 +95,8 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 
 			row.setTag(holder);
 		}
+
+		holder.userWrapper.setAlpha("night".equals(mTheme) ? 0.6f : 1);
 
 		final Thread thread = getItem(position);
 		final User author = thread.getAuthor();
@@ -213,6 +218,7 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 	}
 
 	static class PostHolder {
+		View userWrapper;
 		ImageView image;
 		TextView imageMask;
 		TextView name;

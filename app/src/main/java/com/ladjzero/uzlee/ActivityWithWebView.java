@@ -120,6 +120,7 @@ public abstract class ActivityWithWebView extends ActivityBase implements OnTouc
 			WebSettings settings = webView.getSettings();
 			settings.setJavaScriptEnabled(true);
 			settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+			webView.setBackgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground));
 
 			webView.loadUrl(getHTMLFilePath());
 			initialized = true;
