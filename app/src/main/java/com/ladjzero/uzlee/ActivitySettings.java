@@ -57,13 +57,11 @@ public class ActivitySettings extends ActivityBase implements SharedPreferences.
 
         if (key.equals("selected_forums")) {
             Intent intent = new Intent();
-            intent.putExtra("reload", true);
             this.setResult(0, intent);
         }
 
         if (key.equals("theme")) {
             Intent intent = new Intent();
-            intent.putExtra("reload", true);
             this.setResult(0, intent);
             this.reload();
         }
@@ -89,7 +87,7 @@ public class ActivitySettings extends ActivityBase implements SharedPreferences.
         super.onStop();
     }
 
-    public static class SettingFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+    public static class SettingFragment extends PreferenceFragment {
         private ActivityBase mActivity;
 
         @Override
@@ -215,32 +213,6 @@ public class ActivitySettings extends ActivityBase implements SharedPreferences.
             view.setBackgroundColor(Utils.getThemeColor(getActivity(), android.R.attr.colorBackground));
             return view;
         }
-
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            Preference preference = findPreference(key);
-
-            if (key.equals("enable_image_only_wifi")) {
-                ((ActivityBase) getActivity()).setImageNetwork();
-            }
-
-            if (key.equals("selected_forums")) {
-                Intent intent = new Intent();
-                intent.putExtra("reload", true);
-                getActivity().setResult(0, intent);
-            }
-
-            if (key.equals("theme")) {
-                Intent intent = new Intent();
-                intent.putExtra("reload", true);
-                mActivity.setResult(0, intent);
-                mActivity.reload();
-
-//				preference.setSummary(((ListPreference) preference).getEntry());
-            }
-        }
-
-
     }
 
     abstract static class BaseClickListener implements Preference.OnPreferenceClickListener {

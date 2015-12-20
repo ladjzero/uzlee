@@ -36,7 +36,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import me.drakeet.materialdialog.MaterialDialog;
 
-public class ActivityMain extends ActivityBase implements ViewPager.OnPageChangeListener {
+public class ActivityMain extends ActivityBase implements ViewPager.OnPageChangeListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
 	String title = "";
 	Toolbar toolbar;
@@ -48,6 +48,8 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 	private FragmentThreadsPager mFragment;
 	private int mCurrentPagePosition = -1;
 	private int mFid = -1;
+	private boolean mIsRunning = false;
+	private boolean mNeedReload = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -118,12 +120,19 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 	protected void onResume() {
 		super.onResume();
 		mFragment.registerPageChangeListener(this);
+		mIsRunning = true;
+
+		if (mNeedReload) {
+			mNeedReload = false;
+			reload();
+		}
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 		mFragment.unregisterPageChangeListener(this);
+		mIsRunning = false;
 	}
 
 	@Override
@@ -238,6 +247,20 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		super.onSaveInstanceState(outState);
 	}
 
+	@Override
+	protected void onStart() {
+		super.onStart();
+
+		getSettings().registerOnSharedPreferenceChangeListener(this);
+	}
+
+	@Override
+	protected void onStop() {
+		getSettings().unregisterOnSharedPreferenceChangeListener(this);
+
+		super.onStop();
+	}
+
 	public void onInfoClick(View view) {
 		final MaterialDialog mMaterialDialog = new MaterialDialog(this);
 		mMaterialDialog.setCanceledOnTouchOutside(true);
@@ -290,6 +313,17 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 
 	public void setOnTypeChangeListener(OnTypeChange onTypeChange) {
 		this.mOnTypeChange = onTypeChange;
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if ("theme".equals(key) || "selected_forums".equals(key)) {
+			if (mIsRunning) {
+				reload();
+			} else {
+				mNeedReload = true;
+			}
+		}
 	}
 
 	interface OnTypeChange {

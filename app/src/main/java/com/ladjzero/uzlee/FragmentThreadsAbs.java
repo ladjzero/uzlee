@@ -145,6 +145,9 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 				new PauseOnScrollListener(ImageLoader.getInstance(), true, true, new DirectionDetectScrollListener()));
 
 		registerForContextMenu(listView);
+
+		mActivity.getSettings().registerOnSharedPreferenceChangeListener(this);
+
 		return rootView;
 	}
 
@@ -156,6 +159,8 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 		if (toCache != null) {
 			cache.put(keyOfThreadsToCache(), toCache);
 		}
+
+		mActivity.getSettings().unregisterOnSharedPreferenceChangeListener(this);
 
 		super.onDestroyView();
 	}
@@ -215,17 +220,12 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 		}
 	}
 
+
+
 	@Override
 	public void onResume() {
 		super.onResume();
-		mActivity.getSettings().registerOnSharedPreferenceChangeListener(this);
 		mSwipe.setEnabled(mEnablePullToRefresh);
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		mActivity.getSettings().unregisterOnSharedPreferenceChangeListener(this);
 	}
 
 	@Override

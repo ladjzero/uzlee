@@ -1,9 +1,9 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground"
+    android:clickable="true"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -19,10 +19,10 @@
             android:id="@+id/nav_user_image"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:src="@drawable/icon"
             android:layout_centerHorizontal="true"
+            android:src="@drawable/icon"
             app:border_color="?attr/colorTextInverse"
-            app:border_width="1dp"/>
+            app:border_width="1dp" />
 
         <TextView
             android:id="@+id/nav_user_name"
@@ -33,7 +33,7 @@
             android:layout_marginTop="12dp"
             android:text="未登录"
             android:textColor="?attr/colorTextInverse"
-            android:textSize="14sp"/>
+            android:textSize="14sp" />
     </RelativeLayout>
 
     <LinearLayout
@@ -50,7 +50,7 @@
             android:gravity="center"
             android:text="{md-notifications}"
             android:textColor="?attr/colorText"
-            android:textSize="24sp"/>
+            android:textSize="24sp" />
 
         <TextView
             android:layout_width="fill_parent"
@@ -58,7 +58,7 @@
             android:gravity="center_vertical"
             android:text="消息"
             android:textColor="?attr/colorText"
-            android:textSize="18sp"/>
+            android:textSize="18sp" />
 
     </LinearLayout>
 
@@ -76,7 +76,7 @@
             android:gravity="center"
             android:text="{md-mode-comment}"
             android:textColor="?attr/colorText"
-            android:textSize="24sp"/>
+            android:textSize="24sp" />
 
         <TextView
             android:layout_width="fill_parent"
@@ -84,7 +84,7 @@
             android:gravity="center_vertical"
             android:text="我的主题"
             android:textColor="?attr/colorText"
-            android:textSize="18sp"/>
+            android:textSize="18sp" />
 
     </LinearLayout>
 
@@ -102,7 +102,7 @@
             android:gravity="center"
             android:text="{md-search}"
             android:textColor="?attr/colorText"
-            android:textSize="24sp"/>
+            android:textSize="24sp" />
 
         <TextView
             android:layout_width="fill_parent"
@@ -110,7 +110,7 @@
             android:gravity="center_vertical"
             android:text="搜索"
             android:textColor="?attr/colorText"
-            android:textSize="18sp"/>
+            android:textSize="18sp" />
 
     </LinearLayout>
 
@@ -128,7 +128,7 @@
             android:gravity="center"
             android:text="{md-settings}"
             android:textColor="?attr/colorText"
-            android:textSize="24sp"/>
+            android:textSize="24sp" />
 
         <TextView
             android:layout_width="fill_parent"
@@ -136,7 +136,7 @@
             android:gravity="center_vertical"
             android:text="设置"
             android:textColor="?attr/colorText"
-            android:textSize="18sp"/>
+            android:textSize="18sp" />
 
     </LinearLayout>
 
