@@ -1,20 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="PostImageView"/>
-
     <declare-styleable name="ScrimInsetsView">
         <attr name="insetForeground" format="reference|color"/>
-
     </declare-styleable>
-
-    <attr name="backgroundColor" format="color"/>
-
-    <attr name="primaryTextColor" format="color" />
-
-    <attr name="dividerDrawable" format="reference" />
-
-    <attr name="tabBarStyle" format="reference" />
-
-    <attr name="toolbarStyle2" format="reference" />
-
 </resources>

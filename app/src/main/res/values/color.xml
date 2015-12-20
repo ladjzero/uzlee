@@ -32,9 +32,15 @@
     <color name="darkSecondary">#8f8f96</color>
     <color name="purplePrimary">#8d6c9d</color>
     <color name="purpleSecondary">#beadc7</color>
-    <color name="nightPrimary">#202020</color>
+    <color name="nightPrimary">#252525</color>
     <color name="nightSecondary">#828282</color>
-    <color name="nightTextPrimary">#969696</color>
+
+    <color name="dayTextPrimary">@android:color/black</color>
+    <color name="dayTextMinor">#3e3e3e</color>
+    <color name="dayTextInverse">@android:color/white</color>
+    <color name="dayTextInverse07">#7EFFFFFF</color>
+    <color name="nightTextPrimary">#585858</color>
     <color name="nightTextMinor">#464646</color>
+    <color name="nightTextInverse">#585858</color>
 
 </resources>

@@ -3,15 +3,16 @@
     <style name="AppBaseTheme.Day">
         <item name="android:colorBackground">@android:color/white</item>
         <item name="colorAccent">?attr/colorPrimary</item>
-        <item name="colorText">@android:color/black</item>
-        <item name="colorTextInverse">@android:color/white</item>
+        <item name="colorText">@color/dayTextPrimary</item>
+        <item name="colorTextMinor">@color/dayTextMinor</item>
+        <item name="colorTextInverse">@color/dayTextInverse</item>
         <item name="dividerDrawable">@drawable/list_divider</item>
         <item name="drawerArrowStyle">@style/DrawerArrowToggle</item>
         <item name="colorPrimary">@color/nightPrimary</item>
-        <item name="toolbarStyle2">@style/Toolbar</item>
         <item name="actionMenuTextColor">@android:color/white</item>
         <item name="colorUnread">#f6708b</item>
         <item name="tabBarStyle">@style/TabBarStyle</item>
+        <item name="colorTextInverse07">@color/dayTextInverse07</item>
     </style>
 
     <style name="AppBaseTheme.Day.Red">
@@ -63,14 +64,15 @@
         <item name="colorAccent">@color/nightTextPrimary</item>
         <item name="colorSecondary">@color/nightSecondary</item>
         <item name="colorPrimary">@color/nightPrimary</item>
-        <item name="android:colorBackground">#373737</item>
+        <item name="android:colorBackground">#353535</item>
         <item name="colorText">@color/nightTextPrimary</item>
+        <item name="colorTextMinor">@color/nightTextMinor</item>
         <item name="colorTextInverse">@color/nightTextPrimary</item>
         <item name="dividerDrawable">@drawable/list_divider_night</item>
-        <item name="toolbarStyle2">@style/Toolbar.Night</item>
         <item name="drawerArrowStyle">@style/DrawerArrowToggle.Night</item>
         <item name="actionMenuTextColor">@color/nightTextPrimary</item>
         <item name="tabBarStyle">@style/TabBarStyle.Night</item>
+        <item name="colorTextInverse07">@color/nightTextMinor</item>
     </style>
 
     <style name="AppBaseTheme.NoTransparent" parent="AppBaseTheme">
@@ -129,10 +131,6 @@
         <item name="android:textColor">@drawable/tab_text_night</item>
     </style>
 
-    <style name="TabBarStyle2" parent="@style/Base.TextAppearance.AppCompat.Subhead">
-        <item name="android:textColor">@drawable/tab_text2</item>
-    </style>
-    
     <style name="Toolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
     </style>
 

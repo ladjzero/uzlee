@@ -115,11 +115,8 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 			mSwipe.setOnRefreshListener((OnRefreshListener) this);
 		}
 
-		mSwipe.setProgressBackgroundColorSchemeResource(
-				mActivity.getThemeId() == R.style.AppBaseTheme_Night ?
-						R.color.dark_light : android.R.color.white);
-
-		int primaryColor = Utils.getThemeColor(getActivity(), R.attr.colorPrimary);
+		mSwipe.setProgressBackgroundColorSchemeColor(Utils.getThemeColor(mActivity, R.attr.colorTextInverse));
+		int primaryColor = Utils.getThemeColor(mActivity, R.attr.colorPrimary);
 		mSwipe.setColorSchemeColors(primaryColor, primaryColor, primaryColor, primaryColor);
 		mSwipe.setProgressViewOffset(false, -Utils.dp2px(mActivity, 12), Utils.dp2px(mActivity, 60));
 

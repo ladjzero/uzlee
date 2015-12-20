@@ -43,7 +43,7 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 
 
 	public AdapterThreads(Context context, ArrayList<Thread> threads) {
-		super(context, R.layout.thread, threads);
+		super(context, R.layout.list_item_thread, threads);
 
 		this.context = (ActivityBase) context;
 
@@ -83,7 +83,7 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 		final PostHolder holder = row == null ? new PostHolder() : (PostHolder) row.getTag();
 
 		if (row == null) {
-			row = context.getLayoutInflater().inflate(R.layout.thread, parent, false);
+			row = context.getLayoutInflater().inflate(R.layout.list_item_thread, parent, false);
 
 			holder.userWrapper = row.findViewById(R.id.user_wrapper);
 			holder.image = (ImageView) row.findViewById(R.id.user_image);

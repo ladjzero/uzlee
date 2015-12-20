@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <attr name="dividerDrawable" format="reference" />
+    <attr name="tabBarStyle" format="reference" />
+
     <attr name="colorSecondary" format="color"></attr>
     <attr name="colorText" format="color"></attr>
+    <attr name="colorTextMinor" format="color"></attr>
     <attr name="colorTextInverse" format="color"></attr>
     <attr name="colorUnread" format="color"></attr>
+    <attr name="colorTextInverse07" format="color"></attr>
 </resources>

@@ -7,7 +7,7 @@
 			  android:paddingRight="12dp"
 			  android:paddingTop="12dp">
 
-	<include layout="@layout/user_for_thread"/>
+	<include layout="@layout/include_user_of_thread"/>
 
 	<com.joanzapata.iconify.widget.IconTextView
 		android:id="@+id/thread_title"
