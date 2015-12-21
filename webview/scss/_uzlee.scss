@@ -58,7 +58,7 @@ $toolbar-height: 48px;
 /* (https://css-tricks.com/snippets/css/retina-display-media-query/)*/
 
 .list-border:last-child {
-    border-bottom: none;
+    border-width: 0;
 }
 
 .list-border {
