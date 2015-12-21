@@ -75,9 +75,9 @@
         <item name="colorTextInverse07">@color/nightTextMinor</item>
     </style>
 
-    <style name="AppBaseTheme.NoTransparent" parent="AppBaseTheme">
-        <!--<item name="android:windowIsTranslucent">false</item>-->
-        <!--<item name="android:windowBackground">@android:color/black</item>-->
+    <style name="AppBaseTheme.NoTransparent">
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowBackground">@android:color/black</item>
     </style>
 
     <style name="AppBaseTheme.Overlay">
@@ -94,9 +94,11 @@
         <!--remove action bar shadow-->
         <item name="android:windowContentOverlay">@null</item>
 
+        <!--slidr-->
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>
 
+        <!--prevent cab pushing toolbar down-->
         <item name="windowActionModeOverlay">true</item>
 
         <!--<item name="colorPrimary">@color/dark_primary</item>-->

@@ -32,6 +32,7 @@
 
         <activity
             android:name=".ActivityMain"
+            android:theme="@style/AppBaseTheme.NoTransparent"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/app_name">
         </activity>
