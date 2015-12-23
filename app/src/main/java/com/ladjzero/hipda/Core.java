@@ -29,7 +29,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
+import org.jsoup.parser.Parser;
+import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
+import org.jsoup.select.Evaluator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -443,23 +446,17 @@ public class Core {
 	}
 
 	private static Post toPostObj(Element ePost) {
-//		Logger.d("raw post %s", ePost.html());
-
-
 		int idPrefixLength = "pid".length();
 
 		Post post = new Post();
 
 		String id = ePost.attr("id").substring(idPrefixLength);
-/*
-		Post quote = findQuote(ePost);
-
-		if (quote != null) {
-			post.setQuote(quote);
-		}
-*/
 		Elements eBody = ePost.select("td.t_msgfont").tagName("div");
 
+		if (eBody.size() == 0) return new Post();
+
+		replaceQuoteLink(eBody.get(0));
+		findSig(eBody.get(0));
 
 		Elements imgPlaceHolders = eBody.select("span[id^=attach_]");
 		imgPlaceHolders.remove();
@@ -486,15 +483,18 @@ public class Core {
 
 			if (src.length() == 0) src = img.attr("src");
 
+			if (!src.startsWith("images/smilies/") &&
+					!src.endsWith("common/back.gif") &&
+					!src.endsWith("default/attachimg.gif") &&
+					!img.attr("width").equals("16")) {
+				img.addClass("content-image");
+			}
+
 			img.removeAttr("file")
 					.removeAttr("width")
 					.removeAttr("height")
 					.removeAttr("onclick")
 					.removeAttr("onmouseover");
-
-			if (!src.startsWith("images/smilies/") && !src.endsWith("common/back.gif") && !src.endsWith("default/attachimg.gif")) {
-				img.addClass("content-image");
-			}
 
 			if (!src.startsWith("http")) {
 				img.attr("src", "http://www.hi-pda.com/forum/" + src);
@@ -540,84 +540,38 @@ public class Core {
 		return post;
 	}
 
-	private static void compress(Post.NiceBody niceBody) {
-		for (int i = 0; i < niceBody.size(); ) {
-			Map.Entry<Post.BodyType, String> body = niceBody.get(i);
+	private static void replaceQuoteLink(Element eBody) {
+		Elements quoteArrowIcon = eBody.select("blockquote > font[size=2] > a[href^=http://www.hi-pda.com/forum/redirect.php?goto=findpost]");
 
-			if (body.getKey() == Post.BodyType.TXT) {
-				String trimBody = body.getValue().trim();
-
-				if (trimBody.length() == 0) {
-					niceBody.remove(i);
-				} else {
-					body.setValue(trimBody);
-					i++;
-				}
-			} else {
-				i++;
-			}
+		if (quoteArrowIcon.size() > 0) {
+			quoteArrowIcon.get(0).html("查看");
 		}
 	}
 
-	private static Post findQuote(Element ePost) {
-		Elements eBlockQuote = ePost.select(".quote > blockquote"),
-				eSimpleReply = ePost.select("strong > a[href^=http://www.hi-pda.com/forum/redirect.php?goto=findpost]");
+	private static void findSig(Element eBody) {
+		Elements children = eBody.children();
 
-		if (eBlockQuote.size() > 0) {
-			Elements eId = eBlockQuote.select("font[size=2] > a[href^=http://www.hi-pda.com/forum/redirect.php?goto=findpost]");
+		if (children.size() > 0) {
+			Element lastChild = children.last();
 
-			if (eId.size() > 0) {
-				Uri uri = Uri.parse(eId.attr("href"));
-				String id = uri.getQueryParameter("pid");
+			if (lastChild.tagName().equalsIgnoreCase("FONT") && lastChild.attr("size").equals("1")) {
+				lastChild.addClass("sig");
 
-				if (id != null && id.length() > 0) {
-					Post quote = new Post().setId(Integer.valueOf(id));
-
-					String userName = eBlockQuote.select("font[size=2] > font").text();
-					int _ = userName.indexOf("发表于");
-
-					if (_ > 0) {
-						userName = userName.substring(0, _).trim();
-						quote.setAuthor(new User().setName(userName));
-					} else {
-						quote.setAuthor(new User().setName(""));
-					}
-
-					String content = eBlockQuote.text().trim();
-					quote.setBody(content);
-
-					return quote;
+				if (lastChild.select("font[color=Gray]").size() > 0) {
+					lastChild.addClass("sig-uzlee");
+				} else {
+					lastChild.addClass("sig-ios");
 				}
-			}
-		} else if (eSimpleReply.size() > 0) {
-			Uri uri = Uri.parse(eSimpleReply.attr("href"));
-			String id = uri.getQueryParameter("pid");
-
-			if (id != null && id.length() > 0) {
-				Post quote = new Post().setId(Integer.valueOf(id));
-
-				String quoteIndex = eSimpleReply.text().trim();
-
-				if (quoteIndex.endsWith("#")) {
-					quoteIndex = quoteIndex.substring(0, quoteIndex.length() - 1);
-					try {
-						quote.setPostIndex(Integer.valueOf(quoteIndex));
-					} catch (Exception e) {
-
-					}
-				}
-
-				String userName = eSimpleReply.get(0).parent().select("> i").text().trim();
-				quote.setAuthor(new User().setName(userName))
-						.setBody("");
-
-				eSimpleReply.get(0).parent().remove();
-
-				return quote;
+			} else if (lastChild.tagName().equalsIgnoreCase("A") && lastChild.select("font[size=1]").size() > 0) {
+				lastChild.addClass("sig").addClass("sig-android");
+			} else if (lastChild.tagName().equalsIgnoreCase("IMG") && lastChild.attr("width").equals("16") && lastChild.attr("height").equals("16")) {
+				Element newChild = new Element(Tag.valueOf("span"), lastChild.baseUri());
+				lastChild.remove();
+				newChild.appendChild(lastChild);
+				newChild.addClass("sig").addClass("sig-wp");
+				eBody.appendChild(newChild);
 			}
 		}
-
-		return null;
 	}
 
 	public static String parseMessagesToHtml(String html) {
