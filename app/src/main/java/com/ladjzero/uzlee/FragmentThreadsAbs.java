@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.alibaba.fastjson.JSON;
@@ -26,6 +27,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 import com.orhanobut.logger.Logger;
 import com.r0adkll.slidr.model.SlidrInterface;
+import com.rey.material.app.Dialog;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -42,7 +44,8 @@ import butterknife.OnClick;
 public abstract class FragmentThreadsAbs extends Fragment implements
 		AdapterView.OnItemClickListener,
 		OnThreadsListener,
-		SharedPreferences.OnSharedPreferenceChangeListener {
+		SharedPreferences.OnSharedPreferenceChangeListener,
+		AdapterView.OnItemLongClickListener{
 
 	private static final String TAG = "FragmentThreadsAbs";
 
@@ -141,11 +144,66 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 		listView.setOnScrollListener(
 				new PauseOnScrollListener(ImageLoader.getInstance(), true, true, new DirectionDetectScrollListener()));
 
+
+		mActivity.getSettings()
+				.registerOnSharedPreferenceChangeListener(this);
+
+		listView.setOnItemLongClickListener(this);
 		registerForContextMenu(listView);
 
-		mActivity.getSettings().registerOnSharedPreferenceChangeListener(this);
-
 		return rootView;
+	}
+
+	@Override
+	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+		final Thread thread = mAdapter.getItem(position);
+		final Dialog dialog = new Dialog(mActivity);
+		ListView listView = new ListView(mActivity);
+		listView.setDivider(null);
+		listView.setAdapter(new ArrayAdapter<>(mActivity, R.layout.list_item_of_dialog, R.id.text, new String[] {"复制标题", "查看最新回复"}));
+		dialog.negativeActionClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				dialog.dismiss();
+			}
+		});
+
+		dialog.title("")
+				.titleColor(Utils.getThemeColor(mActivity, R.attr.colorText))
+				.backgroundColor(Utils.getThemeColor(mActivity, android.R.attr.colorBackground))
+//				.negativeAction("取消")
+				.contentView(listView)
+				.show();
+
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+				switch (position) {
+					case 0:
+						ClipboardManager clipboardManager = (ClipboardManager) mActivity.getSystemService(Context.CLIPBOARD_SERVICE);
+						StringBuilder builder = new StringBuilder();
+
+						ClipData clipData = ClipData.newPlainText("post content", thread.getTitle());
+						clipboardManager.setPrimaryClip(clipData);
+						mActivity.showToast("复制到剪切版");
+						break;
+					case 1:
+
+						Intent intent = new Intent(mActivity, ActivityPosts.class);
+						intent.putExtra("tid", thread.getId());
+						intent.putExtra("page", 9999);
+						intent.putExtra("title", thread.getTitle());
+						intent.putExtra("uid", thread.getAuthor().getId());
+
+						startActivity(intent);
+				}
+
+				dialog.dismiss();
+			}
+		});
+
+		return true;
 	}
 
 	@Override
@@ -157,7 +215,9 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 			cache.put(keyOfThreadsToCache(), toCache);
 		}
 
-		mActivity.getSettings().unregisterOnSharedPreferenceChangeListener(this);
+		mActivity.getSettings()
+				.unregisterOnSharedPreferenceChangeListener(this);
+		unregisterForContextMenu(listView);
 
 		super.onDestroyView();
 	}

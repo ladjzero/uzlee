@@ -40,6 +40,7 @@ import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.User;
 import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
+import com.rey.material.app.Dialog;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import org.apache.commons.collections.CollectionUtils;
@@ -94,10 +95,9 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	private Menu mMenu;
 	private boolean mIsFetching = false;
 	private View mMenuView;
-	private AlertDialog mMenuDialog;
+	private Dialog mMenuDialog;
 	private boolean mInitToLastPost = false;
 	// Help menu dialog to show a line.
-	private View _justALine;
 	private int myid = 0;
 	private int position = 0;
 	// Scroll to this post.
@@ -344,7 +344,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mSeekBar = (DiscreteSeekBar) mMenuView.findViewById(R.id.seekbar);
 		mSeekBar.setMin(1);
 		mSeekBar.setOnProgressChangeListener(this);
-		_justALine = mMenuView.findViewById(R.id.just_a_line);
 
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 		alertDialogBuilder
@@ -361,13 +360,28 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 					}
 				});
 
-		mMenuDialog = alertDialogBuilder.create();
-		mMenuDialog.setCanceledOnTouchOutside(true);
-
+		mMenuDialog = new Dialog(this);
 		ListView menuList = (ListView) mMenuView.findViewById(R.id.actions);
 		actionsAdapter = new PostActionsAdapter(this);
 		menuList.setAdapter(actionsAdapter);
 		menuList.setOnItemClickListener(this);
+
+		mMenuDialog.negativeActionClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mMenuDialog.dismiss();
+			}
+		});
+
+		mMenuDialog.title("")
+				.titleColor(Utils.getThemeColor(this, R.attr.colorText))
+				.backgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground))
+				.negativeAction("取消")
+				.contentView(mMenuView);
+
+		mMenuDialog.setCanceledOnTouchOutside(true);
+
+
 	}
 
 	@Override
@@ -496,7 +510,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			mSeekBar.setMax(totalPage);
 			mSeekBar.setProgress(currPage);
 		} else {
-			_justALine.setVisibility(View.GONE);
 			mSeekBar.setVisibility(View.GONE);
 		}
 
@@ -773,7 +786,11 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			mWebView.post(new Runnable() {
 				@Override
 				public void run() {
-					mWebView.loadUrl("javascript:loadPosts(" + JSON.toJSONString(posts) + ", true)");
+					mWebView.loadUrl("javascript:removeAll();");
+
+					for (Post post : posts) {
+						mWebView.loadUrl("javascript:addPost(" + JSON.toJSONString(post) + ")");
+					}
 				}
 			});
 		}

@@ -8,13 +8,8 @@
     <ListView
         android:id="@+id/actions"
         android:layout_width="match_parent"
+        android:divider="@null"
         android:layout_height="wrap_content"/>
-
-    <TextView
-        android:id="@+id/just_a_line"
-        android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:background="@color/divider"/>
 
     <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
         android:id="@+id/seekbar"
@@ -24,6 +19,6 @@
         android:padding="10dp"
         app:dsb_indicatorColor="?attr/colorPrimary"
         app:dsb_progressColor="?attr/colorPrimary"
-        app:dsb_trackColor="@color/snow_dark"/>
+        app:dsb_trackColor="@color/nightTextPrimary"/>
 
 </LinearLayout>

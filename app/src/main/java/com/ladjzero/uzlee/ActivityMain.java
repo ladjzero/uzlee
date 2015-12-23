@@ -24,6 +24,7 @@ import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
 import com.orhanobut.logger.Logger;
+import com.rey.material.app.Dialog;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -42,7 +43,7 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 	Toolbar toolbar;
 	boolean doubleBackToExitPressedOnce = false;
 	private FragmentNav mFragmentNav;
-	private List<Forum.Type> mTypes;
+	//	private List<Forum.Type> mTypes;
 	private HashMap<Integer, Integer> mLastSelectedType = new HashMap<>();
 	private OnTypeChange mOnTypeChange;
 	private FragmentThreadsPager mFragment;
@@ -66,7 +67,7 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 
 		Bundle bundle = new Bundle();
 
-		mFragment =  FragmentThreadsPager.newInstance(bundle);
+		mFragment = FragmentThreadsPager.newInstance(bundle);
 		setOnTypeChangeListener(mFragment);
 
 		getSupportFragmentManager()
@@ -88,15 +89,28 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 
 			return true;
 		} else if (id == R.id.thread_types) {
-			if (mTypes != null) {
-				ListView listView = new ListView(this);
-				listView.setAdapter(new ArrayAdapter<>(this, R.layout.list_item_of_dialog, R.id.text, mTypes));
+			List<Forum.Type> types = Forum.findById(Core.getFlattenForums(this), mFid).getTypes();
 
-				AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-				alertDialogBuilder.setView(listView);
-				final AlertDialog alertDialog = alertDialogBuilder.create();
-				alertDialog.setCanceledOnTouchOutside(true);
-				alertDialog.show();
+			if (types != null) {
+				ListView listView = new ListView(this);
+				listView.setDivider(null);
+				listView.setAdapter(new ArrayAdapter<>(this, R.layout.list_item_of_dialog, R.id.text, types));
+
+				final Dialog dialog = new Dialog(this);
+
+				dialog.negativeActionClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						dialog.dismiss();
+					}
+				});
+
+				dialog.title(title)
+						.titleColor(Utils.getThemeColor(this, R.attr.colorText))
+						.backgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground))
+						.negativeAction("取消")
+						.contentView(listView)
+						.show();
 
 				listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 					@Override
@@ -105,7 +119,7 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 						mLastSelectedType.put(mFid, type.getId());
 						if (mOnTypeChange != null) mOnTypeChange.onTypeSelect(mFid, type.getId());
 						invalidateOptionsMenu();
-						alertDialog.dismiss();
+						dialog.dismiss();
 					}
 				});
 			}
@@ -181,20 +195,31 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.threads, menu);
 
-		Integer typeId = mLastSelectedType.get(mFid);
+		final Integer typeId = mLastSelectedType.get(mFid);
+		List<Forum.Type> types = Forum.findById(Core.getFlattenForums(this), mFid).getTypes();
 
-		if (typeId != null) {
-			final Integer finalTypeId = typeId;
+		MenuItem menuType = menu.findItem(R.id.thread_types);
 
-			Forum.Type type = (Forum.Type) CollectionUtils.find(mTypes, new Predicate() {
-				@Override
-				public boolean evaluate(Object o) {
-					return ((Forum.Type) o).getId() == finalTypeId;
-				}
-			});
+		if (types == null) {
+			menuType.setVisible(false);
+		} else {
+			if (typeId == null) {
+				menu.findItem(R.id.thread_types)
+						.setVisible(true)
+						.setTitle(types.get(0).getName());
+			} else {
+				Forum.Type type = (Forum.Type) CollectionUtils.find(types, new Predicate() {
+					@Override
+					public boolean evaluate(Object o) {
+						return ((Forum.Type) o).getId() == typeId;
+					}
+				});
 
-			menu.findItem(R.id.thread_types)
-					.setTitle(type.getName());
+				menu.findItem(R.id.thread_types)
+						.setVisible(true)
+						.setTitle(type.getName());
+			}
+
 		}
 
 		menu.findItem(R.id.thread_publish)
@@ -205,13 +230,15 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		return super.onCreateOptionsMenu(menu);
 	}
 
-	@OnClick(R.id.message) void onMessageClick() {
+	@OnClick(R.id.message)
+	void onMessageClick() {
 		mFragmentNav.closeDrawer();
 		Intent intent = new Intent(this, ActivityAlerts.class);
 		startActivity(intent);
 	}
 
-	@OnClick(R.id.my_posts) void onMyPostsClick() {
+	@OnClick(R.id.my_posts)
+	void onMyPostsClick() {
 		mFragmentNav.closeDrawer();
 
 		if (Core.getUser() != null) {
@@ -220,13 +247,15 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		}
 	}
 
-	@OnClick(R.id.search) void onSearchClick() {
+	@OnClick(R.id.search)
+	void onSearchClick() {
 		mFragmentNav.closeDrawer();
 		Intent intent = new Intent(this, ActivitySearch.class);
 		startActivity(intent);
 	}
 
-	@OnClick(R.id.settings) void onSettingsClick() {
+	@OnClick(R.id.settings)
+	void onSettingsClick() {
 		mFragmentNav.closeDrawer();
 		Intent intent = new Intent(this, ActivitySettings.class);
 		startActivityForResult(intent, 0);
@@ -296,7 +325,6 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		if (mCurrentPagePosition != position) {
 			mCurrentPagePosition = position;
 			mFid = Core.getSelectedForums(this).get(position).getFid();
-			mTypes = Forum.findById(Core.getForums(this), mFid).getTypes();
 			invalidateOptionsMenu();
 		}
 	}

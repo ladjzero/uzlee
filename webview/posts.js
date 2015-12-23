@@ -18,11 +18,9 @@ window.onScrollStateChange = function(state) {
 };
 
 var linkClickHandler = function(e) {
-    if (!galleryOnShow) {
-        e.preventDefault();
-        e.cancelBubble = true;
-        UZLEE.onLinkClick(this.href);
-    }
+    e.preventDefault();
+    e.cancelBubble = true;console.log(this.href);
+    UZLEE.onLinkClick(this.href);
 };
 
 var imageClickHandler = function(e) {
@@ -101,6 +99,10 @@ window.loadPosts = function(posts, removeAll) {
 
 window.addPost = function(post) {
     model.posts.push(post);
+};
+
+window.removeAll = function () {
+    model.posts.removeAll();
 };
 
 window.scrollToPost = function(pid) {

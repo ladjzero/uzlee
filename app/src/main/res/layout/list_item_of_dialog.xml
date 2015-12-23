@@ -11,6 +11,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="全部"
-        android:textColor="@color/dark_primary"
+        android:textColor="?attr/colorText"
         android:textSize="18dp"/>
 </FrameLayout>
