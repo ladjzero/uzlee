@@ -33,6 +33,7 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.utils.L;
 import com.orhanobut.logger.Logger;
 import com.r0adkll.slidr.model.SlidrConfig;
+import com.r0adkll.slidr.model.SlidrListener;
 import com.r0adkll.slidr.model.SlidrPosition;
 import com.rey.material.app.Dialog;
 import com.rey.material.app.DialogFragment;

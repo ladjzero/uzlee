@@ -41,7 +41,7 @@ var model = {
         e.target.previousElementSibling.style.visibility = 'hidden';
     },
     onPostClick: function(post, e) {
-        !galleryOnShow && UZLEE.onPostClick(post.id);
+        UZLEE.onPostClick(post.id);
     },
     posts: ko.observableArray(),
     onPostRender: function(elements) {

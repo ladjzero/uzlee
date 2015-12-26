@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
 import com.ladjzero.hipda.User;
@@ -94,9 +95,8 @@ public class ActivitySettings extends ActivityBase implements SharedPreferences.
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preference);
             mActivity = (ActivityBase) getActivity();
-            SharedPreferences pref = mActivity.getSettings();
+            final SharedPreferences pref = mActivity.getSettings();
 
-//			MultiSelectListPreference selectedForums = (MultiSelectListPreference) findPreference("selected_forums");
             List<Forum> forums = Core.getFlattenForums(mActivity);
 
             String[] forumNames = (String[]) CollectionUtils.collect(forums, new Transformer() {
@@ -112,9 +112,6 @@ public class ActivitySettings extends ActivityBase implements SharedPreferences.
                     return String.valueOf(((Forum) o).getFid());
                 }
             }).toArray(new String[0]);
-
-//			selectedForums.setEntries(forumNames);
-//			selectedForums.setEntryValues(forumIds);
 
             Preference logout = findPreference("logout");
             User me = Core.getUser();
@@ -202,6 +199,39 @@ public class ActivitySettings extends ActivityBase implements SharedPreferences.
                 public boolean onPreferenceClick(Preference preference) {
                     show(true);
                     return false;
+                }
+            });
+
+            Preference draftPref = findPreference("draft");
+            draftPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    String json = pref.getString("draft", "");
+
+                    if (json.length() > 0) {
+                        ActivityEdit.Draft draft = null;
+
+                        try {
+                            draft = JSON.parseObject(json, ActivityEdit.Draft.class);
+                        } catch (Exception e) {
+                        }
+
+                        if (draft != null) {
+                            Intent intent = new Intent(mActivity, ActivityEdit.class);
+                            intent.putExtra("tid", draft.tid);
+                            intent.putExtra("fid", draft.fid);
+                            intent.putExtra("pid", draft.pid);
+                            intent.putExtra("uid", draft.uid);
+                            intent.putExtra("no", draft.no);
+                            intent.putExtra("subject", draft.subject);
+                            intent.putExtra("message", draft.message);
+                            intent.putExtra("title", draft.activityTitle);
+
+                            startActivity(intent);
+                        }
+                    }
+
+                    return true;
                 }
             });
         }

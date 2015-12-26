@@ -64,27 +64,6 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
     }
 }
 
-.reply {
-    font-size: 0.6em;
-    border-radius: 3px;
-    padding: 6px;
-    margin-right: 6px;
-}
-
-@each $theme, $primary in $primaries {
-    .#{$theme} .reply {
-        background-color: $primary;
-    }
-}
-
-.day .reply {
-    color: white;
-}
-
-.night .reply {
-    color: $nightTextPrimary;
-}
-
 #post-list {
     li:last-child  {
         padding-bottom: $toolbar-height;
@@ -143,7 +122,9 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
             color: $nameColor;
 
             .is-lz {
-                text-decoration: underline;
+                font-weight: bolder;
+
+                &::before {content: '☺'}
             }
         }
     }

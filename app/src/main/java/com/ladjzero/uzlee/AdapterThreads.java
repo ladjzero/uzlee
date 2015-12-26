@@ -148,15 +148,8 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 		holder.title.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
 
 		if (mHighlightUnread) {
-			int commentBg = Utils.getThemeColor(context, R.attr.colorUnread);
-
-			int newCommentBg = Utils.changeColorSaturability(commentBg, isNew ?
-					(count > 50 ? 1f : 0.5f + 0.01f * count) :
-					0f);
-
-			holder.commentCount.setBackgroundColor(newCommentBg);
-//			holder.commentCount.setBackgroundResource(isNew ? R.color.commentNoBg : R.color.border);
-			holder.commentCount.setTextColor(mWhite);
+			holder.commentCount.setBackgroundColor(isNew ? mCommentBgColor : mUserNameColor);
+			holder.commentCount.setTextColor(Utils.getThemeColor(context, R.attr.colorTextInverse));
 			holder.commentCount.setText(String.valueOf(count));
 			holder.commentCount.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
 		} else {

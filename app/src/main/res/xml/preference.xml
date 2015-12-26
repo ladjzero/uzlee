@@ -62,12 +62,10 @@
             android:key="use_sig"
             android:title="使用签名" />
 
-        <ListPreference
-            android:defaultValue="2"
-            android:entries="@array/thread_sort_by"
-            android:entryValues="@array/thread_sort_values"
-            android:key="sort_thread"
-            android:title="草稿箱" />
+        <Preference
+            android:key="draft"
+            android:summary="打开上一次未保存的主题或回复"
+            android:title="恢复草稿" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="其他">

@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alibaba.fastjson.JSON;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.joanzapata.iconify.IconDrawable;
@@ -26,6 +28,8 @@ import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.Core;
 import com.nineoldandroids.animation.Animator;
 import com.r0adkll.slidr.Slidr;
+import com.r0adkll.slidr.model.SlidrConfig;
+import com.r0adkll.slidr.model.SlidrInterface;
 import com.rey.material.app.Dialog;
 
 import org.apache.commons.lang3.StringUtils;
@@ -53,8 +57,8 @@ public class ActivityEdit extends ActivityBase implements Core.OnRequestListener
 	private View mEmojiSelector;
 	private InputMethodManager mImeManager;
 	private boolean mIsAnimating = false;
-	private ActivityEdit that;
-	ProgressDialog progress;
+	Dialog progress;
+	boolean mSaveDraft = true;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -67,8 +71,6 @@ public class ActivityEdit extends ActivityBase implements Core.OnRequestListener
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
-		that = this;
-
 		intent = getIntent();
 
 		tid = intent.getIntExtra("tid", 0);
@@ -76,14 +78,20 @@ public class ActivityEdit extends ActivityBase implements Core.OnRequestListener
 		fid = intent.getIntExtra("fid", 0);
 		uid = intent.getIntExtra("uid", 0);
 		no = intent.getIntExtra("no", 0);
+
 		isNewThread = (tid == 0 && pid == 0);
 		isReplyToOne = (tid != 0 && pid != 0 && fid == 0);
 		isReply = (tid != 0 && pid == 0 && fid == 0);
 		isEdit = (tid != 0 && pid != 0 && fid != 0);
 
+		String title = intent.getStringExtra("title");
+		if (title != null) setTitle(title);
 
-//		mActionbar.setTitle(getIntent().getStringExtra("title"));
-		progress = new ProgressDialog(this);
+		progress = new Dialog(this)
+				.cancelable(false)
+				.contentView(R.layout.progress_circular)
+				.titleColor(Utils.getThemeColor(this, R.attr.colorText))
+				.backgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground));
 
 		Core.getExistedAttach(new Core.OnRequestListener() {
 			@Override
@@ -105,6 +113,12 @@ public class ActivityEdit extends ActivityBase implements Core.OnRequestListener
 
 		subjectInput = (TextView) findViewById(R.id.edit_title);
 		mMessageInput = (EditText) findViewById(R.id.edit_body);
+
+		String subject = intent.getStringExtra("subject");
+		String message = intent.getStringExtra("message");
+
+		if (subject != null) subjectInput.setText(subject);
+		if (message != null) mMessageInput.setText(message);
 
 		mMessageInput.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -135,7 +149,9 @@ public class ActivityEdit extends ActivityBase implements Core.OnRequestListener
 			}
 		}
 
-		if (isEdit) {
+		// If subject and message have content.
+		// This activity may be revived from a draft.
+		if (isEdit && subjectInput.length() == 0 && mMessageInput.length() == 0) {
 			progress.setTitle("载入中");
 			progress.show();
 
@@ -170,12 +186,25 @@ public class ActivityEdit extends ActivityBase implements Core.OnRequestListener
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.menu_reply, menu);
 
-		menu.findItem(R.id.reply_send).setIcon(new IconDrawable(this, MaterialIcons.md_send).colorRes(android.R.color.white).actionBarSize());
-		menu.findItem(R.id.reply_add_image).setIcon(new IconDrawable(this, MaterialIcons.md_image).colorRes(android.R.color.white).actionBarSize());
-		menu.findItem(R.id.reply_add_emoji).setIcon(new IconDrawable(this, MaterialIcons.md_tag_faces).colorRes(android.R.color.white).actionBarSize());
+		int color = Utils.getThemeColor(this, R.attr.colorTextInverse);
+		menu.findItem(R.id.reply_send)
+				.setIcon(new IconDrawable(this, MaterialIcons.md_send)
+						.color(color)
+						.actionBarSize());
+		menu.findItem(R.id.reply_add_image)
+				.setIcon(new IconDrawable(this, MaterialIcons.md_image)
+						.color(color)
+						.actionBarSize());
+		menu.findItem(R.id.reply_add_emoji)
+				.setIcon(new IconDrawable(this, MaterialIcons.md_tag_faces)
+						.color(color)
+						.actionBarSize());
 
 		if (fid != 0 && tid != 0 && pid != 0 && no != 1)
-			menu.findItem(R.id.delete_post).setIcon(new IconDrawable(this, MaterialIcons.md_delete).colorRes(android.R.color.white).actionBarSize());
+			menu.findItem(R.id.delete_post)
+					.setIcon(new IconDrawable(this, MaterialIcons.md_delete)
+							.color(color)
+							.actionBarSize());
 		else
 			menu.findItem(R.id.delete_post).setVisible(false);
 		return true;
@@ -247,7 +276,16 @@ public class ActivityEdit extends ActivityBase implements Core.OnRequestListener
 							Core.deletePost(fid, tid, pid, ActivityEdit.this);
 						}
 					})
+					.negativeActionClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							mDialog.dismiss();
+						}
+					})
+					.negativeAction("取消")
 					.positiveAction("确认")
+					.titleColor(Utils.getThemeColor(this, R.attr.colorText))
+					.backgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground))
 					.show();
 		} else if (id == R.id.reply_add_emoji) {
 			if (mEmojiSelector == null) {
@@ -323,10 +361,14 @@ public class ActivityEdit extends ActivityBase implements Core.OnRequestListener
 			Uri uri = imageReturnedIntent.getData();
 			File imageFile = new File(getRealPathFromURI(this, uri));
 
-			final Dialog mDialog = new Dialog(this, R.style.Material_App_Dialog_Simple_Light);
+			final Dialog mDialog = new Dialog(this);
 
-
-			mDialog.title("图片处理").show();
+			mDialog.title("图片处理")
+					.cancelable(false)
+					.contentView(R.layout.progress_circular)
+					.titleColor(Utils.getThemeColor(this, R.attr.colorText))
+					.backgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground))
+					.show();
 
 			new AsyncTask<File, Void, File>() {
 
@@ -388,6 +430,7 @@ public class ActivityEdit extends ActivityBase implements Core.OnRequestListener
 
 	@Override
 	public void onSuccess(String html) {
+		mSaveDraft = false;
 		Intent returnIntent = new Intent();
 		returnIntent.putExtra("html", html);
 		setResult(EDIT_SUCCESS, returnIntent);
@@ -413,5 +456,36 @@ public class ActivityEdit extends ActivityBase implements Core.OnRequestListener
 
 		mMessageInput.setText(temp);
 		mMessageInput.setSelection(start + emoji.length());
+	}
+
+	@Override
+	protected void onDestroy() {
+		if (mSaveDraft && (subjectInput.length() > 0 || mMessageInput.length() > 0)) {
+			Draft draft = new Draft();
+			draft.activityTitle = getTitle().toString();
+			draft.subject = subjectInput.getText().toString();
+			draft.message = mMessageInput.getText().toString();
+			draft.fid = fid;
+			draft.tid = tid;
+			draft.pid = pid;
+			draft.uid = uid;
+			draft.no = no;
+
+			String json = JSON.toJSONString(draft);
+			getSettings().edit().putString("draft", json).commit();
+		}
+
+		super.onDestroy();
+	}
+
+	public static class Draft {
+		public String activityTitle;
+		public String subject;
+		public String message;
+		public int tid;
+		public int fid;
+		public int pid;
+		public int uid;
+		public int no;
 	}
 }

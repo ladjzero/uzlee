@@ -82,7 +82,7 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 
 		if (id == R.id.thread_publish) {
 			Intent intent = new Intent(this, ActivityEdit.class);
-			intent.putExtra("title", "新主题");
+			intent.putExtra("title", Forum.findById(Core.getFlattenForums(this), mFid).getName());
 			intent.putExtra("fid", mFid);
 
 			startActivity(intent);
@@ -196,7 +196,12 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		getMenuInflater().inflate(R.menu.threads, menu);
 
 		final Integer typeId = mLastSelectedType.get(mFid);
-		List<Forum.Type> types = Forum.findById(Core.getFlattenForums(this), mFid).getTypes();
+		Forum selectedForum = Forum.findById(Core.getFlattenForums(this), mFid);
+		List<Forum.Type> types = null;
+
+		if (selectedForum != null) {
+			types = selectedForum.getTypes();
+		}
 
 		MenuItem menuType = menu.findItem(R.id.thread_types);
 
