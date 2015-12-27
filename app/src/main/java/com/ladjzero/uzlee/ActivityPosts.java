@@ -502,6 +502,11 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	public void onPosts(final Posts posts) {
 		mTitleView.setText(posts.getTitle());
 
+		for (Post p : posts) {
+			String timeStr = p.getTimeStr();
+			timeStr = Utils.prettyTime(timeStr);
+			p.setTimeStr(timeStr);
+		}
 
 		int totalPage = posts.getTotalPage(),
 				currPage = posts.getPage();

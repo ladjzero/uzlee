@@ -120,8 +120,6 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 		return true;
 	}
 
-	;
-
 	public void enableBackAction() {
 	}
 
@@ -241,7 +239,7 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 		}
 
 		return getSupportActionBar();
-	};
+	}
 
 	public String getVersion() {
 		try {

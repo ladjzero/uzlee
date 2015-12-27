@@ -1,5 +1,57 @@
 @import "uzlee.scss";
 
+.post::after {
+    content: '';
+    display: block;
+    background: #e8e8e8;
+    height: 1px;
+}
+
+.night .post::after {
+    background: #3e3e3e;
+}
+
+/* 1.25 dpr */
+@media
+ (-webkit-min-device-pixel-ratio: 1.25),
+ (min-resolution: 120dpi){
+    .post::after {
+        transform: scaleY(0.8);
+        transform-origin: 0 0;
+    }
+}
+
+/* 1.5 dpr */
+@media
+(-webkit-min-device-pixel-ratio: 1.5),
+(min-resolution: 144dpi){
+    .post::after {
+        transform: scaleY(0.666666);
+        transform-origin: 0 0;
+    }
+}
+
+/* 2 dpr */
+@media
+(-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+    .post::after {
+        transform: scaleY(0.5);
+        transform-origin: 0 0;
+    }
+}
+
+/* 3 dpr For iPhone 6 plus and similar devices */
+@media
+(-webkit-min-device-pixel-ratio: 3),
+(min-resolution: 3dppx), /* Default way */
+(min-resolution: 350dpi) /* dppx fallback */ {
+    .post::after {
+        transform: scaleY(0.333333);
+        transform-origin: 0 0;
+    }
+}
+
 
 strong i {
     font-style: normal;
@@ -64,14 +116,21 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
     }
 }
 
-#post-list {
+.night .name-and-date .name {
+    color: #585858;
+}
+
+.night .name-and-date .date {
+    color: #464646;
+}
+
     li:last-child  {
         padding-bottom: $toolbar-height;
     }
 
     .post-header {
         padding-top: 12px;
-
+    }
         .profile-wrapper {
             position: relative;
             width: $profile-height;
@@ -104,14 +163,14 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
             display: inline-block;
 
             .name {
-                color: $nameColor;
+                color: black;
                 font-size: 14px;
                 display: block;
                 line-height: 16px;
             }
 
             .date {
-                color: $dateColor;
+                color: #3e3e3e;
                 font-size: 10px;
                 line-height: 12px;
             }
@@ -119,7 +178,7 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
 
         .actions {
             float: right;
-            color: $nameColor;
+            color: #686868;
 
             .is-lz {
                 font-weight: bolder;
@@ -127,7 +186,6 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
                 &::before {content: '☺'}
             }
         }
-    }
 
     .body {
         img {
@@ -149,6 +207,5 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
             }
         }
     }
-}
 
 

@@ -25,7 +25,7 @@ public class EmojiUtils {
 	int px;
 
 	public EmojiUtils(Context context) {
-		this.context = context;
+		EmojiUtils.context = context;
 		px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 26, context.getResources().getDisplayMetrics());
 
 		for (String iconKey : Core.iconKeys) {

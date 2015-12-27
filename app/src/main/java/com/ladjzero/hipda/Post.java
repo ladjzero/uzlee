@@ -228,7 +228,7 @@ public class Post {
 		this.isLz = isLz;
 	}
 
-	public static enum BodyType {
+	public enum BodyType {
 		TXT,
 		IMG,
 		SIG,
