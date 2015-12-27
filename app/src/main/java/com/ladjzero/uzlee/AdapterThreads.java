@@ -35,7 +35,6 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 	ActivityBase context;
 	Core core;
 	private int mCommentBgColor;
-	private int mWhite;
 	private int mUserNameColor;
 	private boolean mHighlightUnread = true;
 	private float mFontSize;
@@ -49,7 +48,6 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 
 		Resources res = context.getResources();
 		mCommentBgColor = res.getColor(R.color.commentNoBg);
-		mWhite = res.getColor(android.R.color.white);
 		mUserNameColor = res.getColor(R.color.snow_darker);
 		mTheme = this.context.getSettings().getString("theme", ActivityBase.DefaultTheme);
 
@@ -148,7 +146,7 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 		holder.title.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
 
 		if (mHighlightUnread) {
-			holder.commentCount.setBackgroundColor(isNew ? mCommentBgColor : mUserNameColor);
+			holder.commentCount.setBackgroundColor(isNew ? Utils.getThemeColor(context, R.attr.colorUnread) : Utils.getThemeColor(context, R.attr.colorRead));
 			holder.commentCount.setTextColor(Utils.getThemeColor(context, R.attr.colorTextInverse));
 			holder.commentCount.setText(String.valueOf(count));
 			holder.commentCount.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);

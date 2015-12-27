@@ -170,6 +170,7 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 
 	@Override
 	public void onTypeSelect(int fid, int typeId) {
+		onUp(0);
 		Fragment fragment = mPagerAdapter.getCurrentFragment();
 		((FragmentNormalThreads) fragment).setTypeId(typeId);
 	}

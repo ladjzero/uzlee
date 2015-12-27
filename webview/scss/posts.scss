@@ -83,10 +83,6 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
     line-height: 1.6;
 }
 
-.night .body, .night [color] {
-    color: $nightTextPrimary
-}
-
 //* {outline: 1px solid blue}
 
 .pstatus {
@@ -96,6 +92,10 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
     font-size: 12px;
     color: gray;
     margin: 12px 0;
+}
+
+.night .pstatus {
+    color: $nightTextPrimary;
 }
 
 @each $theme, $primary in $primaries {
@@ -114,6 +114,11 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
     .#{$font_size} .body {
         font-size: $font_size_val;
     }
+}
+
+
+.night .body, .night [color], .night a {
+    color: $nightTextPrimary
 }
 
 .night .name-and-date .name {

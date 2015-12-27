@@ -11,6 +11,7 @@
         <item name="colorPrimary">@color/nightPrimary</item>
         <item name="actionMenuTextColor">@android:color/white</item>
         <item name="colorUnread">#f6708b</item>
+        <item name="colorRead">#c8c8c8</item>
         <item name="tabBarStyle">@style/TabBarStyle</item>
         <item name="colorTextInverse07">@color/dayTextInverse07</item>
     </style>
@@ -60,7 +61,6 @@
         <item name="android:textColor">@color/nightTextPrimary</item>
         <item name="android:textColorSecondary">@color/nightTextPrimary</item>
 
-        <item name="colorUnread">@color/nightTextPrimary</item>
         <item name="colorAccent">@color/nightTextPrimary</item>
         <item name="colorSecondary">@color/nightSecondary</item>
         <item name="colorPrimary">@color/nightPrimary</item>
@@ -73,6 +73,8 @@
         <item name="actionMenuTextColor">@color/nightTextPrimary</item>
         <item name="tabBarStyle">@style/TabBarStyle.Night</item>
         <item name="colorTextInverse07">@color/nightTextMinor</item>
+        <item name="colorUnread">@color/nightPrimary</item>
+        <item name="colorRead">@android:color/transparent</item>
     </style>
 
     <style name="AppBaseTheme.NoTransparent">
