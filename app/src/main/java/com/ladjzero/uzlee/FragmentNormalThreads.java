@@ -41,6 +41,11 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
     }
 
     @Override
+    public int layout() {
+        return R.layout.threads_can_refresh;
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
         Bundle args = getArguments();

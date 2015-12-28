@@ -16,7 +16,12 @@ public class FragmentSearchThreads extends FragmentThreadsAbs {
     public void updateSearch(String query) {
         mThreads.clear();
         mQuery = query;
-        fetchPageAt(1);
+        fetch(1);
+    }
+
+    @Override
+    public int layout() {
+        return R.layout.threads_can_refresh_no_padding_top;
     }
 
     @Override

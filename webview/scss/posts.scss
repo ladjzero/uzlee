@@ -7,6 +7,10 @@
     height: 1px;
 }
 
+.post:last-child::after {
+    content: none;
+}
+
 .night .post::after {
     background: #3e3e3e;
 }

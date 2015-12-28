@@ -87,6 +87,8 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 		mOnFetch = onFetch;
 	}
 
+	public abstract int layout();
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mActivity = (ActivityBase) getActivity();
@@ -111,7 +113,7 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 
 		mEnablePullToRefresh = args.getBoolean("enablePullToRefresh", true);
 
-		View rootView = inflater.inflate(R.layout.threads_can_refresh, container, false);
+		View rootView = inflater.inflate(layout(), container, false);
 		ButterKnife.bind(this, rootView);
 
 		if (this instanceof OnRefreshListener) {

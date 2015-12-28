@@ -13,10 +13,9 @@ import com.r0adkll.slidr.Slidr;
 import com.r0adkll.slidr.model.SlidrInterface;
 import com.rey.material.widget.ProgressView;
 
-public class ActivitySearch extends ActivityBase implements View.OnKeyListener, OnFetch {
+public class ActivitySearch extends ActivityBase implements View.OnKeyListener {
 
 	private FragmentSearchThreads mFragment;
-	private ProgressView proressbar;
 	protected SlidrInterface slidrInterface;
 
 
@@ -36,11 +35,7 @@ public class ActivitySearch extends ActivityBase implements View.OnKeyListener, 
 		actionbar.setDisplayShowCustomEnabled(true);
 		actionbar.setCustomView(LayoutInflater.from(this).inflate(R.layout.search_action_bar, null));
 
-		proressbar = (ProgressView) findViewById(R.id.progress_bar);
-		proressbar.setVisibility(View.GONE);
-
 		mFragment = new FragmentSearchThreads();
-		mFragment.setFetchListener(this);
 		Bundle args = new Bundle();
 //		bundle.putInt("dataSource", FragmentThreadsAbs.DATA_SOURCE_SEARCH);
 		args.putBoolean("enablePullToRefresh", false);
@@ -68,15 +63,5 @@ public class ActivitySearch extends ActivityBase implements View.OnKeyListener, 
 		}
 
 		return false;
-	}
-
-	@Override
-	public void fetchStart() {
-		proressbar.setVisibility(View.VISIBLE);
-	}
-
-	@Override
-	public void fetchEnd() {
-		proressbar.setVisibility(View.GONE);
 	}
 }

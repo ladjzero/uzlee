@@ -51,10 +51,11 @@ public class PostActionsAdapter extends ArrayAdapter{
 		View row = inflater.inflate(R.layout.bs_type_row, parent, false);
 		TextView icon = (TextView) row.findViewById(R.id.icon);
 		TextView text = (TextView) row.findViewById(R.id.text);
-		if (position == 0) {
+
+		if (position == 1) {
 			if (((ActivityPosts)context).orderType == 0) {
-				icon.setText(ICONS[0]);
-				text.setText(TYPES[0]);
+				icon.setText(ICONS[1]);
+				text.setText(TYPES[1]);
 			} else {
 				icon.setText("{fa-sort-numeric-asc}");
 				text.setText("顺序阅读");
