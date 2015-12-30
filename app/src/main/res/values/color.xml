@@ -24,10 +24,10 @@
     <color name="orangeSecondary">#efc56a</color>
     <color name="greenPrimary">#5dac81</color>
     <color name="greenSecondary">#8fd6af</color>
-    <color name="blueGreyPrimary">#2ea9df</color>
-    <color name="blueGreySecondary">#61bde6</color>
-    <color name="bluePrimary">#005caf</color>
-    <color name="blueSecondary">#5ea5e4</color>
+    <color name="blueGreyPrimary">#58b2dc</color>
+    <color name="blueGreySecondary">#81c6e6</color>
+    <color name="bluePrimary">#006284</color>
+    <color name="blueSecondary">#529ab3</color>
     <color name="darkPrimary">#434343</color>
     <color name="darkSecondary">#787878</color>
     <color name="purplePrimary">#8f77b5</color>

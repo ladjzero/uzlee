@@ -15,6 +15,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.ActionMode;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -394,8 +396,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				.contentView(mMenuView);
 
 		mMenuDialog.setCanceledOnTouchOutside(true);
-
-
 	}
 
 	@Override

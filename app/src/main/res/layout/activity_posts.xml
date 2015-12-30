@@ -50,7 +50,7 @@
                     android:minHeight="@dimen/toolbar_height"
                     android:onClick="onQuickReply"
                     android:text="{md-send}"
-                    android:textColor="@color/snow_dark"
+                    android:textColor="?attr/colorSecondary"
                     android:textSize="28sp" />
 
                 <com.rengwuxian.materialedittext.MaterialEditText

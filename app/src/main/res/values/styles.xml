@@ -19,41 +19,57 @@
     <style name="AppBaseTheme.Day.Red">
         <item name="colorSecondary">@color/redSecondary</item>
         <item name="colorPrimary">@color/redPrimary</item>
+        <item name="loginBg">@drawable/central_gradient_red</item>
+        <item name="android:actionModeBackground">@color/redPrimary</item>
     </style>
 
     <style name="AppBaseTheme.Day.Carrot">
         <item name="colorSecondary">@color/carrotSecondary</item>
         <item name="colorPrimary">@color/carrotPrimary</item>
+        <item name="loginBg">@drawable/central_gradient_carrot</item>
+        <item name="android:actionModeBackground">@color/carrotPrimary</item>
     </style>
 
     <style name="AppBaseTheme.Day.Orange">
         <item name="colorSecondary">@color/orangeSecondary</item>
         <item name="colorPrimary">@color/orangePrimary</item>
+        <item name="loginBg">@drawable/central_gradient_orange</item>
+        <item name="android:actionModeBackground">@color/orangePrimary</item>
     </style>
 
     <style name="AppBaseTheme.Day.Green">
         <item name="colorSecondary">@color/greenSecondary</item>
         <item name="colorPrimary">@color/greenPrimary</item>
+        <item name="loginBg">@drawable/central_gradient_green</item>
+        <item name="android:actionModeBackground">@color/greenPrimary</item>
     </style>
 
     <style name="AppBaseTheme.Day.BlueGrey">
         <item name="colorSecondary">@color/blueGreySecondary</item>
         <item name="colorPrimary">@color/blueGreyPrimary</item>
+        <item name="loginBg">@drawable/central_gradient_bluegrey</item>
+        <item name="android:actionModeBackground">@color/blueGreyPrimary</item>
     </style>
 
     <style name="AppBaseTheme.Day.Blue">
         <item name="colorSecondary">@color/blueSecondary</item>
         <item name="colorPrimary">@color/bluePrimary</item>
+        <item name="loginBg">@drawable/central_gradient_blue</item>
+        <item name="android:actionModeBackground">@color/bluePrimary</item>
     </style>
 
     <style name="AppBaseTheme.Day.Purple">
         <item name="colorSecondary">@color/purpleSecondary</item>
         <item name="colorPrimary">@color/purplePrimary</item>
+        <item name="loginBg">@drawable/central_gradient_purple</item>
+        <item name="android:actionModeBackground">@color/purplePrimary</item>
     </style>
 
     <style name="AppBaseTheme.Day.Dark">
         <item name="colorSecondary">@color/darkSecondary</item>
         <item name="colorPrimary">@color/darkPrimary</item>
+        <item name="loginBg">@drawable/central_gradient_dark</item>
+        <item name="android:actionModeBackground">@color/darkPrimary</item>
     </style>
 
     <style name="AppBaseTheme.Night">
@@ -74,7 +90,9 @@
         <item name="tabBarStyle">@style/TabBarStyle.Night</item>
         <item name="colorTextInverse07">@color/nightTextMinor</item>
         <item name="colorUnread">@color/nightPrimary</item>
+        <item name="loginBg">@drawable/central_gradient_night</item>
         <item name="colorRead">@android:color/transparent</item>
+        <item name="android:actionModeBackground">@color/nightPrimary</item>
     </style>
 
     <style name="AppBaseTheme.NoTransparent">

@@ -19,8 +19,10 @@ window.onScrollStateChange = function(state) {
 
 var linkClickHandler = function(e) {
     e.preventDefault();
-    e.cancelBubble = true;console.log(this.href);
-    UZLEE.onLinkClick(this.href);
+    e.cancelBubble = true;
+    if (getSelection().toString().length == 0) {
+        UZLEE.onLinkClick(this.href);
+    }
 };
 
 var imageClickHandler = function(e) {

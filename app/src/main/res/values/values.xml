@@ -2,6 +2,7 @@
 <resources>
     <attr name="dividerDrawable" format="reference" />
     <attr name="tabBarStyle" format="reference" />
+    <attr name="loginBg" format="reference" />
 
     <attr name="colorSecondary" format="color"></attr>
     <attr name="colorText" format="color"></attr>
