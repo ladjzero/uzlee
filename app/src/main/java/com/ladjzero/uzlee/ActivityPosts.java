@@ -670,20 +670,34 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			if (tid == null)
 				tid = uri.getQueryParameter("ptid");
 
-			int iTid = Utils.parseInt(tid),
-					iFid = Utils.parseInt(fid),
-					iPid = Utils.parseInt(pid),
-					iPage = Utils.parseInt(page);
+			int iTid = Utils.parseInt(tid);
+			int iFid = Utils.parseInt(fid);
+			final int iPid = Utils.parseInt(pid);
+			int iPage = Utils.parseInt(page);
 
 			if (iPage == 0) iPage = 1;
 
-			if (iTid > 0) {
-				Intent intent = new Intent(this, this.getClass());
-				intent.putExtra("tid", iTid);
-				intent.putExtra("fid", iFid);
-				intent.putExtra("pid", iPid);
-				intent.putExtra("page", iPage);
-				startActivity(intent);
+			if (iTid != 0) {
+				if (iTid == mTid && CollectionUtils.exists(mPosts, new Predicate() {
+					@Override
+					public boolean evaluate(Object o) {
+						return iPid == ((Post) o).getId();
+					}
+				})) {
+					mWebView.post(new Runnable() {
+						@Override
+						public void run() {
+							mWebView.loadUrl("javascript:scrollToPost(" + iPid + ")");
+						}
+					});
+				} else {
+					Intent intent = new Intent(this, this.getClass());
+					intent.putExtra("tid", iTid);
+					intent.putExtra("fid", iFid);
+					intent.putExtra("pid", iPid);
+					intent.putExtra("page", iPage);
+					startActivity(intent);
+				}
 
 				return;
 			}

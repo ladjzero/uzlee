@@ -106,6 +106,7 @@ window.removeAll = function () {
 };
 
 window.scrollToPost = function(pid) {
+    location.hash = '';
     location.hash = 'pid-' + pid;
 };
 
