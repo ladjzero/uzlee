@@ -2,6 +2,9 @@ module.exports = function(grunt) {
   var dest = '../app/src/main/assets/';
 
   grunt.initConfig({
+    clean: {
+      css: ['*.css']
+    },
     sass: {
       dist: {
         options: {
@@ -60,13 +63,13 @@ module.exports = function(grunt) {
     }
   });
 
+  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-sass');
   grunt.loadNpmTasks('grunt-postcss');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-contrib-clean');
 
-  grunt.registerTask('default', ['sass', 'postcss', 'cssmin', 'uglify', 'copy']);
+  grunt.registerTask('default', ['clean', 'sass', 'postcss', 'cssmin', 'uglify', 'copy']);
 
 };

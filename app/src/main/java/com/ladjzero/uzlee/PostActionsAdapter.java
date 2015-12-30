@@ -30,7 +30,7 @@ public class PostActionsAdapter extends ArrayAdapter{
 			"{md-autorenew}",
 			"{md-bookmark}",
 			"{md-link}",
-			"{md-launch}"
+			"{md-open-in-browser}"
 	};
 	public final static Icon[] ICON_VALUES = new Icon[] {
 			FontAwesomeIcons.fa_sort_numeric_desc,

@@ -453,69 +453,71 @@ public class Core {
 		String id = ePost.attr("id").substring(idPrefixLength);
 		Elements eBody = ePost.select("td.t_msgfont").tagName("div");
 
-		if (eBody.size() == 0) return new Post();
+		if (eBody.size() != 0) {
+			replaceQuoteLink(eBody.get(0));
+			findSig(eBody.get(0));
 
-		replaceQuoteLink(eBody.get(0));
-		findSig(eBody.get(0));
+			Elements imgPlaceHolders = eBody.select("span[id^=attach_]");
+			imgPlaceHolders.remove();
 
-		Elements imgPlaceHolders = eBody.select("span[id^=attach_]");
-		imgPlaceHolders.remove();
+			Elements imgDownloadLinks = eBody.select("div.t_attach");
+			imgDownloadLinks.remove();
 
-		Elements imgDownloadLinks = eBody.select("div.t_attach");
-		imgDownloadLinks.remove();
+			Elements newBody = new Elements();
+			newBody.addAll(eBody);
 
-		Elements newBody = new Elements();
-		newBody.addAll(eBody);
+			Elements attaches = ePost.select(".postattachlist");
 
-		Elements attaches = ePost.select(".postattachlist");
+			if (attaches.size() > 0) {
+				Elements attachImgs = attaches.select(".attachimg p>img");
+				newBody.addAll(attachImgs);
 
-		if (attaches.size() > 0) {
-			Elements attachImgs = attaches.select(".attachimg p>img");
-			newBody.addAll(attachImgs);
-
-			Elements otherAttaches = attaches.select(".attachname");
-			newBody.addAll(otherAttaches);
-		}
-
-
-		for (Element img : newBody.select("img")) {
-			String src = img.attr("file");
-
-			if (src.length() == 0) src = img.attr("src");
-
-			if (!src.startsWith("images/smilies/") &&
-					!src.endsWith("common/back.gif") &&
-					!src.endsWith("default/attachimg.gif") &&
-					!img.attr("width").equals("16")) {
-				img.addClass("content-image");
+				Elements otherAttaches = attaches.select(".attachname");
+				newBody.addAll(otherAttaches);
 			}
 
-			img.removeAttr("file")
-					.removeAttr("width")
-					.removeAttr("height")
-					.removeAttr("onclick")
-					.removeAttr("onmouseover");
 
-			if (!src.startsWith("http")) {
-				img.attr("src", "http://www.hi-pda.com/forum/" + src);
+			for (Element img : newBody.select("img")) {
+				String src = img.attr("file");
+
+				if (src.length() == 0) src = img.attr("src");
+
+				if (!src.startsWith("images/smilies/") &&
+						!src.endsWith("common/back.gif") &&
+						!src.endsWith("default/attachimg.gif") &&
+						!img.attr("width").equals("16")) {
+					img.addClass("content-image");
+				}
+
+				img.removeAttr("file")
+						.removeAttr("width")
+						.removeAttr("height")
+						.removeAttr("onclick")
+						.removeAttr("onmouseover");
+
+				if (!src.startsWith("http")) {
+					img.attr("src", "http://www.hi-pda.com/forum/" + src);
+				}
 			}
-		}
 
-		for (Element a : newBody.select("a")) {
-			String href = a.attr("href");
+			for (Element a : newBody.select("a")) {
+				String href = a.attr("href");
 
-			if (!href.startsWith("http")) {
-				a.attr("href", "http://www.hi-pda.com/forum/" + href);
+				if (!href.startsWith("http")) {
+					a.attr("href", "http://www.hi-pda.com/forum/" + href);
+				}
 			}
+
+			Elements styles = newBody.select("[style]");
+
+			for (Element style : styles) {
+				style.removeAttr("style");
+			}
+
+			post.setBody(newBody.outerHtml());
+		} else {
+			post.setBody("<div class=\"error\">作者被禁止或删除</div>");
 		}
-
-		Elements styles = newBody.select("[style]");
-
-		for (Element style : styles) {
-			style.removeAttr("style");
-		}
-
-		post.setBody(newBody.outerHtml());
 
 		String timeStr = ePost.select(".authorinfo > em").text();
 

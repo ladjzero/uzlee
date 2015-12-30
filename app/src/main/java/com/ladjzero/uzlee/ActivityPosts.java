@@ -123,8 +123,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	}
 
 	private void toggleQuickSend(boolean on) {
-		Resources res = getResources();
-		mQuickSend.setTextColor(on ? Utils.getThemeColor(this, R.attr.colorPrimary) : res.getColor(R.color.snow_dark));
+		mQuickSend.setTextColor(Utils.getThemeColor(this, on ? R.attr.colorPrimary : R.attr.colorSecondary));
 		mQuickSend.setClickable(on);
 	}
 
@@ -269,8 +268,23 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 						mIsFetching = false;
 
 						for (Post post : posts) {
-							if (post.getId() == 1) mThreadUserId = post.getAuthor().getId();
-							post.setIsLz(post.getAuthor().getId() == mThreadUserId);
+							if (post.getId() == 1) {
+								try {
+									mThreadUserId = post.getAuthor().getId();
+								} catch (Exception e) {
+									mThreadUserId = 0;
+								}
+							}
+
+							boolean isLz = false;
+
+							try {
+								isLz = post.getAuthor().getId() == mThreadUserId;
+							} catch (Exception e) {
+
+							}
+
+							post.setIsLz(isLz);
 						}
 
 						onPostsListener.onPosts(posts);
@@ -782,12 +796,26 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@Override
 	public void onPullDownToRefresh(PullToRefreshBase refreshView) {
+		mWebView.post(new Runnable() {
+			@Override
+			public void run() {
+				mWebView.loadUrl("javascript:removeAll();");
+			}
+		});
+
 		fetch(mPosts.getPage() - 1, ActivityPosts.this);
 		position = 0;
 	}
 
 	@Override
 	public void onPullUpToRefresh(PullToRefreshBase refreshView) {
+		mWebView.post(new Runnable() {
+			@Override
+			public void run() {
+				mWebView.loadUrl("javascript:removeAll();");
+			}
+		});
+
 		fetch(mPosts.getPage() + 1, ActivityPosts.this);
 		position = 0;
 	}

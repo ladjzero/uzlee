@@ -97,7 +97,7 @@ window.loadPosts = function(posts, removeAll) {
     });
 };
 
-window.addPost = function(post) {
+window.addPost = function(post) {console.log(JSON.stringify(post));
     model.posts.push(post);
 };
 

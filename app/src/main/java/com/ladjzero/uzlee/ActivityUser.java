@@ -32,22 +32,6 @@ public class ActivityUser extends ActivityBase {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_user);
 
-		Resources res = getResources();
-
-		bloodTheme = new int[]{
-				res.getColor(R.color.blood_darker),
-				res.getColor(R.color.blood_dark),
-				res.getColor(R.color.blood_primary),
-				res.getColor(R.color.blood_light)
-		};
-
-		grassTheme = new int[]{
-				res.getColor(R.color.grass_darker),
-				res.getColor(R.color.grass_dark),
-				res.getColor(R.color.grass_primary),
-				res.getColor(R.color.grass_light)
-		};
-
 		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 

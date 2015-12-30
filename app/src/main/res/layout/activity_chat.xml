@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    android:id="@+id/root"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -41,7 +40,7 @@
                     android:minHeight="@dimen/toolbar_height"
                     android:onClick="onQuickReply"
                     android:text="{md-send}"
-                    android:textColor="@color/snow_dark"
+                    android:textColor="?attr/colorSecondary"
                     android:textSize="28sp" />
 
                 <com.rengwuxian.materialedittext.MaterialEditText
@@ -52,8 +51,8 @@
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="12dp"
                     android:layout_marginRight="12dp"
-                    android:layout_toLeftOf="@+id/quick_send"
-                    android:hint="快速回复"
+                    android:layout_toLeftOf="@+id/send_message"
+                    android:hint="回复"
                     android:textSize="18sp"
                     app:met_primaryColor="?attr/colorPrimary" />
             </RelativeLayout>
