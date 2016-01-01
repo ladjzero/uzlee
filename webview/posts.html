@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <script src="knockout.js"></script>
+    <script src="on_scroll_listener.js"></script>
+    <script src="posts.js"></script>
+    <link href="posts.css" rel="stylesheet">
+</head>
+
+<body>
+<p id="hello" style="position: fixed"></p>
+<script type="text/html" id="post-template">
+    <div class="post-container">
+        <div class="post-header">
+            <div class="profile-wrapper"
+                 data-bind="click: $root.onProfileClick, clickBubble: false">
+                <span data-bind="text: author.name.charAt(0).toUpperCase()"></span>
+                <div class="profile"
+                     data-bind="attr: {id: 'uid-' + author.id}, style: {'background-image': 'url(' + author.image + ')'}"></div>
+            </div>
+            <div class="name-and-date">
+                <span class="name" data-bind="text: author.name"></span>
+                <span class="date" data-bind="text: timeStr"></span>
+            </div>
+            <div class="actions">
+                <span class="post-index"
+                      data-bind="text: postIndex + '#', css: {'is-lz' : $data.lz}"></span>
+            </div>
+        </div>
+        <p class="body" data-bind="html: body"></p>
+    </div>
+</script>
+
+<script type="text/html" id="posts-template">
+    <li data-bind="template: {name: 'post-template', data: post, afterRender: $root.onPostRender}, attr: {id: 'pid-' + id}, click: $root.onPostClick"
+        class="post"></li>
+</script>
+
+<ol id="post-list" class="unstyled"
+    data-bind="template: {name: 'posts-template', foreach: posts, as: 'post', afterRender: printTime}"></ol>
+
+<!--<script>console.log(Date.now())</script>-->
+<!-- <script src="posts_test.js"></script> -->
+</body>
+</html>

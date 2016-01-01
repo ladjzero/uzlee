@@ -5,7 +5,7 @@
     android:layout_centerVertical="true"
     android:padding="12dp">
 
-    <android.widget.IconTextView
+    <com.joanzapata.iconify.widget.IconTextView
         android:id="@+id/icon"
         android:layout_width="40dp"
         android:layout_height="wrap_content"
@@ -13,7 +13,7 @@
         android:layout_marginRight="6dp"
         android:gravity="center"
         android:text="{fa-tags}"
-        android:textColor="@color/dark_primary"
+        android:textColor="?attr/colorText"
         android:textSize="18dp"/>
 
     <TextView
@@ -22,6 +22,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:text="全部"
-        android:textColor="@color/dark_primary"
+        android:textColor="?attr/colorText"
         android:textSize="18dp"/>
 </LinearLayout>

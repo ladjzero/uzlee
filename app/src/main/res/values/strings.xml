@@ -46,4 +46,17 @@
     <item type="id" name="img_has_bitmap" />
     <item type="id" name="img_width_height" />
     <item type="id" name="img_progress" />
+
+	<string name="all_types">所有类别</string>
+	<string name="error_login_required">还没有登录</string>
+
+	<string name="red">鉛丹</string>
+	<string name="carrot">纁</string>
+	<string name="orange">櫨染</string>
+	<string name="green">若竹</string>
+	<string name="blueGrey">空</string>
+	<string name="blue">縹</string>
+	<string name="purple">紫苑</string>
+	<string name="dark">消炭</string>
+	<string name="night">夜</string>
 </resources>

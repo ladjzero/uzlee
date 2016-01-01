@@ -28,4 +28,48 @@
         <item>@android:color/white</item>
     </integer-array>
 
+    <string-array name="default_forums">
+        <item>6</item>
+        <item>2</item>
+        <item>7</item>
+        <item>59</item>
+        <item>9</item>
+    </string-array>
+
+    <string-array name="theme_color">
+        <item>@string/red</item>
+        <item>@string/carrot</item>
+        <item>@string/orange</item>
+        <item>@string/green</item>
+        <item>@string/blueGrey</item>
+        <item>@string/blue</item>
+        <item>@string/purple</item>
+        <item>@string/dark</item>
+        <item>@string/night</item>
+    </string-array>
+
+    <string-array name="theme_color_val">
+        <item>red</item>
+        <item>carrot</item>
+        <item>orange</item>
+        <item>green</item>
+        <item>blueGrey</item>
+        <item>blue</item>
+        <item>purple</item>
+        <item>dark</item>
+        <item>night</item>
+    </string-array>
+
+    <string-array name="font_size">
+        <item>正常</item>
+        <item>更大</item>
+        <item>比更大还更大</item>
+    </string-array>
+
+    <string-array name="font_size_val">
+        <item>normal</item>
+        <item>big</item>
+        <item>bigger</item>
+    </string-array>
+
 </resources>

@@ -1,20 +1,127 @@
 <resources>
 
-    <style name="AppBaseTheme.NoTransparent" parent="AppBaseTheme" >
+    <style name="AppBaseTheme.Day">
+        <item name="android:colorBackground">@android:color/white</item>
+        <item name="colorAccent">?attr/colorPrimary</item>
+        <item name="colorText">@color/dayTextPrimary</item>
+        <item name="colorTextMinor">@color/dayTextMinor</item>
+        <item name="colorTextInverse">@color/dayTextInverse</item>
+        <item name="dividerDrawable">@drawable/list_divider</item>
+        <item name="drawerArrowStyle">@style/DrawerArrowToggle</item>
+        <item name="colorPrimary">@color/nightPrimary</item>
+        <item name="actionMenuTextColor">@android:color/white</item>
+        <item name="colorUnread">#f6708b</item>
+        <item name="colorRead">#c8c8c8</item>
+        <item name="tabBarStyle">@style/TabBarStyle</item>
+        <item name="colorTextInverse07">@color/dayTextInverse07</item>
+    </style>
+
+    <style name="AppBaseTheme.Day.Red">
+        <item name="colorSecondary">@color/redSecondary</item>
+        <item name="colorPrimary">@color/redPrimary</item>
+        <item name="loginBg">@drawable/central_gradient_red</item>
+        <item name="android:actionModeBackground">@color/redPrimary</item>
+    </style>
+
+    <style name="AppBaseTheme.Day.Carrot">
+        <item name="colorSecondary">@color/carrotSecondary</item>
+        <item name="colorPrimary">@color/carrotPrimary</item>
+        <item name="loginBg">@drawable/central_gradient_carrot</item>
+        <item name="android:actionModeBackground">@color/carrotPrimary</item>
+    </style>
+
+    <style name="AppBaseTheme.Day.Orange">
+        <item name="colorSecondary">@color/orangeSecondary</item>
+        <item name="colorPrimary">@color/orangePrimary</item>
+        <item name="loginBg">@drawable/central_gradient_orange</item>
+        <item name="android:actionModeBackground">@color/orangePrimary</item>
+    </style>
+
+    <style name="AppBaseTheme.Day.Green">
+        <item name="colorSecondary">@color/greenSecondary</item>
+        <item name="colorPrimary">@color/greenPrimary</item>
+        <item name="loginBg">@drawable/central_gradient_green</item>
+        <item name="android:actionModeBackground">@color/greenPrimary</item>
+    </style>
+
+    <style name="AppBaseTheme.Day.BlueGrey">
+        <item name="colorSecondary">@color/blueGreySecondary</item>
+        <item name="colorPrimary">@color/blueGreyPrimary</item>
+        <item name="loginBg">@drawable/central_gradient_bluegrey</item>
+        <item name="android:actionModeBackground">@color/blueGreyPrimary</item>
+    </style>
+
+    <style name="AppBaseTheme.Day.Blue">
+        <item name="colorSecondary">@color/blueSecondary</item>
+        <item name="colorPrimary">@color/bluePrimary</item>
+        <item name="loginBg">@drawable/central_gradient_blue</item>
+        <item name="android:actionModeBackground">@color/bluePrimary</item>
+    </style>
+
+    <style name="AppBaseTheme.Day.Purple">
+        <item name="colorSecondary">@color/purpleSecondary</item>
+        <item name="colorPrimary">@color/purplePrimary</item>
+        <item name="loginBg">@drawable/central_gradient_purple</item>
+        <item name="android:actionModeBackground">@color/purplePrimary</item>
+    </style>
+
+    <style name="AppBaseTheme.Day.Dark">
+        <item name="colorSecondary">@color/darkSecondary</item>
+        <item name="colorPrimary">@color/darkPrimary</item>
+        <item name="loginBg">@drawable/central_gradient_dark</item>
+        <item name="android:actionModeBackground">@color/darkPrimary</item>
+    </style>
+
+    <style name="AppBaseTheme.Night">
+        <!--for setting page-->
+        <item name="android:textColor">@color/nightTextPrimary</item>
+        <item name="android:textColorSecondary">@color/nightTextPrimary</item>
+
+        <item name="colorAccent">@color/nightTextPrimary</item>
+        <item name="colorSecondary">@color/nightSecondary</item>
+        <item name="colorPrimary">@color/nightPrimary</item>
+        <item name="android:colorBackground">#353535</item>
+        <item name="colorText">@color/nightTextPrimary</item>
+        <item name="colorTextMinor">@color/nightTextMinor</item>
+        <item name="colorTextInverse">@color/nightTextPrimary</item>
+        <item name="dividerDrawable">@drawable/list_divider_night</item>
+        <item name="drawerArrowStyle">@style/DrawerArrowToggle.Night</item>
+        <item name="actionMenuTextColor">@color/nightTextPrimary</item>
+        <item name="tabBarStyle">@style/TabBarStyle.Night</item>
+        <item name="colorTextInverse07">@color/nightTextMinor</item>
+        <item name="colorUnread">@color/nightPrimary</item>
+        <item name="loginBg">@drawable/central_gradient_night</item>
+        <item name="colorRead">@android:color/transparent</item>
+        <item name="android:actionModeBackground">@color/nightPrimary</item>
+    </style>
+
+    <style name="AppBaseTheme.NoTransparent">
         <item name="android:windowIsTranslucent">false</item>
         <item name="android:windowBackground">@android:color/black</item>
     </style>
 
-    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppBaseTheme.Overlay">
+        <item name="android:windowActionBarOverlay">true</item>
+        <!-- Support library compatibility -->
+        <item name="windowActionBarOverlay">true</item>
+    </style>
+
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+
         <item name="android:windowAnimationStyle">@style/AppBaseTheme.WindowAnimation</item>
         <!--remove action bar shadow-->
         <item name="android:windowContentOverlay">@null</item>
+
+        <!--slidr-->
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>
 
-        <item name="colorPrimary">@color/dark_primary</item>
-        <item name="colorPrimaryDark">@color/dark_dark</item>
-        <item name="colorAccent">@android:color/holo_blue_light</item>
+        <!--prevent cab pushing toolbar down-->
+        <item name="windowActionModeOverlay">true</item>
+
+        <!--<item name="colorPrimary">@color/dark_primary</item>-->
         <!--<item name="android:actionOverflowButtonStyle">@style/AppBaseTheme.OverFlow</item>-->
     </style>
 
@@ -26,8 +133,8 @@
     </style>
 
     <style name="DeterminateLinearProgressDrawableStyle" parent="Material.Drawable.LinearProgress.Determinate">
-        <item name="lpd_strokeColor">@android:color/holo_blue_dark</item>
-        <item name="lpd_strokeSecondaryColor">@android:color/holo_blue_bright</item>
+        <item name="lpd_strokeColor">?attr/colorPrimary</item>
+        <item name="lpd_strokeSecondaryColor">@android:color/transparent</item>
         <item name="lpd_verticalAlign">top</item>
     </style>
 
@@ -36,4 +143,31 @@
     <!--</style>-->
 
     <style name="AppTheme" parent="AppBaseTheme"></style>
+
+    <style name="TabBarStyle" parent="@style/Base.TextAppearance.AppCompat.Subhead">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@drawable/tab_text</item>
+    </style>
+
+    <style name="TabBarStyle.Night" parent="@style/TabBarStyle">
+        <item name="android:textColor">@drawable/tab_text_night</item>
+    </style>
+
+    <style name="Toolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+    </style>
+
+    <style name="Toolbar.Night" parent="ThemeOverlay.AppCompat.ActionBar">
+    </style>
+
+    <style name="DrawerArrowToggle" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="color">@android:color/white</item>
+    </style>
+
+    <style name="DrawerArrowToggle.Night" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="color">@color/nightTextPrimary</item>
+    </style>
+
+    <style name="toolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:textColorPrimary">?attr/colorTextInverse</item>
+    </style>
 </resources>

@@ -1,14 +1,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/reply"
-        app:showAsAction="always"
-        android:title="more"/>
 
     <item
         android:id="@+id/more"
         app:showAsAction="always"
-        android:icon="@drawable/ic_more_vert_white_24dp"
-        android:title="more"/>
+        android:title="菜单"/>
 
 </menu>

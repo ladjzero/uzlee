@@ -13,5 +13,34 @@
     <color name="chat_me">#83c673</color>
     <color name="divider">#d9d9d9</color>
     <color name="greyBackground">#e7e7e7</color>
+    <color name="hipda">#7d7897</color>
+    <color name="hipda_light">#c97d7897</color>
+
+    <color name="redPrimary">#d75455</color>
+    <color name="redSecondary">#dc7374</color>
+    <color name="carrotPrimary">#ed784a</color>
+    <color name="carrotSecondary">#f49e7c</color>
+    <color name="orangePrimary">#dda52d</color>
+    <color name="orangeSecondary">#efc56a</color>
+    <color name="greenPrimary">#5dac81</color>
+    <color name="greenSecondary">#8fd6af</color>
+    <color name="blueGreyPrimary">#58b2dc</color>
+    <color name="blueGreySecondary">#81c6e6</color>
+    <color name="bluePrimary">#006284</color>
+    <color name="blueSecondary">#529ab3</color>
+    <color name="darkPrimary">#434343</color>
+    <color name="darkSecondary">#787878</color>
+    <color name="purplePrimary">#8f77b5</color>
+    <color name="purpleSecondary">#c1ace2</color>
+    <color name="nightPrimary">#1c1c1c</color>
+    <color name="nightSecondary">#5b5b5b</color>
+
+    <color name="dayTextPrimary">@android:color/black</color>
+    <color name="dayTextMinor">#3e3e3e</color>
+    <color name="dayTextInverse">@android:color/white</color>
+    <color name="dayTextInverse07">#7EFFFFFF</color>
+    <color name="nightTextPrimary">#585858</color>
+    <color name="nightTextMinor">#464646</color>
+    <color name="nightTextInverse">#585858</color>
 
 </resources>

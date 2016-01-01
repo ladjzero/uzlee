@@ -1,6 +1,5 @@
 package com.ladjzero.uzlee;
 
-import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.HashMap;
@@ -9,7 +8,6 @@ import java.util.regex.Matcher;
 
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -27,7 +25,7 @@ public class EmojiUtils {
 	int px;
 
 	public EmojiUtils(Context context) {
-		this.context = context;
+		EmojiUtils.context = context;
 		px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 26, context.getResources().getDisplayMetrics());
 
 		for (String iconKey : Core.iconKeys) {

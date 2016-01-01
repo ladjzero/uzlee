@@ -1,43 +1,144 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/snow_primary"
-
-    android:orientation="vertical">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="?android:attr/colorBackground"
+              android:clickable="true"
+              android:orientation="vertical">
 
     <RelativeLayout
         android:id="@+id/nav_user"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/snow_darker"
+        android:background="?attr/colorPrimary"
         android:clickable="true"
-        android:paddingBottom="10dp"
-        android:paddingLeft="20dp"
-        android:paddingTop="10dp">
+        android:paddingBottom="60dp"
+        android:paddingTop="24dp">
 
-
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/nav_user_image"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginRight="15dp"/>
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/icon"
+            app:border_color="?attr/colorTextInverse"
+            app:border_width="1dp"/>
 
         <TextView
             android:id="@+id/nav_user_name"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:gravity="center"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
-            android:layout_toRightOf="@+id/nav_user_image"/>
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/nav_user_image"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="12dp"
+            android:text="未登录"
+            android:textColor="?attr/colorTextInverse"
+            android:textSize="14sp"/>
     </RelativeLayout>
 
-    <ListView
-        android:id="@+id/nav_list"
+    <LinearLayout
+        android:id="@+id/message"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent"/>
+        android:layout_height="60dp"
+        android:orientation="horizontal"
+        android:paddingLeft="24dp">
+
+        <com.joanzapata.iconify.widget.IconTextView
+            android:id="@+id/alert_icon"
+            android:layout_width="24sp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="12dp"
+            android:gravity="center"
+            android:text="{md-notifications}"
+            android:textColor="?attr/colorText"
+            android:textSize="24sp"/>
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="消息"
+            android:textColor="?attr/colorText"
+            android:textSize="18sp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/my_posts"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:orientation="horizontal"
+        android:paddingLeft="24dp">
+
+        <com.joanzapata.iconify.widget.IconTextView
+            android:layout_width="24sp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="12dp"
+            android:gravity="center"
+            android:text="{md-mode-comment}"
+            android:textColor="?attr/colorText"
+            android:textSize="24sp"/>
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="我的主题"
+            android:textColor="?attr/colorText"
+            android:textSize="18sp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/search"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:orientation="horizontal"
+        android:paddingLeft="24dp">
+
+        <com.joanzapata.iconify.widget.IconTextView
+            android:layout_width="24sp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="12dp"
+            android:gravity="center"
+            android:text="{md-search}"
+            android:textColor="?attr/colorText"
+            android:textSize="24sp"/>
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="搜索"
+            android:textColor="?attr/colorText"
+            android:textSize="18sp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/settings"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:orientation="horizontal"
+        android:paddingLeft="24dp">
+
+        <com.joanzapata.iconify.widget.IconTextView
+            android:layout_width="24sp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="12dp"
+            android:gravity="center"
+            android:text="{md-settings}"
+            android:textColor="?attr/colorText"
+            android:textSize="24sp"/>
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="设置"
+            android:textColor="?attr/colorText"
+            android:textSize="18sp"/>
+
+    </LinearLayout>
 
 </LinearLayout>

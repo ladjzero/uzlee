@@ -10,76 +10,83 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-
-    <android:uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application
-        android:name="MyApplication"
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppBaseTheme">
+
+        <meta-data
+            android:name="TA_APPKEY"
+            android:value=""/>
+
         <activity
-            android:name=".MainActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/app_name"
-            android:theme="@style/AppBaseTheme.NoTransparent">
+            android:name=".ActivityLogin"
+            android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
         <activity
-            android:name=".PostsActivity"
+            android:name=".ActivityMain"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="">
-            <!--<intent-filter android:label="分享到  hi-pda">-->
-            <!--<action android:name="android.intent.action.SEND"/>-->
-
-            <!--<category android:name="android.intent.category.DEFAULT"/>-->
-
-            <!--<data android:mimeType="image/*"/>-->
-            <!--</intent-filter>-->
+            android:label="@string/app_name"
+            android:theme="@style/AppBaseTheme.NoTransparent">
         </activity>
         <activity
-            android:name=".EditActivity"
+            android:name=".ActivityPosts"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="">
+        </activity>
+        <activity
+            android:name=".ActivityEdit"
             android:label="@string/title_activity_reply"
             android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
-            android:name=".MyPostsActivity"
+            android:name=".ActivityMyPosts"
             android:label="@string/title_activity_my_posts">
         </activity>
         <activity
-            android:name=".SearchActivity"
+            android:name=".ActivitySearch"
             android:label="">
         </activity>
         <activity
-            android:name=".SettingActivity"
+            android:name=".ActivitySettings"
             android:label="设置">
         </activity>
         <activity
-            android:name=".AlertActivity"
+            android:name=".ActivityAlerts"
             android:label="消息">
         </activity>
         <activity
-            android:name=".UserActivity"
+            android:name=".ActivityUser"
             android:label="个人信息">
         </activity>
         <activity
-            android:name=".ThreadsActivity"
+            android:name=".ActivityUserThreads"
             android:label="@string/title_activity_threads">
         </activity>
         <activity
-            android:name=".ImageActivity"
-            android:label="图片">
-        </activity>
-        <activity
-            android:name=".ChatActivity"
+            android:name=".ActivityChat"
             android:label="聊天"
             android:windowSoftInputMode="stateHidden">
+        </activity>
+        <activity
+            android:name=".ActivityForumPicker"
+            android:label="板块">
+        </activity>
+        <activity
+            android:name=".ActivityAbout"
+            android:label="关于">
         </activity>
     </application>
 

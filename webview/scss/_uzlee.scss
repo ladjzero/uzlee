@@ -1,0 +1,69 @@
+$redPrimary       :#d75455;
+$redSecondary     :#dc7374;
+$carrotPrimary    :#ed784a;
+$carrotSecondary  :#f49e7c;
+$orangePrimary    :#dda52d;
+$orangeSecondary  :#efc56a;
+$greenPrimary     :#5dac81;
+$greenSecondary   :#8fd6af;
+$blueGreyPrimary  :#58b2dc;
+$blueGreySecondary:#81c6e6;
+$bluePrimary      :#006284;
+$blueSecondary    :#529ab3;
+$darkPrimary      :#434343;
+$darkSecondary    :#787878;
+$purplePrimary    :#8f77b5;
+$purpleSecondary  :#c1ace2;
+$nightPrimary     :#1c1c1c;
+$nightSecondary   :#5b5b5b;
+$nightTextPrimary :#585858;
+$nightTextMinor   :#464646;
+
+$themes: ('red', 'carrot', 'orange', 'green', 'blueGrey', 'blue', 'dark', 'purple', 'night');
+
+$fontSizes: (
+    'font-size-normal': 16px,
+    'font-size-big'   : 20px,
+    'font-size-bigger': 24px
+);
+
+$primaries: (
+    'red': $redPrimary,
+    'carrot': $carrotPrimary,
+    'orange': $orangePrimary,
+    'green': $greenPrimary,
+    'blueGrey': $blueGreyPrimary,
+    'blue': $bluePrimary,
+    'dark': $darkPrimary,
+    'purple': $purplePrimary,
+    'night': $nightPrimary
+);
+
+$profile-height: 38px;
+$toolbar-height: 48px;
+* {box-sizing: border-box;}
+body {word-wrap: break-word;}
+
+html body {
+    overflow-x: hidden;
+}
+
+.unstyled {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+ul.unstyled, ol.unstyled {
+    list-style: none;
+}
+
+.night {
+    img {
+        opacity: .6;
+    }
+
+    .profile-wrapper {
+        opacity: .6;
+    }
+}

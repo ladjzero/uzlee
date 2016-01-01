@@ -1,6 +1,5 @@
 package com.ladjzero.uzlee;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
@@ -146,17 +145,6 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 	}
 
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		try {
-			mListener = (OnFragmentInteractionListener) activity;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString()
-					+ " must implement OnFragmentInteractionListener");
-		}
-	}
-
-	@Override
 	public void onDetach() {
 		super.onDetach();
 		mListener = null;
@@ -166,7 +154,7 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Thread thread = (Thread) parent.getAdapter().getItem(position);
-		Intent intent = new Intent(getActivity(), PostsActivity.class);
+		Intent intent = new Intent(getActivity(), ActivityPosts.class);
 		intent.putExtra("tid", thread.getId());
 		intent.putExtra("title", thread.getTitle());
 		intent.putExtra("fid", thread.getFid());
@@ -198,7 +186,7 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 
 	@Override
 	public void onError(String error) {
-		((BaseActivity) getActivity()).showToast(error);
+		((ActivityBase) getActivity()).showToast(error);
 	}
 
 	/**
@@ -213,7 +201,7 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 	 */
 	public interface OnFragmentInteractionListener {
 		// TODO: Update argument type and name
-		public void onFragmentInteraction(String id);
+		void onFragmentInteraction(String id);
 	}
 
 }

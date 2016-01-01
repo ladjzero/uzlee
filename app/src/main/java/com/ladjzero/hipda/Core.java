@@ -1,6 +1,5 @@
 package com.ladjzero.hipda;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -8,10 +7,8 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
-import com.alibaba.fastjson.JSON;
-import com.ladjzero.uzlee.BaseActivity;
+import com.ladjzero.uzlee.R;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.PersistentCookieStore;
@@ -20,7 +17,6 @@ import com.loopj.android.http.TextHttpResponseHandler;
 import com.orhanobut.logger.Logger;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -28,8 +24,8 @@ import org.apache.http.cookie.Cookie;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
+import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
 import java.io.File;
@@ -40,15 +36,15 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.Map;
-import java.util.AbstractMap;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import de.greenrobot.event.EventBus;
 
 public class Core {
 	public final static int MAX_UPLOAD_LENGTH = 299 * 1024;
@@ -134,7 +130,7 @@ public class Core {
 	private static String formhash;
 	private static String hash;
 	private static Context context;
-	private static User user;
+	//	private static User user;
 	private static PersistentCookieStore cookieStore;
 	private static SharedPreferences pref;
 	private static String code = "GBK";
@@ -155,27 +151,29 @@ public class Core {
 		}
 	}
 
-	public static User getUser() {
-		if (user == null) {
-			user = new User().setId(pref.getInt("uid", 0)).setName(pref.getString("uname", ""));
+	private static void saveUser(int id, String name) {
+		if (pref != null) {
+			pref.edit().putInt("uid", id).putString("uname", name).commit();
 		}
-
-		return user;
 	}
 
-	public static void requestUpdate() {
+	public static User getUser() {
+		return new User().setId(pref.getInt("uid", 0)).setName(pref.getString("uname", ""));
+	}
+
+	public static void requestUpdate(final OnRequestListener l) {
 		httpClient.get(
 				context,
 				"https://raw.githubusercontent.com/ladjzero/uzlee/master/release/update.json",
 				new TextHttpResponseHandler() {
 					@Override
 					public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+						l.onError(s);
 					}
 
 					@Override
 					public void onSuccess(int i, Header[] headers, String s) {
-						UpdateInfo updateInfo = JSON.parseObject(s, UpdateInfo.class);
-						EventBus.getDefault().post(updateInfo);
+						l.onSuccess(s);
 					}
 				});
 	}
@@ -190,11 +188,14 @@ public class Core {
 			@Override
 			public void onSuccess(int i, Header[] headers, String s) {
 				getDoc(s);
+				int uid = pref.getInt("uid", 0);
+
+				if (uid == 0) return;
 
 				try {
 					RequestParams params = new RequestParams();
 					params.setContentEncoding(code);
-					params.put("uid", user.getId());
+					params.put("uid", pref.getInt("uid", 0));
 					params.put("hash", hash);
 					params.put("Filedata", imageFile);
 					params.put("filename", imageFile.getName());
@@ -251,7 +252,7 @@ public class Core {
 				}
 			}
 
-			EventBus.getDefault().post(new MessageEvent(msgCount));
+			pref.edit().putInt("unread", msgCount).commit();
 
 			Elements eUser = doc.select("#umenu > cite > a");
 			String uidHref = eUser.attr("href");
@@ -262,17 +263,11 @@ public class Core {
 				int id = Integer.valueOf(uid);
 				String name = eUser.text().trim();
 
-				user = new User().setId(id).setName(name);
+				saveUser(id, name);
 
-				pref.edit().putInt("uid", id).putString("uname", name).commit();
-
-				Logger.i("EventBus.StatusChangeEvent %d %s", user.getId(), user.getName());
 			} else {
-				user = null;
-				Logger.i("EventBus.StatusChangeEvent %d %s", 0, "null");
+				saveUser(0, "");
 			}
-
-			EventBus.getDefault().post(new UserEvent(user));
 		} catch (Error e) {
 			Logger.e(TAG, e.toString());
 		}
@@ -356,9 +351,7 @@ public class Core {
 			public void onSuccess(String html) {
 				Logger.i("logout succeed");
 
-				user = null;
-				EventBus.getDefault().post(new UserEvent(user));
-				EventBus.getDefault().post(new MessageEvent(0));
+				pref.edit().putInt("uid", 0).putString("uname", "").putInt("unread", 0).commit();
 
 				onRequestListener.onSuccess(html);
 
@@ -421,9 +414,10 @@ public class Core {
 		int i = 0;
 
 		for (Element ePost : ePosts) {
-			posts.add(toPostObj(ePost));
+			Post post;
+			posts.add(post = toPostObj(ePost));
 
-			if (onProgress != null) onProgress.progress(++i, ePosts.size());
+			if (onProgress != null) onProgress.progress(++i, ePosts.size(), post);
 		}
 
 		int currPage = 1;
@@ -445,36 +439,77 @@ public class Core {
 	}
 
 	private static Post toPostObj(Element ePost) {
-//		Logger.d("raw post %s", ePost.html());
-
 		int idPrefixLength = "pid".length();
 
 		Post post = new Post();
 
 		String id = ePost.attr("id").substring(idPrefixLength);
+		Elements eBody = ePost.select("td.t_msgfont").tagName("div");
 
-		Post quote = findQuote(ePost);
+		if (eBody.size() != 0) {
+			replaceQuoteLink(eBody.get(0));
+			findSig(eBody.get(0));
 
-		if (quote != null) {
-			post.setQuote(quote);
-		}
+			Elements imgPlaceHolders = eBody.select("span[id^=attach_]");
+			if (imgPlaceHolders.select("> img").size() > 0) imgPlaceHolders.remove();
 
-		Elements eBody = ePost.select("td.t_msgfont");
-		Post.NiceBody niceBody = new Post.NiceBody();
+			Elements imgDownloadLinks = eBody.select("div.t_attach");
+			imgDownloadLinks.remove();
 
-		if (eBody.size() == 0) {
-			niceBody.add(new AbstractMap.SimpleEntry<Post.BodyType, String>(Post.BodyType.TXT, "blocked!"));
+			Elements newBody = new Elements();
+			newBody.addAll(eBody);
+
+			Elements attaches = ePost.select(".postattachlist");
+
+			if (attaches.size() > 0) {
+				Elements attachImgs = attaches.select(".attachimg p>img");
+				newBody.addAll(attachImgs);
+
+				Elements otherAttaches = attaches.select(".attachname");
+				newBody.addAll(otherAttaches);
+			}
+
+
+			for (Element img : newBody.select("img")) {
+				String src = img.attr("file");
+
+				if (src.length() == 0) src = img.attr("src");
+
+				if (!src.startsWith("images/smilies/") &&
+						!src.endsWith("common/back.gif") &&
+						!src.endsWith("default/attachimg.gif") &&
+						!img.attr("width").equals("16")) {
+					img.addClass("content-image");
+				}
+
+				img.removeAttr("file")
+						.removeAttr("width")
+						.removeAttr("height")
+						.removeAttr("onclick")
+						.removeAttr("onmouseover");
+
+				if (!src.startsWith("http")) {
+					img.attr("src", "http://www.hi-pda.com/forum/" + src);
+				}
+			}
+
+			for (Element a : newBody.select("a")) {
+				String href = a.attr("href");
+
+				if (!href.startsWith("http")) {
+					a.attr("href", "http://www.hi-pda.com/forum/" + href);
+				}
+			}
+
+			Elements styles = newBody.select("[style]");
+
+			for (Element style : styles) {
+				style.removeAttr("style");
+			}
+
+			post.setBody(newBody.outerHtml());
 		} else {
-			ePost.select(".imgtitle a[href^=attachment.php?]").remove();
-			ePost.select(".t_attach a[href^=attachment.php?]").remove();
-
-			Elements eAttachments = ePost.select("a[href^=attachment.php?]");
-			Elements eAttachImages = ePost.select(".postattachlist img[file^=attachments/]");
-
-			niceBody = postprocessPostBody(
-					preprocessPostBody(eBody.get(0)),
-					eAttachments,
-					eAttachImages);
+			post.setBody("<div class=\"error\">作者被禁止或删除</div>");
 		}
 
 		String timeStr = ePost.select(".authorinfo > em").text();
@@ -494,167 +529,58 @@ public class Core {
 
 		User user = new User().setId(Integer.valueOf(userId)).setName(userName);
 
-		post.setId(Integer.valueOf(id)).setNiceBody(niceBody)
+		post.setId(Integer.valueOf(id))/*.setNiceBody(niceBody)*/
 				.setAuthor(user).setTimeStr(timeStr).setPostIndex(Integer.valueOf(postIndex));
-
-		for (Map.Entry<Post.BodyType, String> body : niceBody) {
-			if (body.getKey() == Post.BodyType.SIG) {
-				post.setSig(body.getValue());
-				break;
-			}
-		}
-
-		boolean isTxt = false;
-		int i = 0;
-		Post.BodyType type;
-
-		while (i < niceBody.size()) {
-			type = niceBody.get(i).getKey();
-
-			if (isTxt) {
-				isTxt = type == Post.BodyType.TXT;
-
-				if (isTxt) {
-					AbstractMap.SimpleEntry mergedEntry = new AbstractMap.SimpleEntry(Post.BodyType.TXT,
-							niceBody.get(i - 1).getValue() + niceBody.get(i).getValue());
-
-					niceBody.set(i - 1, mergedEntry);
-					niceBody.remove(i);
-				} else {
-					i++;
-				}
-			} else {
-				isTxt = type == Post.BodyType.TXT;
-				i++;
-			}
-		}
-
-		compress(niceBody);
 
 		return post;
 	}
 
-	private static void compress(Post.NiceBody niceBody) {
-		for (int i = 0; i < niceBody.size(); ) {
-			Map.Entry<Post.BodyType, String> body = niceBody.get(i);
+	private static void replaceQuoteLink(Element eBody) {
+		Elements quoteArrowIcon = eBody.select("blockquote > font[size=2] > a[href^=http://www.hi-pda.com/forum/redirect.php?goto=findpost]");
 
-			if (body.getKey() == Post.BodyType.TXT) {
-				String trimBody = body.getValue().trim();
+		if (quoteArrowIcon.size() > 0) {
+			quoteArrowIcon.get(0).html("查看");
+		}
+	}
 
-				if (trimBody.length() == 0) {
-					niceBody.remove(i);
+	private static void findSig(Element eBody) {
+		Elements children = eBody.children();
+
+		if (children.size() > 0) {
+			Element lastChild = children.last();
+
+			if (lastChild.tagName().equalsIgnoreCase("FONT") && lastChild.attr("size").equals("1")) {
+				lastChild.addClass("sig");
+
+				if (lastChild.select("font[color=Gray]").size() > 0) {
+					lastChild.addClass("sig-uzlee");
 				} else {
-					body.setValue(trimBody);
-					i++;
+					lastChild.addClass("sig-ios");
 				}
-			} else {
-				i++;
+			} else if (lastChild.tagName().equalsIgnoreCase("A") && lastChild.select("font[size=1]").size() > 0) {
+				lastChild.addClass("sig").addClass("sig-android");
+			} else if (lastChild.tagName().equalsIgnoreCase("IMG") && lastChild.attr("width").equals("16") && lastChild.attr("height").equals("16")) {
+				Element newChild = new Element(Tag.valueOf("span"), lastChild.baseUri());
+				lastChild.remove();
+				newChild.appendChild(lastChild);
+				newChild.addClass("sig").addClass("sig-wp");
+				eBody.appendChild(newChild);
 			}
 		}
 	}
 
-	private static Post findQuote(Element ePost) {
-		Elements eBlockQuote = ePost.select(".quote > blockquote"),
-				eSimpleReply = ePost.select("strong > a[href^=http://www.hi-pda.com/forum/redirect.php?goto=findpost]");
-
-		if (eBlockQuote.size() > 0) {
-			Elements eId = eBlockQuote.select("font[size=2] > a[href^=http://www.hi-pda.com/forum/redirect.php?goto=findpost]");
-
-			if (eId.size() > 0) {
-				Uri uri = Uri.parse(eId.attr("href"));
-				String id = uri.getQueryParameter("pid");
-
-				if (id != null && id.length() > 0) {
-					Post quote = new Post().setId(Integer.valueOf(id));
-
-					String userName = eBlockQuote.select("font[size=2] > font").text();
-					int _ = userName.indexOf("发表于");
-
-					if (_ > 0) {
-						userName = userName.substring(0, _).trim();
-						quote.setAuthor(new User().setName(userName));
-					} else {
-						quote.setAuthor(new User().setName(""));
-					}
-
-//					eBlockQuote.get(0).child(0).remove();
-//					eBlockQuote.select("font[size=2]").remove();
-
-					String content = eBlockQuote.text().trim();
-					quote.setBody(content);
-
-					return quote;
-				}
-			}
-		} else if (eSimpleReply.size() > 0) {
-			Uri uri = Uri.parse(eSimpleReply.attr("href"));
-			String id = uri.getQueryParameter("pid");
-
-			if (id != null && id.length() > 0) {
-				Post quote = new Post().setId(Integer.valueOf(id));
-
-				String quoteIndex = eSimpleReply.text().trim();
-
-				if (quoteIndex.endsWith("#")) {
-					quoteIndex = quoteIndex.substring(0, quoteIndex.length() - 1);
-					try {
-						quote.setPostIndex(Integer.valueOf(quoteIndex));
-					} catch (Exception e) {
-
-					}
-				}
-
-				String userName = eSimpleReply.get(0).parent().select("> i").text().trim();
-				quote.setAuthor(new User().setName(userName))
-						.setBody("");
-
-				eSimpleReply.get(0).parent().remove();
-
-				return quote;
-			}
-		}
-
-		return null;
-	}
-
-	@SuppressLint("DefaultLocale")
-	private static Element preprocessPostBody(Element eBody) {
-		// remove edit status
-		eBody.select("i.pstatus").remove();
-
-		// remove quote
-		Elements quote = eBody.select("div.quote");
-		for (Element q : quote) {
-			if (q.select("img[src=http://www.hi-pda.com/forum/images/common/back.gif]").size() > 0)
-				q.remove();
-		}
-
-		// remove reply
-		Element first = eBody.children().first();
-		if (first != null && first.tagName().toLowerCase().equals("strong")) {
-			first.remove();
-		}
-
-		// remove all image attachment links
-		Elements eImageAttaches = eBody.select("div.t_attach");
-		eImageAttaches.remove();
-
-		// remove all attachment icons
-		eBody.select("img[src^=images/attachicons]").remove();
-
-		return eBody;
-	}
-
-	public static Posts parseMessages(String html) {
+	public static String parseMessagesToHtml(String html) {
 		Posts posts = new Posts();
 		Document doc = getDoc(html);
-		Elements ePosts = doc.select("#pmlist > ul > li.s_clear");
+		Element ePosts = doc.select("#pmlist > .pm_list").first();
+		Elements avatars = ePosts.select("a.avatar > img");
 
-		for (Element ePost : ePosts) {
-			posts.add(toMessageObj(ePost));
+		for (Element avatar : avatars) {
+			String src = avatar.attr("src");
+			avatar.attr("src", src.replaceAll("_avatar_small", "_avatar_middle"));
 		}
 
-		return posts;
+		return ePosts == null ? "" : ePosts.outerHtml();
 	}
 
 	public static void sendMessage(String name, String message, final OnRequestListener onRequestListener) {
@@ -680,166 +606,6 @@ public class Core {
 								onRequestListener.onSuccess(s);
 							}
 						});
-	}
-
-	private static Post toMessageObj(Element ePost) {
-		Element eCite = ePost.select("> p.cite").first();
-		String name = eCite.select("> cite").text();
-		Element eUser = ePost.select("> a.avatar").get(0);
-		String uid = Uri.parse(eUser.attr("href")).getQueryParameter("uid");
-		String image = eUser.select("> img").attr("src");
-		String date = eCite.textNodes().get(1).text().trim();
-		Post.NiceBody niceBody = postprocessPostBody(ePost.select("> div.summary").get(0), null, null);
-
-		compress(niceBody);
-
-		return new Post().setNiceBody(niceBody)
-				.setTimeStr(date)
-				.setAuthor(
-						new User()
-								.setName(name)
-								.setId(uid == null ? user.getId() : Integer.valueOf(uid))
-								.setImage(image.replace("_small", "_middle"))
-				);
-	}
-
-	/**
-	 * Convert to String Array smartly. Prepend `txt:` to content string.
-	 * Prepend `img:` to image source. Try to return absolute image path.
-	 *
-	 * @param eBody
-	 * @param eAttachments
-	 * @return
-	 */
-	private static Post.NiceBody postprocessPostBody(Element eBody, Elements eAttachments, Elements eAttachImages) {
-		ArrayList<String> temps = new ArrayList<String>();
-		ArrayList<String> types = new ArrayList<String>();
-		Post.NiceBody bodies = new Post.NiceBody();
-//		StringBuilder sb = new StringBuilder();
-		String sbStr;
-
-		for (Node node : eBody.childNodes()) {
-			if (node instanceof TextNode) {
-				// Jsoup maps &nbsp; to \u00a0
-				String body = ((TextNode) node).text().replaceAll("\u00a0", " ").trim();
-				bodies.add(new AbstractMap.SimpleEntry(Post.BodyType.TXT, body));
-			} else {
-				Element e = (Element) node;
-				String tag = e.tagName();
-				String className = e.className();
-
-				if (tag.equals("a") && e.attr("target").equals("_blank")) {
-					String href = e.attr("href");
-					if (StringUtils.endsWithAny(href, "tid=1579403", "tid=1408844")) {
-						bodies.add(new AbstractMap.SimpleEntry(Post.BodyType.SIG, "{fa-android} HiPDA"));
-					} else {
-						String text = e.text().trim();
-						String link = e.attr("href").trim();
-						String body = text.equals(link) || StringUtils.startsWithAny(text, "http://", "https://") ? link : text + "  " + link;
-						body += "\r\n";
-
-						bodies.add(new AbstractMap.SimpleEntry(Post.BodyType.TXT, body));
-					}
-				} else if (tag.equals("br")) {
-					bodies.add(new AbstractMap.SimpleEntry(Post.BodyType.TXT, "\r\n"));
-				} else if (tag.equals("font") && e.attr("size").equals("1")) {
-					// Remove bad spaces of sig. (some bad people sign it)
-					String body = e.text().replaceAll("\u00a0", " ").trim();
-					bodies.add(new AbstractMap.SimpleEntry(Post.BodyType.SIG, body));
-				} else if (tag.equals("img") && e.attr("width").equals("16") && e.attr("height").equals("16")) {
-					bodies.add(new AbstractMap.SimpleEntry(Post.BodyType.SIG, "{fa-windows}"));
-				} else if (tag.equals("img")) {
-					String src = e.attr("src");
-
-					final String finalSrc = src;
-					String iconKey = (String) CollectionUtils.find(iconKeys, new Predicate() {
-						@Override
-						public boolean evaluate(Object o) {
-							return StringUtils.endsWith(finalSrc, (String) o);
-						}
-					});
-
-					if (iconKey != null) {
-						bodies.add(new AbstractMap.SimpleEntry(Post.BodyType.TXT, icons.get(iconKey)));
-					} else {
-
-						if (e.attr("file").length() != 0) {
-							src = e.attr("file");
-						}
-
-						if (!src.startsWith("http")) {
-							src = "http://www.hi-pda.com/forum/" + src;
-						}
-
-						bodies.add(new AbstractMap.SimpleEntry(Post.BodyType.IMG, src));
-					}
-				} else if (tag.equals("blockquote")) {
-					bodies.add(new AbstractMap.SimpleEntry(Post.BodyType.QUOTE,
-							e.text().replaceAll("\u00a0", " ").trim()));
-				} else if (tag.equals("font") || tag.equals("p") || tag.equals("strong") || tag.equals("div")) {
-					bodies.addAll(postprocessPostBody(e, null, null));
-				} else {
-					bodies.add(new AbstractMap.SimpleEntry(Post.BodyType.TXT,
-							e.text().replaceAll("\u00a0", " ").trim()));
-				}
-			}
-		}
-
-		if (eAttachImages != null) {
-			for (Element eImg : eAttachImages) {
-				String src = eImg.attr("file");
-
-				bodies.add(new AbstractMap.SimpleEntry(Post.BodyType.IMG,
-						src.startsWith("http") ? src : "http://www.hi-pda.com/forum/" + src));
-			}
-		}
-
-		if (eAttachments != null) {
-			for (Element eAtt : eAttachments) {
-				String url = BASE_URL + "/" + eAtt.attr("href");
-				String filename = eAtt.text();
-				Node eSize = eAtt.parent().nextSibling();
-				String size = "(? KB)";
-				if (eSize instanceof TextNode) {
-					size = ((TextNode) eSize).text();
-				} else {
-					eSize = eAtt.nextSibling();
-					if (eSize instanceof TextNode) size = ((TextNode) eSize).text();
-				}
-
-				bodies.add(new AbstractMap.SimpleEntry(Post.BodyType.ATT,
-						url + DIVIDER + filename + DIVIDER + size));
-			}
-		}
-
-//		boolean isTxt = false;
-//		int i = 0;
-//		String type;
-//
-//		while (i < temps.size()) {
-//			type = types.get(i);
-//
-//			if (isTxt) {
-//				isTxt = type.equals("txt");
-//
-//				if (isTxt) {
-//					temps.set(i, temps.get(i - 1) + temps.get(i));
-//					temps.remove(i);
-//					types.remove(i);
-//				} else {
-//					i++;
-//				}
-//			} else {
-//				isTxt = type.equals("txt");
-//				i++;
-//			}
-//		}
-//
-//		for (i = 0; i < temps.size(); ++i) {
-//			temps.set(i, types.get(i) + ":" + temps.get(i));
-//		}
-
-		return bodies;
 	}
 
 	public static void newThread(int fid, String subject, String message, ArrayList<Integer> attachIds, final OnRequestListener onRequestListener) {
@@ -1572,7 +1338,6 @@ public class Core {
 	}
 
 	/**
-	 *
 	 * If the length of image file is less than maxSize, quality will not be applied, and
 	 * image file will be returned directly.
 	 *
@@ -1636,7 +1401,7 @@ public class Core {
 
 				File tempDir = context.getCacheDir();
 				File tempFile = File.createTempFile("uzlee-compress", ".jpg", tempDir);
-				Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width , height, true);
+				Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
 				OutputStream os = new FileOutputStream(tempFile);
 				scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
 				os.close();
@@ -1655,7 +1420,6 @@ public class Core {
 	}
 
 	/**
-	 *
 	 * @param imageFile
 	 * @param maxSize
 	 * @param currentRate, 1.0f as the initial value.
@@ -1748,7 +1512,7 @@ public class Core {
 		void onImage(File imageFile);
 	}
 
-	public static class UserEvent{
+	public static class UserEvent {
 		public User user;
 
 		public UserEvent(User user) {
@@ -1765,7 +1529,7 @@ public class Core {
 	}
 
 //	public static class PostsRet {
-//		public ArrayList<Post> posts;
+//		public ArrayList<Post> activity_posts;
 //		public boolean hasNextPage;
 //		public int page;
 //		public int totalPage;
@@ -1802,12 +1566,55 @@ public class Core {
 	}
 
 	public interface OnProgress {
-		void progress(int current, int total);
+		void progress(int current, int total, Object o);
 	}
 
 	public static class ThreadsRet {
 		public ArrayList<Thread> threads;
 		public boolean hasNextPage;
 		public int page;
+	}
+
+	private static List<Forum> mForums = null;
+
+	public static List<Forum> getForums(Context context) {
+		if (mForums == null) {
+			mForums = Forum.buildFromJSON(context);
+		}
+
+		return mForums;
+	}
+
+	public static List<Forum> getFlattenForums(Context context) {
+		return Forum.flatten(getForums(context));
+	}
+
+	public static List<Forum> getSelectedForums(Context context) {
+		Collection<Integer> selected = CollectionUtils.collect(Arrays.asList(pref.getString("selected_forums", "").split(",")), new Transformer() {
+			@Override
+			public Object transform(Object o) {
+				try {
+					return Integer.valueOf((String) o);
+				} catch (Exception e) {
+					return -1;
+				}
+			}
+		});
+
+		if (selected.size() == 0 || selected.contains(-1)) {
+			List<String> selectedStrs = Arrays.asList(
+					context.getResources().getStringArray(R.array.default_forums));
+
+			selected = CollectionUtils.collect(selectedStrs, new Transformer() {
+				@Override
+				public Object transform(Object o) {
+					return Integer.valueOf((String) o);
+				}
+			});
+
+			pref.edit().putString("selected_forums", StringUtils.join(selectedStrs, ','));
+		}
+
+		return Forum.findByIds(getForums(context), selected);
 	}
 }

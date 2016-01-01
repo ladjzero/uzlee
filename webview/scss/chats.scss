@@ -1,0 +1,142 @@
+@import "uzlee.scss";
+
+body {
+    margin: 0;
+    padding-bottom: $toolbar-height;
+}
+
+ul.pm_list {
+    list-style: none;
+    padding: 0;
+
+    & > li {
+        margin: 12px;
+    }
+}
+
+@each $theme, $primary in $primaries {
+    .#{$theme} .self div.summary {
+        background: $primary;
+        color: white;
+
+        a {color: white}
+
+        &::after {
+            border-left-color: $primary;
+        }
+    }
+}
+
+.night li.s_clear .summary {
+    background: $nightPrimary;
+    color: $nightTextPrimary;
+
+    a {color: $nightTextPrimary;}
+
+    &::before {
+        border-right-color: $nightPrimary;
+    }
+}
+
+li.s_clear {
+    & > * {
+        float: left;
+    }
+
+    &.self > * {
+        float: right;
+    }
+
+    &::before, &::after {
+        content: ' ';
+        display: block;
+        clear: both;
+    }
+
+    a.avatar > img {
+        width: $profile-height;
+        height: $profile-height;
+    }
+
+  
+
+    div.summary {
+        $bg: #E2E2E2;
+
+        display: inline-block;
+        position: relative;
+        padding: 12px;
+        line-height: 1.5;
+        border-radius: 5px;
+        max-width: 60%;
+        background: $bg;
+        margin-left: 12px;
+        margin-right: 0;
+
+        img {
+            max-width: 100%;
+        }
+
+        &::before {
+            content: ' ';
+            display: block;
+            position: absolute;
+            left: -12px;
+            top: 12px;
+            border-width: 6px;
+            border-right-color: $bg;
+            border-style: solid;
+            border-top-color: transparent;
+            border-left-color: transparent;
+            border-bottom-color: transparent;
+        }
+    }
+
+    &.self div.summary {
+        margin-right: 12px;
+        margin-left: 0;
+
+        &::before {
+            display: none;
+        }
+
+        &::after {
+            content: ' ';
+            display: block;
+            position: absolute;
+            right: -12px;
+            top: 12px;
+            border-width: 6px;
+            border-style: solid;
+            border-top-color: transparent;
+            border-right-color: transparent;
+            border-bottom-color: transparent;
+        }
+    }
+}
+
+li.pm_date {
+    text-align: center;
+    font-size: 12px;
+
+    strong {
+        background: #c8c8c8;
+        padding: 4px;
+        color: white;
+        border-radius: 3px;
+    }
+}
+
+.night li.pm_date strong {
+    background: $nightPrimary;
+    color: $nightTextPrimary;
+}
+
+span.action {
+    display: none;
+}
+
+p.cite {
+    display: none;
+}
+

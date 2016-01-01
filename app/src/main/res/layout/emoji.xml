@@ -5,13 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="180dp"
     android:layout_alignParentBottom="true"
-    android:background="@android:color/white"
+    android:background="?attr/colorPrimary"
+    android:paddingTop="1dp"
     android:visibility="gone">
 
     <com.wefika.flowlayout.FlowLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
+        android:background="?android:attr/colorBackground"
         android:orientation="horizontal">
 
         <ImageView

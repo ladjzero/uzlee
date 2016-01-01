@@ -3,6 +3,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
+    <ProgressBar
+        android:id="@+id/spinner"
+        style="?android:attr/progressBarStyle"
+        android:padding="8dp"
+        android:layout_width="@dimen/toolbar_height"
+        android:layout_height="@dimen/toolbar_height"
+        android:layout_centerInParent="true"/>
+
     <com.lb.auto_fit_textview.AutoResizeTextView
         android:id="@+id/title"
         android:layout_width="match_parent"

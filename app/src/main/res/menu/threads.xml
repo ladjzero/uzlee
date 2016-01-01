@@ -1,16 +1,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
-      tools:context="com.ladjzero.uzlee.MainActivity">
+      tools:context="com.ladjzero.uzlee.ActivityMain">
 
     <item
-        android:id="@+id/thread_sort"
-        android:title="sort"
+        android:id="@+id/thread_types"
+        android:title="@string/all_types"
         app:showAsAction="always"/>
 
     <item
         android:id="@+id/thread_publish"
-        android:title="new thread"
+        android:title="新主题"
         app:showAsAction="always"/>
 
 </menu>

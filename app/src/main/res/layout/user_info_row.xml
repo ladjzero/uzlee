@@ -2,15 +2,15 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
-             android:background="@color/divider"
+             android:background="?attr/colorSecondary"
              android:paddingTop="1px">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/white">
+        android:background="?android:attr/colorBackground">
 
-        <android.widget.IconTextView
+        <com.joanzapata.iconify.widget.IconTextView
             android:id="@+id/key"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
@@ -18,10 +18,10 @@
             android:paddingBottom="14dp"
             android:paddingTop="14dp"
             android:text="TextView"
-            android:textColor="@color/dark_primary"
+            android:textColor="?attr/colorText"
             android:textSize="16sp"/>
 
-        <android.widget.IconTextView
+        <com.joanzapata.iconify.widget.IconTextView
             android:id="@+id/more"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -29,10 +29,10 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="12dp"
             android:text="{fa-angle-right}"
-            android:textColor="@color/dark_light"
+            android:textColor="?attr/colorTextMinor"
             android:textSize="24sp"/>
 
-        <android.widget.IconTextView
+        <com.joanzapata.iconify.widget.IconTextView
             android:id="@+id/value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -42,7 +42,7 @@
             android:paddingBottom="14dp"
             android:paddingTop="14dp"
             android:text="TextView"
-            android:textColor="@color/dark_primary"
+            android:textColor="?attr/colorText"
             android:textSize="16sp"/>
     </RelativeLayout>
 </FrameLayout>

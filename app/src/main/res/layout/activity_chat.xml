@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar"></include>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <WebView
+            android:id="@+id/webview"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"/>
+
+        <LinearLayout
+            android:id="@+id/chat_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:alpha="0.97"
+            android:background="?attr/colorPrimary"
+            android:paddingTop="1px">
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="@dimen/toolbar_height"
+                android:background="?android:attr/colorBackground">
+
+                <com.joanzapata.iconify.widget.IconTextView
+                    android:id="@+id/send_message"
+                    android:layout_width="@dimen/toolbar_height"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:gravity="center"
+                    android:minHeight="@dimen/toolbar_height"
+                    android:onClick="onQuickReply"
+                    android:text="{md-send}"
+                    android:textColor="?attr/colorSecondary"
+                    android:textSize="28sp" />
+
+                <com.rengwuxian.materialedittext.MaterialEditText
+                    android:id="@+id/message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="false"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_toLeftOf="@+id/send_message"
+                    android:hint="回复"
+                    android:textSize="18sp"
+                    app:met_primaryColor="?attr/colorPrimary" />
+            </RelativeLayout>
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>
