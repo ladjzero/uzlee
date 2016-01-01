@@ -75,12 +75,14 @@ document.addEventListener('DOMContentLoaded', function () {
     var queries = parseQueryString();
     var theme = queries.theme;
     var fontsize = queries.fontsize;
+    var showSig = queries.showsig;
 
     var bodyClassList = document.body.classList;
 
     bodyClassList.add(theme);
     bodyClassList.add('night' == theme ? 'night' : 'day');
     bodyClassList.add('font-size-' + fontsize);
+    showSig == 'true' && bodyClassList.add('show-sig');
 
     console.log("theme " + theme + ", fontsize " + fontsize);
 

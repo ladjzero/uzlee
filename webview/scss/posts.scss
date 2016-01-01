@@ -72,10 +72,14 @@ body {
     font-size: inherit;
 }
 
-.sig {
+.show-sig .sig {
     display: block;
     text-align: right;
     font-size: 12px;
+}
+
+.sig {
+    display: none;
 }
 
 img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {

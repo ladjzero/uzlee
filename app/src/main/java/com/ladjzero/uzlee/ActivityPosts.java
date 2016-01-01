@@ -419,9 +419,10 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	public String getHTMLFilePath() {
 		SharedPreferences setting = getSettings();
 
-		return "file:///android_asset/posts.html?theme=" +
-				setting.getString("theme", DefaultTheme) +
-				"&fontsize=" + setting.getString("font_size", "normal");
+		return "file:///android_asset/posts.html" +
+				"?theme=" + setting.getString("theme", DefaultTheme) +
+				"&fontsize=" + setting.getString("font_size", "normal") +
+				"&showsig=" + setting.getBoolean("show_sig", false);
 	}
 
 	@Override
@@ -455,7 +456,13 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mQuickSend.setText("{md-refresh spin}");
 		mQuickSend.setClickable(false);
 
-		sendReply(mTid, mQuickEdit.getText().toString(), null, null, new OnRequestListener() {
+		String reply = mQuickEdit.getText().toString();
+
+		if (getSettings().getBoolean("use_sig", false)) {
+			reply += "[size=1][color=Gray]有只梨[/color][/size]";
+		}
+
+		sendReply(mTid, reply, null, null, new OnRequestListener() {
 			private void reset() {
 				mQuickSend.setClickable(true);
 				mQuickEdit.setEnabled(true);

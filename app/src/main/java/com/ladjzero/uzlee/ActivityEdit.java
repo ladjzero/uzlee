@@ -1,6 +1,5 @@
 package com.ladjzero.uzlee;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -10,7 +9,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,8 +26,6 @@ import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.Core;
 import com.nineoldandroids.animation.Animator;
 import com.r0adkll.slidr.Slidr;
-import com.r0adkll.slidr.model.SlidrConfig;
-import com.r0adkll.slidr.model.SlidrInterface;
 import com.rey.material.app.Dialog;
 
 import org.apache.commons.lang3.StringUtils;
@@ -229,7 +225,8 @@ public class ActivityEdit extends ActivityBase implements Core.OnRequestListener
 					progress.setTitle("发送");
 					progress.show();
 
-					message += "\t\t\t[size=1][color=Gray]" + sig + "[/color][/size]";
+					if (sig.length() > 0)
+						message += "\t\t\t[size=1][color=Gray]" + sig + "[/color][/size]";
 
 					Core.newThread(fid, subject, message, attachIds, this);
 				}
