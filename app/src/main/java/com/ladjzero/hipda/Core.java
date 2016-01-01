@@ -1,6 +1,5 @@
 package com.ladjzero.hipda;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -9,7 +8,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
-import com.alibaba.fastjson.JSON;
 import com.ladjzero.uzlee.R;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -19,7 +17,6 @@ import com.loopj.android.http.TextHttpResponseHandler;
 import com.orhanobut.logger.Logger;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -27,12 +24,9 @@ import org.apache.http.cookie.Cookie;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
-import org.jsoup.parser.Parser;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
-import org.jsoup.select.Evaluator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,14 +35,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -169,18 +161,19 @@ public class Core {
 		return new User().setId(pref.getInt("uid", 0)).setName(pref.getString("uname", ""));
 	}
 
-	public static void requestUpdate() {
+	public static void requestUpdate(final OnRequestListener l) {
 		httpClient.get(
 				context,
 				"https://raw.githubusercontent.com/ladjzero/uzlee/master/release/update.json",
 				new TextHttpResponseHandler() {
 					@Override
 					public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
+						l.onError(s);
 					}
 
 					@Override
 					public void onSuccess(int i, Header[] headers, String s) {
-						pref.edit().putString("updateInfo", s).commit();
+						l.onSuccess(s);
 					}
 				});
 	}
@@ -458,7 +451,7 @@ public class Core {
 			findSig(eBody.get(0));
 
 			Elements imgPlaceHolders = eBody.select("span[id^=attach_]");
-			imgPlaceHolders.remove();
+			if (imgPlaceHolders.select("> img").size() > 0) imgPlaceHolders.remove();
 
 			Elements imgDownloadLinks = eBody.select("div.t_attach");
 			imgDownloadLinks.remove();

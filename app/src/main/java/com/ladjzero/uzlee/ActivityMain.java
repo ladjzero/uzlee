@@ -295,33 +295,6 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		super.onStop();
 	}
 
-	public void onInfoClick(View view) {
-		final MaterialDialog mMaterialDialog = new MaterialDialog(this);
-		mMaterialDialog.setCanceledOnTouchOutside(true);
-
-		final View v = getLayoutInflater().inflate(R.layout.about, null);
-		WebView webView = (WebView) v.findViewById(R.id.about_webView);
-		webView.loadUrl("https://cdn.rawgit.com/ladjzero/uzlee/master/release/readme.html");
-		webView.setWebViewClient(new WebViewClient() {
-			@Override
-			public boolean shouldOverrideUrlLoading(WebView view, String url) {
-				view.loadUrl(url);
-				return true;
-			}
-		});
-
-		mMaterialDialog.setContentView(v);
-		mMaterialDialog.setPositiveButton("检查更新", new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mMaterialDialog.dismiss();
-				Core.requestUpdate();
-			}
-		});
-		mMaterialDialog.show();
-
-	}
-
 	@Override
 	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 		Logger.d("ActivityMain onPageScrolled position %d", position);

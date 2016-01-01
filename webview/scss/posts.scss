@@ -69,10 +69,6 @@ body {
     margin: 0 12px;
 }
 
-br + br {
-    display: none;
-}
-
 [size] {
     font-size: inherit;
 }
@@ -195,8 +191,6 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
 
             .is-lz {
                 font-weight: bolder;
-
-                &::before {content: '☺'}
             }
         }
 

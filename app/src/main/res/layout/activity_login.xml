@@ -23,6 +23,8 @@
         android:layout_marginRight="12dp"
         android:layout_marginTop="12dp"
         android:padding="12dp"
+        android:shadowColor="?attr/colorTextInverse07"
+        android:shadowRadius="4"
         android:text="注册"
         android:textColor="?attr/colorTextMinor"/>
 
@@ -35,6 +37,8 @@
         android:layout_marginLeft="12dp"
         android:layout_marginTop="12dp"
         android:padding="12dp"
+        android:shadowColor="?attr/colorTextInverse07"
+        android:shadowRadius="4"
         android:text="游客访问"
         android:textColor="?attr/colorTextMinor"/>
 
@@ -109,7 +113,7 @@
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
             android:text="登录"
-            android:textColor="@android:color/white"
+            android:textColor="?attr/colorTextInverse"
             android:textSize="16dp"
             app:rd_cornerRadius="3dp"
             app:rd_enable="true"

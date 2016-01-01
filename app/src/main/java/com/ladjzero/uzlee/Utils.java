@@ -221,6 +221,12 @@ public class Utils {
         gotoActivity(current, next, Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_NEW_TASK);
     }
 
+    public static void gotoActivity(Activity current, Class next) {
+        Intent intent = new Intent(current, next);
+        current.startActivity(intent);
+        current.finish();
+    }
+
     public static void gotoActivity(Activity current, Class next, int flags) {
         Intent intent = new Intent(current, next);
         intent.setFlags(flags);

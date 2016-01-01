@@ -15,6 +15,8 @@ import android.widget.TextView;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.User;
 import com.rey.material.widget.Spinner;
+import com.tencent.stat.StatConfig;
+import com.tencent.stat.StatService;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -34,7 +36,7 @@ public class ActivityLogin extends ActionBarActivity {
 		Core.login(name.getText().toString(), passwd.getText().toString(), spn.getSelectedItemPosition(), answer.getText().toString(), new Core.OnRequestListener() {
 			@Override
 			public void onError(String error) {
-
+				Utils.showToast(ActivityLogin.this, "登录失败");
 			}
 
 			@Override
@@ -60,7 +62,7 @@ public class ActivityLogin extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle bundle) {
 		SharedPreferences setting = PreferenceManager.getDefaultSharedPreferences(this);
-		String themeColor = setting.getString("theme", "purple");
+		String themeColor = setting.getString("theme", ActivityBase.DefaultTheme);
 		setTheme(Utils.getTheme(themeColor));
 
 		super.onCreate(bundle);
@@ -87,7 +89,7 @@ public class ActivityLogin extends ActionBarActivity {
 			});
 		}
 
-//		StatConfig.setDebugEnable(true);
-//		StatService.trackCustomEvent(this, "onCreate", "");
+		StatConfig.setDebugEnable(true);
+		StatService.trackCustomEvent(this, "onCreate", "");
 	}
 }

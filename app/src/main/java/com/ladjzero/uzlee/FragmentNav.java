@@ -24,7 +24,7 @@ import com.orhanobut.logger.Logger;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class FragmentNav extends Fragment {
+public class FragmentNav extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 	/**
 	 * Remember the position of the selected item.
 	 */
@@ -58,6 +58,8 @@ public class FragmentNav extends Fragment {
 	private int mCurrentSelectedPosition = 0;
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
+	private TextView mAlertIcon;
+	private ActivityBase mContext;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -65,7 +67,8 @@ public class FragmentNav extends Fragment {
 
 		// Read in the flag indicating whether or not the user has demonstrated awareness of the
 		// drawer. See PREF_USER_LEARNED_DRAWER for details.
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		mContext = (ActivityBase) getActivity();
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
 		mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
 
 		if (savedInstanceState != null) {
@@ -80,6 +83,10 @@ public class FragmentNav extends Fragment {
 		final View view = inflater.inflate(R.layout.nav, container, false);
 		ButterKnife.bind(this, view);
 
+		mAlertIcon = (TextView) view.findViewById(R.id.alert_icon);
+
+		mContext.getSettings().registerOnSharedPreferenceChangeListener(this);
+
 		final User user = Core.getUser();
 
 		if (user == null || user.getId() == 0) {
@@ -91,9 +98,9 @@ public class FragmentNav extends Fragment {
 			@Override
 			public void onClick(View v) {
 				if (user == null || user.getId() == 0) {
-					((ActivityBase) getActivity()).toLoginPage();
+					mContext.toLoginPage();
 				} else {
-					Intent intent = new Intent(getActivity(), ActivityUser.class);
+					Intent intent = new Intent(mContext, ActivityUser.class);
 					intent.putExtra("uid", Core.getUser().getId());
 					startActivity(intent);
 				}
@@ -101,6 +108,12 @@ public class FragmentNav extends Fragment {
 		});
 
 		return view;
+	}
+
+	@Override
+	public void onDestroyView() {
+		mContext.getSettings().unregisterOnSharedPreferenceChangeListener(this);
+		super.onDestroyView();
 	}
 
 	@Override
@@ -121,6 +134,12 @@ public class FragmentNav extends Fragment {
 				}
 			}, 300);
 		}
+
+		int count = mContext.getSettings().getInt("unread", 0);
+		mAlertIcon.setTextColor(count == 0 ?
+				Utils.getThemeColor(mContext, R.attr.colorText) :
+				Utils.getColor(mContext, R.color.commentNoBg));
+
 	}
 
 	@Override
@@ -219,6 +238,17 @@ public class FragmentNav extends Fragment {
 
 	public boolean isDrawerOpen() {
 		return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mFragmentContainerView);
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if (key.equals("unread")) {
+			int count = sharedPreferences.getInt("unread", 0);
+
+			mAlertIcon.setTextColor(count == 0 ?
+					Utils.getThemeColor(mContext, R.attr.colorText) :
+					Utils.getColor(mContext, R.color.commentNoBg));
+		}
 	}
 }
 

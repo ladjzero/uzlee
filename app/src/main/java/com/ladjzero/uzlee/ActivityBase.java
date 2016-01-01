@@ -1,8 +1,5 @@
 package com.ladjzero.uzlee;
 
-import java.util.Comparator;
-
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,11 +16,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.Toast;
 
+import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.Core;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -33,27 +27,20 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.utils.L;
 import com.orhanobut.logger.Logger;
 import com.r0adkll.slidr.model.SlidrConfig;
-import com.r0adkll.slidr.model.SlidrListener;
 import com.r0adkll.slidr.model.SlidrPosition;
 import com.rey.material.app.Dialog;
 import com.rey.material.app.DialogFragment;
 import com.rey.material.app.SimpleDialog;
+import com.tencent.stat.StatService;
 
+import java.util.Comparator;
 
 
 public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
-	private static final String TAG = "ActivityBase";
-	protected int mActionbarHeight;
 	public static final int IMAGE_MEM_CACHE_SIZE = 16 * 1024 * 1024;
-
-	SharedPreferences setting;
-	EmojiUtils emojiUtils;
-	Dialog alert;
-	private int mThemeId;
 	public static final String DefaultTheme = "purple";
-
+	private static final String TAG = "ActivityBase";
 	private static final int mTransparenty = android.R.color.transparent;
-
 	public static final DisplayImageOptions imageStandAlone = new DisplayImageOptions.Builder()
 			.showImageForEmptyUri(mTransparenty)
 			.showImageOnLoading(mTransparenty)
@@ -62,7 +49,6 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 			.cacheOnDisk(true)
 			.imageScaleType(ImageScaleType.NONE_SAFE)
 			.build();
-
 	public static final DisplayImageOptions userImageInList = new DisplayImageOptions.Builder()
 			.delayBeforeLoading(800)
 			.showImageForEmptyUri(mTransparenty)
@@ -72,7 +58,6 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 			.cacheOnDisk(true)
 			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
 			.build();
-
 	public static final DisplayImageOptions BestQualityDisplay = new DisplayImageOptions.Builder()
 			.delayBeforeLoading(800)
 			.showImageForEmptyUri(mTransparenty)
@@ -83,7 +68,6 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 			.imageScaleType(ImageScaleType.NONE_SAFE)
 			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
 			.build();
-
 	public static final DisplayImageOptions LowQualityDisplay = new DisplayImageOptions.Builder()
 			.delayBeforeLoading(800)
 			.showImageForEmptyUri(mTransparenty)
@@ -94,7 +78,6 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 			.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
 			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
 			.build();
-
 	public static final DisplayImageOptions BesetQualityForSingleImage = new DisplayImageOptions.Builder()
 			.showImageForEmptyUri(mTransparenty)
 			.showImageOnLoading(mTransparenty)
@@ -104,16 +87,23 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 			.imageScaleType(ImageScaleType.NONE_SAFE)
 			.build();
 
-	public SlidrConfig slidrConfig;
-	public SlidrConfig getSlidrConfig() {
-		return slidrConfig;
-	}
-
 	static {
 		L.writeLogs(false);
 	}
 
+	public SlidrConfig slidrConfig;
+	protected int mActionbarHeight;
+	SharedPreferences setting;
+	EmojiUtils emojiUtils;
+	Dialog alert;
+	private int mThemeId;
+	SharedPreferences.OnSharedPreferenceChangeListener prefListener;
+
 	public ActivityBase() {
+	}
+
+	public SlidrConfig getSlidrConfig() {
+		return slidrConfig;
 	}
 
 	private boolean enableSwipe() {
@@ -168,19 +158,66 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 				.defaultDisplayImageOptions(userImageInList).build();
 		ImageLoader.getInstance().init(ilConfig);
 
+		checkUpdate(false);
+
+		setImageNetwork();
+
+	}
+
+	public void checkUpdate(boolean force) {
 		Long lastCheck = setting.getLong("last_update_check", 0);
 		Long now = System.currentTimeMillis();
 
-		if (now - lastCheck > 12 * 3600 * 1000) {
-			Core.requestUpdate();
+		if (force || now - lastCheck > 12 * 3600 * 1000) {
+			Core.requestUpdate(new Core.OnRequestListener() {
+				@Override
+				public void onError(String error) {
+					showToast("检查更新失败");
+				}
+
+				@Override
+				public void onSuccess(String html) {
+					Core.UpdateInfo info = null;
+
+					try {
+						info = JSON.parseObject(html, Core.UpdateInfo.class);
+					} catch (Exception e) {
+
+					}
+
+					if (info != null) {
+						String version = getVersion();
+						String newVersion = info.getVersion();
+
+						if (new VersionComparator().compare(version, newVersion) < 0) {
+							final Core.UpdateInfo finalInfo = info;
+							SimpleDialog.Builder builder = new SimpleDialog.Builder(R.style.Material_App_Dialog_Simple_Light) {
+
+								@Override
+								public void onPositiveActionClicked(DialogFragment fragment) {
+									Uri uri = Uri.parse(finalInfo.getUri());
+									Intent downloadIntent = new Intent(Intent.ACTION_VIEW, uri);
+									startActivity(downloadIntent);
+								}
+							};
+
+							builder.message(info.getInfo())
+									.positiveAction(getString(R.string.download));
+
+							DialogFragment dialog = DialogFragment.newInstance(builder);
+
+							dialog.show(getSupportFragmentManager(), null);
+						} else {
+							showToast("已是最新版");
+						}
+					}
+				}
+			});
 
 			SharedPreferences.Editor editor = setting.edit();
 			editor.putLong("last_update_check", now);
 			editor.commit();
 		}
-
-		setImageNetwork();
-
 	}
 
 	@Override
@@ -191,35 +228,6 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
-		}
-	}
-
-	public void onEventMainThread(final Core.UpdateInfo updateInfo) {
-		if (updateInfo != null) {
-			String version = getVersion();
-			String newVersion = updateInfo.getVersion();
-
-			if (new VersionComparator().compare(version, newVersion) < 0) {
-				SimpleDialog.Builder builder = new SimpleDialog.Builder(R.style.Material_App_Dialog_Simple_Light) {
-
-					@Override
-					public void onPositiveActionClicked(DialogFragment fragment) {
-						Uri uri = Uri.parse(updateInfo.getUri());
-						Intent downloadIntent = new Intent(Intent.ACTION_VIEW, uri);
-						startActivity(downloadIntent);
-					}
-				};
-
-				builder.message(updateInfo.getInfo())
-						.positiveAction(getString(R.string.download));
-
-				DialogFragment dialog = DialogFragment.newInstance(builder);
-
-				dialog.show(getSupportFragmentManager(), null);
-				Logger.i("update show");
-			} else {
-				showToast("已是最新版");
-			}
 		}
 	}
 
@@ -257,6 +265,29 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 		return mThemeId;
 	}
 
+	@Override
+	public void finish() {
+		super.finish();
+		overridePendingTransition(0, R.anim.push_right_out);
+	}
+
+	protected void setImageNetwork() {
+		ConnectivityManager connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
+
+		if (activeNetInfo != null) {
+			boolean isWifi = activeNetInfo.getType() == ConnectivityManager.TYPE_WIFI;
+			boolean loadWifiOnly = setting.getBoolean("enable_image_only_wifi", false);
+
+			ImageLoader.getInstance().denyNetworkDownloads(!isWifi && loadWifiOnly);
+			Logger.i("wifi %b load when wifi only %b", isWifi, loadWifiOnly);
+		}
+	}
+
+	public void toLoginPage() {
+		Utils.replaceActivity(this, ActivityLogin.class);
+	}
+
 	public static class VersionComparator implements Comparator<String> {
 
 		@Override
@@ -281,25 +312,6 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 		}
 	}
 
-	@Override
-	public void finish() {
-		super.finish();
-		overridePendingTransition(0, R.anim.push_right_out);
-	}
-
-	protected void setImageNetwork() {
-		ConnectivityManager connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
-
-		if (activeNetInfo != null) {
-			boolean isWifi = activeNetInfo.getType() == ConnectivityManager.TYPE_WIFI;
-			boolean loadWifiOnly = setting.getBoolean("enable_image_only_wifi", false);
-
-			ImageLoader.getInstance().denyNetworkDownloads(!isWifi && loadWifiOnly);
-			Logger.i("wifi %b load when wifi only %b", isWifi, loadWifiOnly);
-		}
-	}
-
 	public class ConnectionChangeReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -307,7 +319,17 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 		}
 	}
 
-	public void toLoginPage() {
-		Utils.replaceActivity(this, ActivityLogin.class);
+	@Override
+	protected void onResume() {
+		super.onResume();
+		StatService.onResume(this);
+		setting.registerOnSharedPreferenceChangeListener(prefListener);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		StatService.onPause(this);
+		setting.unregisterOnSharedPreferenceChangeListener(prefListener);
 	}
 }

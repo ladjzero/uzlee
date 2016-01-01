@@ -53,7 +53,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:layout_toLeftOf="@+id/post_no"
                 android:includeFontPadding="false"
                 android:text="50"
                 android:textColor="?attr/colorTextMinor"

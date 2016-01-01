@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar"></include>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.rey.material.widget.Button
+            android:id="@+id/checkUpdate"
+            style="@style/Material.Drawable.Ripple.Touch.MatchView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="24dp"
+            android:layout_marginLeft="48dp"
+            android:layout_marginRight="48dp"
+            android:layout_marginTop="24dp"
+            android:background="?attr/colorPrimary"
+            android:text="检查更新"
+            android:textColor="?attr/colorTextInverse"
+            android:textSize="16dp"
+            app:rd_cornerRadius="3dp"
+            app:rd_enable="true"
+            app:rd_padding="0dp"/>
+
+        <com.rey.material.widget.Button
+            android:id="@+id/logs"
+            style="@style/Material.Drawable.Ripple.Touch.MatchView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/checkUpdate"
+            android:layout_marginLeft="48dp"
+            android:layout_marginRight="48dp"
+            android:background="?attr/colorPrimary"
+            android:text="更新日志"
+            android:textColor="?attr/colorTextInverse"
+            android:textSize="16dp"
+            app:rd_cornerRadius="3dp"
+            app:rd_enable="true"
+            app:rd_padding="0dp"/>
+
+        <WebView
+            android:id="@+id/webview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/logs"></WebView>
+    </RelativeLayout>
+
+
+</LinearLayout>

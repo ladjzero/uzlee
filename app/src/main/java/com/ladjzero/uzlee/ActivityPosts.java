@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,8 +14,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.ActionMode;
-import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -147,6 +144,12 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				actionsAdapter.notifyDataSetChanged();
 				break;
 			case 2:
+				mWebView.post(new Runnable() {
+					@Override
+					public void run() {
+						mWebView.loadUrl("javascript:removeAll();");
+					}
+				});
 				fetch(mPage, ActivityPosts.this);
 				break;
 			case 3:
@@ -439,6 +442,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	public boolean onKeyDown(int keyCode, KeyEvent ev) {
 		if (keyCode == KeyEvent.KEYCODE_MENU && (ev == null || ev.getAction() == 0) && mPosts.size() > 0) {
 			mMenuDialog.show();
+
 			return true;
 		}
 
