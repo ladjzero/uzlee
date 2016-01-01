@@ -14,6 +14,7 @@
         <item name="colorRead">#c8c8c8</item>
         <item name="tabBarStyle">@style/TabBarStyle</item>
         <item name="colorTextInverse07">@color/dayTextInverse07</item>
+        <item name="colorBackgroundSecondary">#dadada</item>
     </style>
 
     <style name="AppBaseTheme.Day.Red">
@@ -93,6 +94,7 @@
         <item name="loginBg">@drawable/central_gradient_night</item>
         <item name="colorRead">@android:color/transparent</item>
         <item name="android:actionModeBackground">@color/nightPrimary</item>
+        <item name="colorBackgroundSecondary">#353535</item>
     </style>
 
     <style name="AppBaseTheme.NoTransparent">

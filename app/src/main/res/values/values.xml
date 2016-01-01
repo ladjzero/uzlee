@@ -11,4 +11,5 @@
     <attr name="colorUnread" format="color"></attr>
     <attr name="colorRead" format="color"></attr>
     <attr name="colorTextInverse07" format="color"></attr>
+    <attr name="colorBackgroundSecondary" format="color"></attr>
 </resources>

@@ -12,6 +12,6 @@
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        dslv:float_alpha="0.5"
+        dslv:float_alpha="0.1"
         dslv:drag_enabled="true"/>
 </LinearLayout>

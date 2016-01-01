@@ -683,7 +683,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@JavascriptInterface
 	public void onLinkClick(String href) {
-		showToast(href);
+//		showToast(href);
 		Uri uri = Uri.parse(href);
 
 		if ("www.hi-pda.com".equals(uri.getHost())) {

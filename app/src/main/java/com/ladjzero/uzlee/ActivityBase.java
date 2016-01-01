@@ -38,7 +38,7 @@ import java.util.Comparator;
 
 public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 	public static final int IMAGE_MEM_CACHE_SIZE = 16 * 1024 * 1024;
-	public static final String DefaultTheme = "purple";
+	public static final String DefaultTheme = "dark";
 	private static final String TAG = "ActivityBase";
 	private static final int mTransparenty = android.R.color.transparent;
 	public static final DisplayImageOptions imageStandAlone = new DisplayImageOptions.Builder()

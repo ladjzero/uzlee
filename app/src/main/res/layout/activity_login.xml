@@ -23,7 +23,7 @@
         android:layout_marginRight="12dp"
         android:layout_marginTop="12dp"
         android:padding="12dp"
-        android:shadowColor="?attr/colorTextInverse07"
+        android:shadowColor="@android:color/white"
         android:shadowRadius="4"
         android:text="注册"
         android:textColor="?attr/colorTextMinor"/>
@@ -37,7 +37,7 @@
         android:layout_marginLeft="12dp"
         android:layout_marginTop="12dp"
         android:padding="12dp"
-        android:shadowColor="?attr/colorTextInverse07"
+        android:shadowColor="@android:color/white"
         android:shadowRadius="4"
         android:text="游客访问"
         android:textColor="?attr/colorTextMinor"/>
