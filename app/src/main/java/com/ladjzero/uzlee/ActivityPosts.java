@@ -738,7 +738,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		Logger.d("PL %s", state);
 
 		if (state == PullToRefreshBase.State.RESET) {
-			getSlidrInterface().unlock();
+//			getSlidrInterface().unlock();
 			Logger.d("unlock");
 
 
@@ -768,7 +768,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				}).playOn(mQuickReplyLayout);
 			}
 		} else {
-			getSlidrInterface().lock();
+//			getSlidrInterface().lock();
 			Logger.d("lock");
 
 
