@@ -246,7 +246,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				mPostsView.onRefreshComplete();
 
 				mIsFetching = false;
-				toogleSipnner(false);
 
 				new AsyncTask<String, Object, Posts>() {
 					@Override
@@ -292,6 +291,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 							post.setIsLz(isLz);
 						}
 
+						toogleSipnner(false);
 						onPostsListener.onPosts(posts);
 					}
 				}.execute(html);
