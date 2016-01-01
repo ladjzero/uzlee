@@ -1,5 +1,5 @@
 {
-	"version": "0.5.2",
-	"uri": "http://pan.baidu.com/s/1jGvkL3g",
-	"info": "修复\n\t滑动列表容易触发回退\n\t连续看图时，图片换页和图像拖动冲突\n\t一些导致崩溃的问题\n变更\n\t发布文章默认关闭签名\n\t默认不显示客户端的签名"
+	"version": "0.6",
+	"uri": "http://pan.baidu.com/s/1dElerJz",
+	"info": "新增\n可以浏览所有板块\n\t可以更换配色\n\t可以修改正文字体大小\n\t可以在编辑页面滑动返回，最后的编辑状态将被保存"
 }
