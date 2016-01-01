@@ -122,7 +122,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	}
 
 	private void toggleQuickSend(boolean on) {
-		mQuickSend.setTextColor(Utils.getThemeColor(this, on ? R.attr.colorPrimary : R.attr.colorSecondary));
+		mQuickSend.setTextColor(Utils.getThemeColor(this, on ? R.attr.colorPrimary : R.attr.colorBackgroundSecondary));
 		mQuickSend.setClickable(on);
 	}
 

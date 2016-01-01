@@ -20,7 +20,7 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/icon"
+            android:src="@drawable/uzlee_login_icon"
             app:border_color="?attr/colorTextInverse"
             app:border_width="1dp"/>
 

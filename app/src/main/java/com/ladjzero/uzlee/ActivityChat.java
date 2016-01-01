@@ -105,7 +105,7 @@ public class ActivityChat extends ActivityWithWebView implements Core.OnRequestL
 	}
 
 	private void enableSend(boolean enable) {
-		mSend.setTextColor(Utils.getThemeColor(this, enable ? R.attr.colorPrimary : R.attr.colorSecondary));
+		mSend.setTextColor(Utils.getThemeColor(this, enable ? R.attr.colorPrimary : R.attr.colorBackgroundSecondary));
 		mSend.setClickable(enable);
 	}
 

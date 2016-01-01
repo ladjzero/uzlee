@@ -33,7 +33,7 @@ var imageClickHandler = function(e) {
 
 var model = {
     printTime: function (){
-        console.log(Date.now());
+        // console.log(Date.now());
     },
     onProfileClick: function(post) {
         UZLEE.onProfileClick(post.author.id, post.author.name);
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 window.loadPosts = function(posts, removeAll) {
-    console.log('loadPosts ' + Date.now());
+    // console.log('loadPosts ' + Date.now());
     // console.log(JSON.stringify(posts[0], posts[1]));
     removeAll && model.posts.removeAll();
 
@@ -101,7 +101,7 @@ window.loadPosts = function(posts, removeAll) {
     });
 };
 
-window.addPost = function(post) {console.log(JSON.stringify(post));
+window.addPost = function(post) {
     model.posts.push(post);
 };
 

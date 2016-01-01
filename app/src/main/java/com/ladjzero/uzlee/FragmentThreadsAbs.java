@@ -284,6 +284,7 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 	@Override
 	public void onResume() {
 		super.onResume();
+		mAdapter.notifyDataSetChanged();
 		mSwipe.setEnabled(mEnablePullToRefresh);
 	}
 
