@@ -39,6 +39,12 @@ $primaries: (
     'night': $nightPrimary
 );
 
+//@each $theme, $primary in $primaries {
+//    .#{$theme} img {
+//        box-shadow: inset 0 0 0 1px $primary;
+//    }
+//}
+
 $profile-height: 38px;
 $toolbar-height: 48px;
 * {box-sizing: border-box;}

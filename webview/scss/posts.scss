@@ -60,7 +60,6 @@
     }
 }
 
-
 strong i {
     font-style: normal;
 }
@@ -196,8 +195,8 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
 
     .body {
         img {
-            vertical-align: top;
             max-width: 100%;
+            vertical-align: middle;
         }
 
         img[smilieid] {
@@ -206,8 +205,10 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
         }
 
         .content-image {
+            vertical-align: top;
             display: block;
             margin: 0 auto;
+            min-height: 20px;
 
             & + br {
                 display: none;

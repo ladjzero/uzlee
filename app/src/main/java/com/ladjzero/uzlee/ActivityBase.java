@@ -271,6 +271,12 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 		overridePendingTransition(0, R.anim.push_right_out);
 	}
 
+	private boolean mDisableImageFromNetwork = false;
+	protected boolean disableImageFromNetwork() {
+		return mDisableImageFromNetwork;
+//		return true;
+	}
+
 	protected void setImageNetwork() {
 		ConnectivityManager connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
@@ -279,7 +285,9 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 			boolean isWifi = activeNetInfo.getType() == ConnectivityManager.TYPE_WIFI;
 			boolean loadWifiOnly = setting.getBoolean("enable_image_only_wifi", false);
 
-			ImageLoader.getInstance().denyNetworkDownloads(!isWifi && loadWifiOnly);
+			mDisableImageFromNetwork = !isWifi && loadWifiOnly;
+
+			ImageLoader.getInstance().denyNetworkDownloads(mDisableImageFromNetwork);
 			Logger.i("wifi %b load when wifi only %b", isWifi, loadWifiOnly);
 		}
 	}

@@ -29,7 +29,8 @@
             <RelativeLayout
                 android:layout_width="fill_parent"
                 android:layout_height="@dimen/toolbar_height"
-                android:background="?android:attr/colorBackground">
+                android:background="?android:attr/colorBackground"
+                android:clickable="true">
 
                 <com.joanzapata.iconify.widget.IconTextView
                     android:id="@+id/send_message"
@@ -41,7 +42,7 @@
                     android:onClick="onQuickReply"
                     android:text="{md-send}"
                     android:textColor="?attr/colorSecondary"
-                    android:textSize="28sp" />
+                    android:textSize="28sp"/>
 
                 <com.rengwuxian.materialedittext.MaterialEditText
                     android:id="@+id/message"
@@ -54,7 +55,7 @@
                     android:layout_toLeftOf="@+id/send_message"
                     android:hint="回复"
                     android:textSize="18sp"
-                    app:met_primaryColor="?attr/colorPrimary" />
+                    app:met_primaryColor="?attr/colorPrimary"/>
             </RelativeLayout>
         </LinearLayout>
     </RelativeLayout>
