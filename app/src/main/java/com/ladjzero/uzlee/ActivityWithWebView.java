@@ -52,7 +52,7 @@ public abstract class ActivityWithWebView extends ActivityBase implements OnTouc
 	public void onStateChange(State state) {
 		String TAG = "onStateChange";
 
-		Logger.t(TAG).d("WebView state: " + state);
+		Logger.t(TAG).d("ActivityWithWebView state: " + state);
 
 		switch (state) {
 			case TOUCH_START:
@@ -78,13 +78,15 @@ public abstract class ActivityWithWebView extends ActivityBase implements OnTouc
 				break;
 		}
 
-		Logger.t(TAG).d("new current state: " + currentState);
+		Logger.t(TAG).d("ActivityWithWebView new current state: " + currentState);
 
 		if (currentState.enableSlidr != currentState.enableSlidrBefore) {
 			if (currentState.enableSlidr)
 				slidrInterface.unlock();
 			else
 				slidrInterface.lock();
+
+			Logger.t(TAG).d("ActivityWithWebView slidr state:" + (currentState.enableSlidr ? "unlocked" : "locked"));
 
 			currentState.enableSlidrBefore = !currentState.enableSlidrBefore;
 		}
@@ -149,7 +151,7 @@ public abstract class ActivityWithWebView extends ActivityBase implements OnTouc
 				if (mWebviewTouchFirstMove) {
 					float x = event.getX(), y = event.getY();
 
-					if (Math.abs(x - downXValue) * 1.3 < Math.abs(y - downYValue)) {
+					if (Math.abs(x - downXValue) * 3 < Math.abs(y - downYValue)) {
 						onStateChange(State.SCROLL_START);
 					}
 

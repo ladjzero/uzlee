@@ -58,6 +58,7 @@ module.exports = function(grunt) {
       dist: {
         files: [
           {expand: true, src: ['*.html', '*.png'], dest: dest},
+          {expand: true, cwd: 'node_modules/fling.js/', src: 'fling.js', dest: dest},
           {expand: true, cwd: 'node_modules/knockout/build/output/', src: 'knockout-latest.js', dest: dest}
         ]
       }

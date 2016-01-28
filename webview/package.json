@@ -20,6 +20,7 @@
     "grunt-postcss": "^0.7.1"
   },
   "dependencies": {
+    "fling.js": "0.0.1",
     "knockout": "^3.4.0"
   }
 }
