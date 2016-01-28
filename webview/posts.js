@@ -1,5 +1,16 @@
 console.log('posts.js is loading');
 
+/**
+* @license MIT, GPL, do whatever you want
+* @requires polyfill: Array.prototype.slice fix {@link https://gist.github.com/brettz9/6093105}
+*/
+if (!Array.from) {
+    Array.from = function (object) {
+        'use strict';
+        return [].slice.call(object);
+    };
+}
+
 var parseQueryString = function() {
     var str = window.location.search;
     var objURL = {};
@@ -58,14 +69,13 @@ var model = {
                     aa[i].addEventListener('click', linkClickHandler);
                 }
 
-                el.className.trim() == 'content-image' && el.addEventListener('click', imageClickHandler);
+                var images = el.className.trim() == 'content-image' ? [el] : Array.from(el.querySelectorAll('.content-image'));
 
-                aa = el.querySelectorAll('.content-image');
-                len = aa.length;
-
-                for (var i = 0; i < len; ++i) {
-                    aa[i].addEventListener('click', imageClickHandler);
-                }
+                images.forEach(function (img) {
+                    img.dataset.echo = img.src;
+                    img.src = 'placeholder.png';
+                    img.addEventListener('click', imageClickHandler);
+                });
             }
         });
     }
@@ -88,6 +98,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     ko.applyBindings(model, document.getElementById('post-list'));
 
+    echo.init({
+        offset: 100,
+        throttle: 250,
+        unload: false,
+        callback: function (element, op) {
+            console.log(element, 'has been', op + 'ed')
+        }
+    });
+
+    console.log('echo is initialized.');
+
     UZLEE.onWebViewReady();
 });
 
@@ -99,10 +120,13 @@ window.loadPosts = function(posts, removeAll) {
     posts.forEach(function(post) {
         model.posts.push(post);
     });
+
+    echo.render();
 };
 
 window.addPost = function(post) {
     model.posts.push(post);
+    echo.render();
 };
 
 window.removeAll = function () {

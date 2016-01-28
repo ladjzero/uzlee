@@ -52,7 +52,7 @@ app/manifest-merger-release-report.txt
 *.apk
 AndroidManifest.xml
 
-
+*.iml
 *.css.map
 *.scssc
 *.css

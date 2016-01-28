@@ -5,8 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
-    <script src="knockout.js"></script>
+    <script src="knockout-latest.js"></script>
     <script src="on_scroll_listener.js"></script>
+    <script src="echo.js"></script>
     <script src="posts.js"></script>
     <link href="posts.css" rel="stylesheet">
 </head>
@@ -44,6 +45,6 @@
     data-bind="template: {name: 'posts-template', foreach: posts, as: 'post', afterRender: printTime}"></ol>
 
 <!--<script>console.log(Date.now())</script>-->
-<!--<script src="posts_test.js"></script>-->
+<!-- <script src="posts_test.js"></script> -->
 </body>
 </html>

@@ -57,7 +57,8 @@ module.exports = function(grunt) {
     copy: {
       dist: {
         files: [
-          {expand: true, src: ['*.html', '*.png'], dest: dest}
+          {expand: true, src: ['*.html', '*.png'], dest: dest},
+          {expand: true, cwd: 'node_modules/knockout/build/output/', src: 'knockout-latest.js', dest: dest}
         ]
       }
     }
@@ -71,5 +72,4 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
 
   grunt.registerTask('default', ['clean', 'sass', 'postcss', 'cssmin', 'uglify', 'copy']);
-
 };

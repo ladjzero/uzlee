@@ -486,6 +486,7 @@ public class Core {
 						.removeAttr("width")
 						.removeAttr("height")
 						.removeAttr("onclick")
+						.removeAttr("onload")
 						.removeAttr("onmouseover");
 
 				if (!src.startsWith("http")) {

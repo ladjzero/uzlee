@@ -1,3 +1,4 @@
+document.addEventListener('DOMContentLoaded', function () {
 loadPosts([{
     "isLz": true,
     "author": {
@@ -762,3 +763,4 @@ loadPosts([{
     "tid": 0,
     "timeStr": "2015-8-14 19:19"
 }]);
+});
