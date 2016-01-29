@@ -48,7 +48,14 @@ public class ActivityChat extends ActivityWithWebView implements Core.OnRequestL
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.activity_chat);
 
-		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+		final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		toolbar.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				toolbarClick();
+			}
+		});
+		setSupportActionBar(toolbar);
 
 		ActionBar mActionbar = getSupportActionBar();
 		mActionbar.setDisplayHomeAsUpEnabled(true);

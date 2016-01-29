@@ -45,7 +45,8 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 		AdapterView.OnItemClickListener,
 		OnThreadsListener,
 		SharedPreferences.OnSharedPreferenceChangeListener,
-		AdapterView.OnItemLongClickListener{
+		AdapterView.OnItemLongClickListener,
+		OnToolbarClickListener {
 
 	private static final String TAG = "FragmentThreadsAbs";
 
@@ -426,6 +427,12 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 	}
 
 	protected abstract String keyOfThreadsToCache();
+
+	@Override
+	public void toolbarClick() {
+		listView.setSelection(0);
+		listView.smoothScrollToPosition(0);
+	}
 }
 
 interface OnFetch {

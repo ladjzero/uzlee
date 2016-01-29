@@ -20,7 +20,7 @@ import com.r0adkll.slidr.model.SlidrInterface;
 /**
  * Created by chenzhuo on 15-10-4.
  */
-public abstract class ActivityWithWebView extends ActivityBase implements OnTouchListener {
+public abstract class ActivityWithWebView extends ActivityBase implements OnTouchListener, OnToolbarClickListener {
 
 	private CurrentState currentState = new CurrentState();
 	private SlidrInterface slidrInterface;
@@ -197,5 +197,10 @@ public abstract class ActivityWithWebView extends ActivityBase implements OnTouc
 		public String toString() {
 			return "onTouch: " + onTouch + ", onScroll: " + onScroll + ", onSlide: " + onSlide + ", enableSlidr: " + enableSlidr + ", before" + enableSlidrBefore;
 		}
+	}
+
+	@Override
+	public void toolbarClick() {
+		getWebView().scrollTo(0, 0);
 	}
 }

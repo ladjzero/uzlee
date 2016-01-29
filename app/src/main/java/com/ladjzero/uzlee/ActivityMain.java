@@ -60,7 +60,13 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
-		ActionBar mActionbar = getSupportActionBar();
+		toolbar.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				mFragment.toolbarClick();
+			}
+		});
+
 		setTitle(null);
 		mFragmentNav = (FragmentNav) getSupportFragmentManager().findFragmentById(R.id.fragment_drawer);
 		mFragmentNav.setup(R.id.fragment_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), (Toolbar) findViewById(R.id.toolbar));

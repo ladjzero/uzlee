@@ -22,7 +22,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTypeChange, FragmentThreadsAbs.OnScrollUpOrDown {
+public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTypeChange, FragmentThreadsAbs.OnScrollUpOrDown, OnToolbarClickListener {
 	@Bind(R.id.pager)
 	ViewPager mViewPager;
 	@Bind(R.id.tabs)
@@ -173,6 +173,11 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 		onUp(0);
 		Fragment fragment = mPagerAdapter.getCurrentFragment();
 		((FragmentNormalThreads) fragment).setTypeId(typeId);
+	}
+
+	@Override
+	public void toolbarClick() {
+		((FragmentThreadsAbs)mPagerAdapter.getCurrentFragment()).toolbarClick();
 	}
 
 	public class MyFragmentPagerAdapter extends FragmentPagerAdapter {

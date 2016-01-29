@@ -325,7 +325,14 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mTitleView.setVisibility(View.INVISIBLE);
 		mTitleView.setTextColor(Utils.getThemeColor(this, R.attr.colorTextInverse));
 
-		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		toolbar.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				toolbarClick();
+			}
+		});
+		setSupportActionBar(toolbar);
 
 		ActionBar mActionbar = getSupportActionBar();
 		mActionbar.setTitle(null);

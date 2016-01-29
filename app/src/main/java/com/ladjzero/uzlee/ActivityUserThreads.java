@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 
 import com.r0adkll.slidr.Slidr;
 import com.r0adkll.slidr.model.SlidrInterface;
@@ -28,8 +29,14 @@ public class ActivityUserThreads extends ActivityBase {
 		mFragment.setArguments(args);
 
 		setContentView(R.layout.activity_threads);
-
-		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		toolbar.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				mFragment.toolbarClick();
+			}
+		});
+		setSupportActionBar(toolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		setTitle(args.getString("title"));
 

@@ -341,3 +341,7 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 		setting.unregisterOnSharedPreferenceChangeListener(prefListener);
 	}
 }
+
+interface OnToolbarClickListener {
+	void toolbarClick();
+}
