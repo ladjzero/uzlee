@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.ladjzero.uzlee.R;
 import com.loopj.android.http.AsyncHttpClient;
@@ -125,7 +126,8 @@ public class Core {
 		iconValues = icons.values();
 	}
 
-	private static final String TAG = "Core";
+	private static final String TAG = "Hipda Core";
+	private static final String TIMELINE_TAG = "hipda core timeline";
 	private static AsyncHttpClient httpClient = new AsyncHttpClient();
 	private static String formhash;
 	private static String hash;
@@ -219,16 +221,20 @@ public class Core {
 	}
 
 	public static void getHtml(String url, final OnRequestListener onRequestListener) {
+		final long time = System.currentTimeMillis();
+
 		httpClient.get(url, new RequestParams(), new TextHttpResponseHandler(code) {
 
 			@Override
 			public void onFailure(int i, Header[] headers, String s, Throwable throwable) {
 				onRequestListener.onError(throwable == null ? "error" : throwable.toString());
+				Log.d(TIMELINE_TAG, "fetching html used " + (System.currentTimeMillis() - time) + "ms");
 			}
 
 			@Override
 			public void onSuccess(int i, Header[] headers, String s) {
 				onRequestListener.onSuccess(s);
+				Log.d(TIMELINE_TAG, "fetching html used " + (System.currentTimeMillis() - time) + "ms");
 			}
 		});
 	}
@@ -292,7 +298,7 @@ public class Core {
 			code = "GBK";
 		}
 
-		Logger.i("%d ms", System.currentTimeMillis() - time);
+		Log.d(TIMELINE_TAG, "parsing doc used " + (System.currentTimeMillis() - time) + "ms");
 		return doc;
 	}
 
@@ -371,6 +377,7 @@ public class Core {
 	public static Posts parsePosts(String html, OnProgress onProgress) {
 		Posts posts = new Posts();
 		Document doc = getDoc(html);
+		long time = System.currentTimeMillis();
 
 		Element eFid = doc.select("#nav a").last();
 		String fidStr = eFid.attr("href");
@@ -435,10 +442,12 @@ public class Core {
 		posts.setFid(fid);
 		posts.setTitle(title);
 
+		Log.d(TIMELINE_TAG, "parsing posts used " + (System.currentTimeMillis() - time) + "ms");
 		return posts;
 	}
 
 	private static Post toPostObj(Element ePost) {
+		long time = System.currentTimeMillis();
 		int idPrefixLength = "pid".length();
 
 		Post post = new Post();
@@ -539,6 +548,7 @@ public class Core {
 		post.setId(Integer.valueOf(id))/*.setNiceBody(niceBody)*/
 				.setAuthor(user).setTimeStr(timeStr).setPostIndex(Integer.valueOf(postIndex));
 
+		Log.d(TIMELINE_TAG, "parsing one post used " + (System.currentTimeMillis() - time) + "ms");
 		return post;
 	}
 
