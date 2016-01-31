@@ -42,7 +42,7 @@ public class ActivityChat extends ActivityWithWebView implements Core.OnRequestL
 	private Posts mCharts;
 	private int uid;
 	private String mName;
-	private WebView mWebView;
+	private WebView2 mWebView;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -63,7 +63,7 @@ public class ActivityChat extends ActivityWithWebView implements Core.OnRequestL
 		mActionbar.setDisplayHomeAsUpEnabled(true);
 		mActionbar.setDisplayShowCustomEnabled(true);
 
-		mWebView = (WebView) findViewById(R.id.webview);
+		mWebView = (WebView2) findViewById(R.id.webview);
 
 		mSend = (TextView) findViewById(R.id.send_message);
 
@@ -124,7 +124,7 @@ public class ActivityChat extends ActivityWithWebView implements Core.OnRequestL
 	}
 
 	@Override
-	public WebView getWebView() {
+	public WebView2 getWebView() {
 		return mWebView;
 	}
 

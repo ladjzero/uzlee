@@ -67,7 +67,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		DiscreteSeekBar.OnProgressChangeListener,
 		PullToRefreshBase.OnPullEventListener,
 		PullToRefreshBase.OnRefreshListener2,
-		View.OnTouchListener,
 		TextWatcher {
 
 	private static final String TAG = "ActivityPosts";
@@ -88,7 +87,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	private int mTid;
 	private int mPage;
 	private Posts mPosts = new Posts();
-	private WebView mWebView;
+	private WebView2 mWebView;
 	private boolean mHasNextPage = false;
 	private DiscreteSeekBar mSeekBar;
 	private Menu mMenu;
@@ -358,7 +357,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mTitleView.setText(intent.getStringExtra("title"));
 
 
-		mWebView = mPostsView.getRefreshableView();
+		mWebView = (WebView2) mPostsView.getRefreshableView();
 
 		mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
 		mPostsView.setOnRefreshListener(this);
@@ -418,7 +417,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	}
 
 	@Override
-	public WebView getWebView() {
+	public WebView2 getWebView() {
 		return mWebView;
 	}
 

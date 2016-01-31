@@ -25,7 +25,7 @@ var parseQueryString = function() {
 };
 
 window.onScrollStateChange = function(state) {
-    UZLEE.onScroll(state);
+    WebView2.onScroll(state);
 };
 
 var linkClickHandler = function(e) {

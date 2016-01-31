@@ -4,9 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.webkit.WebView;
 
-import com.ladjzero.hipda.Core;
 import com.r0adkll.slidr.Slidr;
 
 import butterknife.Bind;
@@ -18,7 +16,7 @@ import butterknife.OnClick;
  */
 public class ActivityAbout extends ActivityWithWebView {
 	@Bind(R.id.webview)
-	WebView mWebView;
+	WebView2 mWebView;
 
 	@OnClick(R.id.logs)
 	void showLogs() {
@@ -49,7 +47,7 @@ public class ActivityAbout extends ActivityWithWebView {
 	}
 
 	@Override
-	public WebView getWebView() {
+	public WebView2 getWebView() {
 		return mWebView;
 	}
 

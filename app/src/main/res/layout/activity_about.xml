@@ -47,11 +47,11 @@
             app:rd_enable="true"
             app:rd_padding="0dp"/>
 
-        <WebView
+        <com.ladjzero.uzlee.WebView2
             android:id="@+id/webview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/logs"></WebView>
+            android:layout_above="@+id/logs"></com.ladjzero.uzlee.WebView2>
     </RelativeLayout>
 
 
