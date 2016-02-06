@@ -95,12 +95,13 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	// Help menu dialog to show a line.
 	private int myid = 0;
 	private int position = 0;
-	// Scroll to this post.
+	// Scroll to this post. 0 for no scrolling. -1 for scrolling to bottom.
 	private int mPid = 0;
 	private boolean mQuickVisible = true;
 	private boolean isFadingOut = false;
 	private TextView mTitleView;
 	private boolean mWebViewReady = false;
+	private boolean mSkipResumeFetch = false;
 
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -132,6 +133,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				replyIntent.putExtra("title", "回复主题");
 				replyIntent.putExtra("hideTitleInput", true);
 				startActivityForResult(replyIntent, EDIT_CODE);
+				break;
 			case 1:
 				orderType = orderType == 0 ? 1 : 0;
 				fetch(1);
@@ -359,9 +361,11 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	public void onResume() {
 		super.onResume();
 
-		if (mPosts.size() == 0) {
+		if (mPosts.size() == 0 && !mSkipResumeFetch) {
 			fetch(mPage);
 		}
+
+		mSkipResumeFetch = false;
 	}
 
 	@Override
@@ -405,7 +409,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	}
 
 	public void onQuickReply(View v) {
-		showToast("send");
+//		showToast("send");
 		mQuickEdit.setEnabled(false);
 		mQuickSend.setText("{md-refresh spin}");
 		mQuickSend.setClickable(false);
@@ -431,7 +435,9 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			@Override
 			public void onSuccess(String html) {
 				reset();
+				mPosts.clear();
 				mQuickEdit.setText("");
+				mPid = -1;
 				onHtml(html);
 			}
 		});
@@ -501,17 +507,14 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 						mSeekBar.setVisibility(View.GONE);
 					}
 
-					mHasNextPage = totalPage > currPage;
 					mPage = currPage;
 
-					if (mHasNextPage) {
-						mPostsView.setMode(currPage == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
-					} else {
-						mPostsView.setMode(currPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
+					if (mPid == -1) {
+						mPid = mPosts.get(mPosts.size() - 1).getId();
 					}
 
 					// Locate to the specified post.
-					if (mPid != 0) {
+					if (mPid > 0) {
 						mWebView.loadUrl("javascript:scrollToPost(" + mPid + ")");
 						Logger.i("Scrolling to pid-%d", mPid);
 						mPid = 0;
@@ -533,6 +536,9 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 			if (returnIntent != null) {
 				String html = returnIntent.getStringExtra("html");
+				mPosts.clear();
+				mPid = -1;
+				mSkipResumeFetch = true;
 				onHtml(html);
 			}
 		}
@@ -795,7 +801,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		public void onItemRangeInserted(ObservableList sender, int positionStart, int itemCount) {
 			Logger.i("onItemRangeInserted, positionStart %d itemCount %d", positionStart, itemCount);
 			// Assume that only PUSH operation inserts posts.
-			for (int i = positionStart; i < positionStart + itemCount; i++) {
+			for (int i = mWebViewReady ? positionStart : 0; i < positionStart + itemCount; i++) {
 				Post post = (Post) sender.get(i);
 				mWebView.loadUrl("javascript:_posts.push(" + JSON.toJSONString(post) + ")");
 			}
