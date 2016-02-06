@@ -36,109 +36,119 @@
             android:textSize="14sp"/>
     </RelativeLayout>
 
-    <LinearLayout
-        android:id="@+id/message"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:orientation="horizontal"
-        android:paddingLeft="24dp">
+        android:layout_height="wrap_content">
 
-        <com.joanzapata.iconify.widget.IconTextView
-            android:id="@+id/alert_icon"
-            android:layout_width="24sp"
-            android:layout_height="match_parent"
-            android:layout_marginRight="12dp"
-            android:gravity="center"
-            android:text="{md-notifications}"
-            android:textColor="?attr/colorText"
-            android:textSize="24sp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:text="消息"
-            android:textColor="?attr/colorText"
-            android:textSize="18sp"/>
+            <LinearLayout
+                android:id="@+id/message"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:orientation="horizontal"
+                android:paddingLeft="24dp">
 
-    </LinearLayout>
+                <com.joanzapata.iconify.widget.IconTextView
+                    android:id="@+id/alert_icon"
+                    android:layout_width="24sp"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:text="{md-notifications}"
+                    android:textColor="?attr/colorText"
+                    android:textSize="24sp"/>
 
-    <LinearLayout
-        android:id="@+id/my_posts"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:orientation="horizontal"
-        android:paddingLeft="24dp">
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="消息"
+                    android:textColor="?attr/colorText"
+                    android:textSize="18sp"/>
 
-        <com.joanzapata.iconify.widget.IconTextView
-            android:layout_width="24sp"
-            android:layout_height="match_parent"
-            android:layout_marginRight="12dp"
-            android:gravity="center"
-            android:text="{md-mode-comment}"
-            android:textColor="?attr/colorText"
-            android:textSize="24sp"/>
+            </LinearLayout>
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:text="我的主题"
-            android:textColor="?attr/colorText"
-            android:textSize="18sp"/>
+            <LinearLayout
+                android:id="@+id/my_posts"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:orientation="horizontal"
+                android:paddingLeft="24dp">
 
-    </LinearLayout>
+                <com.joanzapata.iconify.widget.IconTextView
+                    android:layout_width="24sp"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:text="{md-mode-comment}"
+                    android:textColor="?attr/colorText"
+                    android:textSize="24sp"/>
 
-    <LinearLayout
-        android:id="@+id/search"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:orientation="horizontal"
-        android:paddingLeft="24dp">
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="我的主题"
+                    android:textColor="?attr/colorText"
+                    android:textSize="18sp"/>
 
-        <com.joanzapata.iconify.widget.IconTextView
-            android:layout_width="24sp"
-            android:layout_height="match_parent"
-            android:layout_marginRight="12dp"
-            android:gravity="center"
-            android:text="{md-search}"
-            android:textColor="?attr/colorText"
-            android:textSize="24sp"/>
+            </LinearLayout>
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:text="搜索"
-            android:textColor="?attr/colorText"
-            android:textSize="18sp"/>
+            <LinearLayout
+                android:id="@+id/search"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:orientation="horizontal"
+                android:paddingLeft="24dp">
 
-    </LinearLayout>
+                <com.joanzapata.iconify.widget.IconTextView
+                    android:layout_width="24sp"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:text="{md-search}"
+                    android:textColor="?attr/colorText"
+                    android:textSize="24sp"/>
 
-    <LinearLayout
-        android:id="@+id/settings"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:orientation="horizontal"
-        android:paddingLeft="24dp">
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="搜索"
+                    android:textColor="?attr/colorText"
+                    android:textSize="18sp"/>
 
-        <com.joanzapata.iconify.widget.IconTextView
-            android:layout_width="24sp"
-            android:layout_height="match_parent"
-            android:layout_marginRight="12dp"
-            android:gravity="center"
-            android:text="{md-settings}"
-            android:textColor="?attr/colorText"
-            android:textSize="24sp"/>
+            </LinearLayout>
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:text="设置"
-            android:textColor="?attr/colorText"
-            android:textSize="18sp"/>
+            <LinearLayout
+                android:id="@+id/settings"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:orientation="horizontal"
+                android:paddingLeft="24dp">
 
-    </LinearLayout>
+                <com.joanzapata.iconify.widget.IconTextView
+                    android:layout_width="24sp"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:text="{md-settings}"
+                    android:textColor="?attr/colorText"
+                    android:textSize="24sp"/>
 
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="设置"
+                    android:textColor="?attr/colorText"
+                    android:textSize="18sp"/>
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

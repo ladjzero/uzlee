@@ -78,6 +78,8 @@ var model = {
                 });
             }
         });
+
+        setTimeout(echo.render, 100);
     }
 };
 
