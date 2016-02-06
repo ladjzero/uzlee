@@ -518,6 +518,12 @@ public class Core {
 		if (timeStr.startsWith("发表于")) {
 			timeStr = timeStr.substring(3);
 			timeStr = timeStr.trim();
+
+			try {
+				timeStr = Utils.prettyTime(timeStr);
+			} catch (Exception e) {
+
+			}
 		}
 
 		String postIndex = ePost.select("a[id^=postnum] > em").text();

@@ -5,6 +5,10 @@ android {
     buildToolsVersion '23.0.2'
     useLibrary 'org.apache.http.legacy'
 
+    dataBinding {
+        enabled true
+    }
+
     packagingOptions {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/LICENSE.txt'

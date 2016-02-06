@@ -81,6 +81,8 @@ var model = {
     }
 };
 
+window._posts = model.posts;
+
 document.addEventListener('DOMContentLoaded', function () {
     var queries = parseQueryString();
     var theme = queries.theme;
@@ -124,18 +126,17 @@ window.loadPosts = function(posts, removeAll) {
     echo.render();
 };
 
-window.addPost = function(post) {
-    model.posts.push(post);
-    echo.render();
-};
-
-window.removeAll = function () {
-    model.posts.removeAll();
-};
-
 window.scrollToPost = function(pid) {
-    location.hash = '';
-    location.hash = 'pid-' + pid;
+    var id = 'pid-' + pid;
+    var calledTimes = arguments[1] || 10;
+
+    if (document.getElementById(id)) {
+        console.log('Scroll to pid-' + pid + 'successfully.');
+        location.hash = '';
+        location.hash = id;
+    } else if (calledTimes) {
+        setTimeout(scrollToPost.bind(null, pid, calledTimes - 1), 500);
+    }
 };
 
 console.log('posts.js is loaded');

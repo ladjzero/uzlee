@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.databinding.ObservableList;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -20,7 +21,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -51,8 +51,6 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.drakeet.materialdialog.MaterialDialog;
 
-import static com.ladjzero.hipda.Core.OnPostsListener;
-import static com.ladjzero.hipda.Core.OnProgress;
 import static com.ladjzero.hipda.Core.OnRequestListener;
 import static com.ladjzero.hipda.Core.addToFavorite;
 import static com.ladjzero.hipda.Core.getHtml;
@@ -63,7 +61,6 @@ import static com.ladjzero.hipda.Core.sendReply;
 
 
 public class ActivityPosts extends ActivityWithWebView implements AdapterView.OnItemClickListener,
-		OnPostsListener,
 		DiscreteSeekBar.OnProgressChangeListener,
 		PullToRefreshBase.OnPullEventListener,
 		PullToRefreshBase.OnRefreshListener2,
@@ -86,7 +83,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	private int mThreadUserId = 0;
 	private int mTid;
 	private int mPage;
-	private Posts mPosts = new Posts();
+	private Posts mPosts;
 	private WebView2 mWebView;
 	private boolean mHasNextPage = false;
 	private DiscreteSeekBar mSeekBar;
@@ -137,19 +134,13 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				startActivityForResult(replyIntent, EDIT_CODE);
 			case 1:
 				orderType = orderType == 0 ? 1 : 0;
-				fetch(1, ActivityPosts.this);
+				fetch(1);
 				// dismiss before data change, visual perfect
 				mMenuDialog.dismiss();
 				actionsAdapter.notifyDataSetChanged();
 				break;
 			case 2:
-				mWebView.post(new Runnable() {
-					@Override
-					public void run() {
-						mWebView.loadUrl("javascript:removeAll();");
-					}
-				});
-				fetch(mPage, ActivityPosts.this);
+				fetch(mPage);
 				break;
 			case 3:
 				addToFavorite(mTid, new OnRequestListener() {
@@ -214,7 +205,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mMenuDialog.dismiss();
 	}
 
-	private void fetch(int page, final OnPostsListener onPostsListener) {
+	private void fetch(int page) {
 		try {
 			myid = getUser().getId();
 		} catch (Exception e) {
@@ -228,72 +219,26 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		Logger.i("Fetching: %s", url);
 
+		mPosts.clear();
+
 		getHtml(url, new OnRequestListener() {
 			@Override
 			public void onError(String error) {
 				mIsFetching = false;
-//				toggleMenus(true);
 				toogleSipnner(false);
 
-				onPostsListener.onError(error);
+				showToast(error);
 				mPostsView.onRefreshComplete();
-
 			}
 
 			@Override
 			public void onSuccess(String html) {
 				mPostsView.onRefreshComplete();
-
 				mIsFetching = false;
 
-				new AsyncTask<String, Object, Posts>() {
-					@Override
-					protected Posts doInBackground(String... strings) {
-						return parsePosts(strings[0], new OnProgress() {
-							@Override
-							public void progress(int current, int total, Object post) {
-								if (current == 1) publishProgress(current, total, post);
-							}
-						});
-					}
+				Logger.i("html fetched.");
 
-					// Load the first post as soon as possible.
-					@Override
-					protected void onProgressUpdate(Object... objects) {
-						Post post = (Post) objects[2];
-						if (post.getId() == 1) mThreadUserId = post.getAuthor().getId();
-						post.setIsLz(post.getAuthor().getId() == mThreadUserId);
-					}
-
-					@Override
-					protected void onPostExecute(Posts posts) {
-						mPosts = posts;
-						mIsFetching = false;
-
-						for (Post post : posts) {
-							if (post.getId() == 1) {
-								try {
-									mThreadUserId = post.getAuthor().getId();
-								} catch (Exception e) {
-									mThreadUserId = 0;
-								}
-							}
-
-							boolean isLz = false;
-
-							try {
-								isLz = post.getAuthor().getId() == mThreadUserId;
-							} catch (Exception e) {
-
-							}
-
-							post.setIsLz(isLz);
-						}
-
-						toogleSipnner(false);
-						onPostsListener.onPosts(posts);
-					}
-				}.execute(html);
+				onHtml(html);
 			}
 		});
 	}
@@ -405,6 +350,9 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				.contentView(mMenuView);
 
 		mMenuDialog.setCanceledOnTouchOutside(true);
+
+		mPosts = new Posts();
+		mPosts.addOnListChangedCallback(new OnListChangedCallback());
 	}
 
 	@Override
@@ -412,7 +360,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		super.onResume();
 
 		if (mPosts.size() == 0) {
-			fetch(mPage, this);
+			fetch(mPage);
 		}
 	}
 
@@ -490,17 +438,37 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	}
 
 	private void onHtml(String html) {
+		Logger.i("Parsing html.");
+
 		if (html != null && html.length() > 0) {
-			new AsyncTask<String, Float, Posts>() {
+			new AsyncTask<String, Object, Posts>() {
 				@Override
 				protected Posts doInBackground(String... strings) {
-					return parsePosts(strings[0], null);
+					return parsePosts(strings[0], new Core.OnProgress() {
+						@Override
+						public void progress(int current, int total, Object o) {
+							publishProgress(current, total, o);
+						}
+					});
+				}
+
+				// Load the first post as soon as possible.
+				@Override
+				protected void onProgressUpdate(Object... objects) {
+					Post post = (Post) objects[2];
+					if (post.getId() == 1) mThreadUserId = post.getAuthor().getId();
+					post.setIsLz(post.getAuthor().getId() == mThreadUserId);
+					mPosts.add(post);
+
+					Logger.i("Parsed one post.");
 				}
 
 				@Override
 				protected void onPostExecute(Posts posts) {
+					Logger.i("Parsing done.");
+					mPosts.replaceMeta(posts);
+
 					mIsFetching = false;
-					mPosts = posts;
 
 					mPage = posts.getPage();
 					int totalPage = posts.getTotalPage(),
@@ -522,59 +490,40 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 						post.setIsLz(post.getAuthor().getId() == mThreadUserId);
 					}
 
-					commitPosts(posts);
-					mPosts = posts;
+					toogleSipnner(false);
+
+					mTitleView.setText(posts.getTitle());
+
+					if (totalPage > 1) {
+						mSeekBar.setMax(totalPage);
+						mSeekBar.setProgress(currPage);
+					} else {
+						mSeekBar.setVisibility(View.GONE);
+					}
+
+					mHasNextPage = totalPage > currPage;
+					mPage = currPage;
+
+					if (mHasNextPage) {
+						mPostsView.setMode(currPage == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
+					} else {
+						mPostsView.setMode(currPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
+					}
+
+					// Locate to the specified post.
+					if (mPid != 0) {
+						mWebView.loadUrl("javascript:scrollToPost(" + mPid + ")");
+						Logger.i("Scrolling to pid-%d", mPid);
+						mPid = 0;
+					}
+
+					if (mInitToLastPost) {
+						mInitToLastPost = false;
+						mWebView.loadUrl("javascript:scrollToPost(" + posts.get(posts.size() - 1).getId() + ")");
+					}
 				}
 			}.execute(html);
 		}
-	}
-
-	@Override
-	public void onPosts(final Posts posts) {
-		mTitleView.setText(posts.getTitle());
-
-		for (Post p : posts) {
-			String timeStr = p.getTimeStr();
-			timeStr = Utils.prettyTime(timeStr);
-			p.setTimeStr(timeStr);
-		}
-
-		int totalPage = posts.getTotalPage(),
-				currPage = posts.getPage();
-
-		if (totalPage > 1) {
-			mSeekBar.setMax(totalPage);
-			mSeekBar.setProgress(currPage);
-		} else {
-			mSeekBar.setVisibility(View.GONE);
-		}
-
-		mHasNextPage = totalPage > currPage;
-		mPage = currPage;
-
-		if (mHasNextPage) {
-			mPostsView.setMode(currPage == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
-		} else {
-			mPostsView.setMode(currPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
-		}
-
-		commitPosts(posts);
-
-		// Locate to the specified post.
-		if (mPid != 0) {
-			mWebView.loadUrl("javascript:scrollToPost(" + mPid + ")");
-			mPid = 0;
-		}
-
-		if (mInitToLastPost) {
-			mInitToLastPost = false;
-			mWebView.loadUrl("javascript:scrollToPost(" + posts.get(posts.size() - 1).getId() + ")");
-		}
-	}
-
-	@Override
-	public void onError(String error) {
-		showToast(error);
 	}
 
 	@Override
@@ -628,7 +577,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	@Override
 	public void onStopTrackingTouch(DiscreteSeekBar seekBar) {
 		if (mPage != seekBar.getProgress()) {
-			fetch(seekBar.getProgress(), ActivityPosts.this);
+			fetch(seekBar.getProgress());
 			mMenuDialog.dismiss();
 		}
 	}
@@ -813,27 +762,13 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@Override
 	public void onPullDownToRefresh(PullToRefreshBase refreshView) {
-		mWebView.post(new Runnable() {
-			@Override
-			public void run() {
-				mWebView.loadUrl("javascript:removeAll();");
-			}
-		});
-
-		fetch(mPosts.getPage() - 1, ActivityPosts.this);
+		fetch(mPosts.getPage() - 1);
 		position = 0;
 	}
 
 	@Override
 	public void onPullUpToRefresh(PullToRefreshBase refreshView) {
-		mWebView.post(new Runnable() {
-			@Override
-			public void run() {
-				mWebView.loadUrl("javascript:removeAll();");
-			}
-		});
-
-		fetch(mPosts.getPage() + 1, ActivityPosts.this);
+		fetch(mPosts.getPage() + 1);
 		position = 0;
 	}
 
@@ -842,21 +777,39 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		super.onWebViewReady();
 
 		mWebViewReady = true;
-		commitPosts(mPosts);
 	}
 
-	private void commitPosts(final Posts posts) {
-		if (mWebViewReady) {
-			mWebView.post(new Runnable() {
-				@Override
-				public void run() {
-					mWebView.loadUrl("javascript:removeAll();");
+	class OnListChangedCallback extends ObservableList.OnListChangedCallback {
 
-					for (Post post : posts) {
-						mWebView.loadUrl("javascript:addPost(" + JSON.toJSONString(post) + ")");
-					}
-				}
-			});
+		@Override
+		public void onChanged(ObservableList sender) {
+
+		}
+
+		@Override
+		public void onItemRangeChanged(ObservableList sender, int positionStart, int itemCount) {
+
+		}
+
+		@Override
+		public void onItemRangeInserted(ObservableList sender, int positionStart, int itemCount) {
+			Logger.i("onItemRangeInserted, positionStart %d itemCount %d", positionStart, itemCount);
+			// Assume that only PUSH operation inserts posts.
+			for (int i = positionStart; i < positionStart + itemCount; i++) {
+				Post post = (Post) sender.get(i);
+				mWebView.loadUrl("javascript:_posts.push(" + JSON.toJSONString(post) + ")");
+			}
+		}
+
+		@Override
+		public void onItemRangeMoved(ObservableList sender, int fromPosition, int toPosition, int itemCount) {
+
+		}
+
+		@Override
+		public void onItemRangeRemoved(ObservableList sender, int positionStart, int itemCount) {
+			Logger.i("onItemRangeRemoved, positionStart %d itemCount %d", positionStart, itemCount);
+			mWebView.loadUrl("javascript:_posts.splice(" + positionStart + ", " + itemCount + ")");
 		}
 	}
 }

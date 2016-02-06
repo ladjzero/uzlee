@@ -4,6 +4,8 @@ package com.ladjzero.hipda;
  * Created by ladjzero on 2015/4/6.
  */
 
+import android.databinding.ObservableArrayList;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
@@ -11,40 +13,26 @@ import org.apache.commons.collections.Transformer;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class Posts extends ArrayList<Post> {
+public class Posts extends ObservableArrayList<Post> {
 	private int fid;
 	private int page;
 	private int totalPage;
 	private boolean hasNextPage;
 	private int orderType;
 	private String title;
-	private Posts lastMerged;
-	private boolean noPermission;
 
-	public boolean merge(Posts posts) {
+	public void replaceMeta(Posts posts) {
 		this.setFid(posts.getFid());
 		this.setPage(posts.getPage());
 		this.setTotalPage(posts.getTotalPage());
 		this.setOrderType(posts.getOrderType());
 		this.setTitle(posts.getTitle());
+	}
 
-		final Collection ids = CollectionUtils.collect(posts, new Transformer() {
-			@Override
-			public Object transform(Object o) {
-				return ((Post) o).getId();
-			}
-		});
-
-		CollectionUtils.filter(this, new Predicate() {
-			@Override
-			public boolean evaluate(Object o) {
-				return !ids.contains(((Post) o).getId());
-			}
-		});
-
-		lastMerged = posts;
-
-		return super.addAll(posts);
+	public boolean replace(Posts posts) {
+		replaceMeta(posts);
+		this.clear();
+		return this.addAll(posts);
 	}
 
 	public int getFid() {
@@ -93,20 +81,5 @@ public class Posts extends ArrayList<Post> {
 
 	public void setTitle(String title) {
 		this.title = title;
-	}
-
-	public Posts getLastMerged() {
-		if (lastMerged == null)
-			return this;
-		else
-			return lastMerged;
-	}
-
-	public boolean isNoPermission() {
-		return noPermission;
-	}
-
-	public void setNoPermission(boolean noPermission) {
-		this.noPermission = noPermission;
 	}
 }
