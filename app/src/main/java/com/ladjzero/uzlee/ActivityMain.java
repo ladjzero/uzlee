@@ -272,6 +272,16 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		startActivityForResult(intent, 0);
 	}
 
+	@OnClick(R.id.themeSwitch)
+	void onThemeSwitch() {
+		SharedPreferences settings = getSettings();
+		if (Utils.getTheme("night") == getThemeId()) {
+			settings.edit().putString("theme", settings.getString("lastDayTheme", DefaultTheme)).commit();
+		} else {
+			settings.edit().putString("theme", "night").commit();
+		}
+	}
+
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (data != null && data.getBooleanExtra("reload", false)) {

@@ -16,6 +16,8 @@
         <item name="colorTextInverse07">@color/dayTextInverse07</item>
         <item name="colorBackgroundSecondary">#e9e9e9</item>
         <item name="colorDivider">@color/snow_primary</item>
+        <item name="switchToTheme">夜间模式</item>
+        <item name="switchToThemeIcon">{md-brightness-2}</item>
     </style>
 
     <style name="AppBaseTheme.Day.Red">
@@ -97,6 +99,8 @@
         <item name="android:actionModeBackground">@color/nightPrimary</item>
         <item name="colorBackgroundSecondary">#353535</item>
         <item name="colorDivider">#3e3e3e</item>
+        <item name="switchToTheme">日间模式</item>
+        <item name="switchToThemeIcon">{md-brightness-7}</item>
     </style>
 
     <style name="AppBaseTheme.NoTransparent">

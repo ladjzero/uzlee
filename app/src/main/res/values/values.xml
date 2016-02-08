@@ -13,4 +13,6 @@
     <attr name="colorTextInverse07" format="color"></attr>
     <attr name="colorBackgroundSecondary" format="color"></attr>
     <attr name="colorDivider" format="color"></attr>
+    <attr name="switchToTheme" format="string"></attr>
+    <attr name="switchToThemeIcon" format="string"></attr>
 </resources>

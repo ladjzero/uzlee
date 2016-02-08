@@ -149,6 +149,32 @@
                     android:textSize="18sp"/>
 
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/themeSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:orientation="horizontal"
+                android:paddingLeft="24dp">
+
+                <com.joanzapata.iconify.widget.IconTextView
+                    android:layout_width="24sp"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:text="?attr/switchToThemeIcon"
+                    android:textColor="?attr/colorText"
+                    android:textSize="24sp"/>
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="?attr/switchToTheme"
+                    android:textColor="?attr/colorText"
+                    android:textSize="18sp"/>
+
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

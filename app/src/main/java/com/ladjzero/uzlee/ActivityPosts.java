@@ -221,7 +221,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		Logger.i("Fetching: %s", url);
 
-		mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
 		mPosts.clear();
 
 		getHtml(url, new OnRequestListener() {
@@ -467,6 +466,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 					post.setIsLz(post.getAuthor().getId() == mThreadUserId);
 					mPosts.add(post);
 
+					mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
 					Logger.i("Parsed one post.");
 				}
 

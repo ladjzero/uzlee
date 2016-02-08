@@ -57,6 +57,12 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 		}
 
 		if (key.equals("theme")) {
+			String newTheme = sharedPreferences.getString("theme", DefaultTheme);
+
+			if (!newTheme.equals("night")) {
+				sharedPreferences.edit().putString("lastDayTheme", newTheme).commit();
+			}
+
 			Intent intent = new Intent();
 			this.setResult(0, intent);
 			this.reload();
