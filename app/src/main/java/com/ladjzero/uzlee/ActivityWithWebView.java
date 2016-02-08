@@ -2,16 +2,12 @@ package com.ladjzero.uzlee;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
-import android.util.Log;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 
 import com.orhanobut.logger.Logger;
-import com.r0adkll.slidr.Slidr;
-import com.r0adkll.slidr.model.SlidrInterface;
 
 /**
  * Created by chenzhuo on 15-10-4.
@@ -42,21 +38,6 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements O
 		if (!initialized) {
 			WebView2 webView = getWebView();
 
-			webView.setOnScrollListener(new WebView2.OnScrollListener() {
-				@Override
-				public void onScrollStateChanged(WebView2 webView, int state) {
-					SlidrInterface it = getSlidrInterface();
-
-					if (state == WebView2.OnScrollListener.SCROLL_STATE_IDLE) {
-						it.unlock();
-						Log.d("haha", "unlock");
-					} else {
-						it.lock();
-						Log.d("haha", "lock");
-
-					}
-				}
-			});
 			webView.addJavascriptInterface(this, "UZLEE");
 			webView.setWebChromeClient(new WebChromeClient() {
 				@Override
