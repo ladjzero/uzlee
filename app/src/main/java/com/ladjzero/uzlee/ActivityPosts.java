@@ -221,6 +221,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		Logger.i("Fetching: %s", url);
 
+		mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
 		mPosts.clear();
 
 		getHtml(url, new OnRequestListener() {
@@ -585,22 +586,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		if (mPage != seekBar.getProgress()) {
 			fetch(seekBar.getProgress());
 			mMenuDialog.dismiss();
-		}
-	}
-
-	@JavascriptInterface
-	public void onProfileClick(int uid, String name) {
-		User me = Core.getUser();
-
-		if (me == null || me.getId() == 0) {
-			showToast(getResources().getString(R.string.error_login_required));
-		} else {
-//			showToast("user id is " + uid);
-
-			Intent intent = new Intent(this, ActivityUser.class);
-			intent.putExtra("uid", uid);
-			intent.putExtra("name", name);
-			startActivity(intent);
 		}
 	}
 

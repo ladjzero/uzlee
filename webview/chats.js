@@ -34,6 +34,21 @@ window.loadHTML = function (html) {
         });
     }
 
+    var avatarLinks = list.querySelectorAll('a.avatar');
+    var uidRe = /uid=(\d+)/;
+
+    for (var i = 0, len = avatarLinks.length; i < len; ++i) {
+        var link = avatarLinks[i];
+
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            try {
+                UZLEE.onProfileClick(parseInt(this.href.match(uidRe)[1]), '');
+            } catch (e) {}
+        });
+    }
+
     var avatars = list.querySelectorAll('.avatar > img');
 
     for (var i = 0, len = avatars.length; i < len; ++i) {

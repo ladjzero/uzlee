@@ -7,6 +7,8 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 
+import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.User;
 import com.orhanobut.logger.Logger;
 
 /**
@@ -15,6 +17,22 @@ import com.orhanobut.logger.Logger;
 public abstract class ActivityWithWebView extends ActivityHardSlide implements OnToolbarClickListener {
 
 	private boolean initialized;
+
+	@JavascriptInterface
+	public void onProfileClick(int uid, String name) {
+		User me = Core.getUser();
+
+		if (me == null || me.getId() == 0) {
+			showToast(getResources().getString(R.string.error_login_required));
+		} else {
+//			showToast("user id is " + uid);
+
+			Intent intent = new Intent(this, ActivityUser.class);
+			intent.putExtra("uid", uid);
+			intent.putExtra("name", name);
+			startActivity(intent);
+		}
+	}
 
 	@JavascriptInterface
 	public void onImageClick(String src) {
