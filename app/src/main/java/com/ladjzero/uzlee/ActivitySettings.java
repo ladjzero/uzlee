@@ -53,6 +53,7 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 
 		if (key.equals("selected_forums")) {
 			Intent intent = new Intent();
+			intent.putExtra("reload", true);
 			this.setResult(0, intent);
 		}
 

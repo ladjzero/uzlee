@@ -417,7 +417,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		String reply = mQuickEdit.getText().toString();
 
 		if (getSettings().getBoolean("use_sig", false)) {
-			reply += "[size=1][color=Gray]有只梨[/color][/size]";
+			reply += "\t\t\t[size=1][color=Gray]有只梨[/color][/size]";
 		}
 
 		sendReply(mTid, reply, null, null, new OnRequestListener() {
