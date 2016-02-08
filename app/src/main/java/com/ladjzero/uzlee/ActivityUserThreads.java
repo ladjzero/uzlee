@@ -6,13 +6,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-import com.r0adkll.slidr.Slidr;
-import com.r0adkll.slidr.model.SlidrInterface;
-
-public class ActivityUserThreads extends ActivityBase {
+public class ActivityUserThreads extends ActivityHardSlide {
 
 	private FragmentThreadsAbs mFragment;
-	protected SlidrInterface slidrInterface;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +39,5 @@ public class ActivityUserThreads extends ActivityBase {
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		ft.replace(R.id.place_holder, mFragment);
 		ft.commit();
-
-		slidrInterface = Slidr.attach(this);
 	}
 }

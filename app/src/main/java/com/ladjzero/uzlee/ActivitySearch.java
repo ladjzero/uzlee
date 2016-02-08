@@ -9,24 +9,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
-import com.r0adkll.slidr.Slidr;
-import com.r0adkll.slidr.model.SlidrInterface;
-import com.rey.material.widget.ProgressView;
-
-public class ActivitySearch extends ActivityBase implements View.OnKeyListener {
+public class ActivitySearch extends ActivityHardSlide implements View.OnKeyListener {
 
 	private FragmentSearchThreads mFragment;
-	protected SlidrInterface slidrInterface;
-
-
 	private EditText mSearch;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_search);
-
-		slidrInterface = Slidr.attach(this);
 
 		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
@@ -45,9 +36,7 @@ public class ActivitySearch extends ActivityBase implements View.OnKeyListener {
 		ft.replace(R.id.place_holder, mFragment);
 		ft.commit();
 
-
 		mSearch = (EditText) findViewById(R.id.search_input);
-
 		mSearch.setOnKeyListener(this);
 	}
 

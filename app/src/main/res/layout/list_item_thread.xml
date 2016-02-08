@@ -9,7 +9,7 @@
 
 	<include layout="@layout/include_user_of_thread"/>
 
-	<TextView
+	<com.joanzapata.iconify.widget.IconTextView
 		android:id="@+id/thread_title"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"

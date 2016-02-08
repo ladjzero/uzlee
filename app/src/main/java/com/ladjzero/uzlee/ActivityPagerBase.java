@@ -11,19 +11,16 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 
-import com.r0adkll.slidr.Slidr;
 import com.r0adkll.slidr.model.SlidrInterface;
 import com.rey.material.widget.TabPageIndicator;
 
 /**
  * Created by chenzhuo on 15-10-2.
  */
-public abstract class ActivityPagerBase extends ActivityBase implements ViewPager.OnPageChangeListener{
+public abstract class ActivityPagerBase extends ActivityEasySlide implements ViewPager.OnPageChangeListener {
 	SectionsPagerAdapter mSectionsPagerAdapter;
 	ViewPager mViewPager;
 	SparseArray<Fragment> mFragmentCache;
-	SlidrInterface slidrInterface;
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +48,6 @@ public abstract class ActivityPagerBase extends ActivityBase implements ViewPage
 
 		tabs.setViewPager(mViewPager);
 		tabs.setOnPageChangeListener(this);
-
-		slidrInterface = Slidr.attach(this, slidrConfig);
 	}
 
 	@Override
@@ -68,8 +63,10 @@ public abstract class ActivityPagerBase extends ActivityBase implements ViewPage
 
 	@Override
 	public void onPageSelected(int i) {
-		if (i == 0) slidrInterface.unlock();
-		else slidrInterface.lock();
+		SlidrInterface it = getSlidrInterface();
+
+		if (i == 0) it.unlock();
+		else it.lock();
 	}
 
 	@Override

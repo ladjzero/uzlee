@@ -28,7 +28,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
-public class ActivitySettings extends ActivityBase implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class ActivitySettings extends ActivityEasySlide implements SharedPreferences.OnSharedPreferenceChangeListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -41,8 +41,6 @@ public class ActivitySettings extends ActivityBase implements SharedPreferences.
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		getFragmentManager().beginTransaction().replace(R.id.content, new SettingFragment()).commit();
-
-		Slidr.attach(this);
 
 		this.setResult(0, new Intent());
 	}

@@ -16,9 +16,8 @@ import com.r0adkll.slidr.model.SlidrInterface;
 /**
  * Created by chenzhuo on 15-10-4.
  */
-public abstract class ActivityWithWebView extends ActivityBase implements OnToolbarClickListener {
+public abstract class ActivityWithWebView extends ActivityHardSlide implements OnToolbarClickListener {
 
-	private SlidrInterface slidrInterface;
 	private boolean initialized;
 
 	@JavascriptInterface
@@ -34,13 +33,6 @@ public abstract class ActivityWithWebView extends ActivityBase implements OnTool
 	}
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		slidrInterface = Slidr.attach(this);
-	}
-
-	@Override
 	protected void onResume() {
 		super.onResume();
 		setupWebView();
@@ -53,11 +45,13 @@ public abstract class ActivityWithWebView extends ActivityBase implements OnTool
 			webView.setOnScrollListener(new WebView2.OnScrollListener() {
 				@Override
 				public void onScrollStateChanged(WebView2 webView, int state) {
+					SlidrInterface it = getSlidrInterface();
+
 					if (state == WebView2.OnScrollListener.SCROLL_STATE_IDLE) {
-						slidrInterface.unlock();
+						it.unlock();
 						Log.d("haha", "unlock");
 					} else {
-						slidrInterface.lock();
+						it.lock();
 						Log.d("haha", "lock");
 
 					}
@@ -86,10 +80,6 @@ public abstract class ActivityWithWebView extends ActivityBase implements OnTool
 	public abstract WebView2 getWebView();
 
 	public abstract String getHTMLFilePath();
-
-	public SlidrInterface getSlidrInterface() {
-		return slidrInterface;
-	}
 
 	@Override
 	public void toolbarClick() {

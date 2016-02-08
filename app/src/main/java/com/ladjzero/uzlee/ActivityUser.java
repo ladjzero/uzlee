@@ -17,7 +17,7 @@ import com.r0adkll.slidr.Slidr;
 
 import java.util.ArrayList;
 
-public class ActivityUser extends ActivityBase {
+public class ActivityUser extends ActivityEasySlide {
 
 	LinearLayout mInfo;
 	View chat;
@@ -127,8 +127,6 @@ public class ActivityUser extends ActivityBase {
 				updateBlockButton();
 			}
 		});
-
-		Slidr.attach(this);
 	}
 
 	private void updateBlockButton() {

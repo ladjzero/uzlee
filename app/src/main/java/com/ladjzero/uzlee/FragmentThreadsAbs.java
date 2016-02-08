@@ -131,9 +131,9 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 
 
 		if (mActivity instanceof ActivityUserThreads) {
-			slidrInterface = ((ActivityUserThreads) mActivity).slidrInterface;
+			slidrInterface = ((ActivityUserThreads) mActivity).getSlidrInterface();
 		} else if (mActivity instanceof ActivitySearch) {
-			slidrInterface = ((ActivitySearch) mActivity).slidrInterface;
+			slidrInterface = ((ActivitySearch) mActivity).getSlidrInterface();
 		}
 
 		mAdapter = new AdapterThreads(mActivity, mThreads);

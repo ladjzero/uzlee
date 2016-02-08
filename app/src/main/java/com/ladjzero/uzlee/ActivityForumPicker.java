@@ -34,7 +34,7 @@ import butterknife.ButterKnife;
 /**
  * Created by chenzhuo on 15-12-12.
  */
-public class ActivityForumPicker extends ActivityBase {
+public class ActivityForumPicker extends ActivityEasySlide {
 
     @Bind(R.id.list)
     DragSortListView listView;
@@ -47,7 +47,6 @@ public class ActivityForumPicker extends ActivityBase {
         super.onCreate(bundle);
         setContentView(R.layout.activity_forum_picker);
         ButterKnife.bind(this);
-        Slidr.attach(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

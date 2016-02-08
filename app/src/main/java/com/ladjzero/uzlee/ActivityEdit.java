@@ -34,7 +34,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 
-public class ActivityEdit extends ActivityBase implements Core.OnRequestListener {
+public class ActivityEdit extends ActivityHardSlide implements Core.OnRequestListener {
 	public static final int EDIT_SUCCESS = 10;
 
 	int tid;
@@ -122,8 +122,6 @@ public class ActivityEdit extends ActivityBase implements Core.OnRequestListener
 				if (mEmojiSelector != null) mEmojiSelector.setVisibility(View.GONE);
 			}
 		});
-
-		Slidr.attach(this, slidrConfig);
 	}
 
 	@Override

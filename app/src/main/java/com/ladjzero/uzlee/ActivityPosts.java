@@ -595,7 +595,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		if (me == null || me.getId() == 0) {
 			showToast(getResources().getString(R.string.error_login_required));
 		} else {
-			showToast("user id is " + uid);
+//			showToast("user id is " + uid);
 
 			Intent intent = new Intent(this, ActivityUser.class);
 			intent.putExtra("uid", uid);

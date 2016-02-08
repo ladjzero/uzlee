@@ -143,7 +143,7 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 				.position(SlidrPosition.LEFT)
 				.distanceThreshold(0.25f)
 				.velocityThreshold(2400)
-				.sensitivity(0.47f)
+				.sensitivity(0.1f)
 				.build();
 
 		emojiUtils = new EmojiUtils(this);
