@@ -14,8 +14,10 @@ import android.view.ViewGroup;
 import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
+import com.ladjzero.hipda.HttpApi;
+import com.ladjzero.hipda.HttpClientCallback;
+import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.User;
-import com.r0adkll.slidr.Slidr;
 import com.rey.material.app.Dialog;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -29,6 +31,10 @@ import butterknife.OnClick;
 
 
 public class ActivitySettings extends ActivityEasySlide implements SharedPreferences.OnSharedPreferenceChangeListener {
+	private HttpApi mHttpApi;
+	private LocalApi mLocalApi;
+	private HttpClient2 mHttpClient;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -43,6 +49,10 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 		getFragmentManager().beginTransaction().replace(R.id.content, new SettingFragment()).commit();
 
 		this.setResult(0, new Intent());
+
+		mHttpApi = getCore().getHttpApi();
+		mLocalApi = getCore().getLocalApi();
+		mHttpClient = getApp().getHttpClient();
 	}
 
 	@Override
@@ -93,14 +103,16 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 	public static class SettingFragment extends PreferenceFragment {
 		private ActivityBase mActivity;
 
+
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.preference);
 			mActivity = (ActivityBase) getActivity();
+
 			final SharedPreferences pref = mActivity.getSettings();
 
-			List<Forum> forums = Core.getFlattenForums(mActivity);
+			List<Forum> forums = getFlattenForums(mActivity);
 
 			String[] forumNames = (String[]) CollectionUtils.collect(forums, new Transformer() {
 				@Override
@@ -117,24 +129,27 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 			}).toArray(new String[0]);
 
 			Preference logout = findPreference("logout");
-			User me = Core.getUser();
+			final ActivitySettings activity = (ActivitySettings) getActivity();
+			User me = activity.mLocalApi.getUser();
 			logout.setTitle(me == null || me.getId() == 0 ? "登入" : "登出");
 
 			logout.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					Core.logout(new Core.OnRequestListener() {
+					activity.mHttpApi.logout(new HttpClientCallback() {
 						@Override
-						public void onError(String error) {
-							mActivity.showToast(error);
-						}
+						public void onSuccess(String response) {
+							activity.mHttpClient.getCookieStore().clear();
 
-						@Override
-						public void onSuccess(String html) {
 							Utils.gotoActivity(mActivity, ActivityLogin.class,
 									Intent.FLAG_ACTIVITY_TASK_ON_HOME |
 											Intent.FLAG_ACTIVITY_NEW_TASK |
 											Intent.FLAG_ACTIVITY_CLEAR_TASK);
+						}
+
+						@Override
+						public void onFailure(String reason) {
+							mActivity.showToast(reason);
 						}
 					});
 

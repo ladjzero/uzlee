@@ -19,6 +19,8 @@ import android.view.View;
 
 import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.Forum;
+import com.ladjzero.hipda.HttpClientCallback;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -26,29 +28,27 @@ import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.utils.L;
 import com.orhanobut.logger.Logger;
-import com.r0adkll.slidr.model.SlidrConfig;
-import com.r0adkll.slidr.model.SlidrPosition;
-import com.rey.material.app.Dialog;
 import com.rey.material.app.DialogFragment;
 import com.rey.material.app.SimpleDialog;
 import com.tencent.stat.StatService;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 
 
-public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
+public abstract class ActivityBase extends ActionBarActivity {
 	public static final int IMAGE_MEM_CACHE_SIZE = 16 * 1024 * 1024;
 	public static final String DefaultTheme = "dark";
 	private static final String TAG = "ActivityBase";
 	private static final int mTransparenty = android.R.color.transparent;
-	public static final DisplayImageOptions imageStandAlone = new DisplayImageOptions.Builder()
-			.showImageForEmptyUri(mTransparenty)
-			.showImageOnLoading(mTransparenty)
-			.showImageOnFail(mTransparenty)
-			.cacheInMemory(true)
-			.cacheOnDisk(true)
-			.imageScaleType(ImageScaleType.NONE_SAFE)
-			.build();
+	private static List<Forum> mForums = null;
+
 	public static final DisplayImageOptions userImageInList = new DisplayImageOptions.Builder()
 			.delayBeforeLoading(800)
 			.showImageForEmptyUri(mTransparenty)
@@ -58,16 +58,7 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 			.cacheOnDisk(true)
 			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
 			.build();
-	public static final DisplayImageOptions BestQualityDisplay = new DisplayImageOptions.Builder()
-			.delayBeforeLoading(800)
-			.showImageForEmptyUri(mTransparenty)
-			.showImageOnLoading(mTransparenty)
-			.showImageOnFail(mTransparenty)
-			.cacheInMemory(true)
-			.cacheOnDisk(true)
-			.imageScaleType(ImageScaleType.NONE_SAFE)
-			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
-			.build();
+
 	public static final DisplayImageOptions LowQualityDisplay = new DisplayImageOptions.Builder()
 			.delayBeforeLoading(800)
 			.showImageForEmptyUri(mTransparenty)
@@ -78,39 +69,18 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 			.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
 			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
 			.build();
-	public static final DisplayImageOptions BesetQualityForSingleImage = new DisplayImageOptions.Builder()
-			.showImageForEmptyUri(mTransparenty)
-			.showImageOnLoading(mTransparenty)
-			.showImageOnFail(mTransparenty)
-			.cacheInMemory(true)
-			.cacheOnDisk(true)
-			.imageScaleType(ImageScaleType.NONE_SAFE)
-			.build();
 
 	static {
 		L.writeLogs(false);
 	}
 
-	public SlidrConfig slidrConfig;
-	protected int mActionbarHeight;
 	SharedPreferences setting;
 	EmojiUtils emojiUtils;
-	Dialog alert;
 	private int mThemeId;
 	SharedPreferences.OnSharedPreferenceChangeListener prefListener;
 
-	public ActivityBase() {
-	}
-
-	public SlidrConfig getSlidrConfig() {
-		return slidrConfig;
-	}
-
-	private boolean enableSwipe() {
-		return true;
-	}
-
-	public void enableBackAction() {
+	public Core getCore() {
+		return getApp().getCore();
 	}
 
 	public void showToast(String message) {
@@ -137,14 +107,6 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 		setTheme(mThemeId = Utils.getTheme(themeColor));
 
 		super.onCreate(savedInstanceState);
-		Core.setup(this, true);
-
-		slidrConfig = new SlidrConfig.Builder()
-				.position(SlidrPosition.LEFT)
-				.distanceThreshold(0.25f)
-				.velocityThreshold(2400)
-				.sensitivity(0.1f)
-				.build();
 
 		emojiUtils = new EmojiUtils(this);
 
@@ -160,7 +122,6 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 		checkUpdate(false);
 
 		setImageNetwork();
-
 	}
 
 	public void checkUpdate(boolean force) {
@@ -168,18 +129,13 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 		Long now = System.currentTimeMillis();
 
 		if (force || now - lastCheck > 12 * 3600 * 1000) {
-			Core.requestUpdate(new Core.OnRequestListener() {
+			getApp().getHttpClient().get("https://raw.githubusercontent.com/ladjzero/uzlee/master/release/update.json", new HttpClientCallback() {
 				@Override
-				public void onError(String error) {
-					showToast("检查更新失败");
-				}
-
-				@Override
-				public void onSuccess(String html) {
-					Core.UpdateInfo info = null;
+				public void onSuccess(String response) {
+					RemotePackageInfo info = null;
 
 					try {
-						info = JSON.parseObject(html, Core.UpdateInfo.class);
+						info = JSON.parseObject(response, RemotePackageInfo.class);
 					} catch (Exception e) {
 
 					}
@@ -189,7 +145,7 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 						String newVersion = info.getVersion();
 
 						if (new VersionComparator().compare(version, newVersion) < 0) {
-							final Core.UpdateInfo finalInfo = info;
+							final RemotePackageInfo finalInfo = info;
 							SimpleDialog.Builder builder = new SimpleDialog.Builder(R.style.Material_App_Dialog_Simple_Light) {
 
 								@Override
@@ -210,6 +166,11 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 							showToast("已是最新版");
 						}
 					}
+				}
+
+				@Override
+				public void onFailure(String reason) {
+					showToast("检查更新失败");
 				}
 			});
 
@@ -256,10 +217,6 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 		}
 	}
 
-	@Override
-	public void progress(int current, int total, Object o) {
-	}
-
 	public int getThemeId() {
 		return mThemeId;
 	}
@@ -271,6 +228,7 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 	}
 
 	private boolean mDisableImageFromNetwork = false;
+
 	protected boolean disableImageFromNetwork() {
 		return mDisableImageFromNetwork;
 //		return true;
@@ -339,8 +297,76 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 		StatService.onPause(this);
 		setting.unregisterOnSharedPreferenceChangeListener(prefListener);
 	}
-}
 
-interface OnToolbarClickListener {
-	void toolbarClick();
+
+	public interface OnToolbarClickListener {
+		void toolbarClick();
+	}
+
+	public Application2 getApp() {
+		return (Application2) getApplication();
+	}
+
+	public List<Forum> getSelectedForums(Context context) {
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+
+		Collection<Integer> selected = CollectionUtils.collect(Arrays.asList(pref.getString("selected_forums", "").split(",")), new Transformer() {
+			@Override
+			public Object transform(Object o) {
+				try {
+					return Integer.valueOf((String) o);
+				} catch (Exception e) {
+					return -1;
+				}
+			}
+		});
+
+		if (selected.size() == 0 || selected.contains(-1)) {
+			List<String> selectedStrs = Arrays.asList(
+					context.getResources().getStringArray(R.array.default_forums));
+
+			selected = CollectionUtils.collect(selectedStrs, new Transformer() {
+				@Override
+				public Object transform(Object o) {
+					return Integer.valueOf((String) o);
+				}
+			});
+
+			pref.edit().putString("selected_forums", StringUtils.join(selectedStrs, ','));
+		}
+
+		return Forum.findByIds(getForums(context), selected);
+	}
+
+	public static List<Forum> getForums(Context context) {
+		if (mForums == null) {
+			mForums = buildFromJSON(Utils.readAssetFile(context, "hipda.json"));
+		}
+
+		return mForums;
+	}
+
+	public static List<Forum> buildFromJSON(String json) {
+		List<Forum> forums = JSON.parseArray(json, Forum.class);
+		addALLType(forums);
+
+		return forums;
+	}
+
+	private static void addALLType(List<Forum> forums) {
+		Forum.Type all = new Forum.Type();
+		all.setId(-1);
+		all.setName("所有类别");
+
+		for (Forum f : forums) {
+			List<Forum.Type> types = f.getTypes();
+			List<Forum> children = f.getChildren();
+
+			if (types != null) types.add(0, all);
+			if (children != null) addALLType(children);
+		}
+	}
+	public static List<Forum> getFlattenForums(Context context) {
+		return Forum.flatten(getForums(context));
+	}
 }

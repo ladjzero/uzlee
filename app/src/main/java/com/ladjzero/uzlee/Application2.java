@@ -6,14 +6,26 @@ import android.util.LruCache;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.FontAwesomeModule;
 import com.joanzapata.iconify.fonts.MaterialModule;
+import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.PersistenceAdapter;
 import com.orhanobut.logger.Logger;
 
 /**
  * Created by ladjzero on 2015/1/2.
  */
-public class MyApplication extends Application {
+public class Application2 extends Application {
 
 	private LruCache<String, String> mMemCache;
+	private HttpClient2 mHttpClient;
+	private Core mCore;
+
+	public HttpClient2 getHttpClient() {
+		return mHttpClient;
+	}
+
+	public Core getCore() {
+		return mCore;
+	}
 
 	@Override
 	public void onCreate() {
@@ -29,6 +41,10 @@ public class MyApplication extends Application {
 				return value.length();
 			}
 		};
+
+		mHttpClient = new HttpClient2(this);
+		PersistenceAdapter adapter = new AndroidAdapter(this);
+		mCore = Core.initialize(adapter, mHttpClient);
 
 		Logger.init();
 	}

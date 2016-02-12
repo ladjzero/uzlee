@@ -2,7 +2,7 @@ package com.ladjzero.hipda;
 
 import java.util.Date;
 
-public class User{
+public class User {
 	private int id;
 	private String name;
 	private Date creatDate;
@@ -15,21 +15,25 @@ public class User{
 	private String totalThreads;
 	private String level;
 	private String points;
-	
+
 	public String getName() {
 		return name;
 	}
+
 	public User setName(String name) {
 		this.name = name;
 		return this;
 	}
+
 	public Date getCreatDate() {
 		return creatDate;
 	}
+
 	public User setCreatDate(Date creatDate) {
 		this.creatDate = creatDate;
 		return this;
 	}
+
 	public String getImage() {
 		if (image == null) {
 			int avatar0 = id / 10000;
@@ -41,20 +45,25 @@ public class User{
 
 		return image;
 	}
+
 	public User setImage(String image) {
 		this.image = image;
 		return this;
 	}
+
 	public String getGrade() {
 		return grade;
 	}
+
 	public User setGrade(String grade) {
 		this.grade = grade;
 		return this;
 	}
+
 	public int getId() {
 		return id;
 	}
+
 	public User setId(int id) {
 		this.id = id;
 		return this;
@@ -112,5 +121,14 @@ public class User{
 	public User setPoints(String points) {
 		this.points = points;
 		return this;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof User) {
+			return id == ((User) o).getId();
+		}
+
+		return false;
 	}
 }

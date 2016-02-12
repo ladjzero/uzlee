@@ -1,42 +1,29 @@
 package com.ladjzero.uzlee;
 
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.alibaba.fastjson.JSON;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
-import com.ladjzero.hipda.Core;
-import com.ladjzero.hipda.Post;
+import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.Posts;
-import com.ladjzero.hipda.User;
 import com.orhanobut.logger.Logger;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.AbstractMap;
-import java.util.Date;
 
 
 /**
  * Created by ladjzero on 2015/4/25.
  */
-public class ActivityChat extends ActivityWithWebView implements Core.OnRequestListener {
+public class ActivityChat extends ActivityWithWebView implements HttpClientCallback {
 	private EditText mMessage;
 	private TextView mSend;
 	private Posts mCharts;
@@ -77,7 +64,7 @@ public class ActivityChat extends ActivityWithWebView implements Core.OnRequestL
 					mSend.setClickable(false);
 					mMessage.setText("");
 
-					Core.sendMessage(mName, message, ActivityChat.this);
+					getCore().getHttpApi().sendMessage(mName, message, ActivityChat.this);
 				}
 			}
 		});
@@ -138,21 +125,13 @@ public class ActivityChat extends ActivityWithWebView implements Core.OnRequestL
 	private void fetch(int page) {
 		Logger.i("fetching chats uid " + uid);
 
-		Core.getHtml("http://www.hi-pda.com/forum/pm.php?uid=" + uid + "&filter=privatepm&daterange=5", new Core.OnRequestListener() {
+		getApp().getHttpClient().get("http://www.hi-pda.com/forum/pm.php?uid=" + uid + "&filter=privatepm&daterange=5", new HttpClientCallback() {
 			@Override
-			public void onError(String error) {
-				setProgressBarIndeterminateVisibility(false);
-
-				Logger.e(error);
-			}
-
-			@Override
-			public void onSuccess(String html) {
-
+			public void onSuccess(String response) {
 				new AsyncTask<String, Void, String>() {
 					@Override
 					protected String doInBackground(String... strings) {
-						return Core.parseMessagesToHtml(strings[0]);
+						return getCore().getPostsParser().parseMessagesToHtml(strings[0]);
 					}
 
 					@Override
@@ -161,7 +140,13 @@ public class ActivityChat extends ActivityWithWebView implements Core.OnRequestL
 						Logger.d(js);
 						mWebView.loadUrl(js);
 					}
-				}.execute(html);
+				}.execute(response);
+			}
+
+			@Override
+			public void onFailure(String reason) {
+				setProgressBarIndeterminateVisibility(false);
+				showToast(reason);
 			}
 		});
 	}
@@ -186,13 +171,7 @@ public class ActivityChat extends ActivityWithWebView implements Core.OnRequestL
 	}
 
 	@Override
-	public void onError(String error) {
-		Logger.e(error);
-		showToast(error);
-	}
-
-	@Override
-	public void onSuccess(String html) {
+	public void onSuccess(String response) {
 		mSend.setText("{md-send}");
 		mSend.setClickable(true);
 
@@ -202,5 +181,10 @@ public class ActivityChat extends ActivityWithWebView implements Core.OnRequestL
 				fetch(1);
 			}
 		}, 300);
+	}
+
+	@Override
+	public void onFailure(String reason) {
+		showToast(reason);
 	}
 }

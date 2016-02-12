@@ -21,8 +21,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.alibaba.fastjson.JSON;
-import com.ladjzero.hipda.Core.OnThreadsListener;
 import com.ladjzero.hipda.Thread;
+import com.ladjzero.hipda.Threads;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 import com.orhanobut.logger.Logger;
@@ -41,12 +41,11 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public abstract class FragmentThreadsAbs extends Fragment implements
+public abstract class FragmentThreadsAbs extends FragmentBase implements
 		AdapterView.OnItemClickListener,
-		OnThreadsListener,
 		SharedPreferences.OnSharedPreferenceChangeListener,
 		AdapterView.OnItemLongClickListener,
-		OnToolbarClickListener {
+		ActivityBase.OnToolbarClickListener {
 
 	private static final String TAG = "FragmentThreadsAbs";
 
@@ -64,7 +63,6 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 	private boolean hasNextPage = false;
 	private boolean mIsFetching = false;
 	private boolean mEnablePullToRefresh;
-	private OnFetch mOnFetch;
 	private SlidrInterface slidrInterface;
 	private OnScrollUpOrDown mOnScrollUpOrDown;
 
@@ -84,17 +82,13 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 		this.mOnScrollUpOrDown = onScrollUpOrDown;
 	}
 
-	public void setFetchListener(OnFetch onFetch) {
-		mOnFetch = onFetch;
-	}
-
 	public abstract int layout();
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mActivity = (ActivityBase) getActivity();
 
-		LruCache<String, String> cache = ((MyApplication) getActivity().getApplication()).getMemCache();
+		LruCache<String, String> cache = ((Application2) getActivity().getApplication()).getMemCache();
 		String cached = cache.get(keyOfThreadsToCache());
 		List<Thread> threads = null;
 
@@ -163,7 +157,7 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 		final Dialog dialog = new Dialog(mActivity);
 		ListView listView = new ListView(mActivity);
 		listView.setDivider(null);
-		listView.setAdapter(new ArrayAdapter<>(mActivity, R.layout.list_item_of_dialog, R.id.text, new String[] {"复制标题", "查看最新回复"}));
+		listView.setAdapter(new ArrayAdapter<>(mActivity, R.layout.list_item_of_dialog, R.id.text, new String[]{"复制标题", "查看最新回复"}));
 		dialog.negativeActionClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -211,7 +205,7 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 
 	@Override
 	public void onDestroyView() {
-		LruCache<String, String> cache = ((MyApplication) getActivity().getApplication()).getMemCache();
+		LruCache<String, String> cache = ((Application2) getActivity().getApplication()).getMemCache();
 		String toCache = JSON.toJSONString(mThreads);
 
 		if (toCache != null) {
@@ -281,7 +275,6 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 	}
 
 
-
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -319,8 +312,7 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 		startActivity(intent);
 	}
 
-	@Override
-	public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
+	public void onThreads(Threads threads) {
 		setRefreshSpinner(false);
 		mIsFetching = false;
 
@@ -339,22 +331,15 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 				}
 			});
 
-			threads = (ArrayList<Thread>) CollectionUtils.selectRejected(threads, new Predicate() {
+			mThreads.addAll(CollectionUtils.selectRejected(threads, new Predicate() {
 				@Override
 				public boolean evaluate(Object o) {
 					return ids.contains(((Thread) o).getId());
 				}
-			});
+			}));
 
-			mThreads.addAll(threads);
 			mAdapter.notifyDataSetChanged();
 		}
-	}
-
-	@Override
-	public void onError(String error) {
-		setRefreshSpinner(false);
-		mActivity.showToast(error);
 	}
 
 
@@ -409,8 +394,6 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 		Logger.i("visible %b, enable refresh %b, is fetching %b", visible, mEnablePullToRefresh, mIsFetching);
 
 		if (visible) {
-			if (mOnFetch != null) mOnFetch.fetchStart();
-
 			// Hack. http://stackoverflow.com/questions/26858692/swiperefreshlayout-setrefreshing-not-showing-indicator-initially
 			mSwipe.postDelayed(new Runnable() {
 				@Override
@@ -420,8 +403,6 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 				}
 			}, 100);
 		} else {
-			if (mOnFetch != null) mOnFetch.fetchEnd();
-
 			mSwipe.setRefreshing(false);
 		}
 	}
@@ -433,10 +414,4 @@ public abstract class FragmentThreadsAbs extends Fragment implements
 		listView.setSelection(0);
 		listView.smoothScrollToPosition(0);
 	}
-}
-
-interface OnFetch {
-	void fetchStart();
-
-	void fetchEnd();
 }

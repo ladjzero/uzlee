@@ -1,7 +1,7 @@
 package com.ladjzero.uzlee;
 
 import android.content.Intent;
-import android.content.res.Resources;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -10,10 +10,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.HttpClientCallback;
+import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.User;
+import com.ladjzero.hipda.UserParser;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.r0adkll.slidr.Slidr;
 
 import java.util.ArrayList;
 
@@ -23,9 +24,8 @@ public class ActivityUser extends ActivityEasySlide {
 	View chat;
 	Button block;
 	User user;
-	int[] bloodTheme = {};
-	int[] grassTheme = {};
 	int uid;
+	private LocalApi mLocalApi;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,56 +60,73 @@ public class ActivityUser extends ActivityEasySlide {
 
 		setProgressBarIndeterminateVisibility(true);
 
-		Core.getUser(uid, new Core.OnUserListener() {
+		mLocalApi = getCore().getLocalApi();
+
+		getApp().getHttpClient().get("http://www.hi-pda.com/forum/space.php?uid=" + uid, new HttpClientCallback() {
 			@Override
-			public void onUser(final User u) {
-				user = u;
-
-				if (user.getId() != Core.getUser().getId()) {
-					chat.setVisibility(View.VISIBLE);
-					block.setVisibility(View.VISIBLE);
-				}
-
-				setProgressBarIndeterminateVisibility(false);
-
-				ImageLoader.getInstance().displayImage(user.getImage(), imageView);
-				TextView name = (TextView) findViewById(R.id.name);
-				TextView level = (TextView) findViewById(R.id.level);
-				TextView uid = (TextView) findViewById(R.id.uid);
-
-				name.setText(user.getName());
-				setTitle(user.getName());
-				name.getPaint().setFakeBoldText(true);
-				level.setText(user.getLevel());
-				uid.setText("No." + user.getId());
-
-				for (String kv : propertyToString(user)) {
-					View view = getLayoutInflater().inflate(R.layout.user_info_row, null, false);
-					TextView key = (TextView) view.findViewById(R.id.key);
-					TextView value = (TextView) view.findViewById(R.id.value);
-					View more = view.findViewById(R.id.more);
-
-					String[] strings = kv.split(",");
-					key.setText(strings[0]);
-					value.setText(strings[1]);
-
-					if (strings[0].equals("发帖数量")) {
-						view.setOnClickListener(new View.OnClickListener() {
-							@Override
-							public void onClick(View v) {
-								Intent intent = new Intent(ActivityUser.this, ActivityUserThreads.class);
-								intent.putExtra("name", user.getName());
-								startActivity(intent);
-							}
-						});
-
-						more.setVisibility(View.VISIBLE);
-					} else {
-						more.setVisibility(View.INVISIBLE);
+			public void onSuccess(String response) {
+				new AsyncTask<String, Object, User>() {
+					@Override
+					protected User doInBackground(String... strings) {
+						return getCore().getUserParser().parseUser(strings[0]);
 					}
 
-					mInfo.addView(view);
-				}
+					@Override
+					protected void onPostExecute(final User user) {
+						ActivityUser.this.user = user;
+
+						if (user.getId() != mLocalApi.getUser().getId()) {
+							chat.setVisibility(View.VISIBLE);
+							block.setVisibility(View.VISIBLE);
+						}
+
+						setProgressBarIndeterminateVisibility(false);
+
+						ImageLoader.getInstance().displayImage(user.getImage(), imageView);
+						TextView name = (TextView) findViewById(R.id.name);
+						TextView level = (TextView) findViewById(R.id.level);
+						TextView uid = (TextView) findViewById(R.id.uid);
+
+						name.setText(user.getName());
+						setTitle(user.getName());
+						name.getPaint().setFakeBoldText(true);
+						level.setText(user.getLevel());
+						uid.setText("No." + user.getId());
+
+						for (String kv : propertyToString(user)) {
+							View view = getLayoutInflater().inflate(R.layout.user_info_row, null, false);
+							TextView key = (TextView) view.findViewById(R.id.key);
+							TextView value = (TextView) view.findViewById(R.id.value);
+							View more = view.findViewById(R.id.more);
+
+							String[] strings = kv.split(",");
+							key.setText(strings[0]);
+							value.setText(strings[1]);
+
+							if (strings[0].equals("发帖数量")) {
+								view.setOnClickListener(new View.OnClickListener() {
+									@Override
+									public void onClick(View v) {
+										Intent intent = new Intent(ActivityUser.this, ActivityUserThreads.class);
+										intent.putExtra("name", user.getName());
+										startActivity(intent);
+									}
+								});
+
+								more.setVisibility(View.VISIBLE);
+							} else {
+								more.setVisibility(View.INVISIBLE);
+							}
+
+							mInfo.addView(view);
+						}
+					}
+				}.execute(response);
+			}
+
+			@Override
+			public void onFailure(String reason) {
+				showToast(reason);
 			}
 		});
 
@@ -121,8 +138,13 @@ public class ActivityUser extends ActivityEasySlide {
 		block.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				if (Core.bans.contains(uid)) Core.removeFromBanList(uid);
-				else Core.addToBanList(uid);
+				User banned = new User().setId(uid);
+
+				if (mLocalApi.getBanned().contains(banned)) {
+					mLocalApi.deleteBanned(banned);
+				} else {
+					mLocalApi.insertBanned(banned);
+				}
 
 				updateBlockButton();
 			}
@@ -130,7 +152,7 @@ public class ActivityUser extends ActivityEasySlide {
 	}
 
 	private void updateBlockButton() {
-		if (Core.bans.contains(uid)) {
+		if (mLocalApi.getBanned().contains(new User().setId(uid))) {
 			block.setText("移除黑名单");
 			block.setBackgroundResource(R.color.greenPrimary);
 		} else {

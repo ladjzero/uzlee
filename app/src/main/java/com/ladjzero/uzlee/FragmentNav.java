@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
@@ -16,15 +15,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.orhanobut.logger.Logger;
+
+import java.util.Observable;
+import java.util.Observer;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class FragmentNav extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class FragmentNav extends FragmentBase implements Observer {
 	/**
 	 * Remember the position of the selected item.
 	 */
@@ -48,6 +50,20 @@ public class FragmentNav extends Fragment implements SharedPreferences.OnSharedP
 	TextView userName;
 	@Bind(R.id.nav_user)
 	View userLayout;
+	@Bind(R.id.alert_icon)
+	TextView mAlertIcon;
+
+	@OnClick(R.id.nav_user)
+	void onUserClick() {
+		if (mUser == null) {
+			mContext.toLoginPage();
+		} else {
+			Intent intent = new Intent(mContext, ActivityUser.class);
+			intent.putExtra("uid", mUser.getId());
+			startActivity(intent);
+		}
+	}
+
 	/**
 	 * Helper component that ties the action bar to the navigation drawer.
 	 */
@@ -58,8 +74,10 @@ public class FragmentNav extends Fragment implements SharedPreferences.OnSharedP
 	private int mCurrentSelectedPosition = 0;
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
-	private TextView mAlertIcon;
+
 	private ActivityBase mContext;
+	private LocalApi mLocalApi;
+	private User mUser;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -75,71 +93,29 @@ public class FragmentNav extends Fragment implements SharedPreferences.OnSharedP
 			mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
 			mFromSavedInstanceState = true;
 		}
+
+		mLocalApi = getCore().getLocalApi();
+		getCore().getApiStore().addObserver(this);
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-							 Bundle savedInstanceState) {
-		final View view = inflater.inflate(R.layout.nav, container, false);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.nav, container, false);
 		ButterKnife.bind(this, view);
-
-		mAlertIcon = (TextView) view.findViewById(R.id.alert_icon);
-
-		mContext.getSettings().registerOnSharedPreferenceChangeListener(this);
-
-		final User user = Core.getUser();
-
-		if (user == null || user.getId() == 0) {
-			message.setVisibility(View.GONE);
-			myPosts.setVisibility(View.GONE);
-		}
-
-		userLayout.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (user == null || user.getId() == 0) {
-					mContext.toLoginPage();
-				} else {
-					Intent intent = new Intent(mContext, ActivityUser.class);
-					intent.putExtra("uid", Core.getUser().getId());
-					startActivity(intent);
-				}
-			}
-		});
-
 		return view;
 	}
 
 	@Override
 	public void onDestroyView() {
-		mContext.getSettings().unregisterOnSharedPreferenceChangeListener(this);
 		super.onDestroyView();
+		getCore().getApiStore().deleteObserver(this);
 	}
 
 	@Override
 	public void onResume() {
-		User user = Core.getUser();
-
 		super.onResume();
-
-		if (user != null && user.getId() > 0) {
-			Logger.i("set user layout visible, user %d %s", user.getId(), user.getName());
-
-			userLayout.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					userLayout.setVisibility(View.VISIBLE);
-					ImageLoader.getInstance().displayImage(Core.getUser().getImage(), imageView);
-					userName.setText(Core.getUser().getName());
-				}
-			}, 300);
-		}
-
-		int count = mContext.getSettings().getInt("unread", 0);
-		mAlertIcon.setTextColor(count == 0 ?
-				Utils.getThemeColor(mContext, R.attr.colorText) :
-				Utils.getColor(mContext, R.color.commentNoBg));
-
+		update(getCore().getApiStore(), "user");
+		update(getCore().getApiStore(), "unread");
 	}
 
 	@Override
@@ -155,19 +131,6 @@ public class FragmentNav extends Fragment implements SharedPreferences.OnSharedP
 		mActionBarDrawerToggle.onConfigurationChanged(newConfig);
 	}
 
-	@Override
-	public void onDetach() {
-		super.onDetach();
-	}
-
-	public ActionBarDrawerToggle getActionBarDrawerToggle() {
-		return mActionBarDrawerToggle;
-	}
-
-	public DrawerLayout getDrawerLayout() {
-		return mDrawerLayout;
-	}
-
 	/**
 	 * Users of this fragment must call this method to set up the navigation drawer interactions.
 	 *
@@ -178,8 +141,6 @@ public class FragmentNav extends Fragment implements SharedPreferences.OnSharedP
 	public void setup(int fragmentId, DrawerLayout drawerLayout, Toolbar toolbar) {
 		mFragmentContainerView = (View) getActivity().findViewById(fragmentId).getParent();
 		mDrawerLayout = drawerLayout;
-
-//		mDrawerLayout.setStatusBarBackgroundColor(getResources().getColor(R.color.myPrimaryDarkColor));
 
 		mActionBarDrawerToggle = new ActionBarDrawerToggle(getActivity(), mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
 			@Override
@@ -241,14 +202,36 @@ public class FragmentNav extends Fragment implements SharedPreferences.OnSharedP
 	}
 
 	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key.equals("unread")) {
-			int count = sharedPreferences.getInt("unread", 0);
+	public void update(Observable observable, final Object o) {
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if ("user".equals(o)) {
+					mUser = mLocalApi.getUser();
 
-			mAlertIcon.setTextColor(count == 0 ?
-					Utils.getThemeColor(mContext, R.attr.colorText) :
-					Utils.getColor(mContext, R.color.commentNoBg));
-		}
+
+					message.setVisibility(mUser == null ? View.GONE : View.VISIBLE);
+					myPosts.setVisibility(mUser == null ? View.GONE : View.VISIBLE);
+
+					if (mUser != null) {
+						userLayout.postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								userLayout.setVisibility(View.VISIBLE);
+								ImageLoader.getInstance().displayImage(mUser.getImage(), imageView);
+								userName.setText(mUser.getName());
+							}
+						}, 300);
+					}
+				} else if ("unread".equals(o)) {
+					int unread = mLocalApi.getUnread();
+
+					mAlertIcon.setTextColor(unread == 0 ?
+							Utils.getThemeColor(mContext, R.attr.colorText) :
+							Utils.getColor(mContext, R.color.commentNoBg));
+				}
+			}
+		});
 	}
 }
 

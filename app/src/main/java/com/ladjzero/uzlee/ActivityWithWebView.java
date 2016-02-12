@@ -2,6 +2,7 @@ package com.ladjzero.uzlee;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -10,19 +11,20 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.User;
 import com.orhanobut.logger.Logger;
 
 /**
  * Created by chenzhuo on 15-10-4.
  */
-public abstract class ActivityWithWebView extends ActivityHardSlide implements OnToolbarClickListener {
+public abstract class ActivityWithWebView extends ActivityHardSlide implements ActivityBase.OnToolbarClickListener {
 
 	private boolean initialized;
 
 	@JavascriptInterface
 	public void onProfileClick(int uid, String name) {
-		User me = Core.getUser();
+		User me = getCore().getLocalApi().getUser();
 
 		if (me == null || me.getId() == 0) {
 			showToast(getResources().getString(R.string.error_login_required));

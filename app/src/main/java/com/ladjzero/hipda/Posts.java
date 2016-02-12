@@ -1,19 +1,12 @@
 package com.ladjzero.hipda;
 
+import java.util.ArrayList;
+
 /**
  * Created by ladjzero on 2015/4/6.
  */
 
-import android.databinding.ObservableArrayList;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.Transformer;
-
-import java.util.ArrayList;
-import java.util.Collection;
-
-public class Posts extends ObservableArrayList<Post> {
+public class Posts extends ArrayList<Post> {
 	private int fid;
 	private int page;
 	private int totalPage;

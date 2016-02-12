@@ -13,6 +13,9 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.HttpApi;
+import com.ladjzero.hipda.HttpClientCallback;
+import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.User;
 import com.rey.material.widget.Spinner;
 import com.tencent.stat.StatConfig;
@@ -26,28 +29,39 @@ import butterknife.OnClick;
  * Created by chenzhuo on 15-11-8.
  */
 public class ActivityLogin extends ActionBarActivity {
-	@Bind(R.id.user_name) TextView name;
-	@Bind(R.id.user_password) TextView passwd;
-	@Bind(R.id.answer) TextView answer;
-	@Bind(R.id.question) Spinner spn;
-	@Bind(R.id.logo) View logo;
+	private HttpApi mHttpApi;
+	private LocalApi mLocalApi;
+	private User mUser;
 
-	@OnClick(R.id.login) void onLogin() {
-		Core.login(name.getText().toString(), passwd.getText().toString(), spn.getSelectedItemPosition(), answer.getText().toString(), new Core.OnRequestListener() {
+	@Bind(R.id.user_name)
+	TextView name;
+	@Bind(R.id.user_password)
+	TextView passwd;
+	@Bind(R.id.answer)
+	TextView answer;
+	@Bind(R.id.question)
+	Spinner spn;
+	@Bind(R.id.logo)
+	View logo;
+
+	@OnClick(R.id.login)
+	void onLogin() {
+		mHttpApi.login(name.getText().toString(), passwd.getText().toString(), spn.getSelectedItemPosition(), answer.getText().toString(), new HttpClientCallback() {
 			@Override
-			public void onError(String error) {
-				Utils.showToast(ActivityLogin.this, "登录失败");
+			public void onSuccess(String response) {
+				Utils.showToast(ActivityLogin.this, "登录成功");
+				Utils.replaceActivity(ActivityLogin.this, ActivityMain.class);
 			}
 
 			@Override
-			public void onSuccess(String html) {
-				Utils.showToast(ActivityLogin.this, "登录成功");
-				Utils.replaceActivity(ActivityLogin.this, ActivityMain.class);
+			public void onFailure(String reason) {
+				Utils.showToast(ActivityLogin.this, "登录失败");
 			}
 		});
 	}
 
-	@OnClick(R.id.register) void onRegister() {
+	@OnClick(R.id.register)
+	void onRegister() {
 		String url = "http://www.hi-pda.com/forum/tobenew.php";
 
 		Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -55,7 +69,8 @@ public class ActivityLogin extends ActionBarActivity {
 		startActivity(intent);
 	}
 
-	@OnClick(R.id.view_as_visitor) void viewAsVisitor() {
+	@OnClick(R.id.view_as_visitor)
+	void viewAsVisitor() {
 		Utils.replaceActivity(this, ActivityMain.class);
 	}
 
@@ -69,12 +84,16 @@ public class ActivityLogin extends ActionBarActivity {
 		setContentView(R.layout.activity_login);
 		ButterKnife.bind(this);
 
-		Core.setup(this, false);
+
+		Core core = ((Application2) getApplication()).getCore();
+
+		mHttpApi = core.getHttpApi();
+		mLocalApi = core.getLocalApi();
 
 		Animation animation = AnimationUtils.loadAnimation(this, R.anim.rotate);
 		logo.setAnimation(animation);
 
-		User user = Core.getUser();
+		User user = mLocalApi.getUser();
 
 		if (user != null && user.getId() > 0) {
 			Utils.replaceActivity(this, ActivityMain.class);
@@ -88,6 +107,7 @@ public class ActivityLogin extends ActionBarActivity {
 				}
 			});
 		}
+
 
 		StatConfig.setDebugEnable(true);
 		StatService.trackCustomEvent(this, "onCreate", "");

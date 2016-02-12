@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -39,6 +40,7 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 	private boolean mHighlightUnread = true;
 	private float mFontSize;
 	private String mTheme;
+	private LocalApi mLocalApi;
 
 
 	public AdapterThreads(Context context, ArrayList<Thread> threads) {
@@ -50,6 +52,8 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 		mCommentBgColor = res.getColor(R.color.commentNoBg);
 		mUserNameColor = res.getColor(R.color.snow_darker);
 		mTheme = this.context.getSettings().getString("theme", ActivityBase.DefaultTheme);
+
+		mLocalApi = this.context.getCore().getLocalApi();
 
 		initalPreferences();
 	}
@@ -130,7 +134,7 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 		holder.date.setText(prettyTime(thread.getDateStr()));
 		holder.name.setText(thread.getAuthor().getName());
 
-		if (Core.bans.contains(uid)) {
+		if (mLocalApi.getBanned().contains(new User().setId(uid))) {
 			holder.title.setText(context.getString(R.string.blocked));
 		} else {
 			holder.title.setText(thread.getTitle());
@@ -162,7 +166,7 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 
 	@Override
 	public void onClick(View view) {
-		User me = Core.getUser();
+		User me = mLocalApi.getUser();
 
 		if (me == null || me.getId() == 0) {
 			context.showToast(context.getResources().getString(R.string.error_login_required));

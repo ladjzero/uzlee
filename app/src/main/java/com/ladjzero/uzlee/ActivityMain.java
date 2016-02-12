@@ -1,20 +1,16 @@
 package com.ladjzero.uzlee;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -87,14 +83,14 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 
 		if (id == R.id.thread_publish) {
 			Intent intent = new Intent(this, ActivityEdit.class);
-			intent.putExtra("title", Forum.findById(Core.getFlattenForums(this), mFid).getName());
+			intent.putExtra("title", Forum.findById(getFlattenForums(this), mFid).getName());
 			intent.putExtra("fid", mFid);
 
 			startActivity(intent);
 
 			return true;
 		} else if (id == R.id.thread_types) {
-			List<Forum.Type> types = Forum.findById(Core.getFlattenForums(this), mFid).getTypes();
+			List<Forum.Type> types = Forum.findById(getFlattenForums(this), mFid).getTypes();
 
 			if (types != null) {
 				ListView listView = new ListView(this);
@@ -201,7 +197,7 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		getMenuInflater().inflate(R.menu.threads, menu);
 
 		final Integer typeId = mLastSelectedType.get(mFid);
-		Forum selectedForum = Forum.findById(Core.getFlattenForums(this), mFid);
+		Forum selectedForum = Forum.findById(getFlattenForums(this), mFid);
 		List<Forum.Type> types = null;
 
 		if (selectedForum != null) {
@@ -251,7 +247,7 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 	void onMyPostsClick() {
 		mFragmentNav.closeDrawer();
 
-		if (Core.getUser() != null) {
+		if (getCore().getLocalApi().getUser() != null) {
 			Intent intent = new Intent(this, ActivityMyPosts.class);
 			startActivity(intent);
 		}
@@ -317,7 +313,7 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		// However onPageSelected will not be called until dragging.
 		if (mCurrentPagePosition != position) {
 			mCurrentPagePosition = position;
-			mFid = Core.getSelectedForums(this).get(position).getFid();
+			mFid = getSelectedForums(this).get(position).getFid();
 			invalidateOptionsMenu();
 		}
 	}

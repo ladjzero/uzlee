@@ -30,11 +30,13 @@ import java.util.Date;
 public class AdapterMessageSummary extends ArrayAdapter<Thread> implements View.OnClickListener{
 	ActivityBase context;
 	Core core;
+	private LocalApi mLocalApi;
 
 
 	public AdapterMessageSummary(Context context, ArrayList<Thread> threads) {
 		super(context, R.layout.message_row, threads);
 		this.context = (ActivityBase) context;
+		mLocalApi = this.context.getCore().getLocalApi();
 	}
 
 	@Override
@@ -92,7 +94,7 @@ public class AdapterMessageSummary extends ArrayAdapter<Thread> implements View.
 		holder.date.setText(Utils.prettyTime(thread.getDateStr()));
 		holder.name.setText(thread.getAuthor().getName());
 
-		if (Core.bans.contains(uid)) {
+		if (mLocalApi.getBanned().contains(new User().setId(uid))) {
 			holder.title.setText(context.getString(R.string.blocked));
 		} else {
 			holder.title.setText(thread.getTitle());

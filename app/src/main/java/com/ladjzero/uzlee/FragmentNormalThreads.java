@@ -1,5 +1,6 @@
 package com.ladjzero.uzlee;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -7,7 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.HttpApi;
+import com.ladjzero.hipda.HttpClientCallback;
+import com.ladjzero.hipda.Threads;
+import com.ladjzero.hipda.ThreadsParser;
 
 /**
  * Created by chenzhuo on 15-12-14.
@@ -82,28 +86,25 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 
 	@Override
 	void fetchPageAt(int page) {
-		Core.getHtml("http://www.hi-pda.com/forum/forumdisplay.php?fid=" + mFid
-				+ "&page=" + page
-				+ "&filter=type&typeid=" + mTypeId
-				+ "&orderby=" + getOrder(), new Core.OnRequestListener() {
+		getCore().getHttpApi().getThreads(page, mFid, mTypeId, getOrder(), new HttpClientCallback() {
 			@Override
-			public void onError(String error) {
-				FragmentNormalThreads.this.onError(error);
+			public void onSuccess(String response) {
+				new AsyncTask<String, Void, Threads>() {
+					@Override
+					protected Threads doInBackground(String... strings) {
+						return getCore().getThreadsParser().parseThreads(strings[0], getSettings().getBoolean("show_fixed_threads", false));
+					}
+
+					@Override
+					protected void onPostExecute(Threads threads) {
+						FragmentNormalThreads.this.onThreads(threads);
+					}
+				}.execute(response);
 			}
 
 			@Override
-			public void onSuccess(String html) {
-				new AsyncTask<String, Void, Core.ThreadsRet>() {
-					@Override
-					protected Core.ThreadsRet doInBackground(String... strings) {
-						return Core.parseThreads(strings[0]);
-					}
+			public void onFailure(String reason) {
 
-					@Override
-					protected void onPostExecute(Core.ThreadsRet ret) {
-						FragmentNormalThreads.this.onThreads(ret.threads, ret.page, ret.hasNextPage);
-					}
-				}.execute(html);
 			}
 		});
 	}
