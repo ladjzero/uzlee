@@ -16,8 +16,8 @@ android {
 
     defaultConfig {
         applicationId "com.ladjzero.uzlee"
-        minSdkVersion 15
-        targetSdkVersion 15
+        minSdkVersion 16
+        targetSdkVersion 16
     }
 
     buildTypes {
