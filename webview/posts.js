@@ -112,8 +112,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     console.log('echo is initialized.');
-
-    UZLEE.onWebViewReady();
 });
 
 window.loadPosts = function(posts, removeAll) {

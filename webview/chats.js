@@ -81,6 +81,4 @@ document.addEventListener('DOMContentLoaded', function () {
     bodyClassList.add('font-size-' + fontsize);
 
     console.log("theme " + theme + ", fontsize " + fontsize);
-
-    UZLEE.onWebViewReady();
 });

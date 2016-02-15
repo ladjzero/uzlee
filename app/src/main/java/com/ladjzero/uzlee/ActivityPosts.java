@@ -102,6 +102,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	private TextView mTitleView;
 	private boolean mWebViewReady = false;
 	private boolean mSkipResumeFetch = false;
+	private boolean mIsPushedAfterWebReady = false;
 
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -768,6 +769,13 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		super.onWebViewReady();
 
 		mWebViewReady = true;
+
+		if (!mIsPushedAfterWebReady) {
+			for (Post post : mPosts) {
+				mWebView.loadUrl("javascript:_posts.push(" + JSON.toJSONString(post) + ")");
+				mIsPushedAfterWebReady = true;
+			}
+		}
 	}
 
 	class OnListChangedCallback extends ObservableList.OnListChangedCallback {
@@ -786,9 +794,12 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		public void onItemRangeInserted(ObservableList sender, int positionStart, int itemCount) {
 			Logger.i("onItemRangeInserted, positionStart %d itemCount %d", positionStart, itemCount);
 			// Assume that only PUSH operation inserts posts.
-			for (int i = mWebViewReady ? positionStart : 0; i < positionStart + itemCount; i++) {
-				Post post = (Post) sender.get(i);
-				mWebView.loadUrl("javascript:_posts.push(" + JSON.toJSONString(post) + ")");
+			if (mWebViewReady) {
+				for (int i = mIsPushedAfterWebReady ? positionStart : 0; i < positionStart + itemCount; i++) {
+					Post post = (Post) sender.get(i);
+					mWebView.loadUrl("javascript:_posts.push(" + JSON.toJSONString(post) + ")");
+					mIsPushedAfterWebReady = true;
+				}
 			}
 		}
 

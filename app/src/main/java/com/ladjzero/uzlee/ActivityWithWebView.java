@@ -6,6 +6,8 @@ import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.User;
@@ -41,7 +43,6 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements O
 		startActivity(intent);
 	}
 
-	@JavascriptInterface
 	public void onWebViewReady() {
 		Logger.i("WebView is ready.");
 	}
@@ -57,6 +58,13 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements O
 			WebView2 webView = getWebView();
 
 			webView.addJavascriptInterface(this, "UZLEE");
+			webView.setWebViewClient(new WebViewClient() {
+				@Override
+				public void onPageFinished(WebView view, String url) {
+					super.onPageFinished(view, url);
+					onWebViewReady();
+				}
+			});
 			webView.setWebChromeClient(new WebChromeClient() {
 				@Override
 				public boolean onConsoleMessage(ConsoleMessage cm) {
