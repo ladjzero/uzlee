@@ -1,8 +1,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               xmlns:ptr="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:background="@android:color/white"
               android:focusableInTouchMode="true"
               android:orientation="vertical">
@@ -56,7 +56,6 @@
 
                 <com.rengwuxian.materialedittext.MaterialEditText
                     android:id="@+id/quick_input"
-                    app:met_primaryColor="?attr/colorPrimary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="false"
@@ -65,8 +64,21 @@
                     android:layout_marginRight="12dp"
                     android:layout_toLeftOf="@+id/quick_send"
                     android:hint="快速回复"
-                    android:textSize="18sp"/>
+                    android:textSize="18sp"
+                    app:met_primaryColor="?attr/colorPrimary"/>
             </RelativeLayout>
         </LinearLayout>
+
+        <com.rey.material.widget.ProgressView
+            android:id="@+id/progress_bar"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="fill_parent"
+            android:layout_height="4dp"
+            android:layout_alignParentTop="true"
+            app:pv_autostart="true"
+            app:pv_circular="false"
+            app:pv_progressMode="query"
+            app:pv_progressStyle="@style/QueryLinearProgressDrawableStyle"/>
     </RelativeLayout>
 </LinearLayout>

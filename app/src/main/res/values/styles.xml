@@ -140,8 +140,9 @@
         <item name="android:activityCloseExitAnimation">@anim/push_right_out</item>
     </style>
 
-    <style name="DeterminateLinearProgressDrawableStyle" parent="Material.Drawable.LinearProgress.Determinate">
-        <item name="lpd_strokeColor">?attr/colorPrimary</item>
+    <style name="QueryLinearProgressDrawableStyle" parent="Material.Drawable.LinearProgress.Query">
+        <item name="lpd_strokeColor">?attr/colorSecondary</item>
+        <item name="lpd_strokeSize">2dp</item>
         <item name="lpd_strokeSecondaryColor">@android:color/transparent</item>
         <item name="lpd_verticalAlign">top</item>
     </style>

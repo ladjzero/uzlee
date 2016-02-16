@@ -40,6 +40,7 @@ import com.ladjzero.hipda.User;
 import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
 import com.rey.material.app.Dialog;
+import com.rey.material.widget.ProgressView;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import org.apache.commons.collections.CollectionUtils;
@@ -79,7 +80,8 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	View mQuickReplyLayout;
 	@Bind(R.id.quick_send)
 	TextView mQuickSend;
-	private View mSpinner;
+	@Bind(R.id.progress_bar)
+	ProgressView mProgressView;
 	private int mThreadUserId = 0;
 	private int mTid;
 	private int mPage;
@@ -215,7 +217,8 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		}
 
 		mIsFetching = true;
-		toogleSipnner(true);
+		mProgressView.setProgress(0f);
+		mProgressView.start();
 
 		mPage = page;
 		String url = getUri();
@@ -228,7 +231,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			@Override
 			public void onError(String error) {
 				mIsFetching = false;
-				toogleSipnner(false);
 
 				showToast(error);
 				mPostsView.onRefreshComplete();
@@ -254,11 +256,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		}
 	}
 
-	private void toogleSipnner(boolean on) {
-		Utils.fadeOut(on ? mTitleView : mSpinner);
-		Utils.fadeIn(on ? mSpinner : mTitleView);
-	}
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -266,10 +263,8 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		ButterKnife.bind(this);
 
 		LayoutInflater mInflater = LayoutInflater.from(this);
-		View customView = mInflater.inflate(R.layout.toolbar_title_for_post, null);
-		mSpinner = customView.findViewById(R.id.spinner);
+		View customView = mInflater.inflate(R.layout.toolbar_title, null);
 		mTitleView = (TextView) customView.findViewById(R.id.title);
-		mTitleView.setVisibility(View.INVISIBLE);
 		mTitleView.setTextColor(Utils.getThemeColor(this, R.attr.colorTextInverse));
 
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -356,6 +351,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		mPosts = new Posts();
 		mPosts.addOnListChangedCallback(new OnListChangedCallback());
+		mProgressView.start();
 	}
 
 	@Override
@@ -468,6 +464,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 					mPosts.add(post);
 
 					mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
+					mProgressView.setProgress((Integer)objects[0] * 1.0f/(Integer)objects[1]);
 					Logger.i("Parsed one post.");
 				}
 
@@ -475,6 +472,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				protected void onPostExecute(Posts posts) {
 					Logger.i("Parsing done.");
 					mPosts.replaceMeta(posts);
+					mProgressView.stop();
 
 					mIsFetching = false;
 
@@ -497,8 +495,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 						if (post.getId() == 1) mThreadUserId = post.getAuthor().getId();
 						post.setIsLz(post.getAuthor().getId() == mThreadUserId);
 					}
-
-					toogleSipnner(false);
 
 					mTitleView.setText(posts.getTitle());
 
