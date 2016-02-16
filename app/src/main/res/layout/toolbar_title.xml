@@ -3,13 +3,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-    <TextView
+    <com.lb.auto_fit_textview.AutoResizeTextView
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="false"
         android:layout_centerInParent="true"
         android:ellipsize="end"
+        android:maxLines="2"
         android:gravity="center_vertical"
         android:text="uzlee"
         android:textColor="@android:color/white"

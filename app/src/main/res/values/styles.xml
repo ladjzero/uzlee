@@ -142,7 +142,7 @@
 
     <style name="QueryLinearProgressDrawableStyle" parent="Material.Drawable.LinearProgress.Query">
         <item name="lpd_strokeColor">?attr/colorSecondary</item>
-        <item name="lpd_strokeSize">2dp</item>
+        <item name="lpd_strokeSize">3dp</item>
         <item name="lpd_strokeSecondaryColor">@android:color/transparent</item>
         <item name="lpd_verticalAlign">top</item>
     </style>

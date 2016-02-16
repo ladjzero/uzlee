@@ -1,5 +1,5 @@
 {
-	"version": "0.6.1",
-	"uri": "http://pan.baidu.com/s/1eQZLQ6Y",
-	"info": "修复：\n\t点击标题栏不能回到页面顶部\n\t进入帖子页面不能定位楼层\n\t帖子页面的滑动体验差\n新增：\n\t帖子页面增加了占位图片"
+	"version": "0.6.2",
+	"uri": "http://pan.baidu.com/s/1jHi4CL4",
+	"info": "修复：\n\t在 Android 5+ 帖子页面可能出现楼层重复的问题\n\t抽屉菜单里头像错位的问题\n变更：\n\t恢复了帖子页面的进度条\n\t由于 Android 3+ 和 4.0 存在的一个严重 bug，uzlee 将暂不支持 Android 4.0"
 }
