@@ -22,6 +22,7 @@ public class PostActionsAdapter extends ArrayAdapter{
 			"刷新",
 			"收藏",
 			"复制链接",
+			"以图片分享",
 			"从浏览器打开"
 	};
 	public final static String[] ICONS = new String[] {
@@ -30,6 +31,7 @@ public class PostActionsAdapter extends ArrayAdapter{
 			"{md-autorenew}",
 			"{md-bookmark}",
 			"{md-link}",
+			"{md-share}",
 			"{md-open-in-browser}"
 	};
 

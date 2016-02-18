@@ -41,6 +41,7 @@ import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.ProgressReporter;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.utils.CapturePhotoUtils;
 import com.ladjzero.uzlee.utils.Timeline;
 import com.ladjzero.uzlee.model.ObservablePosts;
 import com.ladjzero.uzlee.utils.Utils;
@@ -207,6 +208,9 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				showToast("复制到剪切版");
 				break;
 			case 5:
+				CapturePhotoUtils.insertImage(getContentResolver(), mWebView.toBitmap(), "webview", "webview");
+				break;
+			case 6:
 				Intent intent = new Intent(Intent.ACTION_VIEW);
 				intent.setData(Uri.parse(getUri()));
 				startActivity(intent);
