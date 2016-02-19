@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
 import com.ladjzero.uzlee.R;
+import com.ladjzero.uzlee.utils.Timeline;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.PersistentCookieStore;
@@ -55,6 +56,7 @@ public class Core {
 	public static final Collection<String> iconValues;
 	public static final String BASE_URL = "http://www.hi-pda.com/forum";
 	public static final String DIVIDER = "123~#~321";
+	private static Timeline mTimeline = new Timeline();
 
 	static {
 		icons.put("images/smilies/default/smile.gif", ":)");
@@ -370,7 +372,9 @@ public class Core {
 
 	public static Posts parsePosts(String html, OnProgress onProgress) {
 		Posts posts = new Posts();
+		Logger.t(Timeline.TAG).i("%dms", mTimeline.reset().timeLine());
 		Document doc = getDoc(html);
+		Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
 
 		Element eFid = doc.select("#nav a").last();
 		String fidStr = eFid.attr("href");
@@ -414,6 +418,8 @@ public class Core {
 		int i = 0;
 
 		for (Element ePost : ePosts) {
+			Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
+
 			Post post;
 			posts.add(post = toPostObj(ePost));
 
