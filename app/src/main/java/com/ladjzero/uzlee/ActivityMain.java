@@ -17,8 +17,8 @@ import android.widget.ListView;
 
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
-import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
+import com.ladjzero.uzlee.utils.Utils;
 import com.orhanobut.logger.Logger;
 import com.rey.material.app.Dialog;
 

@@ -2,7 +2,6 @@ package com.ladjzero.uzlee;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -10,9 +9,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.ladjzero.hipda.Core;
-import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.utils.Utils;
 import com.orhanobut.logger.Logger;
 
 /**

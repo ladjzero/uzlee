@@ -11,8 +11,8 @@ import android.view.ViewGroup;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
-import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
+import com.ladjzero.uzlee.utils.Utils;
 import com.nineoldandroids.animation.Animator;
 import com.rey.material.widget.TabPageIndicator;
 

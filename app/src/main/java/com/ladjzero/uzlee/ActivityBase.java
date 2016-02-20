@@ -21,6 +21,7 @@ import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
 import com.ladjzero.hipda.HttpClientCallback;
+import com.ladjzero.uzlee.utils.Utils;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;

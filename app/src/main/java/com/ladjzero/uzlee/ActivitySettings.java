@@ -12,12 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.alibaba.fastjson.JSON;
-import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
 import com.ladjzero.hipda.HttpApi;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.utils.Utils;
 import com.rey.material.app.Dialog;
 
 import org.apache.commons.collections.CollectionUtils;

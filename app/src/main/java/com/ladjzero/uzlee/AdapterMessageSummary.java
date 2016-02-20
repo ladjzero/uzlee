@@ -15,14 +15,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.lang3.time.DateUtils;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Created by ladjzero on 2015/4/25.
@@ -70,7 +63,7 @@ public class AdapterMessageSummary extends ArrayAdapter<Thread> implements View.
 		int count = thread.getCommentCount();
 		boolean isNew = thread.isNew();
 
-		holder.imageMask.setText(Utils.getFirstChar(userName));
+		holder.imageMask.setText(com.ladjzero.uzlee.utils.Utils.getFirstChar(userName));
 
 		ImageLoader.getInstance().displayImage(imageUrl, holder.image, new SimpleImageLoadingListener() {
 			@Override
@@ -82,7 +75,7 @@ public class AdapterMessageSummary extends ArrayAdapter<Thread> implements View.
 			public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
 				((ImageView) view).setImageResource(android.R.color.transparent);
 				author.setImage(null);
-				holder.imageMask.setText(Utils.getFirstChar(userName));
+				holder.imageMask.setText(com.ladjzero.uzlee.utils.Utils.getFirstChar(userName));
 			}
 		});
 
@@ -91,7 +84,7 @@ public class AdapterMessageSummary extends ArrayAdapter<Thread> implements View.
 //		holder.name.getPaint().setFakeBoldText(true);
 		holder.image.setOnClickListener(this);
 		holder.name.setOnClickListener(this);
-		holder.date.setText(Utils.prettyTime(thread.getDateStr()));
+		holder.date.setText(com.ladjzero.uzlee.utils.Utils.prettyTime(thread.getDateStr()));
 		holder.name.setText(thread.getAuthor().getName());
 
 		if (mLocalApi.getBanned().contains(new User().setId(uid))) {

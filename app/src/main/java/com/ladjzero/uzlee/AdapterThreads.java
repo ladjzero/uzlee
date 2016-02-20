@@ -16,6 +16,7 @@ import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;

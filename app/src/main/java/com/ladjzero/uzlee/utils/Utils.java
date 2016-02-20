@@ -1,4 +1,4 @@
-package com.ladjzero.uzlee;
+package com.ladjzero.uzlee.utils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -17,6 +17,7 @@ import com.daimajia.androidanimations.library.YoYo;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.R;
 import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
 
