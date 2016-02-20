@@ -1,22 +1,89 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:layout_width="fill_parent"
-			  android:layout_height="wrap_content"
-			  android:orientation="vertical"
-			  android:paddingBottom="6dp"
-			  android:paddingLeft="12dp"
-			  android:paddingRight="12dp"
-			  android:paddingTop="12dp">
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal"
+              android:paddingBottom="6dp"
+              android:paddingLeft="12dp"
+              android:paddingRight="12dp"
+              android:paddingTop="12dp">
 
-	<include layout="@layout/include_user_of_thread"/>
+    <RelativeLayout
+        android:id="@+id/user_wrapper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="12dp">
 
-	<com.joanzapata.iconify.widget.IconTextView
-		android:id="@+id/thread_title"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="12dp"
-		android:textSize="16sp"
-		android:lineSpacingExtra="6dp"
-		android:textColor="?attr/colorText"
-		android:text="人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人"/>
+        <TextView
+            android:id="@+id/user_image_mask"
+            android:layout_width="@dimen/profile_height"
+            android:layout_height="@dimen/profile_height"
+            android:gravity="center"
+            android:textColor="@color/snow_darker"
+            android:textSize="20dp"/>
+
+        <ImageView
+            android:id="@+id/user_image"
+            android:layout_width="@dimen/profile_height"
+            android:layout_height="@dimen/profile_height"
+            android:layout_gravity="center_vertical"
+            android:accessibilityLiveRegion="polite"
+            android:scaleType="centerCrop"/>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/user_mini_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:maxLines="1"
+                android:text="一二三四"
+                android:textColor="?attr/colorText"
+                android:textSize="14dp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/thread_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/user_mini_name"
+                android:paddingLeft="12dp"
+                android:text="50"
+                android:textColor="?attr/colorRead"
+                android:textSize="12dp"/>
+
+            <TextView
+                android:id="@+id/thread_comment_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:text="50"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"/>
+        </RelativeLayout>
+
+        <com.joanzapata.iconify.widget.IconTextView
+            android:id="@+id/thread_title"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:lineSpacingExtra="6dp"
+            android:text="人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人"
+            android:textColor="?attr/colorText"
+            android:textSize="16sp"/>
+    </LinearLayout>
 
 </LinearLayout>
