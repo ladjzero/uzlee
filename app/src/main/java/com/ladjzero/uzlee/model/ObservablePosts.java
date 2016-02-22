@@ -14,6 +14,7 @@ public class ObservablePosts extends ObservableArrayList<Post> {
 	public ObservablePosts(Posts posts) {
 		super();
 		this.addAll(posts);
+		mPosts = posts;
 	}
 
 	public void replaceMeta(Posts posts) {
