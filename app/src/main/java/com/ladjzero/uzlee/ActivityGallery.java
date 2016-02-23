@@ -1,10 +1,16 @@
 package com.ladjzero.uzlee;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -73,11 +79,29 @@ public class ActivityGallery extends ActivityBase implements ViewPager.OnPageCha
 
 	public static class FragmentGalleryImage extends Fragment {
 		private String url;
+		@Bind(R.id.gallery_image)
+		private WebView2 mImage;
 
 		public static FragmentGalleryImage newInstance(Bundle args) {
 			FragmentGalleryImage f = new FragmentGalleryImage();
 			f.url = args.getString("url");
 			return f;
+		}
+
+		@Nullable
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+			View root = super.onCreateView(inflater, container, savedInstanceState);
+			ButterKnife.bind(root, getActivity());
+			mImage.getSettings().setJavaScriptEnabled(true);
+			mImage.loadUrl("file:///android_asset/gallery_image.html");
+			mImage.setWebViewClient(new WebViewClient() {
+				@Override
+				public void onPageFinished(WebView view, String url) {
+					view.loadUrl("javascript:_showImage(" + url + ")");
+				}
+			});
+			return root;
 		}
 	}
 }
