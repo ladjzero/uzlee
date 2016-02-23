@@ -1,20 +1,16 @@
 package com.ladjzero.uzlee;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -208,32 +204,26 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 			types = selectedForum.getTypes();
 		}
 
-		MenuItem menuType = menu.findItem(R.id.thread_types);
+		if (types != null && typeId != null) {
+			Forum.Type type = (Forum.Type) CollectionUtils.find(types, new Predicate() {
+				@Override
+				public boolean evaluate(Object o) {
+					return ((Forum.Type) o).getId() == typeId;
+				}
+			});
 
-		if (types == null) {
-			menuType.setVisible(false);
+			setTitle("分类：" + type.getName());
 		} else {
-			if (typeId == null) {
-				menu.findItem(R.id.thread_types)
-						.setVisible(true)
-						.setTitle(types.get(0).getName());
-			} else {
-				Forum.Type type = (Forum.Type) CollectionUtils.find(types, new Predicate() {
-					@Override
-					public boolean evaluate(Object o) {
-						return ((Forum.Type) o).getId() == typeId;
-					}
-				});
-
-				menu.findItem(R.id.thread_types)
-						.setVisible(true)
-						.setTitle(type.getName());
-			}
-
+			setTitle(null);
 		}
 
 		menu.findItem(R.id.thread_publish)
-				.setIcon(new IconDrawable(this, MaterialIcons.md_edit)
+				.setIcon(new IconDrawable(this, MaterialIcons.md_add)
+						.color(Utils.getThemeColor(this, R.attr.colorTextInverse))
+						.actionBarSize());
+
+		menu.findItem(R.id.thread_types)
+				.setIcon(new IconDrawable(this, MaterialIcons.md_style)
 						.color(Utils.getThemeColor(this, R.attr.colorTextInverse))
 						.actionBarSize());
 
