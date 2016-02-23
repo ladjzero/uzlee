@@ -88,6 +88,10 @@
             android:name=".ActivityAbout"
             android:label="关于">
         </activity>
+        <activity
+            android:name=".ActivityGallery"
+            android:label="相册">
+        </activity>
     </application>
 
 </manifest>
