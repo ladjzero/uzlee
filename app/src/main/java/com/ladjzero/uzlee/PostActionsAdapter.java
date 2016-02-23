@@ -32,13 +32,6 @@ public class PostActionsAdapter extends ArrayAdapter{
 			"{md-link}",
 			"{md-open-in-browser}"
 	};
-	public final static Icon[] ICON_VALUES = new Icon[] {
-			FontAwesomeIcons.fa_sort_numeric_desc,
-			FontAwesomeIcons.fa_refresh,
-			FontAwesomeIcons.fa_bookmark,
-			FontAwesomeIcons.fa_link,
-			FontAwesomeIcons.fa_external_link
-	};
 
 	public PostActionsAdapter(Context context) {
 		super(context, 0, TYPES);

@@ -50,7 +50,6 @@ import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import me.drakeet.materialdialog.MaterialDialog;
 
 import static com.ladjzero.hipda.Core.OnRequestListener;
 import static com.ladjzero.hipda.Core.addToFavorite;
@@ -160,31 +159,32 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 							showToast("收藏成功");
 						} else {
 							if (html.contains("您曾经收藏过这个主题")) {
-								final MaterialDialog dialog = new MaterialDialog(ActivityPosts.this);
-								dialog.setCanceledOnTouchOutside(true)
-										.setMessage("已经收藏过该主题")
-										.setPositiveButton("移除收藏", new View.OnClickListener() {
+								final Dialog dialog = new Dialog(ActivityPosts.this);
+
+								dialog.setTitle("已经收藏过该主题");
+								dialog.setCanceledOnTouchOutside(true);
+								dialog.positiveAction("移除收藏").positiveActionClickListener(new View.OnClickListener() {
+									@Override
+									public void onClick(View v) {
+										dialog.dismiss();
+
+										removeFromFavoriate(mTid, new OnRequestListener() {
 											@Override
-											public void onClick(View v) {
-												dialog.dismiss();
+											public void onError(String error) {
+												showToast(error);
+											}
 
-												removeFromFavoriate(mTid, new OnRequestListener() {
-													@Override
-													public void onError(String error) {
-														showToast(error);
-													}
-
-													@Override
-													public void onSuccess(String html) {
-														if (html.contains("此主题已成功从您的收藏夹中移除")) {
-															showToast("移除成功");
-														} else {
-															showToast("移除失败");
-														}
-													}
-												});
+											@Override
+											public void onSuccess(String html) {
+												if (html.contains("此主题已成功从您的收藏夹中移除")) {
+													showToast("移除成功");
+												} else {
+													showToast("移除失败");
+												}
 											}
 										});
+									}
+								});
 
 								dialog.show();
 							} else {
@@ -464,7 +464,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 					mPosts.add(post);
 
 					mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
-					mProgressView.setProgress((Integer)objects[0] * 1.0f/(Integer)objects[1]);
+					mProgressView.setProgress((Integer) objects[0] * 1.0f / (Integer) objects[1]);
 					Logger.i("Parsed one post.");
 				}
 

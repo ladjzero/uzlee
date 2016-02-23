@@ -35,7 +35,6 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import me.drakeet.materialdialog.MaterialDialog;
 
 public class ActivityMain extends ActivityBase implements ViewPager.OnPageChangeListener, SharedPreferences.OnSharedPreferenceChangeListener {
 

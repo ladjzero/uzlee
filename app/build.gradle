@@ -39,31 +39,30 @@ dependencies {
     compile files('libs/mta-mid-sdk-2.20.jar')
     compile files('libs/mta-stats-sdk-2.0.4.jar')
 
-    compile 'com.joanzapata.iconify:android-iconify:2.1.0'
     compile 'com.joanzapata.iconify:android-iconify-fontawesome:2.1.0' // (v4.4)
     compile 'com.joanzapata.iconify:android-iconify-material:2.1.0' // (v2.0.0)
-    compile 'com.joanzapata.iconify:android-iconify-material-community:2.1.0' // (v1.2.65)
 
     compile 'com.android.support:support-v4:21.0.3'
     compile 'com.android.support:support-v13:21.0.3'
-    compile 'com.github.eluleci:flatui:3.0.0'
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.daimajia.easing:library:1.0.1@aar'
     compile 'com.daimajia.androidanimations:library:1.1.3@aar'
+    // To be deleted
     compile 'com.wefika:flowlayout:0.3.4'
+
     compile 'com.rengwuxian.materialedittext:library:2.0.3'
-    compile 'me.drakeet.materialdialog:library:1.2.2'
     compile 'com.github.rey5137:material:1.1.0'
     compile 'com.android.support:appcompat-v7:21.0.2'
     compile 'com.android.support:cardview-v7:21.0.3'
-    compile 'com.github.chrisbanes.photoview:library:1.2.3'
     compile 'com.orhanobut:logger:1.8'
 
     compile 'de.hdodenhof:circleimageview:1.3.0'
     compile 'com.jakewharton:butterknife:7.0.1'
 
     compile project(':PullToRefresh')
+    // To be deleted
     compile project(':DiscreteSeekBar')
+    
     compile project(':AutoFitTextViewLibrary')
     compile project(':Slidr')
 }

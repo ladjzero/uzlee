@@ -150,7 +150,6 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 
 
 		ActionBar mActionbar = getSupportActionBar();
-//		mActionbar.setBackgroundDrawable(FlatUI.getActionBarDrawable(this, FlatUI.DARK, false));
 //		mActionbarHeight = mActionbar.getHeight();
 
 		ImageLoaderConfiguration ilConfig = new ImageLoaderConfiguration.Builder(this)
