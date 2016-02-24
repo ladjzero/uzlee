@@ -19,6 +19,7 @@ import android.view.View;
 
 import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.Core;
+import com.ladjzero.uzlee.utils.NotificationUtils;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -160,7 +161,6 @@ public class ActivityBase extends ActionBarActivity implements Core.OnProgress {
 		checkUpdate(false);
 
 		setImageNetwork();
-
 	}
 
 	public void checkUpdate(boolean force) {
