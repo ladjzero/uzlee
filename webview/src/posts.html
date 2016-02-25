@@ -5,10 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <script>
+    window._postsData = {
+      posts: [],
+      postsStyle: {
+        theme: 'green',
+        fontsize: 'normal',
+        showSig: false
+      }
+    }
+    </script>
 </head>
 
 <body>
-<posts :posts="posts" :theme="theme" :fontsize="fontsize"></posts>
+<posts :posts="posts" :posts-style="postsStyle"></posts>
 <script src="../dist/posts.bundle.js"></script>
 <!--<script>console.log(Date.now())</script>-->
 <script src="../posts_test.js"></script>

@@ -380,12 +380,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@Override
 	public String getHTMLFilePath() {
-		SharedPreferences setting = getSettings();
-
-		return "file:///android_asset/posts.html" +
-				"?theme=" + setting.getString("theme", DefaultTheme) +
-				"&fontsize=" + setting.getString("font_size", "normal") +
-				"&showsig=" + setting.getBoolean("show_sig", false);
+		return "file:///android_asset/posts.html";
 	}
 
 	@Override
@@ -781,6 +776,10 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				mIsPushedAfterWebReady = true;
 			}
 		}
+
+		mWebView.loadUrl("javascript:var s=_postsData.postsStyle;s.theme='" + setting.getString("theme", DefaultTheme) + "';" +
+				"s.fontsize='" + setting.getString("font_size", "normal") + "';" +
+				"s.showSig=" + setting.getBoolean("show_sig", false));
 	}
 
 	class OnListChangedCallback extends ObservableList.OnListChangedCallback {

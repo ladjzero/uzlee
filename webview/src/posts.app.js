@@ -1,11 +1,7 @@
 import Vue from 'vue'
 import Posts from './Posts.vue'
 
-let data = window._postsData = {
-  posts: [],
-  theme: 'green',
-  fontsize: 'normal'
-}
+let data = window._postsData
 
 Vue.config.debug = true
 

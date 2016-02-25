@@ -1,5 +1,5 @@
 <template>
-  <ol id="post-list" class="unstyled" v-bind:class="classes">
+  <ol id="post-list" class="unstyled" v-bind:class="classes" >
     <li v-for="post in posts" class="post">
       <post :post="post"></post>
     </li>
@@ -10,13 +10,14 @@
 import Post from './Post.vue'
 
 export default {
-  props: ['posts', 'theme', 'fontsize'],
-  data: function () {
-    let isDay = this.theme != 'night';
-    let fontClass = 'font-size-' + this.fontsize;
+  props: ['posts', 'postsStyle'],
+  computed: {
+    classes: function () {
+      let theme = this.postsStyle.theme
+      let isDay = theme != 'night'
+      let fontClass = 'font-size-' + this.postsStyle.fontsize
 
-    return {
-        classes: [isDay ? 'day' : '', this.theme, fontClass]
+      return [isDay ? 'day' : '', theme, fontClass]
     }
   },
   components: {
