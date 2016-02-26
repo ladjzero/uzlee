@@ -74,6 +74,11 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements O
 					super.onPageFinished(view, url);
 					onWebViewReady();
 				}
+
+				@Override
+				public boolean shouldOverrideUrlLoading(WebView view, String url) {
+					return onLinkClick(url);
+				}
 			});
 			webView.setWebChromeClient(new WebChromeClient() {
 				@Override
@@ -97,6 +102,10 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements O
 	public abstract WebView2 getWebView();
 
 	public abstract String getHTMLFilePath();
+
+	public boolean onLinkClick(String url) {
+		return false;
+	}
 
 	@Override
 	public void toolbarClick() {

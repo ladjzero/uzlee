@@ -628,9 +628,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		startActivityForResult(intent, EDIT_CODE);
 	}
 
-	@JavascriptInterface
-	public void onLinkClick(String href) {
-//		showToast(href);
+	public boolean onLinkClick(String href) {
 		Uri uri = Uri.parse(href);
 
 		if ("www.hi-pda.com".equals(uri.getHost())) {
@@ -671,13 +669,14 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 					startActivity(intent);
 				}
 
-				return;
+				return true;
 			}
 		}
 
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setData(uri);
 		startActivity(intent);
+		return true;
 	}
 
 	@Override

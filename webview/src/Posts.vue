@@ -1,6 +1,6 @@
 <template>
   <ol id="post-list" class="unstyled" v-bind:class="classes" >
-    <li v-for="post in posts" class="post">
+    <li v-for="post in posts" id="pid-{{post.id}}" class="post">
       <post :post="post"></post>
     </li>
   </ol>
