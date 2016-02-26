@@ -7,7 +7,7 @@ module.exports = {
   },
   output: {
     publicPath: '/dist/',
-    path: path.join(__dirname, 'dist'),
+    path: path.join(__dirname, 'src', 'dist'),
     filename: '[name].bundle.js'
   },
   module: {
@@ -16,7 +16,9 @@ module.exports = {
       {test: /\.js$/, exclude: /node_modules/, loader: 'babel', query: {presets: ['es2015']}}
     ]
   },
-  devtool: '#source-map',
+  vue: {
+    autoprefixer: {browsers: ['Android 4.0']}
+  },
   plugins: [
     new webpack.optimize.UglifyJsPlugin()
   ]
