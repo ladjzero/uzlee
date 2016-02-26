@@ -15,7 +15,7 @@ public class Parser {
 	public static final String CODE_UTF8 = "UTF-8";
 
 	private static final String STATS = "论坛统计";
-	private String mCode;
+	private String mCode = CODE_GBK;
 	private ApiStore mStore;
 
 	public Parser() {

@@ -53,6 +53,19 @@ public class FragmentNav extends FragmentBase implements Observer {
 	View userLayout;
 	@Bind(R.id.alert_icon)
 	TextView mAlertIcon;
+	/**
+	 * Helper component that ties the action bar to the navigation drawer.
+	 */
+	private ActionBarDrawerToggle mActionBarDrawerToggle;
+	private DrawerLayout mDrawerLayout;
+	//	private RecyclerView mDrawerList;
+	private View mFragmentContainerView;
+	private int mCurrentSelectedPosition = 0;
+	private boolean mFromSavedInstanceState;
+	private boolean mUserLearnedDrawer;
+	private ActivityBase mContext;
+	private LocalApi mLocalApi;
+	private User mUser;
 
 	@OnClick(R.id.nav_user)
 	void onUserClick() {
@@ -64,21 +77,6 @@ public class FragmentNav extends FragmentBase implements Observer {
 			startActivity(intent);
 		}
 	}
-
-	/**
-	 * Helper component that ties the action bar to the navigation drawer.
-	 */
-	private ActionBarDrawerToggle mActionBarDrawerToggle;
-	private DrawerLayout mDrawerLayout;
-	//	private RecyclerView mDrawerList;
-	private View mFragmentContainerView;
-	private int mCurrentSelectedPosition = 0;
-	private boolean mFromSavedInstanceState;
-	private boolean mUserLearnedDrawer;
-
-	private ActivityBase mContext;
-	private LocalApi mLocalApi;
-	private User mUser;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -209,21 +207,21 @@ public class FragmentNav extends FragmentBase implements Observer {
 			public void run() {
 				if ("user".equals(o)) {
 					mUser = mLocalApi.getUser();
+					final boolean visible = mUser != null && mUser.getId() != 0;
 
+					message.setVisibility(visible ? View.VISIBLE : View.GONE);
+					myPosts.setVisibility(visible ? View.VISIBLE : View.GONE);
 
-					message.setVisibility(mUser == null ? View.GONE : View.VISIBLE);
-					myPosts.setVisibility(mUser == null ? View.GONE : View.VISIBLE);
-
-					if (mUser != null) {
-						userLayout.postDelayed(new Runnable() {
-							@Override
-							public void run() {
-								userLayout.setVisibility(View.VISIBLE);
+					userLayout.postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							if (visible) {
 								ImageLoader.getInstance().displayImage(mUser.getImage(), imageView);
-								userName.setText(mUser.getName());
 							}
-						}, 300);
-					}
+
+							userName.setText(visible ? mUser.getName() : "未登录");
+						}
+					}, 300);
 				} else if ("unread".equals(o)) {
 					int unread = mLocalApi.getUnread();
 

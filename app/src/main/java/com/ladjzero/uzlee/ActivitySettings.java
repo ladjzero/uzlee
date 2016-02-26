@@ -38,6 +38,9 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mHttpApi = getCore().getHttpApi();
+		mLocalApi = getCore().getLocalApi();
+		mHttpClient = getApp().getHttpClient();
 
 		setTitle("设置");
 		setContentView(R.layout.activity_settings);
@@ -49,10 +52,6 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 		getFragmentManager().beginTransaction().replace(R.id.content, new SettingFragment()).commit();
 
 		this.setResult(0, new Intent());
-
-		mHttpApi = getCore().getHttpApi();
-		mLocalApi = getCore().getLocalApi();
-		mHttpClient = getApp().getHttpClient();
 	}
 
 	@Override
@@ -77,14 +76,6 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 			Intent intent = new Intent();
 			this.setResult(0, intent);
 			this.reload();
-		}
-	}
-
-	public static class SelectedForumsChangeEvent {
-		private Set<String> values;
-
-		public SelectedForumsChangeEvent(Set<String> values) {
-			this.values = values;
 		}
 	}
 
@@ -312,6 +303,11 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 
 	abstract static class ThreadSortClickListener extends BaseClickListener {
 
+		public ThreadSortClickListener(ActivityBase context, String title, String key, int layoutId) {
+			super(context, title, key, layoutId);
+			this.key = key;
+		}
+
 		@OnClick(R.id.publish_time)
 		void publishTime() {
 			setSort("发表时间");
@@ -320,11 +316,6 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 		@OnClick(R.id.reply_time)
 		void replyTime() {
 			setSort("回复时间");
-		}
-
-		public ThreadSortClickListener(ActivityBase context, String title, String key, int layoutId) {
-			super(context, title, key, layoutId);
-			this.key = key;
 		}
 
 		private void setSort(String sort) {
@@ -343,6 +334,11 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 	}
 
 	abstract static class FontSizeClickListener extends BaseClickListener {
+		public FontSizeClickListener(ActivityBase context, String title, String key, int layoutId) {
+			super(context, title, key, layoutId);
+			this.key = key;
+		}
+
 		@OnClick(R.id.normal)
 		void normal() {
 			setFontSize("normal");
@@ -358,11 +354,6 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 			setFontSize("bigger");
 		}
 
-		public FontSizeClickListener(ActivityBase context, String title, String key, int layoutId) {
-			super(context, title, key, layoutId);
-			this.key = key;
-		}
-
 		public void setFontSize(String size) {
 			context.getSettings().edit().putString("font_size", size).commit();
 			onSelect(Utils.getFontSizeName(size));
@@ -373,6 +364,11 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 	}
 
 	abstract static class ThemeClickListener extends BaseClickListener {
+		public ThemeClickListener(ActivityBase context, String title, String key, int layoutId) {
+			super(context, title, key, layoutId);
+			this.key = key;
+		}
+
 		@OnClick(R.id.red)
 		void red() {
 			setTheme("red");
@@ -417,12 +413,6 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 		void night() {
 			setTheme("night");
 		}
-
-		public ThemeClickListener(ActivityBase context, String title, String key, int layoutId) {
-			super(context, title, key, layoutId);
-			this.key = key;
-		}
-
 
 		private void setTheme(String themeStr) {
 			context.getSettings().edit().putString(key, themeStr).commit();
