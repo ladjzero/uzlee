@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-loadPosts([{
+window._postsData.posts.push.apply(window._postsData.posts, [{
     "isLz": true,
     "author": {
         "id": 592617,

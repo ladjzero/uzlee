@@ -1,18 +1,8 @@
 /*! echo.js v1.7.0 | (c) 2015 @toddmotto | https://github.com/toddmotto/echo */
-(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    define(function() {
-      return factory(root);
-    });
-  } else if (typeof exports === 'object') {
-    module.exports = factory;
-  } else {
-    root.echo = factory(root);
-  }
-})(this, function (root) {
+
 
   'use strict';
-
+  var root = window;
   var echo = {};
 
   var callback = function () {};
@@ -130,6 +120,4 @@
     clearTimeout(poll);
   };
 
-  return echo;
-
-});
+  export default echo;

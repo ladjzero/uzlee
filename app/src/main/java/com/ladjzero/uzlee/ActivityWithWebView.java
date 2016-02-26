@@ -2,6 +2,7 @@ package com.ladjzero.uzlee;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -11,6 +12,7 @@ import android.webkit.WebViewClient;
 
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.utils.Timeline;
 import com.orhanobut.logger.Logger;
 
 /**
@@ -19,6 +21,7 @@ import com.orhanobut.logger.Logger;
 public abstract class ActivityWithWebView extends ActivityHardSlide implements OnToolbarClickListener {
 
 	private boolean initialized;
+	private Timeline mTimeline = new Timeline();
 
 	@JavascriptInterface
 	public void onProfileClick(int uid, String name) {
@@ -48,6 +51,12 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements O
 	}
 
 	@Override
+	protected void onCreate(Bundle bundle) {
+		super.onCreate(bundle);
+		Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
+	}
+
+	@Override
 	protected void onResume() {
 		super.onResume();
 		setupWebView();
@@ -61,8 +70,14 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements O
 			webView.setWebViewClient(new WebViewClient() {
 				@Override
 				public void onPageFinished(WebView view, String url) {
+					Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
 					super.onPageFinished(view, url);
 					onWebViewReady();
+				}
+
+				@Override
+				public boolean shouldOverrideUrlLoading(WebView view, String url) {
+					return onLinkClick(url);
 				}
 			});
 			webView.setWebChromeClient(new WebChromeClient() {
@@ -87,6 +102,10 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements O
 	public abstract WebView2 getWebView();
 
 	public abstract String getHTMLFilePath();
+
+	public boolean onLinkClick(String url) {
+		return false;
+	}
 
 	@Override
 	public void toolbarClick() {

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <script>
+    window._postsData = {
+      posts: [],
+      postsStyle: {
+        theme: 'green',
+        fontsize: 'normal',
+        showSig: false
+      }
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.target.tagName == 'IMG') {
+        UZLEE.onImageClick(e.target.src);
+      }
+    })
+
+    window.scrollToPost = function(pid) {
+      var id = 'pid-' + pid;
+      var calledTimes = arguments[1] || 10;
+
+      if (document.getElementById(id)) {
+          console.log('Scroll to pid-' + pid + 'successfully.');
+          location.hash = '';
+          location.hash = id;
+      } else if (calledTimes) {
+          setTimeout(scrollToPost.bind(null, pid, calledTimes - 1), 500);
+      }
+    }
+    </script>
+</head>
+
+<body>
+<posts :posts="posts" :posts-style="postsStyle"></posts>
+<script src="posts.bundle.js"></script>
+</body>
+</html>

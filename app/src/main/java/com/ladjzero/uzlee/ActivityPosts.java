@@ -37,6 +37,7 @@ import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.utils.Timeline;
 import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
 import com.rey.material.app.Dialog;
@@ -104,6 +105,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	private boolean mWebViewReady = false;
 	private boolean mSkipResumeFetch = false;
 	private boolean mIsPushedAfterWebReady = false;
+	private Timeline mTimeline = new Timeline();
 
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -211,6 +213,8 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	}
 
 	private void fetch(int page) {
+		Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
+
 		try {
 			myid = getUser().getId();
 		} catch (Exception e) {
@@ -227,6 +231,8 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		mPosts.clear();
 
+		Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
+
 		getHtml(url, new OnRequestListener() {
 			@Override
 			public void onError(String error) {
@@ -238,6 +244,8 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 			@Override
 			public void onSuccess(String html) {
+				Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
+
 				mPostsView.onRefreshComplete();
 				mIsFetching = false;
 
@@ -372,12 +380,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@Override
 	public String getHTMLFilePath() {
-		SharedPreferences setting = getSettings();
-
-		return "file:///android_asset/posts.html" +
-				"?theme=" + setting.getString("theme", DefaultTheme) +
-				"&fontsize=" + setting.getString("font_size", "normal") +
-				"&showsig=" + setting.getBoolean("show_sig", false);
+		return "file:///android_asset/posts.html";
 	}
 
 	@Override
@@ -441,7 +444,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	}
 
 	private void onHtml(String html) {
-		Logger.i("Parsing html.");
+		Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
 
 		if (html != null && html.length() > 0) {
 			new AsyncTask<String, Object, Posts>() {
@@ -470,7 +473,8 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 				@Override
 				protected void onPostExecute(Posts posts) {
-					Logger.i("Parsing done.");
+					Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
+
 					mPosts.replaceMeta(posts);
 					mProgressView.stop();
 
@@ -624,9 +628,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		startActivityForResult(intent, EDIT_CODE);
 	}
 
-	@JavascriptInterface
-	public void onLinkClick(String href) {
-//		showToast(href);
+	public boolean onLinkClick(String href) {
 		Uri uri = Uri.parse(href);
 
 		if ("www.hi-pda.com".equals(uri.getHost())) {
@@ -667,13 +669,14 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 					startActivity(intent);
 				}
 
-				return;
+				return true;
 			}
 		}
 
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setData(uri);
 		startActivity(intent);
+		return true;
 	}
 
 	@Override
@@ -768,10 +771,14 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		if (!mIsPushedAfterWebReady) {
 			for (Post post : mPosts) {
-				mWebView.loadUrl("javascript:_posts.push(" + JSON.toJSONString(post) + ")");
+				mWebView.loadUrl("javascript:_postsData.posts.push(" + JSON.toJSONString(post) + ")");
 				mIsPushedAfterWebReady = true;
 			}
 		}
+
+		mWebView.loadUrl("javascript:var s=_postsData.postsStyle;s.theme='" + setting.getString("theme", DefaultTheme) + "';" +
+				"s.fontsize='" + setting.getString("font_size", "normal") + "';" +
+				"s.showSig=" + setting.getBoolean("show_sig", false));
 	}
 
 	class OnListChangedCallback extends ObservableList.OnListChangedCallback {
@@ -793,7 +800,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			if (mWebViewReady) {
 				for (int i = mIsPushedAfterWebReady ? positionStart : 0; i < positionStart + itemCount; i++) {
 					Post post = (Post) sender.get(i);
-					mWebView.loadUrl("javascript:_posts.push(" + JSON.toJSONString(post) + ")");
+					mWebView.loadUrl("javascript:_postsData.posts.push(" + JSON.toJSONString(post) + ")");
 					mIsPushedAfterWebReady = true;
 				}
 			}
@@ -807,7 +814,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		@Override
 		public void onItemRangeRemoved(ObservableList sender, int positionStart, int itemCount) {
 			Logger.i("onItemRangeRemoved, positionStart %d itemCount %d", positionStart, itemCount);
-			mWebView.loadUrl("javascript:_posts.splice(" + positionStart + ", " + itemCount + ")");
+			mWebView.loadUrl("javascript:_postsData.posts.splice(" + positionStart + ", " + itemCount + ")");
 		}
 	}
 }
