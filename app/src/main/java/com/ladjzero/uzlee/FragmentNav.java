@@ -69,7 +69,7 @@ public class FragmentNav extends FragmentBase implements Observer {
 
 	@OnClick(R.id.nav_user)
 	void onUserClick() {
-		if (mUser == null) {
+		if (mUser == null || mUser.getId() == 0) {
 			mContext.toLoginPage();
 		} else {
 			Intent intent = new Intent(mContext, ActivityUser.class);
