@@ -1,4 +1,4 @@
-package com.ladjzero.uzlee;
+package com.ladjzero.uzlee.utils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -17,6 +17,7 @@ import com.daimajia.androidanimations.library.YoYo;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.R;
 import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
 
@@ -26,9 +27,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
@@ -86,6 +89,33 @@ public class Utils {
                 return "<img src=\"" + user.getImage() + "\" onclick=\"ActivityPosts.onUserClick(2)\"><h3>" + user.getName() + "</h3>" + JSON.toJSONString(post);
             }
         }), "");
+    }
+
+    public static String readAssetFile(Context context, String file) {
+        BufferedReader reader = null;
+        StringBuilder ret = new StringBuilder();
+
+        try {
+            reader = new BufferedReader(new InputStreamReader(context.getAssets().open(file), "UTF-8"));
+
+            String mLine = reader.readLine();
+
+            while (mLine != null) {
+                ret.append(mLine);
+                mLine = reader.readLine();
+            }
+
+            return ret.toString();
+        } catch (IOException e) {
+            return null;
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                }
+            }
+        }
     }
 
     public static void fadeOut(final View view) {

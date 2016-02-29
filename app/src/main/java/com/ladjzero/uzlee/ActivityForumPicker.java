@@ -55,7 +55,7 @@ public class ActivityForumPicker extends ActivityEasySlide {
         mActionbar.setDisplayHomeAsUpEnabled(true);
         mActionbar.setDisplayShowCustomEnabled(true);
 
-        final List<Forum> selectedForums = Core.getSelectedForums(this);
+        final List<Forum> selectedForums = getSelectedForums(this);
 
         selectedAdapter = new ArrayAdapter<Forum>(this, R.layout.list_item_forum_sort, R.id.text, selectedForums);
 
@@ -99,7 +99,7 @@ public class ActivityForumPicker extends ActivityEasySlide {
         dialog = new Dialog(this);
         View contentView = this.getLayoutInflater().inflate(R.layout.list_forum, null);
         final ListView list = (ListView) contentView.findViewById(R.id.list);
-        final List<Forum> forums = Core.getFlattenForums(this);
+        final List<Forum> forums = getFlattenForums(this);
 
         list.setAdapter(new ArrayAdapter<Forum>(this, R.layout.list_item_forum, R.id.forum, forums) {
             @Override
@@ -108,7 +108,7 @@ public class ActivityForumPicker extends ActivityEasySlide {
                 CheckBox textView = (CheckBox) rootView.findViewById(R.id.forum);
 
                 final Forum f = getItem(position);
-                List<Forum> selected = Core.getSelectedForums(ActivityForumPicker.this);
+                List<Forum> selected = getSelectedForums(ActivityForumPicker.this);
 
                 textView.setText(f.toString());
                 textView.setChecked(CollectionUtils.exists(selected, new Predicate() {
@@ -124,7 +124,7 @@ public class ActivityForumPicker extends ActivityEasySlide {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if (buttonView.getTag() == f) {
-                            List<Forum> selected = Core.getSelectedForums(ActivityForumPicker.this);
+                            List<Forum> selected = getSelectedForums(ActivityForumPicker.this);
 
                             boolean isSelectedBefore = CollectionUtils.exists(selected, new Predicate() {
                                 @Override
@@ -154,7 +154,7 @@ public class ActivityForumPicker extends ActivityEasySlide {
             @Override
             public void onDismiss(DialogInterface dialog) {
                 selectedAdapter.clear();
-                selectedAdapter.addAll(Core.getSelectedForums(ActivityForumPicker.this));
+                selectedAdapter.addAll(getSelectedForums(ActivityForumPicker.this));
                 selectedAdapter.notifyDataSetChanged();
             }
         });

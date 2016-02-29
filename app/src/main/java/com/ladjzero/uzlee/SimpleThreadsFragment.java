@@ -1,7 +1,7 @@
 package com.ladjzero.uzlee;
 
-import android.app.Fragment;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,11 +12,15 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.HttpApi;
+import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.Thread;
+import com.ladjzero.hipda.Threads;
+import com.ladjzero.hipda.ThreadsParser;
 
 import java.util.ArrayList;
 
-public class SimpleThreadsFragment extends Fragment implements AbsListView.OnItemClickListener, Core.OnThreadsListener {
+public class SimpleThreadsFragment extends FragmentBase implements AbsListView.OnItemClickListener {
 
 	Core core;
 	int tabIndex;
@@ -24,6 +28,8 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 	ArrayList<Thread> threads = new ArrayList<Thread>();
 	int pageToLoad = 1;
 	private OnFragmentInteractionListener mListener;
+	private HttpApi mApi;
+	private ThreadsParser mThreadsParser;
 	/**
 	 * The fragment's ListView/GridView.
 	 */
@@ -56,6 +62,9 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 		super.onCreate(savedInstanceState);
 
 		tabIndex = getArguments().getInt("tab_index");
+
+		mApi = getCore().getHttpApi();
+		mThreadsParser = getCore().getThreadsParser();
 
 		switch (tabIndex) {
 			case 0:
@@ -113,13 +122,73 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 
 					switch (tabIndex) {
 						case 0:
-							Core.getMyThreads(pageToLoad, SimpleThreadsFragment.this);
+							mApi.getOwnThreads(pageToLoad, new HttpClientCallback() {
+								@Override
+								public void onSuccess(String response) {
+									new AsyncTask<String, Object, Threads>() {
+										@Override
+										protected Threads doInBackground(String... strings) {
+											return mThreadsParser.parseOwnThreads(strings[0]);
+										}
+
+										@Override
+										protected void onPostExecute(Threads threads) {
+											onThreads(threads);
+										}
+									}.execute(response);
+								}
+
+								@Override
+								public void onFailure(String reason) {
+									((ActivityBase) getActivity()).showToast(reason);
+								}
+							});
 							break;
 						case 1:
-							Core.getMyPosts(pageToLoad, SimpleThreadsFragment.this);
+							mApi.getOwnPosts(pageToLoad, new HttpClientCallback() {
+								@Override
+								public void onSuccess(String response) {
+									new AsyncTask<String, Object, Threads>() {
+										@Override
+										protected Threads doInBackground(String... strings) {
+											return mThreadsParser.parseOwnPosts(strings[0]);
+										}
+
+										@Override
+										protected void onPostExecute(Threads threads) {
+											onThreads(threads);
+										}
+									}.execute(response);
+								}
+
+								@Override
+								public void onFailure(String reason) {
+									((ActivityBase) getActivity()).showToast(reason);
+								}
+							});
 							break;
 						case 2:
-							Core.getFavorites(pageToLoad, SimpleThreadsFragment.this);
+							mApi.getMarkedThreads(pageToLoad, new HttpClientCallback() {
+								@Override
+								public void onSuccess(String response) {
+									new AsyncTask<String, Object, Threads>() {
+										@Override
+										protected Threads doInBackground(String... strings) {
+											return mThreadsParser.parseMarkedThreads(strings[0]);
+										}
+
+										@Override
+										protected void onPostExecute(Threads threads) {
+											onThreads(threads);
+										}
+									}.execute(response);
+								}
+
+								@Override
+								public void onFailure(String reason) {
+									((ActivityBase) getActivity()).showToast(reason);
+								}
+							});
 							break;
 					}
 				}
@@ -129,13 +198,73 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 		if (pageToLoad == 1) {
 			switch (tabIndex) {
 				case 0:
-					Core.getMyThreads(pageToLoad, this);
+					mApi.getOwnThreads(pageToLoad, new HttpClientCallback() {
+						@Override
+						public void onSuccess(String response) {
+							new AsyncTask<String, Object, Threads>() {
+								@Override
+								protected Threads doInBackground(String... strings) {
+									return mThreadsParser.parseOwnThreads(strings[0]);
+								}
+
+								@Override
+								protected void onPostExecute(Threads threads) {
+									onThreads(threads);
+								}
+							}.execute(response);
+						}
+
+						@Override
+						public void onFailure(String reason) {
+							((ActivityBase) getActivity()).showToast(reason);
+						}
+					});
 					break;
 				case 1:
-					Core.getMyPosts(pageToLoad, this);
+					mApi.getOwnPosts(pageToLoad, new HttpClientCallback() {
+						@Override
+						public void onSuccess(String response) {
+							new AsyncTask<String, Object, Threads>() {
+								@Override
+								protected Threads doInBackground(String... strings) {
+									return mThreadsParser.parseOwnPosts(strings[0]);
+								}
+
+								@Override
+								protected void onPostExecute(Threads threads) {
+									onThreads(threads);
+								}
+							}.execute(response);
+						}
+
+						@Override
+						public void onFailure(String reason) {
+							((ActivityBase) getActivity()).showToast(reason);
+						}
+					});
 					break;
 				case 2:
-					Core.getFavorites(pageToLoad, this);
+					mApi.getMarkedThreads(pageToLoad, new HttpClientCallback() {
+						@Override
+						public void onSuccess(String response) {
+							new AsyncTask<String, Object, Threads>() {
+								@Override
+								protected Threads doInBackground(String... strings) {
+									return mThreadsParser.parseMarkedThreads(strings[0]);
+								}
+
+								@Override
+								protected void onPostExecute(Threads threads) {
+									onThreads(threads);
+								}
+							}.execute(response);
+						}
+
+						@Override
+						public void onFailure(String reason) {
+							((ActivityBase) getActivity()).showToast(reason);
+						}
+					});
 					break;
 			}
 		}
@@ -176,17 +305,11 @@ public class SimpleThreadsFragment extends Fragment implements AbsListView.OnIte
 		}
 	}
 
-	@Override
-	public void onThreads(ArrayList<Thread> threads, int currPage, boolean hasNextPage) {
-		pageToLoad = currPage + 1;
+	public void onThreads(Threads threads) {
+		pageToLoad = threads.getPage() + 1;
 		this.threads.addAll(threads);
 		mAdapter.notifyDataSetChanged();
 		this.hasNextPage = hasNextPage;
-	}
-
-	@Override
-	public void onError(String error) {
-		((ActivityBase) getActivity()).showToast(error);
 	}
 
 	/**

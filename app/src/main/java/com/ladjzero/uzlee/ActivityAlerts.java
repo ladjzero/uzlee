@@ -1,6 +1,7 @@
 package com.ladjzero.uzlee;
 
-import android.app.Fragment;
+
+import android.support.v4.app.Fragment;
 
 public class ActivityAlerts extends ActivityPagerBase {
 	@Override

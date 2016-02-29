@@ -2,6 +2,7 @@ package com.ladjzero.uzlee;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,19 +12,29 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.ladjzero.hipda.*;
+import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.HttpApi;
+import com.ladjzero.hipda.HttpClientCallback;
+import com.ladjzero.hipda.Post;
+import com.ladjzero.hipda.Posts;
+import com.ladjzero.hipda.PostsParser;
 import com.ladjzero.hipda.Thread;
+import com.ladjzero.hipda.Threads;
+import com.ladjzero.hipda.ThreadsParser;
 
 import java.util.ArrayList;
 
 /**
  * Created by ladjzero on 2015/1/1.
  */
-public class FragmentAlerts extends Fragment implements AbsListView.OnItemClickListener {
+public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemClickListener {
 	Core core;
 	private int tabIndex = -1;
 	private AbsListView mListView;
 	private ArrayAdapter mAdapter;
+	private HttpApi mApi;
+	private PostsParser mPostsParser;
+	private ThreadsParser mThreadsParser;
 
 	public static FragmentAlerts newInstance(int position) {
 		FragmentAlerts fragment = new FragmentAlerts();
@@ -68,6 +79,10 @@ public class FragmentAlerts extends Fragment implements AbsListView.OnItemClickL
 				};
 				break;
 		}
+
+		mApi = getCore().getHttpApi();
+		mPostsParser = getCore().getPostsParser();
+		mThreadsParser = getCore().getThreadsParser();
 	}
 
 
@@ -82,28 +97,49 @@ public class FragmentAlerts extends Fragment implements AbsListView.OnItemClickL
 
 		switch (tabIndex) {
 			case 0:
-				Core.getMessages(new Core.OnThreadsListener() {
+				mApi.getMessages(new HttpClientCallback() {
 					@Override
-					public void onThreads(ArrayList<Thread> threads, int page, boolean hasNextPage) {
-						mAdapter.addAll(threads);
+					public void onSuccess(String response) {
+						new AsyncTask<String, Object, Threads>() {
+							@Override
+							protected Threads doInBackground(String... strings) {
+								return mThreadsParser.parseMessages(strings[0]);
+							}
+
+							@Override
+							protected void onPostExecute(Threads threads) {
+								mAdapter.addAll(threads);
+							}
+						}.execute(response);
 					}
 
 					@Override
-					public void onError(String error) {
-						((ActivityBase) getActivity()).showToast(error);
+					public void onFailure(String reason) {
+						((ActivityBase) getActivity()).showToast(reason);
 					}
 				});
 				break;
 			case 1:
-				Core.getMentions(new Core.OnPostsListener() {
+				mApi.getMentions(new HttpClientCallback() {
 					@Override
-					public void onPosts(Posts posts) {
-						mAdapter.addAll(posts);
+					public void onSuccess(String response) {
+						new AsyncTask<String, Object, Posts>() {
+							@Override
+							protected Posts doInBackground(String... strings) {
+								return mPostsParser.parseMentions(strings[0]);
+							}
+
+							@Override
+							protected void onPostExecute(Posts posts) {
+								mAdapter.addAll(posts);
+								super.onPostExecute(posts);
+							}
+						}.execute(response);
 					}
 
 					@Override
-					public void onError(String error) {
-						((ActivityBase) getActivity()).showToast(error);
+					public void onFailure(String reason) {
+						((ActivityBase) getActivity()).showToast(reason);
 					}
 				});
 				break;

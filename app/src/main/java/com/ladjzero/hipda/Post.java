@@ -25,7 +25,6 @@ public class Post {
 	private int postIndex;
 	private Post quote;
 	private String sig;
-	private ArrayList<Core.Attachment> attachments;
 	private boolean isPending;
 	private boolean isRead;
 	private boolean isLz;
@@ -193,14 +192,6 @@ public class Post {
 		return this;
 	}
 
-	public ArrayList<Core.Attachment> getAttachments() {
-		return attachments;
-	}
-
-	public Post setAttachments(ArrayList<Core.Attachment> attachments) {
-		this.attachments = attachments;
-		return this;
-	}
 
 	public boolean isRead() {
 		return isRead;

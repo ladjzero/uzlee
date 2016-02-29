@@ -11,8 +11,8 @@ import android.view.ViewGroup;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
-import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
+import com.ladjzero.uzlee.utils.Utils;
 import com.nineoldandroids.animation.Animator;
 import com.rey.material.widget.TabPageIndicator;
 
@@ -22,7 +22,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTypeChange, FragmentThreadsAbs.OnScrollUpOrDown, OnToolbarClickListener {
+public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTypeChange, FragmentThreadsAbs.OnScrollUpOrDown, ActivityBase.OnToolbarClickListener {
 	@Bind(R.id.pager)
 	ViewPager mViewPager;
 	@Bind(R.id.tabs)
@@ -189,20 +189,20 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 
 		@Override
 		public int getCount() {
-			int count = Core.getSelectedForums(getActivity()).size();
+			int count = mActivity.getSelectedForums(getActivity()).size();
 			return count;
 		}
 
 		@Override
 		public CharSequence getPageTitle(int position) {
-			int fid = Core.getSelectedForums(getActivity()).get(position).getFid();
-			String title = Forum.findById(Core.getForums(getActivity()), fid).getName();
+			int fid = mActivity.getSelectedForums(getActivity()).get(position).getFid();
+			String title = Forum.findById(mActivity.getForums(getActivity()), fid).getName();
 			return title;
 		}
 
 		@Override
 		public Fragment getItem(int position) {
-			int fid = Core.getSelectedForums(getActivity()).get(position).getFid();
+			int fid = mActivity.getSelectedForums(getActivity()).get(position).getFid();
 
 			Bundle args = new Bundle();
 			args.putInt("fid", fid);

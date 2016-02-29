@@ -33,11 +33,17 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
-import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.HttpApi;
+import com.ladjzero.hipda.HttpClientCallback;
+import com.ladjzero.hipda.LocalApi;
+import com.ladjzero.hipda.PostsParser;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
+import com.ladjzero.hipda.ProgressReporter;
 import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.utils.Timeline;
+import com.ladjzero.uzlee.model.ObservablePosts;
+import com.ladjzero.uzlee.utils.Utils;
 import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
 import com.rey.material.app.Dialog;
@@ -52,13 +58,6 @@ import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-import static com.ladjzero.hipda.Core.OnRequestListener;
-import static com.ladjzero.hipda.Core.addToFavorite;
-import static com.ladjzero.hipda.Core.getHtml;
-import static com.ladjzero.hipda.Core.getUser;
-import static com.ladjzero.hipda.Core.parsePosts;
-import static com.ladjzero.hipda.Core.removeFromFavoriate;
-import static com.ladjzero.hipda.Core.sendReply;
 
 
 public class ActivityPosts extends ActivityWithWebView implements AdapterView.OnItemClickListener,
@@ -85,7 +84,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	private int mThreadUserId = 0;
 	private int mTid;
 	private int mPage;
-	private Posts mPosts;
+	private ObservablePosts mPosts;
 	private WebView2 mWebView;
 	private boolean mHasNextPage = false;
 	private DiscreteSeekBar mSeekBar;
@@ -105,6 +104,10 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	private boolean mWebViewReady = false;
 	private boolean mSkipResumeFetch = false;
 	private boolean mIsPushedAfterWebReady = false;
+	private PostsParser mParser;
+	private HttpClient2 mHttpClient;
+	private HttpApi mHttpApi;
+	private LocalApi mLocalApi;
 	private Timeline mTimeline = new Timeline();
 
 	@Override
@@ -149,18 +152,18 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				fetch(mPage);
 				break;
 			case 3:
-				addToFavorite(mTid, new OnRequestListener() {
+				mHttpApi.addToFavorite(mTid, new HttpClientCallback() {
 					@Override
-					public void onError(String error) {
-						showToast(error);
+					public void onFailure(String reason) {
+						showToast(reason);
 					}
 
 					@Override
-					public void onSuccess(String html) {
-						if (html.contains("此主题已成功添加到收藏夹中")) {
+					public void onSuccess(String response) {
+						if (response.contains("此主题已成功添加到收藏夹中")) {
 							showToast("收藏成功");
 						} else {
-							if (html.contains("您曾经收藏过这个主题")) {
+							if (response.contains("您曾经收藏过这个主题")) {
 								final Dialog dialog = new Dialog(ActivityPosts.this);
 
 								dialog.setTitle("已经收藏过该主题");
@@ -169,12 +172,13 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 									@Override
 									public void onClick(View v) {
 										dialog.dismiss();
+												mHttpApi.removeFromFavoriate(mTid, new HttpClientCallback() {
+													@Override
+													public void onFailure(String reason) {
+														showToast(reason);
+													}
 
-										removeFromFavoriate(mTid, new OnRequestListener() {
-											@Override
-											public void onError(String error) {
-												showToast(error);
-											}
+										
 
 											@Override
 											public void onSuccess(String html) {
@@ -216,7 +220,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
 
 		try {
-			myid = getUser().getId();
+			myid = mLocalApi.getUser().getId();
 		} catch (Exception e) {
 		}
 
@@ -232,26 +236,25 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mPosts.clear();
 
 		Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
-
-		getHtml(url, new OnRequestListener() {
+		
+		mHttpClient.get(url, new HttpClientCallback() {
 			@Override
-			public void onError(String error) {
-				mIsFetching = false;
-
-				showToast(error);
-				mPostsView.onRefreshComplete();
-			}
-
-			@Override
-			public void onSuccess(String html) {
-				Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
-
+			public void onSuccess(String response) {
 				mPostsView.onRefreshComplete();
 				mIsFetching = false;
 
 				Logger.i("html fetched.");
 
-				onHtml(html);
+				onHtml(response);
+			}
+
+			@Override
+			public void onFailure(String reason) {
+				Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
+				mIsFetching = false;
+
+				showToast(reason);
+				mPostsView.onRefreshComplete();
 			}
 		});
 	}
@@ -357,8 +360,13 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		mMenuDialog.setCanceledOnTouchOutside(true);
 
-		mPosts = new Posts();
+		mPosts = new ObservablePosts(new Posts());
 		mPosts.addOnListChangedCallback(new OnListChangedCallback());
+
+		mParser = getCore().getPostsParser();
+		mHttpClient = getApp().getHttpClient();
+		mHttpApi = getCore().getHttpApi();
+		mLocalApi = getCore().getLocalApi();
 		mProgressView.start();
 	}
 
@@ -420,7 +428,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			reply += "\t\t\t[size=1][color=Gray]有只梨[/color][/size]";
 		}
 
-		sendReply(mTid, reply, null, null, new OnRequestListener() {
+		mHttpApi.sendReply(mTid, reply, null, null, new HttpClientCallback() {
 			private void reset() {
 				mQuickSend.setClickable(true);
 				mQuickEdit.setEnabled(true);
@@ -428,17 +436,18 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			}
 
 			@Override
-			public void onError(String error) {
-				reset();
-			}
-
-			@Override
-			public void onSuccess(String html) {
+			public void onSuccess(String response) {
 				reset();
 				mPosts.clear();
 				mQuickEdit.setText("");
 				mPid = -1;
-				onHtml(html);
+				onHtml(response);
+			}
+
+			@Override
+			public void onFailure(String reason) {
+				showToast(reason);
+				reset();
 			}
 		});
 	}
@@ -450,10 +459,10 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			new AsyncTask<String, Object, Posts>() {
 				@Override
 				protected Posts doInBackground(String... strings) {
-					return parsePosts(strings[0], new Core.OnProgress() {
+					return mParser.parsePosts(strings[0], new ProgressReporter() {
 						@Override
-						public void progress(int current, int total, Object o) {
-							publishProgress(current, total, o);
+						public void onProgress(int i, int size, Object o) {
+							publishProgress(i, size, o);
 						}
 					});
 				}
@@ -464,6 +473,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 					Post post = (Post) objects[2];
 					if (post.getId() == 1) mThreadUserId = post.getAuthor().getId();
 					post.setIsLz(post.getAuthor().getId() == mThreadUserId);
+					post.setTimeStr(Utils.prettyTime(post.getTimeStr()));
 					mPosts.add(post);
 
 					mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
@@ -592,7 +602,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@JavascriptInterface
 	public void onPostClick(final int pid) {
-		User me = Core.getUser();
+		User me = mLocalApi.getUser();
 
 		if (me == null || me.getId() == 0) {
 			showToast(getResources().getString(R.string.error_login_required));

@@ -3,6 +3,8 @@ package com.ladjzero.uzlee;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,26 +18,32 @@ import android.view.ViewStub;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
-import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.HttpApi;
+import com.ladjzero.hipda.HttpClientCallback;
+import com.ladjzero.hipda.Post;
+import com.ladjzero.uzlee.utils.Utils;
 import com.nineoldandroids.animation.Animator;
-import com.r0adkll.slidr.Slidr;
+import com.orhanobut.logger.Logger;
 import com.rey.material.app.Dialog;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 
-public class ActivityEdit extends ActivityHardSlide implements Core.OnRequestListener {
+public class ActivityEdit extends ActivityHardSlide implements HttpClientCallback {
 	public static final int EDIT_SUCCESS = 10;
+	public final static int MAX_UPLOAD_LENGTH = 299 * 1024;
 
 	int tid;
 	int pid;
@@ -55,6 +63,7 @@ public class ActivityEdit extends ActivityHardSlide implements Core.OnRequestLis
 	private boolean mIsAnimating = false;
 	Dialog progress;
 	boolean mSaveDraft = true;
+	private HttpApi mHttpApi;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -89,19 +98,21 @@ public class ActivityEdit extends ActivityHardSlide implements Core.OnRequestLis
 				.titleColor(Utils.getThemeColor(this, R.attr.colorText))
 				.backgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground));
 
-		Core.getExistedAttach(new Core.OnRequestListener() {
-			@Override
-			public void onError(String error) {
+		mHttpApi = getCore().getHttpApi();
 
-			}
-
+		mHttpApi.getExistedAttach(new HttpClientCallback() {
 			@Override
-			public void onSuccess(String html) {
-				String[] ids = html.split(",");
+			public void onSuccess(String response) {
+				String[] ids = getCore().getPostsParser().parseExistedAttach(response);
 
 				for (String id : ids) {
 					if (id.length() > 0) existedAttachIds.add(Integer.valueOf(id));
 				}
+			}
+
+			@Override
+			public void onFailure(String reason) {
+				showToast(reason);
 			}
 		});
 
@@ -131,7 +142,7 @@ public class ActivityEdit extends ActivityHardSlide implements Core.OnRequestLis
 		if (isNewThread) {
 			subjectInput.setVisibility(View.VISIBLE);
 		} else {
-			if (uid != Core.getUser().getId()) {
+			if (uid != getCore().getLocalApi().getUser().getId()) {
 				//reply
 				subjectInput.setVisibility(View.GONE);
 			} else if (no != 1) {
@@ -149,27 +160,27 @@ public class ActivityEdit extends ActivityHardSlide implements Core.OnRequestLis
 			progress.setTitle("载入中");
 			progress.show();
 
-			Core.getEditBody(fid, tid, pid, new Core.OnRequestListener() {
+			mHttpApi.getEditBody(fid, tid, pid, new HttpClientCallback() {
 				@Override
-				public void onError(String error) {
-					progress.dismiss();
+				public void onSuccess(String response) {
+					new AsyncTask<String, Object, Post>() {
+						@Override
+						protected Post doInBackground(String... strings) {
+							return getCore().getPostsParser().parseEditablePost(strings[0]);
+						}
+
+						@Override
+						protected void onPostExecute(Post post) {
+							subjectInput.setText(post.getTitle());
+							mMessageInput.setText(post.getBody());
+							progress.dismiss();
+						}
+					}.execute(response);
 				}
 
 				@Override
-				public void onSuccess(String html) {
-					subjectInput.setText(html);
-					progress.dismiss();
-				}
-			}, new Core.OnRequestListener() {
-				@Override
-				public void onError(String error) {
-					progress.dismiss();
-				}
+				public void onFailure(String reason) {
 
-				@Override
-				public void onSuccess(String html) {
-					mMessageInput.setText(html);
-					progress.dismiss();
 				}
 			});
 		}
@@ -226,7 +237,7 @@ public class ActivityEdit extends ActivityHardSlide implements Core.OnRequestLis
 					if (sig.length() > 0)
 						message += "\t\t\t[size=1][color=Gray]" + sig + "[/color][/size]";
 
-					Core.newThread(fid, subject, message, attachIds, this);
+					mHttpApi.newThread(fid, subject, message, attachIds, this);
 				}
 			} else if (isEdit) {
 				if (no == 1 && subject.length() == 0) {
@@ -237,7 +248,7 @@ public class ActivityEdit extends ActivityHardSlide implements Core.OnRequestLis
 					progress.setTitle("发送");
 					progress.show();
 
-					Core.editPost(fid, tid, pid, subject, message, attachIds, this);
+					mHttpApi.editPost(fid, tid, pid, subject, message, attachIds, this);
 				}
 			} else if (isReplyToOne) {
 				progress.setTitle("发送");
@@ -245,13 +256,13 @@ public class ActivityEdit extends ActivityHardSlide implements Core.OnRequestLis
 
 				message = "[b]回复 [url=http://www.hi-pda.com/forum/redirect.php?goto=findpost&pid=" + pid + "&ptid=" + tid + "]" + intent.getIntExtra("no", 0) + "#[/url] [i]" + intent.getStringExtra("userName") + "[/i] [/b]\n\n" + message;
 				message += "\t\t\t[size=1][color=Gray]" + sig + "[/color][/size]";
-				Core.sendReply(tid, message, attachIds, existedAttachIds, this);
+				mHttpApi.sendReply(tid, message, attachIds, existedAttachIds, this);
 			} else if (isReply) {
 				progress.setTitle("发送");
 				progress.show();
 
 				message += "\t\t\t[size=1][color=Gray]" + sig + "[/color][/size]";
-				Core.sendReply(tid, message, attachIds, existedAttachIds, this);
+				mHttpApi.sendReply(tid, message, attachIds, existedAttachIds, this);
 			}
 		} else if (id == R.id.reply_add_image) {
 			Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
@@ -268,7 +279,7 @@ public class ActivityEdit extends ActivityHardSlide implements Core.OnRequestLis
 						@Override
 						public void onClick(View v) {
 							mDialog.dismiss();
-							Core.deletePost(fid, tid, pid, ActivityEdit.this);
+							mHttpApi.deletePost(fid, tid, pid, ActivityEdit.this);
 						}
 					})
 					.negativeActionClickListener(new View.OnClickListener() {
@@ -369,17 +380,16 @@ public class ActivityEdit extends ActivityHardSlide implements Core.OnRequestLis
 
 				@Override
 				protected File doInBackground(File... params) {
-					return Core.compressImage(params[0], Core.MAX_UPLOAD_LENGTH);
+					return compressImage(params[0], MAX_UPLOAD_LENGTH);
 				}
 
 				@Override
 				protected void onPostExecute(File tempFile) {
 					mDialog.title("图片上传").show();
 
-					Core.uploadImage(tempFile, new Core.OnUploadListener() {
+					mHttpApi.uploadImage(tempFile, new HttpClientCallback() {
 						@Override
-						public void onUpload(String response) {
-
+						public void onSuccess(String response) {
 							if (response.startsWith("DISCUZUPLOAD")) {
 								int attachId = -1;
 
@@ -396,6 +406,11 @@ public class ActivityEdit extends ActivityHardSlide implements Core.OnRequestLis
 							}
 
 							mDialog.dismiss();
+						}
+
+						@Override
+						public void onFailure(String reason) {
+							showToast(reason);
 						}
 					});
 				}
@@ -419,17 +434,17 @@ public class ActivityEdit extends ActivityHardSlide implements Core.OnRequestLis
 	}
 
 	@Override
-	public void onError(String error) {
-		Toast.makeText(ActivityEdit.this, error, Toast.LENGTH_LONG).show();
+	public void onSuccess(String response) {
+		mSaveDraft = false;
+		Intent returnIntent = new Intent();
+		returnIntent.putExtra("html", response);
+		setResult(EDIT_SUCCESS, returnIntent);
+		finish();
 	}
 
 	@Override
-	public void onSuccess(String html) {
-		mSaveDraft = false;
-		Intent returnIntent = new Intent();
-		returnIntent.putExtra("html", html);
-		setResult(EDIT_SUCCESS, returnIntent);
-		finish();
+	public void onFailure(String reason) {
+		showToast(reason);
 	}
 
 	public void addEmoji(View v) {
@@ -437,11 +452,11 @@ public class ActivityEdit extends ActivityHardSlide implements Core.OnRequestLis
 		String emoji;
 
 		if (emojiText.startsWith("coolmonkey")) {
-			emoji = Core.icons.get("images/smilies/coolmonkey/" + emojiText.substring(10) + ".gif");
+			emoji = EmojiUtils.icons.get("images/smilies/coolmonkey/" + emojiText.substring(10) + ".gif");
 		} else if (emojiText.startsWith("grapeman")) {
-			emoji = Core.icons.get("images/smilies/grapeman/" + emojiText.substring(8) + ".gif");
+			emoji = EmojiUtils.icons.get("images/smilies/grapeman/" + emojiText.substring(8) + ".gif");
 		} else {
-			emoji = Core.icons.get("images/smilies/default/" + emojiText + ".gif");
+			emoji = EmojiUtils.icons.get("images/smilies/default/" + emojiText + ".gif");
 		}
 
 		String temp = mMessageInput.getText().toString();
@@ -471,6 +486,116 @@ public class ActivityEdit extends ActivityHardSlide implements Core.OnRequestLis
 		}
 
 		super.onDestroy();
+	}
+
+
+	/**
+	 * If the length of image file is less than maxSize, quality will not be applied, and
+	 * image file will be returned directly.
+	 *
+	 * @param imageFile
+	 * @param maxSize
+	 * @param quality
+	 * @return File
+	 */
+	private File findBestQuality(final File imageFile, int maxSize, int quality) {
+		long fileLength = imageFile.length();
+
+		if (fileLength > maxSize) {
+			try {
+				Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+				File tempDir = this.getCacheDir();
+				File tempFile = File.createTempFile("uzlee-compress", ".jpg", tempDir);
+				OutputStream os = new FileOutputStream(tempFile);
+				bitmap.compress(Bitmap.CompressFormat.JPEG, quality, os);
+				os.close();
+				fileLength = tempFile.length();
+
+				Logger.i("length: %d, quality: %d", fileLength, quality);
+
+				return fileLength > maxSize ? null : tempFile;
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			}
+		} else {
+			return imageFile;
+		}
+	}
+
+	private File findBestQuality(final File imageFile, int maxSize) {
+		// Test the worst case.
+		File tempFile = findBestQuality(imageFile, maxSize, 30);
+
+		// Find a better one.
+		if (tempFile != null) {
+			int quality = 90;
+
+			do {
+				tempFile = findBestQuality(imageFile, maxSize, quality);
+				quality -= 15;
+			} while (tempFile == null && quality >= 30);
+		}
+
+		return tempFile;
+	}
+
+	private File compressBySize(final File imageFile, int maxSize, float rate) {
+		long fileLength = imageFile.length();
+
+		if (fileLength > maxSize) {
+			try {
+				Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+				int width = bitmap.getWidth();
+				int height = bitmap.getHeight();
+				width = (int) (width * rate);
+				height = (int) (height * rate);
+
+				File tempDir = this.getCacheDir();
+				File tempFile = File.createTempFile("uzlee-compress", ".jpg", tempDir);
+				Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
+				OutputStream os = new FileOutputStream(tempFile);
+				scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+				os.close();
+				fileLength = tempFile.length();
+
+				Logger.i("length: %d, height: %d, width: %d", fileLength, height, width);
+
+				return fileLength > maxSize ? null : tempFile;
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			}
+		} else {
+			return imageFile;
+		}
+	}
+
+	/**
+	 * @param imageFile
+	 * @param maxSize
+	 * @param currentRate, 1.0f as the initial value.
+	 * @return
+	 */
+	private File compressImage(File imageFile, int maxSize, float currentRate) {
+		File tempFile = findBestQuality(imageFile, maxSize);
+
+		if (tempFile != null) {
+			return tempFile;
+		} else {
+			currentRate = currentRate * 0.8f;
+			tempFile = compressBySize(imageFile, maxSize, currentRate);
+
+			if (tempFile == null) {
+				return compressImage(imageFile, maxSize, currentRate);
+			} else {
+				return tempFile;
+			}
+		}
+	}
+
+	public File compressImage(File imageFile, int maxSize) {
+		return compressImage(imageFile, maxSize, 1.0f);
 	}
 
 	public static class Draft {
