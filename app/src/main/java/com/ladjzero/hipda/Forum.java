@@ -11,6 +11,16 @@ import java.util.List;
 public class Forum {
 	private int fid;
 	private String name;
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
+	}
+
+	private String alias;
 	private ArrayList<Forum> children;
 	private ArrayList<Type> types;
 
@@ -94,7 +104,11 @@ public class Forum {
 
 	@Override
 	public String toString() {
-		return name;
+		if (alias == null) {
+			return name;
+		} else {
+			return alias;
+		}
 	}
 
 	public static class Type {

@@ -27,6 +27,7 @@ import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.HttpApi;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.Post;
+import com.ladjzero.uzlee.utils.EmojiUtils;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;

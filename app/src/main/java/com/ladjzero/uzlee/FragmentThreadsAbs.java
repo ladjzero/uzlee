@@ -114,7 +114,7 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 		mSwipe.setProgressBackgroundColorSchemeColor(Utils.getThemeColor(mActivity, R.attr.colorTextInverse));
 		int primaryColor = Utils.getThemeColor(mActivity, R.attr.colorPrimary);
 		mSwipe.setColorSchemeColors(primaryColor, primaryColor, primaryColor, primaryColor);
-		mSwipe.setProgressViewOffset(false, -Utils.dp2px(mActivity, 12), Utils.dp2px(mActivity, 60));
+//		mSwipe.setProgressViewOffset(false, -Utils.dp2px(mActivity, 12), Utils.dp2px(mActivity, 60));
 
 		Logger.i("enable pull to fresh %b", mEnablePullToRefresh);
 		mSwipe.setEnabled(mEnablePullToRefresh);

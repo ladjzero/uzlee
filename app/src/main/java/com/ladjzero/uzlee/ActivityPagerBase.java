@@ -33,7 +33,7 @@ public abstract class ActivityPagerBase extends ActivityEasySlide implements Vie
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		LayoutInflater mInflater = LayoutInflater.from(this);
-		View customView = mInflater.inflate(R.layout.view_page_bar, null);
+		View customView = mInflater.inflate(R.layout.tab_page_indicator_fixed, null);
 
 		actionBar.setTitle(null);
 		actionBar.setDisplayShowCustomEnabled(true);

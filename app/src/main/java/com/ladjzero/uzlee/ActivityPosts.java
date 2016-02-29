@@ -521,7 +521,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 					mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
 					mProgressView.setProgress((Integer) objects[0] * 1.0f / (Integer) objects[1]);
-					Logger.i("Parsed one post.");
+					Logger.t(Timeline.TAG).i("Parsed one %dms", mTimeline.timeLine());
 				}
 
 				@Override
@@ -582,6 +582,8 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 					}
 				}
 			}.execute(html);
+		} else {
+			showToast("请求失败");
 		}
 	}
 

@@ -1,10 +1,12 @@
 [
   {
     "name": "Hi!PDA站务与公告",
+    "alias": "站务",
     "fid": 5
   },
   {
     "name": "Buy & Sell 交易服务区",
+    "alias": "BS",
     "fid": 6,
     "types": [
       {
@@ -53,6 +55,7 @@
   },
   {
     "name": "Geek Talks · 奇客怪谈",
+    "alias": "奇客怪谈",
     "fid": 7,
     "types": [
       {
@@ -219,14 +222,17 @@
   },
   {
     "name": "iPhone, iPod Touch，iPad",
+    "alias": "iOS",
     "fid": 56
   },
   {
     "name": "Android, Chrome, & Google",
+    "alias": "Android Chrome",
     "fid": 60
   },
   {
     "name": "PalmOS ，Treo",
+    "alias": "Palm",
     "fid": 12,
     "types": [
       {
@@ -279,6 +285,7 @@
   },
   {
     "name": "Windows Mobile，PocketPC，HPC",
+    "alias": "WM",
     "fid": 14,
     "types": [
       {
@@ -329,10 +336,12 @@
   },
   {
     "name": "麦客爱苹果",
+    "alias": "MAC",
     "fid": 22
   },
   {
     "name": "DC,NB,MP3,Gadgets...",
+    "alias": "Gadgets",
     "fid": 50,
     "types": [
       {
@@ -473,6 +482,7 @@
   },
   {
     "name": "随笔与个人文集",
+    "alias": "随笔",
     "fid": 23
   },
   {

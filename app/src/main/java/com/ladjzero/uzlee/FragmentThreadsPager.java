@@ -9,12 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.daimajia.androidanimations.library.Techniques;
-import com.daimajia.androidanimations.library.YoYo;
 import com.ladjzero.hipda.Forum;
-import com.ladjzero.uzlee.utils.Utils;
-import com.nineoldandroids.animation.Animator;
-import com.rey.material.widget.TabPageIndicator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,16 +20,16 @@ import butterknife.ButterKnife;
 public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTypeChange, FragmentThreadsAbs.OnScrollUpOrDown, ActivityBase.OnToolbarClickListener {
 	@Bind(R.id.pager)
 	ViewPager mViewPager;
-	@Bind(R.id.tabs)
-	TabPageIndicator mTabs;
-	@Bind(R.id.tabsContainer)
-	View tabsContainer;
 
 	private MyFragmentPagerAdapter mPagerAdapter;
 	private ActivityMain mActivity;
 	private boolean mTabsContainerVisible = true;
 	private boolean mLockAnimation = false;
 	private List<ViewPager.OnPageChangeListener> mOnPageChangeListeners;
+	private OnCreatedListener mOnCreatedListener;
+	public void setOnCreatedListener(OnCreatedListener l) {
+		mOnCreatedListener = l;
+	}
 
 	public static FragmentThreadsPager newInstance(Bundle bundle) {
 		FragmentThreadsPager fragment = new FragmentThreadsPager();
@@ -59,9 +54,8 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 		mActivity = (ActivityMain) getActivity();
 		mPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager());
 		mViewPager.setAdapter(mPagerAdapter);
-		mTabs.setViewPager(mViewPager);
 
-		mTabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+		mActivity.getPageIndicator().setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 			private final int POSITION_NOT_READY = -10;
 			private int mCurrentPosition = POSITION_NOT_READY;
 			private int mState = ViewPager.SCROLL_STATE_IDLE;
@@ -83,10 +77,6 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 				if (mState == ViewPager.SCROLL_STATE_DRAGGING && mCurrentPosition == POSITION_NOT_READY) {
 					mCurrentPosition = mLastPosition;
 				}
-
-				if (mState != ViewPager.SCROLL_STATE_IDLE && !mTabsContainerVisible) {
-					tabsContainer.setAlpha(mCurrentPosition == position ? positionOffset : 1 - positionOffset);
-				}
 			}
 
 			@Override
@@ -103,32 +93,11 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 
 			@Override
 			public void onPageScrollStateChanged(int state) {
-				if (mOnPageChangeListeners != null) {
-					for (ViewPager.OnPageChangeListener l : mOnPageChangeListeners) {
-						l.onPageScrollStateChanged(state);
-					}
-				}
 
-				if (state == ViewPager.SCROLL_STATE_DRAGGING) {
-					if (!mTabsContainerVisible)
-						YoYo.with(Techniques.SlideInDown).duration(0).playOn(tabsContainer);
-				} else if (state == ViewPager.SCROLL_STATE_IDLE) {
-					mCurrentPosition = POSITION_NOT_READY;
-
-					// If position has been changed successfully, show tabs.
-					if (mChanged) {
-						onUp(0);
-						mChanged = false;
-					} else {
-						YoYo.with(mTabsContainerVisible ? Techniques.SlideInDown: Techniques.SlideOutUp)
-								.duration(0)
-								.playOn(tabsContainer);
-					}
-				}
-
-				mState = state;
 			}
 		});
+
+		if (mOnCreatedListener != null) mOnCreatedListener.onCreated(mViewPager);
 
 		return rootView;
 	}
@@ -136,36 +105,11 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 	@Override
 	public void onUp(int ms) {
 		if (mTabsContainerVisible || mLockAnimation) return;
-
-		YoYo.with(Techniques.SlideInDown).withListener(new Utils.OnAnimatorStartEndListener() {
-			@Override
-			public void onAnimationStart(Animator animation) {
-				mLockAnimation = true;
-			}
-
-			@Override
-			public void onAnimationEnd(Animator animation) {
-				mTabsContainerVisible = true;
-				mLockAnimation = false;
-			}
-		}).duration(ms).playOn(tabsContainer);
 	}
 
 	@Override
 	public void onDown(int ms) {
 		if (!mTabsContainerVisible || mLockAnimation) return;
-
-		YoYo.with(Techniques.SlideOutUp).withListener(new Utils.OnAnimatorStartEndListener() {
-			@Override
-			public void onAnimationStart(Animator animation) {
-				mLockAnimation = true;
-			}
-
-			@Override
-			public void onAnimationEnd(Animator animation) {
-				mLockAnimation = mTabsContainerVisible = false;
-			}
-		}).duration(ms).playOn(tabsContainer);
 	}
 
 	@Override
@@ -196,7 +140,7 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 		@Override
 		public CharSequence getPageTitle(int position) {
 			int fid = mActivity.getSelectedForums(getActivity()).get(position).getFid();
-			String title = Forum.findById(mActivity.getForums(getActivity()), fid).getName();
+			String title = Forum.findById(mActivity.getForums(getActivity()), fid).toString();
 			return title;
 		}
 
@@ -226,5 +170,9 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 		public Fragment getCurrentFragment() {
 			return mFragment;
 		}
+	}
+
+	public interface OnCreatedListener {
+		void onCreated(ViewPager viewPager);
 	}
 }

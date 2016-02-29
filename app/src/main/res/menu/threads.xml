@@ -3,10 +3,10 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.ladjzero.uzlee.ActivityMain">
 
-    <item
-        android:id="@+id/thread_types"
-        android:title="@string/all_types"
-        app:showAsAction="always"/>
+    <!--<item-->
+        <!--android:id="@+id/thread_types"-->
+        <!--android:title="@string/all_types"-->
+        <!--app:showAsAction="always"/>-->
 
     <item
         android:id="@+id/thread_publish"
