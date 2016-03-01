@@ -9,6 +9,7 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -95,7 +96,16 @@ public class ActivityGallery extends ActivityBase implements ViewPager.OnPageCha
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 			View root = inflater.inflate(R.layout.fragment_gallery_image, null);
 			ButterKnife.bind(this, root);
-			mImage.getSettings().setJavaScriptEnabled(true);
+			WebSettings settings = mImage.getSettings();
+			settings.setJavaScriptEnabled(true);
+
+			// Magic. Properly zoom gallery image.
+			settings.setSupportZoom(true);
+			settings.setBuiltInZoomControls(true);
+			settings.setDisplayZoomControls(false);
+			settings.setLoadWithOverviewMode(true);
+			settings.setUseWideViewPort(true);
+
 			mImage.loadUrl("file:///android_asset/gallery_image.html");
 			mImage.setWebViewClient(new WebViewClient() {
 				@Override
