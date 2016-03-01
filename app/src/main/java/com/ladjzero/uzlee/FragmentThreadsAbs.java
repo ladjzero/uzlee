@@ -48,19 +48,15 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 		ActivityBase.OnToolbarClickListener {
 
 	private static final String TAG = "FragmentThreadsAbs";
-
-	private ActivityBase mActivity;
-	protected ArrayList<Thread> mThreads;
-
+	protected Threads mThreads;
+	protected AdapterThreads mAdapter;
 	@Bind(R.id.thread_swipe)
 	SwipeRefreshLayout mSwipe;
 	@Bind(R.id.threads)
 	ListView listView;
 	@Bind(R.id.error_info)
 	View errorInfo;
-
-	protected AdapterThreads mAdapter;
-	private boolean hasNextPage = false;
+	private ActivityBase mActivity;
 	private boolean mIsFetching = false;
 	private boolean mEnablePullToRefresh;
 	private SlidrInterface slidrInterface;
@@ -98,10 +94,10 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 			e.printStackTrace();
 		}
 
-		if (threads == null) {
-			mThreads = new ArrayList<>();
-		} else {
-			mThreads = new ArrayList<>(threads);
+		mThreads = new Threads();
+
+		if (threads != null) {
+			mThreads.addAll(threads);
 		}
 
 		Bundle args = getArguments();
@@ -219,62 +215,6 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 		super.onDestroyView();
 	}
 
-	interface OnScrollUpOrDown {
-		void onUp(int ms);
-
-		void onDown(int ms);
-	}
-
-	class DirectionDetectScrollListener extends EndlessScrollListener {
-		private int mLastFirstVisibleItem = -1;
-		private int mState = SCROLL_STATE_IDLE;
-
-		@Override
-		public void onLoadMore(int page, int totalItemsCount) {
-			if (hasNextPage) {
-				mActivity.showToast("载入下一页");
-
-				setRefreshSpinner(true);
-				fetch(page);
-			}
-		}
-
-		@Override
-		public void onScrollStateChanged(AbsListView view, int scrollState) {
-			if (slidrInterface != null) {
-				if (scrollState == SCROLL_STATE_IDLE) {
-					slidrInterface.unlock();
-				} else {
-					slidrInterface.lock();
-				}
-			}
-
-			mState = scrollState;
-		}
-
-		@Override
-		public void onScroll(AbsListView view, int firstVisibleItem,
-							 int visibleItemCount, int totalItemCount) {
-
-			super.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
-
-			if (mState == SCROLL_STATE_IDLE) return;
-
-			if (mLastFirstVisibleItem != -1 && mOnScrollUpOrDown != null) {
-				if (mLastFirstVisibleItem < firstVisibleItem && firstVisibleItem > 3) {
-					mOnScrollUpOrDown.onDown(300);
-				}
-				if (mLastFirstVisibleItem > firstVisibleItem) {
-					mOnScrollUpOrDown.onUp(300);
-				}
-			}
-
-			mLastFirstVisibleItem = firstVisibleItem;
-
-		}
-	}
-
-
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -314,6 +254,7 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 
 	public void onThreads(Threads threads) {
 		setRefreshSpinner(false);
+		mThreads.replaceMeta(threads);
 		mIsFetching = false;
 
 		if (threads.size() == 0) {
@@ -321,7 +262,6 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 		} else {
 			errorInfo.setVisibility(View.GONE);
 
-			this.hasNextPage = hasNextPage;
 			setRefreshSpinner(false);
 
 			final Collection<Integer> ids = CollectionUtils.collect(mThreads, new Transformer() {
@@ -341,7 +281,6 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 			mAdapter.notifyDataSetChanged();
 		}
 	}
-
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -413,5 +352,60 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 	public void toolbarClick() {
 		listView.setSelection(0);
 		listView.smoothScrollToPosition(0);
+	}
+
+	interface OnScrollUpOrDown {
+		void onUp(int ms);
+
+		void onDown(int ms);
+	}
+
+	class DirectionDetectScrollListener extends EndlessScrollListener {
+		private int mLastFirstVisibleItem = -1;
+		private int mState = SCROLL_STATE_IDLE;
+
+		@Override
+		public void onLoadMore(int page, int totalItemsCount) {
+			if (mThreads.hasNextPage()) {
+				mActivity.showToast("载入下一页");
+
+				setRefreshSpinner(true);
+				fetch(page);
+			}
+		}
+
+		@Override
+		public void onScrollStateChanged(AbsListView view, int scrollState) {
+			if (slidrInterface != null) {
+				if (scrollState == SCROLL_STATE_IDLE) {
+					slidrInterface.unlock();
+				} else {
+					slidrInterface.lock();
+				}
+			}
+
+			mState = scrollState;
+		}
+
+		@Override
+		public void onScroll(AbsListView view, int firstVisibleItem,
+							 int visibleItemCount, int totalItemCount) {
+
+			super.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+
+			if (mState == SCROLL_STATE_IDLE) return;
+
+			if (mLastFirstVisibleItem != -1 && mOnScrollUpOrDown != null) {
+				if (mLastFirstVisibleItem < firstVisibleItem && firstVisibleItem > 3) {
+					mOnScrollUpOrDown.onDown(300);
+				}
+				if (mLastFirstVisibleItem > firstVisibleItem) {
+					mOnScrollUpOrDown.onUp(300);
+				}
+			}
+
+			mLastFirstVisibleItem = firstVisibleItem;
+
+		}
 	}
 }

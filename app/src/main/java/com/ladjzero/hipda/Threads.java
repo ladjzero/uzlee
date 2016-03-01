@@ -9,6 +9,11 @@ public class Threads extends ArrayList<Thread> {
 	private boolean mHasNextPage;
 	private int mPage;
 
+	public void replaceMeta(Threads threads) {
+		this.setHasNextPage(threads.hasNextPage());
+		this.setPage(threads.getPage());
+	}
+
 	public boolean hasNextPage() {
 		return mHasNextPage;
 	}
