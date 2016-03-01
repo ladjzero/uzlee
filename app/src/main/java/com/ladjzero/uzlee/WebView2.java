@@ -8,6 +8,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.webkit.WebView;
 
+import java.util.ArrayList;
+
 /**
  * Created by chenzhuo on 16-1-31.
  */
@@ -63,6 +65,27 @@ public class WebView2 extends WebView {
 	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
 		super.onScrollChanged(l, t, oldl, oldt);
 		isEverScrolled = true;
+	}
+
+	public static class ImageClickEvent {
+		private int index;
+		private ArrayList<String> srcs;
+
+		public int getIndex() {
+			return index;
+		}
+
+		public void setIndex(int index) {
+			this.index = index;
+		}
+
+		public ArrayList<String> getSrcs() {
+			return srcs;
+		}
+
+		public void setSrcs(ArrayList<String> srcs) {
+			this.srcs = srcs;
+		}
 	}
 
 	@Override

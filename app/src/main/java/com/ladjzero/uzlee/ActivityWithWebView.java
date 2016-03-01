@@ -2,11 +2,8 @@ package com.ladjzero.uzlee;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.view.View;
 import android.os.Bundle;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
@@ -17,13 +14,11 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.User;
-import com.ladjzero.uzlee.utils.Timeline;
 import com.ladjzero.uzlee.stream.TeePipe;
+import com.ladjzero.uzlee.utils.Timeline;
 import com.ladjzero.uzlee.utils.UilUtils;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.ladjzero.uzlee.utils.Utils;
 import com.orhanobut.logger.Logger;
 
@@ -63,9 +58,12 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 	}
 
 	@JavascriptInterface
-	public void onImageClick(String src) {
-		Intent intent = new Intent(Intent.ACTION_VIEW);
-		intent.setData(Uri.parse(src));
+	public void onImageClick(String imageClickEvent) {
+		WebView2.ImageClickEvent event = JSON.parseObject(imageClickEvent, WebView2.ImageClickEvent.class);
+		showToast(event.getIndex() + "");
+		Intent intent = new Intent(this, ActivityGallery.class);
+		intent.putExtra("index", event.getIndex());
+		intent.putExtra("srcs", event.getSrcs().toArray(new String[0]));
 		startActivity(intent);
 	}
 

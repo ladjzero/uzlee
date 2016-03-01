@@ -23,11 +23,13 @@ public class ActivityGallery extends ActivityBase implements ViewPager.OnPageCha
 	ViewPager mViewPage;
 	AdapterGallery mAdapter;
 	String[] mUrls;
+	int mIndex;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mUrls = getIntent().getStringArrayExtra("imageUrls");
+		mUrls = getIntent().getStringArrayExtra("srcs");
+		mIndex = getIntent().getIntExtra("index", 0);
 		setContentView(R.layout.activity_gallery);
 		ButterKnife.bind(this);
 		mViewPage.addOnPageChangeListener(this);
@@ -78,27 +80,27 @@ public class ActivityGallery extends ActivityBase implements ViewPager.OnPageCha
 	}
 
 	public static class FragmentGalleryImage extends Fragment {
-		private String url;
 		@Bind(R.id.gallery_image)
-		private WebView2 mImage;
+		WebView2 mImage;
+		private String mUrl;
 
 		public static FragmentGalleryImage newInstance(Bundle args) {
 			FragmentGalleryImage f = new FragmentGalleryImage();
-			f.url = args.getString("url");
+			f.mUrl = args.getString("url");
 			return f;
 		}
 
 		@Nullable
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-			View root = super.onCreateView(inflater, container, savedInstanceState);
-			ButterKnife.bind(root, getActivity());
+			View root = inflater.inflate(R.layout.fragment_gallery_image, null);
+			ButterKnife.bind(this, root);
 			mImage.getSettings().setJavaScriptEnabled(true);
 			mImage.loadUrl("file:///android_asset/gallery_image.html");
 			mImage.setWebViewClient(new WebViewClient() {
 				@Override
 				public void onPageFinished(WebView view, String url) {
-					view.loadUrl("javascript:_showImage(" + url + ")");
+					view.loadUrl("javascript:_showImage(\"" + mUrl + "\")");
 				}
 			});
 			return root;
