@@ -17,7 +17,10 @@ new Vue({
 document.addEventListener('click', function (e) {
   if (e.target.tagName == 'IMG') {
     let src = e.target.dataset.echo || e.target.src;
-    let allSrc = Array.from(document.querySelectorAll('.content-image')).map(el => el.dataset.echo || el.src);
+    let allSrc = Array.from(document
+      .querySelectorAll('.content-image'))
+      .map(el => el.dataset.echo || el.src)
+      .filter((src, index, arr) => arr.indexOf(src) == index);
     let passOut = JSON.stringify({
       index: allSrc.indexOf(src),
       srcs: allSrc

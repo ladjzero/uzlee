@@ -36,6 +36,7 @@ public class ActivityGallery extends ActivityBase implements ViewPager.OnPageCha
 		mViewPage.addOnPageChangeListener(this);
 		mAdapter = new AdapterGallery(getSupportFragmentManager(), mUrls);
 		mViewPage.setAdapter(mAdapter);
+		mViewPage.setCurrentItem(mIndex);
 	}
 
 	@Override
