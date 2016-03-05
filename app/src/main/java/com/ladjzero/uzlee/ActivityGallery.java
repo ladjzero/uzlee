@@ -108,7 +108,7 @@ public class ActivityGallery extends ActivityBase implements ViewPager.OnPageCha
 			settings.setUseWideViewPort(true);
 
 			mImage.loadUrl("file:///android_asset/gallery_image.html");
-			mImage.setWebViewClient(new WebViewClient() {
+			mImage.setWebViewClient(new WebView2.ImageCacheClient() {
 				@Override
 				public void onPageFinished(WebView view, String url) {
 					view.loadUrl("javascript:_showImage(\"" + mUrl + "\")");
