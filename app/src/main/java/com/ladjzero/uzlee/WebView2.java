@@ -74,12 +74,29 @@ public class WebView2 extends WebView {
 	public Bitmap toBitmap() {
 		this.setDrawingCacheEnabled(true);
 		this.buildDrawingCache();
-		int width = this.getWidth();
-		int height = (int) (this.getContentHeight() * this.getScale());
-		if (height > width * 10) height = width * 10;
-		Bitmap bitmap = Bitmap.createBitmap(this.getWidth(), height, Bitmap.Config.ARGB_8888);
-		Canvas canvas = new Canvas(bitmap);
-		this.draw(canvas);
+
+		return toBitmap(1);
+	}
+
+	public Bitmap toBitmap(float radio) {
+		int width = (int) (this.getWidth() * radio);
+		int height = (int) (this.getContentHeight() * this.getScale() * radio);
+
+		if (width < 100) {
+			return null;
+		}
+
+		Bitmap bitmap;
+
+		try {
+			bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+			Canvas canvas = new Canvas(bitmap);
+			canvas.scale(radio, radio);
+			this.draw(canvas);
+		} catch (OutOfMemoryError error) {
+			bitmap = toBitmap(radio * 0.9f);
+		}
+
 		return bitmap;
 	}
 }
