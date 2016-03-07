@@ -510,6 +510,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 					mPosts.replaceMeta(posts);
 					model.setTitle(posts.getTitle());
+					model.setUrl(getUri());
 					mProgressView.stop();
 
 					mIsFetching = false;
@@ -833,13 +834,25 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		private boolean toRender;
 		private String title;
 
+		public String getUrl() {
+			return url;
+		}
+
+		public Model setUrl(String url) {
+			this.url = url;
+			mWebView.loadUrl("javascript:_postsData.url='" + url + "'");
+			return this;
+		}
+
+		private String url;
+
 		public String getTitle() {
 			return title;
 		}
 
 		public void setTitle(String title) {
 			this.title = title;
-			mWebView.loadUrl("javascript:_postsData.title='" + mPosts.getTitle() + "'");
+			mWebView.loadUrl("javascript:_postsData.title='" + title + "'");
 			mTitleView.setText(title);
 		}
 

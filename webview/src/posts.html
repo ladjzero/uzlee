@@ -9,6 +9,7 @@
     window._postsData = {
       posts: [],
       title: '',
+      url: '',
       prepareRender: false,
       selected: [],
       postsStyle: {
@@ -46,6 +47,10 @@
 <body>
 <h3 id="title" v-if="prepareRender">{{title}}</h3>
 <posts :posts="posts" :posts-style="postsStyle" :on-select="onSelect" :prepare-render="prepareRender"></posts>
+<div id="footer" v-if="prepareRender">
+  <p>{{url}}</p>
+  <p>From UZLEE</p>
+</div>
 <script src="dist/posts.bundle.js"></script>
 </body>
 </html>

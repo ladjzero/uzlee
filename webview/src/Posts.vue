@@ -1,8 +1,8 @@
 <template>
   <ol id="post-list" class="unstyled" v-bind:class="classes" >
     <li v-for="post in posts" v-show="!prepareRender || ~selected.indexOf(post.id + '')" id="pid-{{post.id}}" class="post" v-bind:class="postClasses" v-on:click="selectPost(post)">
-      <input value="{{post.id}}" type="checkbox" v-model="selected" @change="onSelect(selected)"/>
       <post :post="post"></post>
+      <input v-if="postsStyle.selection" value="{{post.id}}" type="checkbox" v-model="selected" @change="onSelect(selected)"/>
     </li>
   </ol>
 </template>
@@ -51,17 +51,27 @@ export default {
     margin-bottom: 24px;
 }
 
+#footer {
+    color: grey;
+    font-size: 12px;
+}
+
+ol.unstyled {
+    padding-bottom: $toolbar-height;
+}
+
 .post {
     position: relative;
 }
 
 .post>input {
     position: absolute;
-    top: 24px;
+    right: 0;
+    top: 10px;
 }
 
 .selection .post-container {
-    left: 24px;
+    left: -24px;
     position: relative;
 }
 
@@ -198,10 +208,6 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
 .night .name-and-date .date {
     color: #464646;
 }
-
-    li:last-child  {
-        padding-bottom: $toolbar-height;
-    }
 
     .post-header {
         padding-top: 12px;
