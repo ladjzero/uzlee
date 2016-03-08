@@ -6,8 +6,8 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.databinding.ObservableList;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -36,13 +36,14 @@ import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.HttpApi;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.LocalApi;
-import com.ladjzero.hipda.PostsParser;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
+import com.ladjzero.hipda.PostsParser;
 import com.ladjzero.hipda.ProgressReporter;
 import com.ladjzero.hipda.User;
-import com.ladjzero.uzlee.utils.Timeline;
 import com.ladjzero.uzlee.model.ObservablePosts;
+import com.ladjzero.uzlee.utils.CapturePhotoUtils;
+import com.ladjzero.uzlee.utils.Timeline;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
@@ -57,7 +58,6 @@ import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-
 
 
 public class ActivityPosts extends ActivityWithWebView implements AdapterView.OnItemClickListener,
@@ -109,6 +109,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	private HttpApi mHttpApi;
 	private LocalApi mLocalApi;
 	private Timeline mTimeline = new Timeline();
+	private Model model = new Model();
 
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -172,13 +173,12 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 									@Override
 									public void onClick(View v) {
 										dialog.dismiss();
-												mHttpApi.removeFromFavoriate(mTid, new HttpClientCallback() {
-													@Override
-													public void onFailure(String reason) {
-														showToast(reason);
-													}
+										mHttpApi.removeFromFavoriate(mTid, new HttpClientCallback() {
+											@Override
+											public void onFailure(String reason) {
+												showToast(reason);
+											}
 
-										
 
 											@Override
 											public void onSuccess(String html) {
@@ -207,6 +207,10 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				showToast("复制到剪切版");
 				break;
 			case 5:
+				model.setOnSelection(true);
+//				CapturePhotoUtils.insertImage(getContentResolver(), mWebView.toBitmap(), "webview", "webview");
+				break;
+			case 6:
 				Intent intent = new Intent(Intent.ACTION_VIEW);
 				intent.setData(Uri.parse(getUri()));
 				startActivity(intent);
@@ -236,7 +240,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mPosts.clear();
 
 		Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
-		
+
 		mHttpClient.get(url, new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
@@ -402,6 +406,34 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			}
 		}
 
+		if (id == R.id.ok) {
+			if (model.getMessage() == null || model.getMessage().length() == 0) {
+				showToast("没有选择帖子");
+				return true;
+			} else {
+				model.setToRender(true).setOnSelection(false).setMessage(null);
+				mWebView.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						Bitmap bitmap = mWebView.toBitmap();
+
+						if (bitmap == null) {
+							showToast("图片生成失败");
+						} else {
+							CapturePhotoUtils.insertImage(getContentResolver(), bitmap, "webview", "webview");
+							showToast("已保存到相册");
+						}
+
+						model.setToRender(false);
+					}
+				}, 500);
+			}
+		}
+
+		if (id == R.id.cancel) {
+			model.setToRender(false).setOnSelection(false).setMessage(null);
+		}
+
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -486,6 +518,8 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 					Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
 
 					mPosts.replaceMeta(posts);
+					model.setTitle(posts.getTitle());
+					model.setUrl(getUri());
 					mProgressView.stop();
 
 					mIsFetching = false;
@@ -510,7 +544,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 						post.setIsLz(post.getAuthor().getId() == mThreadUserId);
 					}
 
-					mTitleView.setText(posts.getTitle());
 
 					if (totalPage > 1) {
 						mSeekBar.setMax(totalPage);
@@ -574,10 +607,24 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mMenu = menu;
 
 		getMenuInflater().inflate(R.menu.posts, menu);
+
 		menu.findItem(R.id.more)
 				.setIcon(new IconDrawable(this, MaterialIcons.md_more_vert)
 						.color(Utils.getThemeColor(this, R.attr.colorTextInverse))
-						.actionBarSize());
+						.actionBarSize())
+				.setVisible(!model.isOnSelection());
+
+		menu.findItem(R.id.ok)
+				.setIcon(new IconDrawable(this, MaterialIcons.md_check)
+						.color(Utils.getThemeColor(this, R.attr.colorTextInverse))
+						.actionBarSize())
+				.setVisible(model.isOnSelection());
+
+		menu.findItem(R.id.cancel)
+				.setIcon(new IconDrawable(this, MaterialIcons.md_close)
+						.color(Utils.getThemeColor(this, R.attr.colorTextInverse))
+						.actionBarSize())
+				.setVisible(model.isOnSelection());
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -789,6 +836,70 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mWebView.loadUrl("javascript:var s=_postsData.postsStyle;s.theme='" + setting.getString("theme", DefaultTheme) + "';" +
 				"s.fontsize='" + setting.getString("font_size", "normal") + "';" +
 				"s.showSig=" + setting.getBoolean("show_sig", false));
+	}
+
+	@JavascriptInterface
+	public void onSelect(String selection) {
+		model.setMessage(selection);
+	}
+
+	private class Model {
+		private boolean isOnSelection;
+		private boolean toRender;
+		private String title;
+		private String message;
+		private String url;
+
+		public String getMessage() {
+			return message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+			showToast(message);
+		}
+
+		public String getUrl() {
+			return url;
+		}
+
+		public Model setUrl(String url) {
+			this.url = url;
+			mWebView.loadUrl("javascript:_postsData.url='" + url + "'");
+			return this;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+
+		public Model setTitle(String title) {
+			this.title = title;
+			mWebView.loadUrl("javascript:_postsData.title='" + title + "'");
+			mTitleView.setText(title);
+			return this;
+		}
+
+		public boolean isOnSelection() {
+			return isOnSelection;
+		}
+
+		public Model setOnSelection(boolean onSelection) {
+			isOnSelection = onSelection;
+			mWebView.loadUrl("javascript:_postsData.postsStyle.selection=" + onSelection);
+			invalidateOptionsMenu();
+			return this;
+		}
+
+		public boolean isToRender() {
+			return toRender;
+		}
+
+		public Model setToRender(boolean toRender) {
+			this.toRender = toRender;
+			mWebView.loadUrl("javascript:_postsData.prepareRender=" + toRender);
+			return this;
+		}
 	}
 
 	class OnListChangedCallback extends ObservableList.OnListChangedCallback {

@@ -2,6 +2,16 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/ok"
+        app:showAsAction="always"
+        android:title="确定"/>
+
+    <item
+        android:id="@+id/cancel"
+        app:showAsAction="always"
+        android:title="取消"/>
+
+    <item
         android:id="@+id/more"
         app:showAsAction="always"
         android:title="菜单"/>

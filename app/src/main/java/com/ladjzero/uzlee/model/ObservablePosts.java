@@ -33,4 +33,8 @@ public class ObservablePosts extends ObservableArrayList<Post> {
 		return mPosts.getPage();
 	}
 
+	public String getTitle() {
+		return mPosts.getTitle();
+	}
+
 }

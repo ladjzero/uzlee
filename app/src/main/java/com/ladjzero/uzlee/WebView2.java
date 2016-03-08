@@ -2,6 +2,8 @@ package com.ladjzero.uzlee;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.webkit.WebView;
@@ -12,6 +14,7 @@ import android.webkit.WebView;
 public class WebView2 extends WebView {
 	private final String JS_INTERFACE_NAME = "WebView2";
 	boolean isEverScrolled;
+	private Canvas mCanvas;
 
 	public WebView2(Context context) {
 		super(context);
@@ -60,5 +63,40 @@ public class WebView2 extends WebView {
 	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
 		super.onScrollChanged(l, t, oldl, oldt);
 		isEverScrolled = true;
+	}
+
+	@Override
+	protected void onDraw(Canvas canvas) {
+		super.onDraw(canvas);
+		mCanvas = canvas;
+	}
+
+	public Bitmap toBitmap() {
+		this.setDrawingCacheEnabled(true);
+		this.buildDrawingCache();
+
+		return toBitmap(1);
+	}
+
+	public Bitmap toBitmap(float radio) {
+		int width = (int) (this.getWidth() * radio);
+		int height = (int) (this.getContentHeight() * this.getScale() * radio);
+
+		if (width < 100) {
+			return null;
+		}
+
+		Bitmap bitmap;
+
+		try {
+			bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+			Canvas canvas = new Canvas(bitmap);
+			canvas.scale(radio, radio);
+			this.draw(canvas);
+		} catch (OutOfMemoryError error) {
+			bitmap = toBitmap(radio * 0.9f);
+		}
+
+		return bitmap;
 	}
 }

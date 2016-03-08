@@ -1,7 +1,8 @@
 <template>
   <ol id="post-list" class="unstyled" v-bind:class="classes" >
-    <li v-for="post in posts" id="pid-{{post.id}}" class="post">
+    <li v-for="post in posts" v-show="!prepareRender || ~selected.indexOf(post.postIndex + '')" id="pid-{{post.id}}" class="post" v-bind:class="postClasses" v-on:click="selectPost(post)">
       <post :post="post"></post>
+      <input v-if="postsStyle.selection" value="{{post.postIndex}}" type="checkbox" v-model="selected" @change="onSelect(selected)"/>
     </li>
   </ol>
 </template>
@@ -10,7 +11,10 @@
 import Post from './Post.vue'
 
 export default {
-  props: ['posts', 'postsStyle'],
+  props: ['posts', 'postsStyle', 'onSelect', 'prepareRender'],
+  data: function () {
+    return {selected: []}
+  },
   computed: {
     classes: function () {
       let theme = this.postsStyle.theme
@@ -18,6 +22,9 @@ export default {
       let fontClass = 'font-size-' + this.postsStyle.fontsize
 
       return [isDay ? 'day' : '', theme, fontClass]
+    },
+    postClasses: function () {
+        return [this.postsStyle.selection && !this.prepareRender ? 'selection' : '']
     }
   },
   components: {
@@ -25,12 +32,48 @@ export default {
   },
   created () {
     console.log('abcd');
+  },
+  methods: {
+    selectPost: function (post) {
+      if (this.postsStyle.selection) {
+        post.selected = !post.selected;
+      }
+    }
   }
 }
 </script>
 
 <style lang="sass">
 @import "../scss/uzlee.scss";
+
+#title {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+#footer {
+    color: grey;
+    font-size: 12px;
+}
+
+ol.unstyled {
+    padding-bottom: $toolbar-height;
+}
+
+.post {
+    position: relative;
+}
+
+.post>input {
+    position: absolute;
+    right: 0;
+    top: 10px;
+}
+
+.selection .post-container {
+    left: -24px;
+    position: relative;
+}
 
 .post::after {
     content: '';
@@ -165,10 +208,6 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
 .night .name-and-date .date {
     color: #464646;
 }
-
-    li:last-child  {
-        padding-bottom: $toolbar-height;
-    }
 
     .post-header {
         padding-top: 12px;

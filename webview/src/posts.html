@@ -8,10 +8,18 @@
     <script>
     window._postsData = {
       posts: [],
+      title: '',
+      url: '',
+      prepareRender: false,
+      selected: [],
       postsStyle: {
+        selection: false,
         theme: 'green',
         fontsize: 'normal',
         showSig: false
+      },
+      onSelect: function (selected) {
+        UZLEE.onSelect(selected.join(','))
       }
     }
 
@@ -37,7 +45,12 @@
 </head>
 
 <body>
-<posts :posts="posts" :posts-style="postsStyle"></posts>
-<script src="posts.bundle.js"></script>
+<h3 id="title" v-if="prepareRender">{{title}}</h3>
+<posts :posts="posts" :posts-style="postsStyle" :on-select="onSelect" :prepare-render="prepareRender"></posts>
+<div id="footer" v-if="prepareRender">
+  <p>{{url}}</p>
+  <p>From UZLEE</p>
+</div>
+<script src="dist/posts.bundle.js"></script>
 </body>
 </html>
