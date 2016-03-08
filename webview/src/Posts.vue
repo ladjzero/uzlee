@@ -1,8 +1,8 @@
 <template>
   <ol id="post-list" class="unstyled" v-bind:class="classes" >
-    <li v-for="post in posts" v-show="!prepareRender || ~selected.indexOf(post.id + '')" id="pid-{{post.id}}" class="post" v-bind:class="postClasses" v-on:click="selectPost(post)">
+    <li v-for="post in posts" v-show="!prepareRender || ~selected.indexOf(post.postIndex + '')" id="pid-{{post.id}}" class="post" v-bind:class="postClasses" v-on:click="selectPost(post)">
       <post :post="post"></post>
-      <input v-if="postsStyle.selection" value="{{post.id}}" type="checkbox" v-model="selected" @change="onSelect(selected)"/>
+      <input v-if="postsStyle.selection" value="{{post.postIndex}}" type="checkbox" v-model="selected" @change="onSelect(selected)"/>
     </li>
   </ol>
 </template>

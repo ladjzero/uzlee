@@ -407,22 +407,31 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		}
 
 		if (id == R.id.ok) {
-			model.setToRender(true).setOnSelection(false);
-			mWebView.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					Bitmap bitmap = mWebView.toBitmap();
+			if (model.getMessage() == null || model.getMessage().length() == 0) {
+				showToast("没有选择帖子");
+				return true;
+			} else {
+				model.setToRender(true).setOnSelection(false).setMessage(null);
+				mWebView.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						Bitmap bitmap = mWebView.toBitmap();
 
-					if (bitmap == null) {
-						showToast("图片生成失败");
-					} else {
-						CapturePhotoUtils.insertImage(getContentResolver(), bitmap, "webview", "webview");
-						showToast("已保存到相册");
+						if (bitmap == null) {
+							showToast("图片生成失败");
+						} else {
+							CapturePhotoUtils.insertImage(getContentResolver(), bitmap, "webview", "webview");
+							showToast("已保存到相册");
+						}
+
+						model.setToRender(false);
 					}
+				}, 500);
+			}
+		}
 
-					model.setToRender(false);
-				}
-			}, 500);
+		if (id == R.id.cancel) {
+			model.setToRender(false).setOnSelection(false).setMessage(null);
 		}
 
 		return super.onOptionsItemSelected(item);
@@ -829,10 +838,26 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				"s.showSig=" + setting.getBoolean("show_sig", false));
 	}
 
+	@JavascriptInterface
+	public void onSelect(String selection) {
+		model.setMessage(selection);
+	}
+
 	private class Model {
 		private boolean isOnSelection;
 		private boolean toRender;
 		private String title;
+		private String message;
+		private String url;
+
+		public String getMessage() {
+			return message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+			showToast(message);
+		}
 
 		public String getUrl() {
 			return url;
@@ -844,16 +869,15 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			return this;
 		}
 
-		private String url;
-
 		public String getTitle() {
 			return title;
 		}
 
-		public void setTitle(String title) {
+		public Model setTitle(String title) {
 			this.title = title;
 			mWebView.loadUrl("javascript:_postsData.title='" + title + "'");
 			mTitleView.setText(title);
+			return this;
 		}
 
 		public boolean isOnSelection() {
