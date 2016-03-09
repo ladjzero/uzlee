@@ -64,8 +64,9 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 
 	@JavascriptInterface
 	public void onImageClick(String src) {
-		Intent intent = new Intent(Intent.ACTION_VIEW);
-		intent.setData(Uri.parse(src));
+		Intent intent = new Intent();
+		intent.setAction(Intent.ACTION_VIEW);
+		intent.setDataAndType(Uri.fromFile(UilUtils.getInstance().getFile(src)), "image/*");
 		startActivity(intent);
 	}
 
@@ -90,68 +91,13 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 			final WebView2 webView = getWebView();
 
 			webView.addJavascriptInterface(this, "UZLEE");
-			webView.setWebViewClient(new WebViewClient() {
+			webView.setWebViewClient(new WebView2.ImageCacheClient() {
 				@Override
 				public void onPageFinished(WebView view, String url) {
 					Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
 					super.onPageFinished(view, url);
 					webView.clearCache(true);
 					onWebViewReady();
-				}
-
-				@Override
-				public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-					Logger.i("shouldInterceptRequest");
-
-					WebResourceResponse res = null;
-
-					if (ActivityWithWebView.this.shouldInterceptRequest(url)) {
-						UilUtils uil = getApp().getUilUtils();
-						File cache = uil.getFile(url);
-
-						if (cache == null) {
-							Logger.t(TAG).e("cache file is null.");
-						} else if (cache.exists()) {
-							try {
-								res = new WebResourceResponse(getMimeType(url), "binary", new FileInputStream(cache));
-							} catch (FileNotFoundException e) {
-								e.printStackTrace();
-							}
-						} else {
-							try {
-								URL imgUrl = new URL(url);
-								InputStream imgIn = imgUrl.openStream();
-								FileOutputStream fileOs = new FileOutputStream(cache);
-								PipedInputStream pipeIn = new PipedInputStream();
-								PipedOutputStream pipeOs = new PipedOutputStream(pipeIn);
-
-								new AsyncTask() {
-									@Override
-									protected Object doInBackground(Object[] params) {
-										TeePipe.stream((InputStream) params[0], (OutputStream) params[1], (OutputStream) params[2]);
-										return null;
-									}
-								}.execute(imgIn, fileOs, pipeOs);
-
-								res = new WebResourceResponse(getMimeType(url), "binary", pipeIn);
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						}
-					}
-
-					return res;
-				}
-
-				@TargetApi(Build.VERSION_CODES.LOLLIPOP)
-				@Override
-				public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-					return shouldInterceptRequest(view, request.getUrl().toString());
-				}
-
-				@Override
-				public boolean shouldOverrideUrlLoading(WebView view, String url) {
-					return onLinkClick(url);
 				}
 			});
 			webView.setWebChromeClient(new WebChromeClient() {

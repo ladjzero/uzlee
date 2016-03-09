@@ -8,7 +8,7 @@ import java.io.OutputStream;
  * Created by R9NKCC3 on 2016/2/22.
  */
 public class TeePipe {
-	public static void stream(InputStream in, OutputStream... outs) {
+	public static void stream(InputStream in, OutputStream... outs) throws IOException {
 		byte[] buffer = new byte[1024];
 
 		try {
@@ -23,6 +23,7 @@ public class TeePipe {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+			throw(e);
 		} finally {
 			try {
 				in.close();

@@ -20,12 +20,6 @@ public class Application2 extends Application {
 	private HttpClient2 mHttpClient;
 	private Core mCore;
 
-	public UilUtils getUilUtils() {
-		return mUilUtils;
-	}
-
-	private UilUtils mUilUtils;
-
 	public HttpClient2 getHttpClient() {
 		return mHttpClient;
 	}
@@ -52,7 +46,7 @@ public class Application2 extends Application {
 		mHttpClient = new HttpClient2(this);
 		PersistenceAdapter adapter = new AndroidAdapter(this);
 		mCore = Core.initialize(adapter, mHttpClient);
-		mUilUtils = new UilUtils(this);
+		UilUtils.init(this);
 
 		Logger.init();
 	}

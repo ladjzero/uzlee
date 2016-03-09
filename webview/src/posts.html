@@ -24,7 +24,7 @@
     }
 
     document.addEventListener('click', function (e) {
-      if (e.target.tagName == 'IMG') {
+      if (e.target.classList.contains('content-image') && e.target.src.indexOf('http') > -1) {
         UZLEE.onImageClick(e.target.src);
       }
     })
