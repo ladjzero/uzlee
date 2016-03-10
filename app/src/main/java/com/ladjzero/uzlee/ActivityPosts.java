@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.ObservableList;
 import android.graphics.Bitmap;
+import android.media.MediaActionSound;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -43,7 +44,9 @@ import com.ladjzero.hipda.ProgressReporter;
 import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.model.ObservablePosts;
 import com.ladjzero.uzlee.utils.CapturePhotoUtils;
+import com.ladjzero.uzlee.utils.NotificationUtils;
 import com.ladjzero.uzlee.utils.Timeline;
+import com.ladjzero.uzlee.utils.UilUtils;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
@@ -420,8 +423,16 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 						if (bitmap == null) {
 							showToast("图片生成失败");
 						} else {
-							CapturePhotoUtils.insertImage(getContentResolver(), bitmap, "webview", "webview");
-							showToast("已保存到相册");
+							String url = CapturePhotoUtils.insertImage(getContentResolver(), bitmap, "webview", "webview");
+							Intent intent = new Intent();
+							intent.setAction(Intent.ACTION_VIEW);
+							intent.setDataAndType(Uri.parse(url), "image/*");
+							NotificationUtils.Notification noti = new NotificationUtils.Notification();
+							noti.intent = intent;
+							noti.title = "已捕获帖子截图";
+							noti.text = "点击打开";
+							new MediaActionSound().play(MediaActionSound.SHUTTER_CLICK);
+							NotificationUtils.nofity(ActivityPosts.this, noti);
 						}
 
 						model.setToRender(false);
