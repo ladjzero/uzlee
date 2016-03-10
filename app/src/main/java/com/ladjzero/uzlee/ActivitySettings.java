@@ -1,7 +1,9 @@
 package com.ladjzero.uzlee;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -118,6 +120,21 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 					return String.valueOf(((Forum) o).getFid());
 				}
 			}).toArray(new String[0]);
+
+			findPreference("appinfo").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+				@Override
+				public boolean onPreferenceClick(Preference preference) {
+					try {
+						Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+						intent.setData(Uri.parse("package:com.ladjzero.uzlee"));
+						startActivity(intent);
+					} catch ( ActivityNotFoundException e ) {
+						Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS);
+						startActivity(intent);
+					}
+					return true;
+				}
+			});
 
 			Preference logout = findPreference("logout");
 			final ActivitySettings activity = (ActivitySettings) getActivity();

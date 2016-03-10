@@ -74,6 +74,10 @@
             android:title="关于" />
 
         <Preference
+            android:key="appinfo"
+            android:title="清除缓存" />
+
+        <Preference
             android:key="logout"
             android:title="登出" />
     </PreferenceCategory>
