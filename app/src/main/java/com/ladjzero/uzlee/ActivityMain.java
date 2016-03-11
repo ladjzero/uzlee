@@ -170,13 +170,12 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 						View view = super.getView(position, convertView, parent);
 						Forum.Type type = getItem(position);
 						Forum.Type currentType = mFragment.getCurrentForum().getCurrentType();
-						TextView text = (TextView) view.findViewById(R.id.text);
 
-						text.setTextColor(Utils.getThemeColor(ActivityMain.this,
-								currentType != null && type.getId() == currentType.getId() ?
-										R.attr.colorText :
-										R.attr.colorTextMinor
-						));
+						if (currentType != null && currentType.getId() > 0 && type.getId() == currentType.getId()) {
+							view.setBackgroundColor(Utils.getThemeColor(ActivityMain.this, R.attr.colorRead));
+						} else {
+							view.setBackgroundColor(Utils.getColor(ActivityMain.this, android.R.color.transparent));
+						}
 
 						return view;
 					}
@@ -274,7 +273,8 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 						.actionBarSize());
 
 		menu.findItem(R.id.thread_types)
-				.setIcon(new IconDrawable(this, type == null ? MaterialIcons.md_local_offer : MaterialIcons.md_loyalty)
+				.setVisible(getSettings().getBoolean("show_types", false))
+				.setIcon(new IconDrawable(this, type != null && type.getId() > 0 ? MaterialIcons.md_bookmark : MaterialIcons.md_bookmark_border)
 						.color(Utils.getThemeColor(this, R.attr.colorTextInverse))
 						.actionBarSize());
 
@@ -355,6 +355,8 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 			} else {
 				mNeedReload = true;
 			}
+		} else if ("show_types".equals(key)) {
+			mNeedReload = true;
 		}
 	}
 
