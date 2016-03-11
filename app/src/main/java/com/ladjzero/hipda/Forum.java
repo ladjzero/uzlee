@@ -24,6 +24,16 @@ public class Forum {
 	private ArrayList<Forum> children;
 	private ArrayList<Type> types;
 
+	public Type getCurrentType() {
+		return currentType;
+	}
+
+	public void setCurrentType(Type currentType) {
+		this.currentType = currentType;
+	}
+
+	private Type currentType;
+
 	public static Forum findById(List<Forum> forums, int fid) {
 		List<Forum> ret = findByIds(forums, new ArrayList<>(Arrays.asList(fid)));
 

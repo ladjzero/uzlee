@@ -13,36 +13,38 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.Forum;
 import com.ladjzero.uzlee.utils.Utils;
-import com.orhanobut.logger.Logger;
+import com.rey.material.app.Dialog;
 import com.rey.material.widget.TabPageIndicator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ActivityMain extends ActivityBase implements ViewPager.OnPageChangeListener, SharedPreferences.OnSharedPreferenceChangeListener {
+public class ActivityMain extends ActivityBase implements SharedPreferences.OnSharedPreferenceChangeListener {
 
 	String title = "";
 	Toolbar toolbar;
 	boolean doubleBackToExitPressedOnce = false;
 	private FragmentNav mFragmentNav;
-	//	private List<Forum.Type> mTypes;
-	private HashMap<Integer, Integer> mLastSelectedType = new HashMap<>();
 	private OnTypeChange mOnTypeChange;
 	private FragmentThreadsPager mFragment;
 	private int mCurrentPagePosition = -1;
-	private int mFid = -1;
 	private boolean mIsRunning = false;
 	private boolean mNeedReload = false;
 	private View mCustomToolbarView;
 	private TabPageIndicator mPageIndicator;
+	private ViewPager mViewPager;
 
 	public TabPageIndicator getPageIndicator() {
 		return mPageIndicator;
@@ -91,19 +93,23 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 
 		mFragment.setOnCreatedListener(new FragmentThreadsPager.OnCreatedListener() {
 			@Override
-			public void onCreated(final ViewPager viewPager) {
+			public void onCreated(ViewPager viewPager) {
+				mViewPager = viewPager;
 				// Delay because TabPageIndicator can not be re-rendered after menu icon were inserted.
 				// The underline of the default tab will be wider as it should be.
 				mCustomToolbarView.postDelayed(new Runnable() {
 					@Override
 					public void run() {
 						getSupportActionBar().setCustomView(mCustomToolbarView);
-						mPageIndicator.setViewPager(viewPager);
+						mPageIndicator.setViewPager(mViewPager, 0);
 						mPageIndicator.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 							int formerPosition = 0;
 
 							@Override
 							public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+								if (mCurrentPagePosition != position) {
+									mCurrentPagePosition = position;
+								}
 							}
 
 							@Override
@@ -122,6 +128,18 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 						});
 					}
 				}, 700);
+
+				mFragment.setOnPageChangeListener(new FragmentThreadsPager.OnPageChangeListener() {
+					@Override
+					public void onPageChange(FragmentThreadsAbs f) {
+						mViewPager.postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								invalidateOptionsMenu();
+							}
+						}, 300);
+					}
+				});
 			}
 		});
 	}
@@ -129,50 +147,71 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
+		Forum f = mFragment.getCurrentForum();
+		int fid = f.getFid();
 
 		if (id == R.id.thread_publish) {
 			Intent intent = new Intent(this, ActivityEdit.class);
-			intent.putExtra("title", Forum.findById(getFlattenForums(this), mFid).getName());
-			intent.putExtra("fid", mFid);
+			intent.putExtra("title", Forum.findById(getFlattenForums(this), fid).getName());
+			intent.putExtra("fid", fid);
 
 			startActivity(intent);
 
 			return true;
-//		} else if (id == R.id.thread_types) {
-//			List<Forum.Type> types = Forum.findById(getFlattenForums(this), mFid).getTypes();
-//
-//			if (types != null) {
-//				ListView listView = new ListView(this);
-//				listView.setDivider(null);
-//				listView.setAdapter(new ArrayAdapter<>(this, R.layout.list_item_of_dialog, R.id.text, types));
-//
-//				final Dialog dialog = new Dialog(this);
-//
-//				dialog.negativeActionClickListener(new View.OnClickListener() {
-//					@Override
-//					public void onClick(View v) {
-//						dialog.dismiss();
-//					}
-//				});
-//
-//				dialog.title(title)
-//						.titleColor(Utils.getThemeColor(this, R.attr.colorText))
-//						.backgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground))
-//						.negativeAction("取消")
-//						.contentView(listView)
-//						.show();
-//
-//				listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//					@Override
-//					public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//						Forum.Type type = (Forum.Type) adapterView.getItemAtPosition(i);
-//						mLastSelectedType.put(mFid, type.getId());
-//						if (mOnTypeChange != null) mOnTypeChange.onTypeSelect(mFid, type.getId());
-//						invalidateOptionsMenu();
-//						dialog.dismiss();
-//					}
-//				});
-//			}
+		} else if (id == R.id.thread_types) {
+			List<Forum.Type> types = Forum.findById(getFlattenForums(this), fid).getTypes();
+
+			if (types != null) {
+				ListView listView = new ListView(this);
+				listView.setDivider(null);
+				listView.setAdapter(new ArrayAdapter<Forum.Type>(this, R.layout.list_item_of_dialog, R.id.text, types) {
+					@Override
+					public View getView(int position, View convertView, ViewGroup parent) {
+						View view = super.getView(position, convertView, parent);
+						Forum.Type type = getItem(position);
+						Forum.Type currentType = mFragment.getCurrentForum().getCurrentType();
+						TextView text = (TextView) view.findViewById(R.id.text);
+
+						text.setTextColor(Utils.getThemeColor(ActivityMain.this,
+								currentType != null && type.getId() == currentType.getId() ?
+										R.attr.colorText :
+										R.attr.colorTextMinor
+						));
+
+						return view;
+					}
+				});
+
+				final Dialog dialog = new Dialog(this);
+
+				dialog.negativeActionClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						dialog.dismiss();
+					}
+				});
+
+				dialog.title(title)
+						.titleColor(Utils.getThemeColor(this, R.attr.colorText))
+						.backgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground))
+						.negativeAction("取消")
+						.contentView(listView)
+						.show();
+
+				listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+					@Override
+					public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+						Forum f = mFragment.getCurrentForum();
+						int fid = f.getFid();
+
+						Forum.Type type = (Forum.Type) adapterView.getItemAtPosition(i);
+						mFragment.getCurrentForum().setCurrentType(type);
+						if (mOnTypeChange != null) mOnTypeChange.onTypeSelect(fid, type.getId());
+						invalidateOptionsMenu();
+						dialog.dismiss();
+					}
+				});
+			}
 		} else if (id == android.R.id.home) {
 			return false;
 		}
@@ -183,7 +222,6 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 	@Override
 	protected void onResume() {
 		super.onResume();
-		mFragment.registerPageChangeListener(this);
 		mIsRunning = true;
 
 		if (mNeedReload) {
@@ -195,7 +233,6 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 	@Override
 	protected void onPause() {
 		super.onPause();
-		mFragment.unregisterPageChangeListener(this);
 		mIsRunning = false;
 	}
 
@@ -218,21 +255,6 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 	}
 
 	@Override
-	public void onRestoreInstanceState(Bundle savedInstanceState) {
-		super.onRestoreInstanceState(savedInstanceState);
-
-		ArrayList<Integer> fids = savedInstanceState.getIntegerArrayList("fids");
-		ArrayList<Integer> types = savedInstanceState.getIntegerArrayList("types");
-
-		if (mLastSelectedType == null) mLastSelectedType = new HashMap<>();
-
-		if (fids != null && types != null && fids.size() == types.size())
-			for (int i = 0, len = fids.size(); i < len; ++i) {
-				mLastSelectedType.put(fids.get(i), types.get(i));
-			}
-	}
-
-	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_MENU) {
 			mFragmentNav.toggleDrawer();
@@ -244,37 +266,17 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.threads, menu);
+		Forum.Type type = mFragment.getCurrentForum().getCurrentType();
 
-//		final Integer typeId = mLastSelectedType.get(mFid);
-//		Forum selectedForum = Forum.findById(getFlattenForums(this), mFid);
-//		List<Forum.Type> types = null;
-//
-//		if (selectedForum != null) {
-//			types = selectedForum.getTypes();
-//		}
-//
-//		if (types != null && typeId != null) {
-//			Forum.Type type = (Forum.Type) CollectionUtils.find(types, new Predicate() {
-//				@Override
-//				public boolean evaluate(Object o) {
-//					return ((Forum.Type) o).getId() == typeId;
-//				}
-//			});
-//
-//			setTitle("分类：" + type.getName());
-//		} else {
-//			setTitle(null);
-//		}
-//
 		menu.findItem(R.id.thread_publish)
 				.setIcon(new IconDrawable(this, MaterialIcons.md_add)
 						.color(Utils.getThemeColor(this, R.attr.colorTextInverse))
 						.actionBarSize());
 
-//		menu.findItem(R.id.thread_types)
-//				.setIcon(new IconDrawable(this, MaterialIcons.md_style)
-//						.color(Utils.getThemeColor(this, R.attr.colorTextInverse))
-//						.actionBarSize());
+		menu.findItem(R.id.thread_types)
+				.setIcon(new IconDrawable(this, type == null ? MaterialIcons.md_local_offer : MaterialIcons.md_loyalty)
+						.color(Utils.getThemeColor(this, R.attr.colorTextInverse))
+						.actionBarSize());
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -328,14 +330,6 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		outState.putIntegerArrayList("fids", new ArrayList<Integer>(mLastSelectedType.keySet()));
-		outState.putIntegerArrayList("types", new ArrayList<Integer>(mLastSelectedType.values()));
-
-		super.onSaveInstanceState(outState);
-	}
-
-	@Override
 	protected void onStart() {
 		super.onStart();
 
@@ -347,28 +341,6 @@ public class ActivityMain extends ActivityBase implements ViewPager.OnPageChange
 		getSettings().unregisterOnSharedPreferenceChangeListener(this);
 
 		super.onStop();
-	}
-
-	@Override
-	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-		Logger.d("ActivityMain onPageScrolled position %d", position);
-		// onPageScrolled is always called after initializing.
-		// However onPageSelected will not be called until dragging.
-		if (mCurrentPagePosition != position) {
-			mCurrentPagePosition = position;
-			mFid = getSelectedForums(this).get(position).getFid();
-			invalidateOptionsMenu();
-		}
-	}
-
-	@Override
-	public void onPageSelected(int position) {
-		Logger.d("ActivityMain onPageSelected position %d", position);
-	}
-
-	@Override
-	public void onPageScrollStateChanged(int state) {
-		Logger.d("ActivityMain onPageScrollStateChanged state %d", state);
 	}
 
 	public void setOnTypeChangeListener(OnTypeChange onTypeChange) {
