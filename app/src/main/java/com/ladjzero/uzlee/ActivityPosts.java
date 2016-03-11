@@ -421,7 +421,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 						Bitmap bitmap = mWebView.toBitmap();
 
 						if (bitmap == null) {
-							showToast("图片生成失败");
+							showToast("图片生成失败，请减少帖子数量");
 						} else {
 							String url = CapturePhotoUtils.insertImage(getContentResolver(), bitmap, "webview", "webview");
 							Intent intent = new Intent();
@@ -437,7 +437,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 						model.setToRender(false);
 					}
-				}, 500);
+				}, 1000);
 			}
 		}
 
@@ -909,6 +909,9 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		public Model setToRender(boolean toRender) {
 			this.toRender = toRender;
 			mWebView.loadUrl("javascript:_postsData.prepareRender=" + toRender);
+			if (!toRender) {
+				mWebView.loadUrl("javascript:_postsData.selected.splice(0, _postsData.selected.length)");
+			}
 			return this;
 		}
 	}

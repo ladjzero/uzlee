@@ -7,6 +7,7 @@
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
     <script>
     window._postsData = {
+      selected: [],
       posts: [],
       title: '',
       url: '',
@@ -46,7 +47,7 @@
 
 <body>
 <h3 id="title" v-if="prepareRender">{{title}}</h3>
-<posts :posts="posts" :posts-style="postsStyle" :on-select="onSelect" :prepare-render="prepareRender"></posts>
+<posts :posts="posts" :posts-style="postsStyle" :on-select="onSelect" :prepare-render="prepareRender" :selected="selected"></posts>
 <div id="footer" v-if="prepareRender">
   <p>{{url}}</p>
   <p>From UZLEE</p>

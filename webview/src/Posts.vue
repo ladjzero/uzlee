@@ -11,10 +11,7 @@
 import Post from './Post.vue'
 
 export default {
-  props: ['posts', 'postsStyle', 'onSelect', 'prepareRender'],
-  data: function () {
-    return {selected: []}
-  },
+  props: ['posts', 'postsStyle', 'onSelect', 'prepareRender', 'selected'],
   computed: {
     classes: function () {
       let theme = this.postsStyle.theme
@@ -67,7 +64,7 @@ ol.unstyled {
 .post>input {
     position: absolute;
     right: 0;
-    top: 10px;
+    top: 12px;
 }
 
 .selection .post-container {

@@ -59,12 +59,6 @@ public class CapturePhotoUtils {
 				} finally {
 					imageOut.close();
 				}
-
-				long id = ContentUris.parseId(url);
-				// Wait until MINI_KIND thumbnail is generated.
-				Bitmap miniThumb = Images.Thumbnails.getThumbnail(cr, id, Images.Thumbnails.MINI_KIND, null);
-				// This is for backward compatibility.
-				storeThumbnail(cr, miniThumb, id, 50F, 50F, Images.Thumbnails.MICRO_KIND);
 			} else {
 				cr.delete(url, null, null);
 				url = null;
