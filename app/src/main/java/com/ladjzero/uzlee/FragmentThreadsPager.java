@@ -198,14 +198,18 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 		}
 
 		public Forum getCurrentForum() {
-			return (Forum) CollectionUtils.find(mForums, new Predicate() {
-				int fid = mFragment.getArguments().getInt("fid");
+			if (mFragment != null) {
+				return (Forum) CollectionUtils.find(mForums, new Predicate() {
+					int fid = mFragment.getArguments().getInt("fid");
 
-				@Override
-				public boolean evaluate(Object o) {
-					return fid == ((Forum) o).getFid();
-				}
-			});
+					@Override
+					public boolean evaluate(Object o) {
+						return fid == ((Forum) o).getFid();
+					}
+				});
+			} else {
+				return null;
+			}
 		}
 	}
 }

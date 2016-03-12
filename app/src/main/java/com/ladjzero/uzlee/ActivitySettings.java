@@ -14,19 +14,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.alibaba.fastjson.JSON;
-import com.ladjzero.hipda.Forum;
 import com.ladjzero.hipda.HttpApi;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.Utils;
 import com.rey.material.app.Dialog;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
-
-import java.util.List;
-import java.util.Set;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -105,22 +99,6 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 
 			final SharedPreferences pref = mActivity.getSettings();
 
-			List<Forum> forums = getFlattenForums(mActivity);
-
-			String[] forumNames = (String[]) CollectionUtils.collect(forums, new Transformer() {
-				@Override
-				public Object transform(Object o) {
-					return o.toString();
-				}
-			}).toArray(new String[0]);
-
-			String[] forumIds = (String[]) CollectionUtils.collect(forums, new Transformer() {
-				@Override
-				public Object transform(Object o) {
-					return String.valueOf(((Forum) o).getFid());
-				}
-			}).toArray(new String[0]);
-
 			findPreference("appinfo").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
@@ -128,7 +106,7 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 						Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
 						intent.setData(Uri.parse("package:com.ladjzero.uzlee"));
 						startActivity(intent);
-					} catch ( ActivityNotFoundException e ) {
+					} catch (ActivityNotFoundException e) {
 						Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS);
 						startActivity(intent);
 					}
@@ -228,6 +206,32 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 				}
 			});
 
+			int imgSize = pref.getInt(Constants.PREF_KEY_IMG_SIZE, Constants.DEFAULT_IMAGE_UPLOAD_SIZE);
+			final Preference imgSizePref = findPreference(Constants.PREF_KEY_IMG_SIZE);
+			switch (imgSize) {
+				case 300:
+					imgSizePref.setSummary("300KB");
+					break;
+				case 800:
+					imgSizePref.setSummary("800KB");
+					break;
+				case 1500:
+					imgSizePref.setSummary("1.5MB");
+					break;
+			}
+			imgSizePref.setOnPreferenceClickListener(new ImgSizeClickListener((ActivityBase) getActivity(), "图片大小", Constants.PREF_KEY_IMG_SIZE, R.layout.picker_image_size) {
+				@Override
+				public void onSelect(String summary) {
+					imgSizePref.setSummary(summary);
+				}
+
+				@Override
+				public boolean onPreferenceClick(Preference preference) {
+					show(true);
+					return false;
+				}
+			});
+
 			Preference draftPref = findPreference("draft");
 			draftPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 				@Override
@@ -316,6 +320,46 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 		}
 
 		public abstract void onSelect(String summary);
+	}
+
+	abstract static class ImgSizeClickListener extends BaseClickListener {
+
+		public ImgSizeClickListener(ActivityBase context, String title, String key, int layoutId) {
+			super(context, title, key, layoutId);
+			this.key = key;
+		}
+
+		@OnClick(R.id.img_small_size)
+		void setImageSmallSize() {
+			setImageSize(300);
+		}
+
+		@OnClick(R.id.img_middle_size)
+		void setImageMiddleSize() {
+			setImageSize(800);
+		}
+
+		@OnClick(R.id.img_big_size)
+		void setImageBigSize() {
+			setImageSize(1500);
+		}
+
+		void setImageSize(int size) {
+			switch (size) {
+				case 300:
+					onSelect("300KB");
+					break;
+				case 800:
+					onSelect("800KB");
+					break;
+				case 1500:
+					onSelect("1.5MB");
+					break;
+			}
+
+			context.getSettings().edit().putInt("img_size", size).commit();
+			show(false);
+		}
 	}
 
 	abstract static class ThreadSortClickListener extends BaseClickListener {

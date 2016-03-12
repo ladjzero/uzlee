@@ -68,6 +68,10 @@
             android:title="使用签名"/>
 
         <Preference
+            android:key="img_size"
+            android:title="上传图像的大小"/>
+
+        <Preference
             android:key="draft"
             android:summary="打开上一次未保存的主题或回复"
             android:title="恢复草稿"/>

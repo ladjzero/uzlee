@@ -30,6 +30,8 @@ import com.ladjzero.hipda.Post;
 import com.ladjzero.uzlee.utils.EmojiUtils;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nineoldandroids.animation.Animator;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.orhanobut.logger.Logger;
 import com.rey.material.app.Dialog;
 
@@ -44,8 +46,7 @@ import java.util.ArrayList;
 
 public class ActivityEdit extends ActivityHardSlide implements HttpClientCallback {
 	public static final int EDIT_SUCCESS = 10;
-	public final static int MAX_UPLOAD_LENGTH = 299 * 1024;
-
+	private static final int SELECT_PHOTO = 100;
 	int tid;
 	int pid;
 	int fid;
@@ -56,14 +57,13 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 	TextView subjectInput;
 	EditText mMessageInput;
 	Intent intent;
-	private static final int SELECT_PHOTO = 100;
 	ArrayList<Integer> attachIds = new ArrayList<Integer>();
 	ArrayList<Integer> existedAttachIds = new ArrayList<Integer>();
+	Dialog progress;
+	boolean mSaveDraft = true;
 	private View mEmojiSelector;
 	private InputMethodManager mImeManager;
 	private boolean mIsAnimating = false;
-	Dialog progress;
-	boolean mSaveDraft = true;
 	private HttpApi mHttpApi;
 
 	@Override
@@ -381,39 +381,44 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 
 				@Override
 				protected File doInBackground(File... params) {
-					return compressImage(params[0], MAX_UPLOAD_LENGTH);
+					return compressImage(params[0], (getSettings().getInt("img_size", 300) - 1) * 1024);
 				}
 
 				@Override
 				protected void onPostExecute(File tempFile) {
-					mDialog.title("图片上传").show();
+					if (tempFile == null || !tempFile.exists()) {
+						mDialog.dismiss();
+						showToast("图片处理失败");
+					} else {
+						mDialog.title("图片上传").show();
 
-					mHttpApi.uploadImage(tempFile, new HttpClientCallback() {
-						@Override
-						public void onSuccess(String response) {
-							if (response.startsWith("DISCUZUPLOAD")) {
-								int attachId = -1;
+						mHttpApi.uploadImage(tempFile, new HttpClientCallback() {
+							@Override
+							public void onSuccess(String response) {
+								if (response.startsWith("DISCUZUPLOAD")) {
+									int attachId = -1;
 
-								try {
-									attachId = Integer.valueOf(response.split("\\|")[2]);
-								} catch (Exception e) {
+									try {
+										attachId = Integer.valueOf(response.split("\\|")[2]);
+									} catch (Exception e) {
 
+									}
+
+									if (attachId != -1) {
+										attachIds.add(attachId);
+										mMessageInput.setText(mMessageInput.getText() + "[attachimg]" + attachId + "[/attachimg]");
+									}
 								}
 
-								if (attachId != -1) {
-									attachIds.add(attachId);
-									mMessageInput.setText(mMessageInput.getText() + "[attachimg]" + attachId + "[/attachimg]");
-								}
+								mDialog.dismiss();
 							}
 
-							mDialog.dismiss();
-						}
-
-						@Override
-						public void onFailure(String reason) {
-							showToast(reason);
-						}
-					});
+							@Override
+							public void onFailure(String reason) {
+								showToast("图片上传失败");
+							}
+						});
+					}
 				}
 			}.execute(imageFile);
 		}
@@ -499,15 +504,16 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 	 * @param quality
 	 * @return File
 	 */
-	private File findBestQuality(final File imageFile, int maxSize, int quality) {
+	private File lowerQuality(final File imageFile, int maxSize, int quality) {
 		long fileLength = imageFile.length();
+		File tempFile = null;
+		OutputStream os = null;
 
 		if (fileLength > maxSize) {
 			try {
-				Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
-				File tempDir = this.getCacheDir();
-				File tempFile = File.createTempFile("uzlee-compress", ".jpg", tempDir);
-				OutputStream os = new FileOutputStream(tempFile);
+				Bitmap bitmap = ImageLoader.getInstance().loadImageSync(Uri.fromFile(imageFile).toString());
+				tempFile = File.createTempFile("uzlee-compress", ".jpg", this.getCacheDir());
+				os = new FileOutputStream(tempFile);
 				bitmap.compress(Bitmap.CompressFormat.JPEG, quality, os);
 				os.close();
 				fileLength = tempFile.length();
@@ -517,86 +523,116 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 				return fileLength > maxSize ? null : tempFile;
 			} catch (IOException e) {
 				e.printStackTrace();
-				return null;
+			} finally {
+				if (tempFile != null) {
+					tempFile.deleteOnExit();
+				}
+
+				if (os != null) {
+					try {
+						os.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		} else {
 			return imageFile;
 		}
+
+		return null;
 	}
 
-	private File findBestQuality(final File imageFile, int maxSize) {
+	private File lowerQuality(final File imageFile, int maxSize) {
+		int worst = 60;
 		// Test the worst case.
-		File tempFile = findBestQuality(imageFile, maxSize, 30);
+		File tempFile = lowerQuality(imageFile, maxSize, worst);
 
 		// Find a better one.
 		if (tempFile != null) {
 			int quality = 90;
 
 			do {
-				tempFile = findBestQuality(imageFile, maxSize, quality);
+				tempFile = lowerQuality(imageFile, maxSize, quality);
 				quality -= 15;
-			} while (tempFile == null && quality >= 30);
+			} while (tempFile == null && quality >= worst);
 		}
 
 		return tempFile;
 	}
 
-	private File compressBySize(final File imageFile, int maxSize, float rate) {
-		long fileLength = imageFile.length();
+	private File scaleImage(final File imageFile) {
+		File tempFile = null;
+		OutputStream os = null;
 
-		if (fileLength > maxSize) {
-			try {
-				Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
-				int width = bitmap.getWidth();
-				int height = bitmap.getHeight();
-				width = (int) (width * rate);
-				height = (int) (height * rate);
+		try {
+			Bitmap bitmap;
 
-				File tempDir = this.getCacheDir();
-				File tempFile = File.createTempFile("uzlee-compress", ".jpg", tempDir);
-				Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
-				OutputStream os = new FileOutputStream(tempFile);
-				scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
-				os.close();
-				fileLength = tempFile.length();
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			options.inJustDecodeBounds = true;
+			BitmapFactory.decodeFile(imageFile.getAbsolutePath(), options);
+			int imageHeight = options.outHeight;
+			int imageWidth = options.outWidth;
+			ImageSize imageSize;
 
-				Logger.i("length: %d, height: %d, width: %d", fileLength, height, width);
-
-				return fileLength > maxSize ? null : tempFile;
-			} catch (IOException e) {
-				e.printStackTrace();
-				return null;
+			if (imageWidth < 720 || imageHeight < 720) {
+				imageSize = new ImageSize(imageHeight, imageWidth);
+			} else {
+				if (imageWidth > imageHeight) {
+					imageSize = new ImageSize((int) (720f * imageWidth / imageHeight), 720);
+				} else {
+					imageSize = new ImageSize(720, (int) (720f * imageHeight / imageWidth));
+				}
 			}
-		} else {
-			return imageFile;
+
+			bitmap = ImageLoader.getInstance().loadImageSync(Uri.fromFile(imageFile).toString(), imageSize);
+
+			tempFile = File.createTempFile("uzlee-compress", ".jpg", this.getCacheDir());
+			Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, imageSize.getWidth(), imageSize.getHeight(), true);
+			os = new FileOutputStream(tempFile);
+			scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+			os.close();
+
+			Logger.i("length: %d, height: %d, width: %d", tempFile.length(), imageSize.getWidth(), imageSize.getHeight());
+
+			return tempFile;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			if (tempFile != null) {
+				tempFile.deleteOnExit();
+			}
+
+			if (os != null) {
+				try {
+					os.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
 	/**
 	 * @param imageFile
-	 * @param maxSize
-	 * @param currentRate, 1.0f as the initial value.
+	 * @param maxFileLength
 	 * @return
 	 */
-	private File compressImage(File imageFile, int maxSize, float currentRate) {
-		File tempFile = findBestQuality(imageFile, maxSize);
+	private File compressImage(File imageFile, int maxFileLength) {
+		File outImage;
 
-		if (tempFile != null) {
-			return tempFile;
+		if (imageFile.length() < maxFileLength) {
+			outImage = imageFile;
 		} else {
-			currentRate = currentRate * 0.8f;
-			tempFile = compressBySize(imageFile, maxSize, currentRate);
+			outImage = scaleImage(imageFile);
 
-			if (tempFile == null) {
-				return compressImage(imageFile, maxSize, currentRate);
-			} else {
-				return tempFile;
+			if (outImage.length() >= maxFileLength) {
+				outImage = lowerQuality(outImage, maxFileLength);
 			}
 		}
-	}
 
-	public File compressImage(File imageFile, int maxSize) {
-		return compressImage(imageFile, maxSize, 1.0f);
+		return outImage;
 	}
 
 	public static class Draft {

@@ -84,14 +84,14 @@ public class Parser {
 		Document doc = getDoc(html);
 
 		Elements tds = doc.select("td[id^=image_td_]");
-		ArrayList<Integer> attachIds = new ArrayList<Integer>();
+		ArrayList<String> attachIds = new ArrayList<>();
 
 		for (Element td : tds) {
 			String id = td.id();
 			id = id.substring("image_td_".length());
 
 			try {
-				attachIds.add(Integer.valueOf(id));
+				attachIds.add(id);
 			} catch (Exception e) {
 
 			}
