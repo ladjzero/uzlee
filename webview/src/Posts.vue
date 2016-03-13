@@ -1,6 +1,6 @@
 <template>
-  <ol id="post-list" class="unstyled" v-bind:class="classes" >
-    <li v-for="post in posts" v-show="!prepareRender || ~selected.indexOf(post.postIndex + '')" id="pid-{{post.id}}" class="post" v-bind:class="postClasses" v-on:click="selectPost(post)">
+  <ol id="post-list" class="unstyled" v-bind:class="classes">
+    <li v-for="post in posts" v-show="!prepareRender || ~selected.indexOf(post.postIndex + '')" id="pid-{{post.id}}" class="post" v-bind:class="postClasses" @click="postClick(post, $event)">
       <post :post="post"></post>
       <input v-if="postsStyle.selection" value="{{post.postIndex}}" type="checkbox" v-model="selected" @change="onSelect(selected)"/>
     </li>
@@ -27,13 +27,10 @@ export default {
   components: {
     Post
   },
-  created () {
-    console.log('abcd');
-  },
   methods: {
-    selectPost: function (post) {
-      if (this.postsStyle.selection) {
-        post.selected = !post.selected;
+    postClick: function (post, e) {
+      if (!this.postsStyle.selection && !e.target.classList.contains('content-image')) {
+        UZLEE.onPostClick(post.id);
       }
     }
   }

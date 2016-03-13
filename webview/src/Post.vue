@@ -1,8 +1,7 @@
 <template>
     <div class="post-container">
         <div class="post-header">
-            <div class="profile-wrapper"
-                 data-bind="click: $root.onProfileClick, clickBubble: false">
+            <div class="profile-wrapper" @click="userClick(post.author.id)">
                 <span>{{post.author.name.charAt(0).toUpperCase()}}</span>
                 <div class="profile" id="uid-{{post.author.id}}" v-bind:style="{backgroundImage: 'url(' + post.author.image + ')'}"></div>
             </div>
@@ -42,8 +41,10 @@ export default {
 
     setTimeout(echo.render, 100)
   },
-  created () {
-    console.log('abcd');
+  methods: {
+    userClick: function (uid) {
+      UZLEE.onUserClick(uid)
+    }
   }
 }
 </script>
