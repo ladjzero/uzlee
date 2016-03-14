@@ -20,15 +20,6 @@
 <script>
 import echo from './echo.js'
 
-echo.init({
-  offset: 100,
-  throttle: 250,
-  unload: false,
-  callback: function (element, op) {
-      console.log(element, 'has been', op + 'ed')
-  }
-})
-
 export default {
   props: ['post'],
   compiled: function () {

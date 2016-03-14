@@ -23,6 +23,7 @@ import com.ladjzero.hipda.Forum;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.uzlee.utils.EmojiUtils;
 import com.ladjzero.uzlee.utils.Utils;
+import com.ladjzero.uzlee.utils.VersionComparator;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -51,15 +52,7 @@ public abstract class ActivityBase extends ActionBarActivity {
 	private static final int mTransparenty = android.R.color.transparent;
 	private static List<Forum> mForums = null;
 
-	public static final DisplayImageOptions userImageInList = new DisplayImageOptions.Builder()
-			.delayBeforeLoading(800)
-			.showImageForEmptyUri(mTransparenty)
-			.showImageOnLoading(mTransparenty)
-			.showImageOnFail(mTransparenty)
-			.cacheInMemory(true)
-			.cacheOnDisk(true)
-			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
-			.build();
+
 
 	public static final DisplayImageOptions LowQualityDisplay = new DisplayImageOptions.Builder()
 			.delayBeforeLoading(800)
@@ -116,14 +109,7 @@ public abstract class ActivityBase extends ActionBarActivity {
 		ActionBar mActionbar = getSupportActionBar();
 //		mActionbarHeight = mActionbar.getHeight();
 
-		ImageLoaderConfiguration ilConfig = new ImageLoaderConfiguration.Builder(this)
-				.memoryCacheSizePercentage(50)
-				.defaultDisplayImageOptions(userImageInList).build();
-		ImageLoader.getInstance().init(ilConfig);
-
 		checkUpdate(false);
-
-		setImageNetwork();
 	}
 
 	public void checkUpdate(boolean force) {
@@ -229,61 +215,8 @@ public abstract class ActivityBase extends ActionBarActivity {
 		overridePendingTransition(0, R.anim.push_right_out);
 	}
 
-	private boolean mDisableImageFromNetwork = false;
-
-	protected boolean disableImageFromNetwork() {
-		return mDisableImageFromNetwork;
-//		return true;
-	}
-
-	protected void setImageNetwork() {
-		ConnectivityManager connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
-
-		if (activeNetInfo != null) {
-			boolean isWifi = activeNetInfo.getType() == ConnectivityManager.TYPE_WIFI;
-			boolean loadWifiOnly = setting.getBoolean("enable_image_only_wifi", false);
-
-			mDisableImageFromNetwork = !isWifi && loadWifiOnly;
-
-			ImageLoader.getInstance().denyNetworkDownloads(mDisableImageFromNetwork);
-			Logger.i("wifi %b load when wifi only %b", isWifi, loadWifiOnly);
-		}
-	}
-
 	public void toLoginPage() {
 		Utils.replaceActivity(this, ActivityLogin.class);
-	}
-
-	public static class VersionComparator implements Comparator<String> {
-
-		@Override
-		public int compare(String str1, String str2) {
-			String[] vals1 = str1.split("\\.");
-			String[] vals2 = str2.split("\\.");
-			int i = 0;
-			// set index to first non-equal ordinal or length of shortest version string
-			while (i < vals1.length && i < vals2.length && vals1[i].equals(vals2[i])) {
-				i++;
-			}
-			// compare first non-equal ordinal number
-			if (i < vals1.length && i < vals2.length) {
-				int diff = Integer.valueOf(vals1[i]).compareTo(Integer.valueOf(vals2[i]));
-				return Integer.signum(diff);
-			}
-			// the strings are equal or one string is a substring of the other
-			// e.g. "1.2.3" = "1.2.3" or "1.2.3" < "1.2.3.4"
-			else {
-				return Integer.signum(vals1.length - vals2.length);
-			}
-		}
-	}
-
-	public class ConnectionChangeReceiver extends BroadcastReceiver {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			setImageNetwork();
-		}
 	}
 
 	@Override

@@ -838,6 +838,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		super.onWebViewReady();
 
 		mWebViewReady = true;
+		mWebView.loadUrl("javascript:_postsData.enableEcho(" + getApp().shouldDownloadImage() + ")");
 
 		if (!mIsPushedAfterWebReady) {
 			for (Post post : mPosts) {

@@ -88,6 +88,10 @@
             android:name=".ActivityAbout"
             android:label="关于">
         </activity>
+        <receiver android:name=".ConnectionStatusChangedReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
     </application>
-
 </manifest>

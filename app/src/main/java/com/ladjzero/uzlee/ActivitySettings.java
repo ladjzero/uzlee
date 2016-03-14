@@ -52,10 +52,6 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key.equals("enable_image_only_wifi")) {
-			this.setImageNetwork();
-		}
-
 		if (key.equals("selected_forums")) {
 			Intent intent = new Intent();
 			intent.putExtra("reload", true);

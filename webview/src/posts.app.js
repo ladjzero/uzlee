@@ -1,7 +1,16 @@
 import Vue from 'vue'
 import Posts from './Posts.vue'
+import echo from './echo.js'
 
 let data = window._postsData
+
+window._postsData.enableEcho = function (yes) {
+  yes && echo.init({
+    offset: 100,
+    throttle: 250,
+    unload: false
+  })
+}
 
 Vue.config.debug = true
 

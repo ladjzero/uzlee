@@ -121,10 +121,12 @@ public class WebView2 extends WebView {
 		return bitmap;
 	}
 
-	public static class ImageCacheClient extends WebViewClient {
+	public static abstract class ImageCacheClient extends WebViewClient {
 		protected boolean shouldInterceptRequest(String uri) {
 			return uri.startsWith("http") && (uri.endsWith(".jpg") || uri.endsWith(".jpeg") || uri.endsWith(".png") || uri.endsWith(".gif"));
 		}
+
+		public abstract boolean shouldDownloadImage ();
 
 		@Override
 		public WebResourceResponse shouldInterceptRequest(final WebView view, final String url) {
@@ -144,7 +146,7 @@ public class WebView2 extends WebView {
 					} catch (FileNotFoundException e) {
 						e.printStackTrace();
 					}
-				} else {
+				} else if (shouldDownloadImage()){
 					try {
 						URL imgUrl = new URL(url);
 						InputStream imgIn = imgUrl.openStream();

@@ -93,6 +93,16 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 			webView.addJavascriptInterface(this, "UZLEE");
 			webView.setWebViewClient(new WebView2.ImageCacheClient() {
 				@Override
+				protected boolean shouldInterceptRequest(String uri) {
+					return super.shouldInterceptRequest(uri);
+				}
+
+				@Override
+				public boolean shouldDownloadImage() {
+					return getApp().shouldDownloadImage();
+				}
+
+				@Override
 				public void onPageFinished(WebView view, String url) {
 					Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
 					super.onPageFinished(view, url);
