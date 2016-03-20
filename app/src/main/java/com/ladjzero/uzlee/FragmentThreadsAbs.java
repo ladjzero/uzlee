@@ -57,10 +57,10 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 	@Bind(R.id.error_info)
 	View errorInfo;
 	private ActivityBase mActivity;
-	private boolean mIsFetching = false;
 	private boolean mEnablePullToRefresh;
 	private SlidrInterface slidrInterface;
 	private OnScrollUpOrDown mOnScrollUpOrDown;
+	protected final Model model = new Model();
 
 	@OnClick(R.id.toLogin)
 	void login() {
@@ -253,16 +253,12 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 	}
 
 	public void onThreads(Threads threads) {
-		setRefreshSpinner(false);
-		mThreads.replaceMeta(threads);
-		mIsFetching = false;
+		mThreads.setMeta(threads.getMeta());
 
 		if (threads.size() == 0) {
 			errorInfo.setVisibility(View.VISIBLE);
 		} else {
 			errorInfo.setVisibility(View.GONE);
-
-			setRefreshSpinner(false);
 
 			final Collection<Integer> ids = CollectionUtils.collect(mThreads, new Transformer() {
 				@Override
@@ -323,21 +319,21 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 	}
 
 	public void fetch(int page) {
-		setRefreshSpinner(true);
+		model.setFetchingAndParsing(true);
 		fetchPageAt(page);
 	}
 
 	abstract void fetchPageAt(int page);
 
 	protected void setRefreshSpinner(boolean visible) {
-		Logger.i("visible %b, enable refresh %b, is fetching %b", visible, mEnablePullToRefresh, mIsFetching);
+		Logger.i("visible %b, enable refresh %b, is fetching %b", visible, mEnablePullToRefresh, model.isFetchingAndParsing());
 
 		if (visible) {
 			// Hack. http://stackoverflow.com/questions/26858692/swiperefreshlayout-setrefreshing-not-showing-indicator-initially
 			mSwipe.postDelayed(new Runnable() {
 				@Override
 				public void run() {
-					Logger.i("is fetching %b", mIsFetching);
+					Logger.i("is fetching %b", model.isFetchingAndParsing());
 					mSwipe.setRefreshing(true);
 				}
 			}, 100);
@@ -366,7 +362,7 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 
 		@Override
 		public void onLoadMore(int page, int totalItemsCount) {
-			if (mThreads.hasNextPage()) {
+			if (mThreads.getMeta().hasNextPage()) {
 				mActivity.showToast("载入下一页");
 
 				setRefreshSpinner(true);
@@ -407,5 +403,23 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 			mLastFirstVisibleItem = firstVisibleItem;
 
 		}
+	}
+
+	protected class Model {
+		public boolean isFetchingAndParsing() {
+			return isFetchingAndParsing;
+		}
+
+		public void setFetchingAndParsing(boolean fetchingAndParsing) {
+			isFetchingAndParsing = fetchingAndParsing;
+
+			if (fetchingAndParsing) {
+				setRefreshSpinner(true);
+			} else {
+				setRefreshSpinner(false);
+			}
+		}
+
+		private boolean isFetchingAndParsing;
 	}
 }

@@ -39,8 +39,8 @@ public class ThreadsParser extends Parser {
 
 		Elements nextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]");
 
-		threads.setHasNextPage(nextPage.size() > 0);
-		threads.setPage(currPage);
+		threads.getMeta().setHasNextPage(nextPage.size() > 0);
+		threads.getMeta().setPage(currPage);
 
 		return threads;
 	}
@@ -80,8 +80,8 @@ public class ThreadsParser extends Parser {
 		}
 
 		boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
-		threads.setHasNextPage(hasNextPage);
-		threads.setPage(currPage);
+		threads.getMeta().setHasNextPage(hasNextPage);
+		threads.getMeta().setPage(currPage);
 
 		return threads;
 	}
@@ -125,8 +125,8 @@ public class ThreadsParser extends Parser {
 
 		boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
 
-		threads.setPage(currPage);
-		threads.setHasNextPage(hasNextPage);
+		threads.getMeta().setPage(currPage);
+		threads.getMeta().setHasNextPage(hasNextPage);
 
 		return threads;
 	}
@@ -166,8 +166,8 @@ public class ThreadsParser extends Parser {
 		}
 
 		boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
-		threads.setHasNextPage(hasNextPage);
-		threads.setPage(currPage);
+		threads.getMeta().setHasNextPage(hasNextPage);
+		threads.getMeta().setPage(currPage);
 
 		return threads;
 	}
@@ -200,8 +200,8 @@ public class ThreadsParser extends Parser {
 		}
 
 		boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
-		threads.setHasNextPage(hasNextPage);
-		threads.setPage(currPage);
+		threads.getMeta().setHasNextPage(hasNextPage);
+		threads.getMeta().setPage(currPage);
 
 		return threads;
 	}

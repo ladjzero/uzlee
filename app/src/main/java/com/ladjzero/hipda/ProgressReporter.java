@@ -5,4 +5,5 @@ package com.ladjzero.hipda;
  */
 public interface ProgressReporter {
 	void onProgress(int i, int size, Object o);
+	boolean isCancelled();
 }

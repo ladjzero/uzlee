@@ -8,7 +8,9 @@ import java.io.OutputStream;
  * Created by R9NKCC3 on 2016/2/22.
  */
 public class TeePipe {
-	public static void stream(InputStream in, OutputStream... outs) throws IOException {
+	public static int stream(InputStream in, OutputStream... outs) {
+		int length = 0;
+
 		byte[] buffer = new byte[1024];
 
 		try {
@@ -19,11 +21,14 @@ public class TeePipe {
 					out.write(buffer, 0, len);
 				}
 
+				length += len;
 				len = in.read(buffer);
 			}
+
+			return length;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw(e);
+			return -1;
 		} finally {
 			try {
 				in.close();

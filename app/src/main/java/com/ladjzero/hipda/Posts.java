@@ -7,72 +7,70 @@ import java.util.ArrayList;
  */
 
 public class Posts extends ArrayList<Post> {
-	private int fid;
-	private int page;
-	private int totalPage;
-	private boolean hasNextPage;
-	private int orderType;
-	private String title;
-
-	public void replaceMeta(Posts posts) {
-		this.setFid(posts.getFid());
-		this.setPage(posts.getPage());
-		this.setTotalPage(posts.getTotalPage());
-		this.setOrderType(posts.getOrderType());
-		this.setTitle(posts.getTitle());
+	public Meta getMeta() {
+		return meta;
 	}
 
-	public boolean replace(Posts posts) {
-		replaceMeta(posts);
-		this.clear();
-		return this.addAll(posts);
+	public void setMeta(Meta meta) {
+		this.meta = meta;
 	}
 
-	public int getFid() {
-		return fid;
-	}
+	private Meta meta = new Meta();
 
-	public void setFid(int fid) {
-		this.fid = fid;
-	}
+	public static class Meta {
+		private int fid;
+		private int page;
+		private int totalPage;
+		private boolean hasNextPage;
+		private int orderType;
+		private String title;
 
-	public int getPage() {
-		return page;
-	}
+		public int getFid() {
+			return fid;
+		}
 
-	public void setPage(int page) {
-		this.page = page;
-	}
+		public void setFid(int fid) {
+			this.fid = fid;
+		}
 
-	public int getTotalPage() {
-		return totalPage;
-	}
+		public int getPage() {
+			return page;
+		}
 
-	public void setTotalPage(int totalPage) {
-		this.totalPage = totalPage;
-	}
+		public void setPage(int page) {
+			this.page = page;
+		}
 
-	public boolean isHasNextPage() {
-		return hasNextPage;
-	}
+		public int getTotalPage() {
+			return totalPage;
+		}
 
-	public void setHasNextPage(boolean hasNextPage) {
-		this.hasNextPage = hasNextPage;
-	}
+		public void setTotalPage(int totalPage) {
+			this.totalPage = totalPage;
+		}
 
-	public int getOrderType() {
-		return orderType;
-	}
+		public boolean isHasNextPage() {
+			return hasNextPage;
+		}
 
-	public void setOrderType(int orderType) {
-		this.orderType = orderType;
-	}
+		public void setHasNextPage(boolean hasNextPage) {
+			this.hasNextPage = hasNextPage;
+		}
 
-	public String getTitle() {
-		return title;
-	}
+		public int getOrderType() {
+			return orderType;
+		}
 
-	public void setTitle(String title) {
-		this.title = title;
+		public void setOrderType(int orderType) {
+			this.orderType = orderType;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+
+		public void setTitle(String title) {
+			this.title = title;
+		}
 	}
 }

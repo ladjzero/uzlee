@@ -26,6 +26,7 @@ public class ActivityUser extends ActivityEasySlide {
 	User user;
 	int uid;
 	private LocalApi mLocalApi;
+	private AsyncTask mParseTask;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +66,7 @@ public class ActivityUser extends ActivityEasySlide {
 		getApp().getHttpClient().get("http://www.hi-pda.com/forum/space.php?uid=" + uid, new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
-				new AsyncTask<String, Object, User>() {
+				mParseTask = new AsyncTask<String, Object, User>() {
 					@Override
 					protected User doInBackground(String... strings) {
 						return getCore().getUserParser().parseUser(strings[0]);
@@ -121,7 +122,7 @@ public class ActivityUser extends ActivityEasySlide {
 							mInfo.addView(view);
 						}
 					}
-				}.execute(response);
+				}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
 			}
 
 			@Override
@@ -158,6 +159,15 @@ public class ActivityUser extends ActivityEasySlide {
 		} else {
 			block.setText("加入黑名单");
 			block.setBackgroundResource(R.color.redPrimary);
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+
+		if (mParseTask != null && !mParseTask.isCancelled()) {
+			mParseTask.cancel(true);
 		}
 	}
 

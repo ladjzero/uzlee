@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.LruCache;
+import android.webkit.WebView;
 
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.FontAwesomeModule;
@@ -24,11 +26,17 @@ import com.orhanobut.logger.Logger;
  */
 public class Application2 extends Application implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+	private static Application2 app;
+
 	private LruCache<String, String> mMemCache;
 	private HttpClient2 mHttpClient;
 	private Core mCore;
 	private boolean mShouldDownloadImage;
 	private SharedPreferences mPref;
+
+	public static Application2 getInstance() {
+		return app;
+	}
 
 	public HttpClient2 getHttpClient() {
 		return mHttpClient;
@@ -66,6 +74,12 @@ public class Application2 extends Application implements SharedPreferences.OnSha
 		mPref.registerOnSharedPreferenceChangeListener(this);
 		setImageNetwork();
 
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			WebView.setWebContentsDebuggingEnabled(true);
+		}
+
+		app = this;
+
 		Logger.init();
 	}
 
@@ -88,6 +102,12 @@ public class Application2 extends Application implements SharedPreferences.OnSha
 		if (s.equals(Constants.PREF_KEY_ENABLE_DOWNLOAD_IMAGE)) {
 			setImageNetwork();
 		}
+	}
+
+	@Override
+	public void onLowMemory() {
+		super.onLowMemory();
+		ImageLoader.getInstance().clearMemoryCache();
 	}
 
 	public void setImageNetwork() {

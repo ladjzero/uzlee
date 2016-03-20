@@ -65,6 +65,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 	private InputMethodManager mImeManager;
 	private boolean mIsAnimating = false;
 	private HttpApi mHttpApi;
+	private AsyncTask mImageTask, mParseTask;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -164,7 +165,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 			mHttpApi.getEditBody(fid, tid, pid, new HttpClientCallback() {
 				@Override
 				public void onSuccess(String response) {
-					new AsyncTask<String, Object, Post>() {
+					mParseTask = new AsyncTask<String, Object, Post>() {
 						@Override
 						protected Post doInBackground(String... strings) {
 							return getCore().getPostsParser().parseEditablePost(strings[0]);
@@ -176,7 +177,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 							mMessageInput.setText(post.getBody());
 							progress.dismiss();
 						}
-					}.execute(response);
+					}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
 				}
 
 				@Override
@@ -377,7 +378,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 					.backgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground))
 					.show();
 
-			new AsyncTask<File, Void, File>() {
+			mImageTask = new AsyncTask<File, Void, File>() {
 
 				@Override
 				protected File doInBackground(File... params) {
@@ -420,7 +421,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 						});
 					}
 				}
-			}.execute(imageFile);
+			}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imageFile);
 		}
 	}
 
@@ -489,6 +490,14 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 
 			String json = JSON.toJSONString(draft);
 			getSettings().edit().putString("draft", json).commit();
+		}
+
+		if (mImageTask != null && !mImageTask.isCancelled()) {
+			mImageTask.cancel(true);
+		}
+
+		if (mParseTask != null && !mParseTask.isCancelled()) {
+			mParseTask.cancel(true);
 		}
 
 		super.onDestroy();

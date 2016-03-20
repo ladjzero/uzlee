@@ -17,9 +17,14 @@ public class Parser {
 	private static final String STATS = "论坛统计";
 	private String mCode = CODE_GBK;
 	private ApiStore mStore;
+	protected ProgressReporter mProgressReporter;
 
 	public Parser() {
 		mStore = ApiStore.getStore();
+	}
+
+	public void setProgressReport(ProgressReporter report) {
+		mProgressReporter = report;
 	}
 
 	public Document getDoc(String html) {

@@ -6,27 +6,34 @@ import java.util.ArrayList;
  * Created by chenzhuo on 16-2-11.
  */
 public class Threads extends ArrayList<Thread> {
-	private boolean mHasNextPage;
-	private int mPage;
+	public Threads.Meta meta = new Meta();
 
-	public void replaceMeta(Threads threads) {
-		this.setHasNextPage(threads.hasNextPage());
-		this.setPage(threads.getPage());
+	public Threads.Meta getMeta() {
+		return meta;
 	}
 
-	public boolean hasNextPage() {
-		return mHasNextPage;
+	public void setMeta(Threads.Meta meta) {
+		this.meta = meta;
 	}
 
-	public void setHasNextPage(boolean hasNextPage) {
-		mHasNextPage = hasNextPage;
-	}
+	public static class Meta {
+		private boolean mHasNextPage;
+		private int mPage;
 
-	public int getPage() {
-		return mPage;
-	}
+		public boolean hasNextPage() {
+			return mHasNextPage;
+		}
 
-	public void setPage(int page) {
-		mPage = page;
+		public void setHasNextPage(boolean hasNextPage) {
+			mHasNextPage = hasNextPage;
+		}
+
+		public int getPage() {
+			return mPage;
+		}
+
+		public void setPage(int page) {
+			mPage = page;
+		}
 	}
 }

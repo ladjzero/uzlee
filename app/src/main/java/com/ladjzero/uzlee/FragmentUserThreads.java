@@ -18,6 +18,7 @@ import com.ladjzero.hipda.ThreadsParser;
 public class FragmentUserThreads extends FragmentThreadsAbs {
 
 	private String userName;
+	private AsyncTask mParseTask;
 
 	public static FragmentThreadsAbs newInstance() {
 		return new FragmentUserThreads();
@@ -55,7 +56,7 @@ public class FragmentUserThreads extends FragmentThreadsAbs {
 		getCore().getHttpApi().searchUserThreads(userName, page, new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
-				new AsyncTask<String, Object, Threads>() {
+				mParseTask = new AsyncTask<String, Object, Threads>() {
 					@Override
 					protected Threads doInBackground(String... strings) {
 						return getCore().getThreadsParser().parseThreads(strings[0], getSettings().getBoolean("show_fixed_threads", false));
@@ -65,7 +66,7 @@ public class FragmentUserThreads extends FragmentThreadsAbs {
 					protected void onPostExecute(Threads threads) {
 						onThreads(threads);
 					}
-				}.execute(response);
+				}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
 			}
 
 			@Override
@@ -73,6 +74,15 @@ public class FragmentUserThreads extends FragmentThreadsAbs {
 
 			}
 		});
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+
+		if (mParseTask != null && !mParseTask.isCancelled()) {
+			mParseTask.cancel(true);
+		}
 	}
 
 	@Override

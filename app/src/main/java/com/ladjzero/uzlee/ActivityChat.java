@@ -17,8 +17,12 @@ import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.Posts;
+import com.ladjzero.hipda.Thread;
 import com.ladjzero.uzlee.utils.Utils;
 import com.orhanobut.logger.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -31,6 +35,8 @@ public class ActivityChat extends ActivityWithWebView implements HttpClientCallb
 	private int uid;
 	private String mName;
 	private WebView2 mWebView;
+	private AsyncTask mParseTask;
+	private boolean mWebViewReady;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -129,10 +135,20 @@ public class ActivityChat extends ActivityWithWebView implements HttpClientCallb
 		getApp().getHttpClient().get("http://www.hi-pda.com/forum/pm.php?uid=" + uid + "&filter=privatepm&daterange=5", new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
-				new AsyncTask<String, Void, String>() {
+				mParseTask = new AsyncTask<String, Void, String>() {
 					@Override
 					protected String doInBackground(String... strings) {
-						return getCore().getPostsParser().parseMessagesToHtml(strings[0]);
+						String html = getCore().getPostsParser().parseMessagesToHtml(strings[0]);
+
+						while (!mWebViewReady) {
+							try {
+								java.lang.Thread.sleep(300);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+
+						return html;
 					}
 
 					@Override
@@ -141,7 +157,7 @@ public class ActivityChat extends ActivityWithWebView implements HttpClientCallb
 						Logger.d(js);
 						mWebView.loadUrl(js);
 					}
-				}.execute(response);
+				}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
 			}
 
 			@Override
@@ -150,6 +166,12 @@ public class ActivityChat extends ActivityWithWebView implements HttpClientCallb
 				showToast(reason);
 			}
 		});
+	}
+
+	@Override
+	public void onWebViewReady() {
+		super.onWebViewReady();
+		mWebViewReady = true;
 	}
 
 	@Override
@@ -182,6 +204,15 @@ public class ActivityChat extends ActivityWithWebView implements HttpClientCallb
 				fetch(1);
 			}
 		}, 300);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+
+		if (mParseTask != null && !mParseTask.isCancelled()) {
+			mParseTask.cancel(true);
+		}
 	}
 
 	@Override

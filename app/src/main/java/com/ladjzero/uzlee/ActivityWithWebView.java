@@ -1,41 +1,20 @@
 package com.ladjzero.uzlee;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.view.View;
 import android.os.Bundle;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.utils.Timeline;
-import com.ladjzero.uzlee.stream.TeePipe;
 import com.ladjzero.uzlee.utils.UilUtils;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.ladjzero.uzlee.utils.Utils;
 import com.orhanobut.logger.Logger;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.net.URL;
 
 /**
  * Created by chenzhuo on 15-10-4.
@@ -44,6 +23,7 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 
 	private final static String TAG = "ActivityWithWebView";
 	private boolean initialized;
+	private boolean cancelImage;
 	private Timeline mTimeline = new Timeline();
 
 	@JavascriptInterface
@@ -60,6 +40,12 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 			intent.putExtra("name", name);
 			startActivity(intent);
 		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		cancelImage = true;
 	}
 
 	@JavascriptInterface
@@ -92,9 +78,16 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 
 			webView.addJavascriptInterface(this, "UZLEE");
 			webView.setWebViewClient(new WebView2.ImageCacheClient() {
+
 				@Override
-				protected boolean shouldInterceptRequest(String uri) {
-					return super.shouldInterceptRequest(uri);
+				public void onPageStarted(WebView view, String url, Bitmap favicon) {
+					super.onPageStarted(view, url, favicon);
+					Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
+				}
+
+				@Override
+				protected boolean isCancelled() {
+					return cancelImage;
 				}
 
 				@Override
@@ -134,10 +127,6 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 	public abstract WebView2 getWebView();
 
 	public abstract String getHTMLFilePath();
-
-	public boolean onLinkClick(String url) {
-		return false;
-	}
 
 	@Override
 	public void toolbarClick() {

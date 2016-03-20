@@ -30,6 +30,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 	private OnFragmentInteractionListener mListener;
 	private HttpApi mApi;
 	private ThreadsParser mThreadsParser;
+	private ArrayList<AsyncTask> mTasks;
 	/**
 	 * The fragment's ListView/GridView.
 	 */
@@ -54,6 +55,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 		Bundle args = new Bundle();
 		args.putInt("tab_index", position);
 		fragment.setArguments(args);
+		fragment.mTasks = new ArrayList<>();
 		return fragment;
 	}
 
@@ -125,7 +127,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 							mApi.getOwnThreads(pageToLoad, new HttpClientCallback() {
 								@Override
 								public void onSuccess(String response) {
-									new AsyncTask<String, Object, Threads>() {
+									mTasks.add(new AsyncTask<String, Object, Threads>() {
 										@Override
 										protected Threads doInBackground(String... strings) {
 											return mThreadsParser.parseOwnThreads(strings[0]);
@@ -135,7 +137,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 										protected void onPostExecute(Threads threads) {
 											onThreads(threads);
 										}
-									}.execute(response);
+									}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
 								}
 
 								@Override
@@ -148,7 +150,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 							mApi.getOwnPosts(pageToLoad, new HttpClientCallback() {
 								@Override
 								public void onSuccess(String response) {
-									new AsyncTask<String, Object, Threads>() {
+									mTasks.add(new AsyncTask<String, Object, Threads>() {
 										@Override
 										protected Threads doInBackground(String... strings) {
 											return mThreadsParser.parseOwnPosts(strings[0]);
@@ -158,7 +160,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 										protected void onPostExecute(Threads threads) {
 											onThreads(threads);
 										}
-									}.execute(response);
+									}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
 								}
 
 								@Override
@@ -171,7 +173,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 							mApi.getMarkedThreads(pageToLoad, new HttpClientCallback() {
 								@Override
 								public void onSuccess(String response) {
-									new AsyncTask<String, Object, Threads>() {
+									mTasks.add(new AsyncTask<String, Object, Threads>() {
 										@Override
 										protected Threads doInBackground(String... strings) {
 											return mThreadsParser.parseMarkedThreads(strings[0]);
@@ -181,7 +183,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 										protected void onPostExecute(Threads threads) {
 											onThreads(threads);
 										}
-									}.execute(response);
+									}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
 								}
 
 								@Override
@@ -201,7 +203,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 					mApi.getOwnThreads(pageToLoad, new HttpClientCallback() {
 						@Override
 						public void onSuccess(String response) {
-							new AsyncTask<String, Object, Threads>() {
+							mTasks.add(new AsyncTask<String, Object, Threads>() {
 								@Override
 								protected Threads doInBackground(String... strings) {
 									return mThreadsParser.parseOwnThreads(strings[0]);
@@ -211,7 +213,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 								protected void onPostExecute(Threads threads) {
 									onThreads(threads);
 								}
-							}.execute(response);
+							}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
 						}
 
 						@Override
@@ -224,7 +226,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 					mApi.getOwnPosts(pageToLoad, new HttpClientCallback() {
 						@Override
 						public void onSuccess(String response) {
-							new AsyncTask<String, Object, Threads>() {
+							mTasks.add(new AsyncTask<String, Object, Threads>() {
 								@Override
 								protected Threads doInBackground(String... strings) {
 									return mThreadsParser.parseOwnPosts(strings[0]);
@@ -234,7 +236,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 								protected void onPostExecute(Threads threads) {
 									onThreads(threads);
 								}
-							}.execute(response);
+							}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
 						}
 
 						@Override
@@ -247,7 +249,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 					mApi.getMarkedThreads(pageToLoad, new HttpClientCallback() {
 						@Override
 						public void onSuccess(String response) {
-							new AsyncTask<String, Object, Threads>() {
+							mTasks.add(new AsyncTask<String, Object, Threads>() {
 								@Override
 								protected Threads doInBackground(String... strings) {
 									return mThreadsParser.parseMarkedThreads(strings[0]);
@@ -257,7 +259,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 								protected void onPostExecute(Threads threads) {
 									onThreads(threads);
 								}
-							}.execute(response);
+							}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
 						}
 
 						@Override
@@ -292,6 +294,17 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 		startActivity(intent);
 	}
 
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+
+		for (AsyncTask task : mTasks) {
+			if (task != null && !task.isCancelled()) task.cancel(true);
+		}
+
+		mTasks.clear();
+	}
+
 	/**
 	 * The default content for this Fragment has a TextView that is shown when
 	 * the list is empty. If you would like to change the text, call this method
@@ -306,7 +319,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 	}
 
 	public void onThreads(Threads threads) {
-		pageToLoad = threads.getPage() + 1;
+		pageToLoad = threads.getMeta().getPage() + 1;
 		this.threads.addAll(threads);
 		mAdapter.notifyDataSetChanged();
 		this.hasNextPage = hasNextPage;

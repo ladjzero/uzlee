@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -13,20 +12,17 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.ladjzero.uzlee.stream.TeePipe;
 import com.ladjzero.uzlee.utils.UilUtils;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.orhanobut.logger.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.net.URL;
 
 /**
  * Created by chenzhuo on 16-1-31.
@@ -35,7 +31,6 @@ public class WebView2 extends WebView {
 	private static final String TAG = "WebView2";
 	private final String JS_INTERFACE_NAME = "WebView2";
 	boolean isEverScrolled;
-	private Canvas mCanvas;
 
 	public WebView2(Context context) {
 		super(context);
@@ -86,12 +81,6 @@ public class WebView2 extends WebView {
 		isEverScrolled = true;
 	}
 
-	@Override
-	protected void onDraw(Canvas canvas) {
-		super.onDraw(canvas);
-		mCanvas = canvas;
-	}
-
 	public Bitmap toBitmap() {
 		this.setDrawingCacheEnabled(true);
 		this.buildDrawingCache();
@@ -122,11 +111,15 @@ public class WebView2 extends WebView {
 	}
 
 	public static abstract class ImageCacheClient extends WebViewClient {
+		// Close streams once webview is detached.
+		// Or webview would hung up next time.
+		protected abstract boolean isCancelled();
+
 		protected boolean shouldInterceptRequest(String uri) {
-			return uri.startsWith("http") && (uri.endsWith(".jpg") || uri.endsWith(".jpeg") || uri.endsWith(".png") || uri.endsWith(".gif"));
+			return uri.startsWith("http") && (uri.contains(".jpg") || uri.contains(".jpeg") || uri.contains(".png") || uri.contains(".gif"));
 		}
 
-		public abstract boolean shouldDownloadImage ();
+		public abstract boolean shouldDownloadImage();
 
 		@Override
 		public WebResourceResponse shouldInterceptRequest(final WebView view, final String url) {
@@ -146,29 +139,59 @@ public class WebView2 extends WebView {
 					} catch (FileNotFoundException e) {
 						e.printStackTrace();
 					}
-				} else if (shouldDownloadImage()){
+				} else if (shouldDownloadImage()) {
 					try {
-						URL imgUrl = new URL(url);
-						InputStream imgIn = imgUrl.openStream();
-						FileOutputStream fileOs = new FileOutputStream(cache);
-						PipedInputStream pipeIn = new PipedInputStream();
-						PipedOutputStream pipeOs = new PipedOutputStream(pipeIn);
+						final PipedInputStream pipeIn = new PipedInputStream();
+						final PipedOutputStream pipeOs = new PipedOutputStream(pipeIn);
 
-						new AsyncTask() {
+						new Thread(new Runnable() {
 							@Override
-							protected Object doInBackground(Object[] params) {
+							public void run() {
 								try {
-									TeePipe.stream((InputStream) params[0], (OutputStream) params[1], (OutputStream) params[2]);
-								} catch (IOException e) {
-									Logger.t(TAG).e(e, "stream fail");
-									e.printStackTrace();
-									cache.deleteOnExit();
-									onReceivedError(view, ERROR_IO, "", url);
-								}
+									if (isCancelled()) {
+										pipeOs.close();
+										return;
+									}
 
-								return null;
+									ImageLoader.getInstance().loadImageSync(url);
+									InputStream imgIn = new FileInputStream(cache);
+
+									byte[] buffer = new byte[1024];
+
+									try {
+										int len = imgIn.read(buffer);
+
+										while (len != -1 && !isCancelled()) {
+											pipeOs.write(buffer, 0, len);
+
+											len = imgIn.read(buffer);
+										}
+									} catch (IOException e) {
+										e.printStackTrace();
+									} finally {
+										try {
+											imgIn.close();
+										} catch (IOException e) {
+											e.printStackTrace();
+										}
+
+										try {
+											pipeOs.close();
+										} catch (IOException e) {
+											e.printStackTrace();
+										}
+									}
+								} catch (IOException e) {
+									e.printStackTrace();
+								} finally {
+									try {
+										pipeOs.close();
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+								}
 							}
-						}.execute(imgIn, fileOs, pipeOs);
+						}).start();
 
 						res = new WebResourceResponse(getMimeType(url), "binary", pipeIn);
 					} catch (Exception e) {

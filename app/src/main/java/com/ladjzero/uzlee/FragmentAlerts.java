@@ -35,6 +35,7 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 	private HttpApi mApi;
 	private PostsParser mPostsParser;
 	private ThreadsParser mThreadsParser;
+	private AsyncTask mParseTask1, mParseTask2;
 
 	public static FragmentAlerts newInstance(int position) {
 		FragmentAlerts fragment = new FragmentAlerts();
@@ -100,7 +101,7 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 				mApi.getMessages(new HttpClientCallback() {
 					@Override
 					public void onSuccess(String response) {
-						new AsyncTask<String, Object, Threads>() {
+						mParseTask1 = new AsyncTask<String, Object, Threads>() {
 							@Override
 							protected Threads doInBackground(String... strings) {
 								return mThreadsParser.parseMessages(strings[0]);
@@ -110,7 +111,7 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 							protected void onPostExecute(Threads threads) {
 								mAdapter.addAll(threads);
 							}
-						}.execute(response);
+						}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
 					}
 
 					@Override
@@ -123,7 +124,7 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 				mApi.getMentions(new HttpClientCallback() {
 					@Override
 					public void onSuccess(String response) {
-						new AsyncTask<String, Object, Posts>() {
+						mParseTask2 = new AsyncTask<String, Object, Posts>() {
 							@Override
 							protected Posts doInBackground(String... strings) {
 								return mPostsParser.parseMentions(strings[0]);
@@ -134,7 +135,7 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 								mAdapter.addAll(posts);
 								super.onPostExecute(posts);
 							}
-						}.execute(response);
+						}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
 					}
 
 					@Override
@@ -165,6 +166,19 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 			intent.putExtra("title", post.getTitle());
 			intent.putExtra("pid", post.getId());
 			startActivity(intent);
+		}
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+
+		if (mParseTask1 != null && !mParseTask1.isCancelled()) {
+			mParseTask1.cancel(true);
+		}
+
+		if (mParseTask2 != null && !mParseTask2.isCancelled()) {
+			mParseTask2.cancel(true);
 		}
 	}
 }

@@ -152,9 +152,14 @@ public class PostsParser extends Parser {
 		return new Post().setTitle(title).setBody(editBody);
 	}
 
-	public Posts parsePosts(String html, ProgressReporter progressReporter) {
+	public Posts parsePosts(String html) {
+		if (mProgressReporter != null && mProgressReporter.isCancelled()) return null;
+
 		Posts posts = new Posts();
 		Document doc = getDoc(html);
+
+		if (mProgressReporter != null && mProgressReporter.isCancelled()) return null;
+
 
 		Element eFid = doc.select("#nav a").last();
 		String fidStr = eFid.attr("href");
@@ -165,7 +170,6 @@ public class PostsParser extends Parser {
 			fid = Integer.valueOf(Utils.getUriQueryParameter(fidStr).get("fid"));
 		} catch (Exception e) {
 			e.printStackTrace();
-//			Logger.e(e, "can not parse fid, fidStr is %", fidStr);
 		}
 
 		String title = eFid.nextSibling().toString().replaceAll(" » ", "");
@@ -202,7 +206,8 @@ public class PostsParser extends Parser {
 			Post post;
 			posts.add(post = toPostObj(ePost));
 
-			if (progressReporter != null) progressReporter.onProgress(++i, ePosts.size(), post);
+			if (mProgressReporter != null) mProgressReporter.onProgress(++i, ePosts.size(), post);
+			if (mProgressReporter != null && mProgressReporter.isCancelled()) return null;
 		}
 
 		int currPage = 1;
@@ -214,11 +219,12 @@ public class PostsParser extends Parser {
 
 		boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
 
-		posts.setHasNextPage(hasNextPage);
-		posts.setPage(currPage);
-		posts.setTotalPage(Math.max(totalPage, currPage));
-		posts.setFid(fid);
-		posts.setTitle(title);
+		Posts.Meta meta = posts.getMeta();
+		meta.setHasNextPage(hasNextPage);
+		meta.setPage(currPage);
+		meta.setTotalPage(Math.max(totalPage, currPage));
+		meta.setFid(fid);
+		meta.setTitle(title);
 
 		return posts;
 	}
@@ -284,8 +290,9 @@ public class PostsParser extends Parser {
 			boolean hasNextPage = doc.select("div.pages > a[href$=&page=" + (currPage + 1) + "]").size() > 0;
 
 			// TO-DO
-			mentions.setHasNextPage(hasNextPage);
-			mentions.setPage(currPage);
+			Posts.Meta meta = mentions.getMeta();
+			meta.setHasNextPage(hasNextPage);
+			meta.setPage(currPage);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

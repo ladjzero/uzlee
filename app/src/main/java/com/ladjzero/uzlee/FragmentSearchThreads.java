@@ -14,6 +14,7 @@ import com.ladjzero.hipda.ThreadsParser;
 public class FragmentSearchThreads extends FragmentThreadsAbs {
 
 	private String mQuery;
+	private AsyncTask mParseTask;
 
 	public static FragmentThreadsAbs newInstance() {
 		return new FragmentSearchThreads();
@@ -36,7 +37,7 @@ public class FragmentSearchThreads extends FragmentThreadsAbs {
 			getCore().getHttpApi().searchThreads(mQuery, page, new HttpClientCallback() {
 				@Override
 				public void onSuccess(String response) {
-					new AsyncTask<String, Object, Threads>() {
+					mParseTask = new AsyncTask<String, Object, Threads>() {
 						@Override
 						protected Threads doInBackground(String... strings) {
 							return getCore().getThreadsParser().parseThreads(strings[0], getSettings().getBoolean("show_fixed_threads", false));
@@ -46,7 +47,7 @@ public class FragmentSearchThreads extends FragmentThreadsAbs {
 						protected void onPostExecute(Threads threads) {
 							onThreads(threads);
 						}
-					}.execute(response);
+					}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
 				}
 
 				@Override
@@ -54,6 +55,15 @@ public class FragmentSearchThreads extends FragmentThreadsAbs {
 
 				}
 			});
+		}
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+
+		if (mParseTask != null && !mParseTask.isCancelled()) {
+			mParseTask.cancel(true);
 		}
 	}
 

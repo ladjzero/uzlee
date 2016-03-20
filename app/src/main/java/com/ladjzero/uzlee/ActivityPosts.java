@@ -38,15 +38,12 @@ import com.ladjzero.hipda.HttpApi;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.Post;
-import com.ladjzero.hipda.Posts;
-import com.ladjzero.hipda.PostsParser;
-import com.ladjzero.hipda.ProgressReporter;
 import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.model.ObservablePosts;
 import com.ladjzero.uzlee.utils.CapturePhotoUtils;
 import com.ladjzero.uzlee.utils.NotificationUtils;
+import com.ladjzero.uzlee.utils.ReportableAsyncTask;
 import com.ladjzero.uzlee.utils.Timeline;
-import com.ladjzero.uzlee.utils.UilUtils;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
@@ -87,12 +84,11 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	private int mThreadUserId = 0;
 	private int mTid;
 	private int mPage;
+	// Never assign new value to mPosts!!
 	private ObservablePosts mPosts;
 	private WebView2 mWebView;
-	private boolean mHasNextPage = false;
 	private DiscreteSeekBar mSeekBar;
 	private Menu mMenu;
-	private boolean mIsFetching = false;
 	private View mMenuView;
 	private Dialog mMenuDialog;
 	private boolean mInitToLastPost = false;
@@ -104,34 +100,29 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	private boolean mQuickVisible = true;
 	private boolean isFadingOut = false;
 	private TextView mTitleView;
-	private boolean mWebViewReady = false;
 	private boolean mSkipResumeFetch = false;
 	private boolean mIsPushedAfterWebReady = false;
-	private PostsParser mParser;
 	private HttpClient2 mHttpClient;
 	private HttpApi mHttpApi;
 	private LocalApi mLocalApi;
 	private Timeline mTimeline = new Timeline();
 	private Model model = new Model();
+	private ReportableAsyncTask mParseTask;
 
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
 	}
 
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count) {
-		toggleQuickSend(count + start >= 5);
+		boolean on = count + start >= 5;
+
+		mQuickSend.setTextColor(Utils.getThemeColor(this, on ? R.attr.colorPrimary : R.attr.colorBackgroundSecondary));
+		mQuickSend.setClickable(on);
 	}
 
 	@Override
 	public void afterTextChanged(Editable s) {
-
-	}
-
-	private void toggleQuickSend(boolean on) {
-		mQuickSend.setTextColor(Utils.getThemeColor(this, on ? R.attr.colorPrimary : R.attr.colorBackgroundSecondary));
-		mQuickSend.setClickable(on);
 	}
 
 	// Menu item click.
@@ -205,17 +196,16 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				break;
 			case 4:
 				ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-				ClipData clipData = ClipData.newPlainText("post url", getUri());
+				ClipData clipData = ClipData.newPlainText("post url", getUri(mPage));
 				clipboardManager.setPrimaryClip(clipData);
 				showToast("复制到剪切版");
 				break;
 			case 5:
 				model.setOnSelection(true);
-//				CapturePhotoUtils.insertImage(getContentResolver(), mWebView.toBitmap(), "webview", "webview");
 				break;
 			case 6:
 				Intent intent = new Intent(Intent.ACTION_VIEW);
-				intent.setData(Uri.parse(getUri()));
+				intent.setData(Uri.parse(getUri(mPage)));
 				startActivity(intent);
 				break;
 		}
@@ -223,54 +213,56 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mMenuDialog.dismiss();
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+
+		if (mParseTask != null && !mParseTask.isCancelled()) {
+			mParseTask.cancel(true);
+		}
+	}
+
 	private void fetch(int page) {
 		Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
+
+		model.setFetching(true);
+
+		if (mParseTask != null && !mParseTask.isCancelled()) {
+			mParseTask.cancel(true);
+		}
 
 		try {
 			myid = mLocalApi.getUser().getId();
 		} catch (Exception e) {
 		}
 
-		mIsFetching = true;
-		mProgressView.setProgress(0f);
-		mProgressView.start();
-
-		mPage = page;
-		String url = getUri();
-
-		Logger.i("Fetching: %s", url);
-
 		mPosts.clear();
 
-		Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
+		String url = getUri(page);
+		model.setUrl(url);
 
 		mHttpClient.get(url, new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
-				mPostsView.onRefreshComplete();
-				mIsFetching = false;
-
-				Logger.i("html fetched.");
-
+				Logger.t(Timeline.TAG).i("html fetched.");
+				model.setFetching(false);
 				onHtml(response);
 			}
 
 			@Override
 			public void onFailure(String reason) {
 				Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
-				mIsFetching = false;
-
+				model.setFetching(false);
 				showToast(reason);
-				mPostsView.onRefreshComplete();
 			}
 		});
 	}
 
-	private String getUri() {
+	private String getUri(int page) {
 		if (mPid > 0) {
 			return String.format("http://www.hi-pda.com/forum/redirect.php?goto=findpost&pid=%d&ptid=%d", mPid, mTid);
 		} else {
-			return "http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + mPage + "&ordertype=" + orderType;
+			return "http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + page + "&ordertype=" + orderType;
 		}
 	}
 
@@ -315,12 +307,10 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mThreadUserId = intent.getIntExtra("uid", 0);
 		mInitToLastPost = mPage == 9999;
 
-		mTitleView.setText(intent.getStringExtra("title"));
-
+		model.setTitle(intent.getStringExtra("title"));
 
 		mWebView = (WebView2) mPostsView.getRefreshableView();
 
-		mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
 		mPostsView.setOnRefreshListener(this);
 		mPostsView.setOnPullEventListener(this);
 
@@ -367,10 +357,9 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		mMenuDialog.setCanceledOnTouchOutside(true);
 
-		mPosts = new ObservablePosts(new Posts());
+		mPosts = new ObservablePosts();
 		mPosts.addOnListChangedCallback(new OnListChangedCallback());
 
-		mParser = getCore().getPostsParser();
 		mHttpClient = getApp().getHttpClient();
 		mHttpApi = getCore().getHttpApi();
 		mLocalApi = getCore().getLocalApi();
@@ -381,7 +370,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	public void onResume() {
 		super.onResume();
 
-		if (mPosts.size() == 0 && !mSkipResumeFetch) {
+		if (mPosts.size() == 0 && !mSkipResumeFetch && !model.isFetching()) {
 			fetch(mPage);
 		}
 
@@ -402,7 +391,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 
-		if (!mIsFetching) {
+		if (!model.isFetching()) {
 			if (id == R.id.more) {
 				onKeyDown(KeyEvent.KEYCODE_MENU, null);
 				return true;
@@ -496,92 +485,11 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	}
 
 	private void onHtml(String html) {
-		Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
-
 		if (html != null && html.length() > 0) {
-			new AsyncTask<String, Object, Posts>() {
-				@Override
-				protected Posts doInBackground(String... strings) {
-					return mParser.parsePosts(strings[0], new ProgressReporter() {
-						@Override
-						public void onProgress(int i, int size, Object o) {
-							publishProgress(i, size, o);
-						}
-					});
-				}
+			Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
 
-				// Load the first post as soon as possible.
-				@Override
-				protected void onProgressUpdate(Object... objects) {
-					Post post = (Post) objects[2];
-					if (post.getId() == 1) mThreadUserId = post.getAuthor().getId();
-					post.setIsLz(post.getAuthor().getId() == mThreadUserId);
-					post.setTimeStr(Utils.prettyTime(post.getTimeStr()));
-					mPosts.add(post);
-
-					mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
-					mProgressView.setProgress((Integer) objects[0] * 1.0f / (Integer) objects[1]);
-					Logger.t(Timeline.TAG).i("Parsed one %dms", mTimeline.timeLine());
-				}
-
-				@Override
-				protected void onPostExecute(Posts posts) {
-					Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
-
-					mPosts.replaceMeta(posts);
-					model.setTitle(posts.getTitle());
-					model.setUrl(getUri());
-					mProgressView.stop();
-
-					mIsFetching = false;
-
-					mPage = posts.getPage();
-					int totalPage = posts.getTotalPage(),
-							currPage = posts.getPage();
-
-					mHasNextPage = totalPage > currPage;
-
-					mSeekBar.setMax(totalPage);
-					mSeekBar.setProgress(currPage);
-
-					if (mHasNextPage) {
-						mPostsView.setMode(mPage == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
-					} else {
-						mPostsView.setMode(mPage == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
-					}
-
-					for (Post post : posts) {
-						if (post.getId() == 1) mThreadUserId = post.getAuthor().getId();
-						post.setIsLz(post.getAuthor().getId() == mThreadUserId);
-					}
-
-
-					if (totalPage > 1) {
-						mSeekBar.setMax(totalPage);
-						mSeekBar.setProgress(currPage);
-					} else {
-						mSeekBar.setVisibility(View.GONE);
-					}
-
-					mPage = currPage;
-
-					if (mPid == -1) {
-						mPid = mPosts.get(mPosts.size() - 1).getId();
-					}
-
-					// Locate to the specified post.
-					if (mPid > 0) {
-						mWebView.loadUrl("javascript:scrollToPost(" + mPid + ")");
-						Logger.i("Scrolling to pid-%d", mPid);
-						mPid = 0;
-					}
-
-					if (mInitToLastPost) {
-						mInitToLastPost = false;
-						mWebView.loadUrl("javascript:scrollToPost(" + posts.get(posts.size() - 1).getId() + ")");
-					}
-				}
-			}.execute(html);
+			mParseTask = new TaskPostsParse(mPosts, model);
+			mParseTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, html);
 		} else {
 			showToast("请求失败");
 		}
@@ -590,7 +498,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
 		if (requestCode == EDIT_CODE && resultCode == ActivityEdit.EDIT_SUCCESS) {
-			mIsFetching = true;
+			model.setFetching(true);
 
 			if (returnIntent != null) {
 				String html = returnIntent.getStringExtra("html");
@@ -686,7 +594,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		intent.putExtra("title", myid == uid ? "编辑" : "回复" + (postIndex == 1 ? "楼主" : postIndex + "楼"));
 
 		if (myid == uid) {
-			intent.putExtra("fid", mPosts.getFid());
+			intent.putExtra("fid", mPosts.getMeta().getFid());
 		}
 
 		intent.putExtra("pid", post.getId());
@@ -698,7 +606,8 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		startActivityForResult(intent, EDIT_CODE);
 	}
 
-	public boolean onLinkClick(String href) {
+	@JavascriptInterface
+	public void onLinkClick(String href) {
 		Uri uri = Uri.parse(href);
 
 		if ("www.hi-pda.com".equals(uri.getHost())) {
@@ -739,14 +648,13 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 					startActivity(intent);
 				}
 
-				return true;
+				return;
 			}
 		}
 
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setData(uri);
 		startActivity(intent);
-		return true;
 	}
 
 	@Override
@@ -763,7 +671,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				YoYo.with(Techniques.FadeIn).duration(100).withListener(new Animator.AnimatorListener() {
 					@Override
 					public void onAnimationStart(Animator animation) {
-
 					}
 
 					@Override
@@ -774,12 +681,10 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 					@Override
 					public void onAnimationCancel(Animator animation) {
-
 					}
 
 					@Override
 					public void onAnimationRepeat(Animator animation) {
-
 					}
 				}).playOn(mQuickReplyLayout);
 			}
@@ -796,7 +701,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				YoYo.with(Techniques.FadeOut).duration(100).withListener(new Animator.AnimatorListener() {
 					@Override
 					public void onAnimationStart(Animator animation) {
-
 					}
 
 					@Override
@@ -808,12 +712,10 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 					@Override
 					public void onAnimationCancel(Animator animation) {
-
 					}
 
 					@Override
 					public void onAnimationRepeat(Animator animation) {
-
 					}
 				}).playOn(mQuickReplyLayout);
 
@@ -823,13 +725,13 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@Override
 	public void onPullDownToRefresh(PullToRefreshBase refreshView) {
-		fetch(mPosts.getPage() - 1);
+		fetch(mPosts.getMeta().getPage() - 1);
 		position = 0;
 	}
 
 	@Override
 	public void onPullUpToRefresh(PullToRefreshBase refreshView) {
-		fetch(mPosts.getPage() + 1);
+		fetch(mPosts.getMeta().getPage() + 1);
 		position = 0;
 	}
 
@@ -837,7 +739,8 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	public void onWebViewReady() {
 		super.onWebViewReady();
 
-		mWebViewReady = true;
+		model.setWebviewReady(true);
+
 		mWebView.loadUrl("javascript:_postsData.enableEcho(" + getApp().shouldDownloadImage() + ")");
 
 		if (!mIsPushedAfterWebReady) {
@@ -857,12 +760,100 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		model.setMessage(selection);
 	}
 
-	private class Model {
+	protected class Model {
+		private boolean webviewReady;
 		private boolean isOnSelection;
+		private float parsingPercentage;
+		private boolean isFetching;
+		private boolean isParsing;
 		private boolean toRender;
 		private String title;
 		private String message;
 		private String url;
+
+		public boolean isWebviewReady() {
+			return webviewReady;
+		}
+
+		public void setWebviewReady(boolean webviewReady) {
+			this.webviewReady = webviewReady;
+			setTitle(title);
+			setUrl(url);
+		}
+
+		public float getParsingPercentage() {
+			return parsingPercentage;
+		}
+
+		public void setParsingPercentage(float parsingPercentage) {
+			this.parsingPercentage = parsingPercentage;
+			mProgressView.setProgress(parsingPercentage);
+		}
+
+		public boolean isFetching() {
+			return isFetching;
+		}
+
+		public void setFetching(boolean fetching) {
+			isFetching = fetching;
+
+			if (fetching) {
+				mProgressView.setProgress(0f);
+				mProgressView.start();
+			} else {
+				mPostsView.onRefreshComplete();
+			}
+		}
+
+		public boolean isParsing() {
+			return isParsing;
+		}
+
+		public void setParsing(boolean parsing) {
+			isParsing = parsing;
+
+			if (parsing) {
+				mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
+			} else {
+				if (mPosts.size() > 0) {
+					int lastPostId = mPosts.get(mPosts.size() - 1).getId();
+
+					if (mPid == -1) {
+						mPid = lastPostId;
+					}
+
+					// Locate to the specified post.
+					if (mPid > 0) {
+						mWebView.loadUrl("javascript:scrollToPost(" + mPid + ")");
+						Logger.i("Scrolling to pid-%d", mPid);
+						mPid = 0;
+					}
+
+					if (mInitToLastPost) {
+						mInitToLastPost = false;
+						mWebView.loadUrl("javascript:scrollToPost(" + lastPostId + ")");
+					}
+				}
+
+				int page = mPosts.getMeta().getPage();
+				int totalPage = mPosts.getMeta().getTotalPage();
+
+				if (mPosts.getMeta().isHasNextPage()) {
+					mPostsView.setMode(page == 1 ? PullToRefreshBase.Mode.PULL_FROM_END : PullToRefreshBase.Mode.BOTH);
+				} else {
+					mPostsView.setMode(page == 1 ? PullToRefreshBase.Mode.DISABLED : PullToRefreshBase.Mode.PULL_FROM_START);
+				}
+
+				if (totalPage > 1) {
+					mSeekBar.setMax(totalPage);
+					mSeekBar.setProgress(page);
+				} else {
+					mSeekBar.setVisibility(View.GONE);
+				}
+
+				mProgressView.stop();
+			}
+		}
 
 		public String getMessage() {
 			return message;
@@ -879,7 +870,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		public Model setUrl(String url) {
 			this.url = url;
-			mWebView.loadUrl("javascript:_postsData.url='" + url + "'");
+			if (webviewReady) mWebView.loadUrl("javascript:_postsData.url='" + url + "'");
 			return this;
 		}
 
@@ -889,7 +880,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		public Model setTitle(String title) {
 			this.title = title;
-			mWebView.loadUrl("javascript:_postsData.title='" + title + "'");
+			if (webviewReady) mWebView.loadUrl("javascript:_postsData.title='" + title + "'");
 			mTitleView.setText(title);
 			return this;
 		}
@@ -935,7 +926,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		public void onItemRangeInserted(ObservableList sender, int positionStart, int itemCount) {
 			Logger.i("onItemRangeInserted, positionStart %d itemCount %d", positionStart, itemCount);
 			// Assume that only PUSH operation inserts posts.
-			if (mWebViewReady) {
+			if (model.isWebviewReady()) {
 				for (int i = mIsPushedAfterWebReady ? positionStart : 0; i < positionStart + itemCount; i++) {
 					Post post = (Post) sender.get(i);
 					mWebView.loadUrl("javascript:_postsData.posts.push(" + JSON.toJSONString(post) + ")");

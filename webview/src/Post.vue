@@ -1,7 +1,7 @@
 <template>
     <div class="post-container">
         <div class="post-header">
-            <div class="profile-wrapper" @click="userClick(post.author.id)">
+            <div class="profile-wrapper" @click="userClick(post.author.id, post.author.name, $event)">
                 <span>{{post.author.name.charAt(0).toUpperCase()}}</span>
                 <div class="profile" id="uid-{{post.author.id}}" v-bind:style="{backgroundImage: 'url(' + post.author.image + ')'}"></div>
             </div>
@@ -30,11 +30,23 @@ export default {
       img.src = 'img/placeholder.png'
     });
 
+    let links = this.$el.querySelectorAll('a')
+
+    Array.from(links).forEach(a => a.addEventListener('click', function (e) {
+      e.preventDefault()
+      e.cancelBubble = true
+      e.stopPropagation && e.stopPropagation()
+      UZLEE.onLinkClick(a.href)
+    }))
+
     setTimeout(echo.render, 100)
   },
   methods: {
-    userClick: function (uid) {
-      UZLEE.onUserClick(uid)
+    userClick: function (uid, name, e) {
+      e.preventDefault()
+      e.cancelBubble = true
+      e.stopPropagation && e.stopPropagation()
+      UZLEE.onProfileClick(uid, name)
     }
   }
 }

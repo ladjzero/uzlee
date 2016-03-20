@@ -1,6 +1,5 @@
 package com.ladjzero.uzlee;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -8,10 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.ladjzero.hipda.HttpApi;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.Threads;
-import com.ladjzero.hipda.ThreadsParser;
 
 /**
  * Created by chenzhuo on 15-12-14.
@@ -21,6 +18,7 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 	private int mFid;
 	private int mTypeId;
 	private boolean mVisibleInPager = false;
+	private AsyncTask mParseTask;
 
 	public static FragmentThreadsAbs newInstance() {
 		return new FragmentNormalThreads();
@@ -78,7 +76,7 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 	public void onResume() {
 		super.onResume();
 
-		if (mVisibleInPager && mThreads != null && mThreads.size() == 0) {
+		if (mVisibleInPager && mThreads != null && mThreads.size() == 0 && !model.isFetchingAndParsing()) {
 			fetch(1);
 			mAdapter.notifyDataSetChanged();
 		}
@@ -89,7 +87,7 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 		getCore().getHttpApi().getThreads(page, mFid, mTypeId, getOrder(), new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
-				new AsyncTask<String, Void, Threads>() {
+				mParseTask = new AsyncTask<String, Void, Threads>() {
 					@Override
 					protected Threads doInBackground(String... strings) {
 						return getCore().getThreadsParser().parseThreads(strings[0], getSettings().getBoolean("show_fixed_threads", false));
@@ -97,16 +95,26 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 
 					@Override
 					protected void onPostExecute(Threads threads) {
+						model.setFetchingAndParsing(false);
 						FragmentNormalThreads.this.onThreads(threads);
 					}
-				}.execute(response);
+				}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
 			}
 
 			@Override
 			public void onFailure(String reason) {
-
+				model.setFetchingAndParsing(false);
 			}
 		});
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+
+		if (mParseTask != null && !mParseTask.isCancelled()) {
+			mParseTask.cancel(true);
+		}
 	}
 
 	@Override
