@@ -260,6 +260,10 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 		} else {
 			errorInfo.setVisibility(View.GONE);
 
+			if (threads.getMeta().getPage() == 1) {
+				mThreads.clear();
+			}
+
 			final Collection<Integer> ids = CollectionUtils.collect(mThreads, new Transformer() {
 				@Override
 				public Object transform(Object o) {

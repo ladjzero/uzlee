@@ -15,6 +15,7 @@
     <attr name="colorDivider" format="color"></attr>
     <attr name="switchToTheme" format="string"></attr>
     <attr name="switchToThemeIcon" format="string"></attr>
+    <attr name="imageOpacity" format="float"></attr>
 
     <!--From FlatUI-->
     <color name="blood_dark">#a63124</color>

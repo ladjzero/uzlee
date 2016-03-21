@@ -28,6 +28,8 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 
 	@JavascriptInterface
 	public void onProfileClick(int uid, String name) {
+		if (getWebView().finishActionMode()) return;
+
 		User me = getCore().getLocalApi().getUser();
 
 		if (me == null || me.getId() == 0) {
@@ -50,6 +52,8 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 
 	@JavascriptInterface
 	public void onImageClick(String src) {
+		if (getWebView().finishActionMode()) return;
+
 		Intent intent = new Intent();
 		intent.setAction(Intent.ACTION_VIEW);
 		intent.setDataAndType(Uri.fromFile(UilUtils.getInstance().getFile(src)), "image/*");

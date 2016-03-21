@@ -18,6 +18,7 @@
         <item name="colorDivider">@color/snow_primary</item>
         <item name="switchToTheme">夜间模式</item>
         <item name="switchToThemeIcon">{md-brightness-2}</item>
+        <item name="imageOpacity">1.0</item>
     </style>
 
     <style name="AppBaseTheme.Day.Red">
@@ -84,7 +85,7 @@
         <item name="colorAccent">@color/nightTextPrimary</item>
         <item name="colorSecondary">@color/nightSecondary</item>
         <item name="colorPrimary">@color/nightPrimary</item>
-        <item name="android:colorBackground">#353535</item>
+        <item name="android:colorBackground">#121212</item>
         <item name="colorText">@color/nightTextPrimary</item>
         <item name="colorTextMinor">@color/nightTextMinor</item>
         <item name="colorTextInverse">@color/nightTextPrimary</item>
@@ -101,6 +102,7 @@
         <item name="colorDivider">#3e3e3e</item>
         <item name="switchToTheme">日间模式</item>
         <item name="switchToThemeIcon">{md-brightness-7}</item>
+        <item name="imageOpacity">0.5</item>
     </style>
 
     <style name="AppBaseTheme.NoTransparent">

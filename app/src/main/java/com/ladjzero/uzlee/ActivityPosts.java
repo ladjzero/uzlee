@@ -1,10 +1,8 @@
 package com.ladjzero.uzlee;
 
-import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.ObservableList;
 import android.graphics.Bitmap;
@@ -321,20 +319,20 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mSeekBar.setMin(1);
 		mSeekBar.setOnProgressChangeListener(this);
 
-		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-		alertDialogBuilder
-				.setView(mMenuView)
-				.setOnKeyListener(new DialogInterface.OnKeyListener() {
-					@Override
-					public boolean onKey(DialogInterface dialogInterface, int keyCode, KeyEvent keyEvent) {
-						if (keyCode == KeyEvent.KEYCODE_MENU && keyEvent.getAction() == 0) {
-							mMenuDialog.dismiss();
-							return true;
-						}
-
-						return false;
-					}
-				});
+//		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+//		alertDialogBuilder
+//				.setView(mMenuView)
+//				.setOnKeyListener(new DialogInterface.OnKeyListener() {
+//					@Override
+//					public boolean onKey(DialogInterface dialogInterface, int keyCode, KeyEvent keyEvent) {
+//						if (keyCode == KeyEvent.KEYCODE_MENU && keyEvent.getAction() == 0) {
+//							mMenuDialog.dismiss();
+//							return true;
+//						}
+//
+//						return false;
+//					}
+//				});
 
 		mMenuDialog = new Dialog(this);
 		ListView menuList = (ListView) mMenuView.findViewById(R.id.actions);
@@ -342,20 +340,19 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		menuList.setAdapter(actionsAdapter);
 		menuList.setOnItemClickListener(this);
 
-		mMenuDialog.negativeActionClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mMenuDialog.dismiss();
-			}
-		});
-
 		mMenuDialog.title("")
 				.titleColor(Utils.getThemeColor(this, R.attr.colorText))
 				.backgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground))
 				.negativeAction("取消")
-				.contentView(mMenuView);
+				.negativeActionClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						mMenuDialog.dismiss();
+					}
+				})
+				.contentView(mMenuView)
+				.canceledOnTouchOutside(true);
 
-		mMenuDialog.setCanceledOnTouchOutside(true);
 
 		mPosts = new ObservablePosts();
 		mPosts.addOnListChangedCallback(new OnListChangedCallback());
@@ -570,6 +567,8 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@JavascriptInterface
 	public void onPostClick(final int pid) {
+		if (getWebView().finishActionMode()) return;
+
 		User me = mLocalApi.getUser();
 
 		if (me == null || me.getId() == 0) {
@@ -608,6 +607,8 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@JavascriptInterface
 	public void onLinkClick(String href) {
+		if (getWebView().finishActionMode()) return;
+
 		Uri uri = Uri.parse(href);
 
 		if ("www.hi-pda.com".equals(uri.getHost())) {

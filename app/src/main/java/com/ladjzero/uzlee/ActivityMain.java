@@ -182,17 +182,16 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 
 				final Dialog dialog = new Dialog(this);
 
-				dialog.negativeActionClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						dialog.dismiss();
-					}
-				});
-
 				dialog.title(title)
 						.titleColor(Utils.getThemeColor(this, R.attr.colorText))
 						.backgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground))
 						.negativeAction("取消")
+						.negativeActionClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								dialog.dismiss();
+							}
+						})
 						.contentView(listView)
 						.show();
 

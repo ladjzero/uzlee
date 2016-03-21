@@ -99,8 +99,6 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 			row.setTag(holder);
 		}
 
-		holder.userWrapper.setAlpha("night".equals(mTheme) ? 0.6f : 1);
-
 		final Thread thread = getItem(position);
 		final User author = thread.getAuthor();
 		String imageUrl = author.getImage();

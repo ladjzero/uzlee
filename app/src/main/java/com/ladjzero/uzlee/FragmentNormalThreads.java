@@ -124,8 +124,6 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 
 	@Override
 	public void onRefresh() {
-		mThreads.clear();
-		setRefreshSpinner(true);
 		fetch(1);
 	}
 }

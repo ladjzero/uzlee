@@ -133,10 +133,6 @@ strong i {
     font-style: normal;
 }
 
-strong + br {
-    display: none;
-}
-
 body {
     margin: 0 12px;
 }
@@ -155,7 +151,7 @@ body {
     display: none;
 }
 
-img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
+img[src$="common/back.gif"] {
     display: none!important;
 }
 
@@ -183,9 +179,9 @@ img[src="http://www.hi-pda.com/forum/images/common/back.gif"] {
 
 @each $theme, $primary in $primaries {
     .#{$theme} blockquote {
-        border-left: 4px solid lighten($primary, .2);
+        border-left: 4px solid rgba($primary, .7);
         padding: 12px;
-        margin: 24px 0;
+        margin: 0 24px;
     }
 
     .#{$theme} a {

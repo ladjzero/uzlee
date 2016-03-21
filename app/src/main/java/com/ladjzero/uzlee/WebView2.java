@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.ActionMode;
 import android.view.MotionEvent;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -30,7 +31,8 @@ import java.io.PipedOutputStream;
 public class WebView2 extends WebView {
 	private static final String TAG = "WebView2";
 	private final String JS_INTERFACE_NAME = "WebView2";
-	boolean isEverScrolled;
+	private boolean isEverScrolled;
+	private ActionMode mActionMode;
 
 	public WebView2(Context context) {
 		super(context);
@@ -56,6 +58,22 @@ public class WebView2 extends WebView {
 	public WebView2(Context context, AttributeSet attrs, int defStyleAttr, boolean privateBrowsing) {
 		super(context, attrs, defStyleAttr, privateBrowsing);
 		this.addJavascriptInterface(this, JS_INTERFACE_NAME);
+	}
+
+	public boolean finishActionMode() {
+		if (mActionMode != null) {
+			mActionMode.finish();
+			mActionMode = null;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public ActionMode startActionMode(ActionMode.Callback callback) {
+		mActionMode = super.startActionMode(callback);
+		return mActionMode;
 	}
 
 	@Override

@@ -1,14 +1,11 @@
 package com.ladjzero.uzlee;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
@@ -17,6 +14,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.Core;
@@ -26,12 +25,9 @@ import com.ladjzero.uzlee.utils.EmojiUtils;
 import com.ladjzero.uzlee.utils.Utils;
 import com.ladjzero.uzlee.utils.VersionComparator;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.utils.L;
-import com.orhanobut.logger.Logger;
 import com.rey.material.app.DialogFragment;
 import com.rey.material.app.SimpleDialog;
 import com.tencent.stat.StatService;
@@ -40,10 +36,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 
@@ -52,10 +46,6 @@ public abstract class ActivityBase extends ActionBarActivity {
 	public static final String DefaultTheme = "dark";
 	private static final String TAG = "ActivityBase";
 	private static final int mTransparenty = android.R.color.transparent;
-	private static List<Forum> mForums = null;
-
-
-
 	public static final DisplayImageOptions LowQualityDisplay = new DisplayImageOptions.Builder()
 			.delayBeforeLoading(800)
 			.showImageForEmptyUri(mTransparenty)
@@ -66,6 +56,7 @@ public abstract class ActivityBase extends ActionBarActivity {
 			.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
 			.displayer(new FadeInBitmapDisplayer(300, true, true, false))
 			.build();
+	private static List<Forum> mForums = null;
 
 	static {
 		L.writeLogs(false);
@@ -73,8 +64,41 @@ public abstract class ActivityBase extends ActionBarActivity {
 
 	SharedPreferences setting;
 	EmojiUtils emojiUtils;
-	private int mThemeId;
 	SharedPreferences.OnSharedPreferenceChangeListener prefListener;
+	private int mThemeId;
+
+	public static List<Forum> getForums(Context context) {
+		if (mForums == null) {
+			mForums = buildFromJSON(Utils.readAssetFile(context, "hipda.json"));
+		}
+
+		return mForums;
+	}
+
+	public static List<Forum> buildFromJSON(String json) {
+		List<Forum> forums = JSON.parseArray(json, Forum.class);
+		addALLType(forums);
+
+		return forums;
+	}
+
+	private static void addALLType(List<Forum> forums) {
+		Forum.Type all = new Forum.Type();
+		all.setId(-1);
+		all.setName("所有类别");
+
+		for (Forum f : forums) {
+			List<Forum.Type> types = f.getTypes();
+			List<Forum> children = f.getChildren();
+
+			if (types != null) types.add(0, all);
+			if (children != null) addALLType(children);
+		}
+	}
+
+	public static List<Forum> getFlattenForums(Context context) {
+		return Forum.flatten(getForums(context));
+	}
 
 	public Core getCore() {
 		return getApp().getCore();
@@ -112,6 +136,17 @@ public abstract class ActivityBase extends ActionBarActivity {
 //		mActionbarHeight = mActionbar.getHeight();
 
 		checkUpdate(false);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			try {
+				Window window = getWindow();
+				window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+				window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+				window.setStatusBarColor(Utils.getThemeColor(this, R.attr.colorPrimary));
+			} catch (Throwable t) {
+
+			}
+		}
 	}
 
 	public void checkUpdate(boolean force) {
@@ -181,7 +216,6 @@ public abstract class ActivityBase extends ActionBarActivity {
 		}
 	}
 
-
 	public ActionBar setCustomView(int toolbarId, int customViewLayoutId) {
 		Toolbar toolbar = (Toolbar) findViewById(toolbarId);
 		setSupportActionBar(toolbar);
@@ -235,11 +269,6 @@ public abstract class ActivityBase extends ActionBarActivity {
 		setting.unregisterOnSharedPreferenceChangeListener(prefListener);
 	}
 
-
-	public interface OnToolbarClickListener {
-		void toolbarClick();
-	}
-
 	public Application2 getApp() {
 		return (Application2) getApplication();
 	}
@@ -275,35 +304,7 @@ public abstract class ActivityBase extends ActionBarActivity {
 		return Forum.findByIds(getForums(context), selected);
 	}
 
-	public static List<Forum> getForums(Context context) {
-		if (mForums == null) {
-			mForums = buildFromJSON(Utils.readAssetFile(context, "hipda.json"));
-		}
-
-		return mForums;
-	}
-
-	public static List<Forum> buildFromJSON(String json) {
-		List<Forum> forums = JSON.parseArray(json, Forum.class);
-		addALLType(forums);
-
-		return forums;
-	}
-
-	private static void addALLType(List<Forum> forums) {
-		Forum.Type all = new Forum.Type();
-		all.setId(-1);
-		all.setName("所有类别");
-
-		for (Forum f : forums) {
-			List<Forum.Type> types = f.getTypes();
-			List<Forum> children = f.getChildren();
-
-			if (types != null) types.add(0, all);
-			if (children != null) addALLType(children);
-		}
-	}
-	public static List<Forum> getFlattenForums(Context context) {
-		return Forum.flatten(getForums(context));
+	public interface OnToolbarClickListener {
+		void toolbarClick();
 	}
 }

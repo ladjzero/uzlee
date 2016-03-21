@@ -19,6 +19,7 @@
             android:id="@+id/nav_user_image"
             android:layout_width="60dp"
             android:layout_height="60dp"
+            android:alpha="?attr/imageOpacity"
             android:layout_centerHorizontal="true"
             android:src="@drawable/uzlee_login_icon"
             app:border_color="?attr/colorTextInverse"
