@@ -21,7 +21,6 @@ public class FragmentSearchThreads extends FragmentThreadsAbs {
 	}
 
 	public void updateSearch(String query) {
-		mThreads.clear();
 		mQuery = query;
 		fetch(1);
 	}
@@ -45,6 +44,7 @@ public class FragmentSearchThreads extends FragmentThreadsAbs {
 
 						@Override
 						protected void onPostExecute(Threads threads) {
+							model.setFetchingAndParsing(false);
 							onThreads(threads);
 						}
 					}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
@@ -52,7 +52,7 @@ public class FragmentSearchThreads extends FragmentThreadsAbs {
 
 				@Override
 				public void onFailure(String reason) {
-
+					((ActivityBase) getActivity()).showToast(reason);
 				}
 			});
 		}

@@ -96,7 +96,7 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 					@Override
 					protected void onPostExecute(Threads threads) {
 						model.setFetchingAndParsing(false);
-						FragmentNormalThreads.this.onThreads(threads);
+						onThreads(threads);
 					}
 				}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
 			}

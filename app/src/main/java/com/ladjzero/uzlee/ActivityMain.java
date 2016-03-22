@@ -263,7 +263,12 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.threads, menu);
-		Forum.Type type = mFragment.getCurrentForum().getCurrentType();
+		Forum.Type type = null;
+
+		try {
+			type = mFragment.getCurrentForum().getCurrentType();
+		} catch (Throwable t) {
+		}
 
 		menu.findItem(R.id.thread_publish)
 				.setIcon(new IconDrawable(this, MaterialIcons.md_add)

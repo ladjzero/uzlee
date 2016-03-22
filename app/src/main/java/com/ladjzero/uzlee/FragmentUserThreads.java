@@ -64,6 +64,7 @@ public class FragmentUserThreads extends FragmentThreadsAbs {
 
 					@Override
 					protected void onPostExecute(Threads threads) {
+						model.setFetchingAndParsing(false);
 						onThreads(threads);
 					}
 				}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
