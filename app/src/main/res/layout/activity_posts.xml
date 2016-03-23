@@ -39,7 +39,7 @@
             <RelativeLayout
                 android:layout_width="fill_parent"
                 android:layout_height="@dimen/toolbar_height"
-                android:background="?android:attr/colorBackground"
+                android:background="?attr/colorTextInverse"
                 android:clickable="true">
 
                 <com.joanzapata.iconify.widget.IconTextView
@@ -64,6 +64,7 @@
                     android:layout_marginRight="12dp"
                     android:layout_toLeftOf="@+id/quick_send"
                     android:hint="快速回复"
+                    android:maxLines="1"
                     android:textSize="18sp"
                     app:met_primaryColor="?attr/colorPrimary"/>
             </RelativeLayout>

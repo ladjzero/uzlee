@@ -181,7 +181,7 @@ img[src$="common/back.gif"] {
     .#{$theme} blockquote {
         border-left: 4px solid rgba($primary, .7);
         padding: 12px;
-        margin: 0 24px;
+        margin: 12px 24px;
     }
 
     .#{$theme} a {
