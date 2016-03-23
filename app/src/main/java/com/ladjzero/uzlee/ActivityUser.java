@@ -1,6 +1,7 @@
 package com.ladjzero.uzlee;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -13,25 +14,47 @@ import android.widget.TextView;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.User;
-import com.ladjzero.hipda.UserParser;
+import com.ladjzero.uzlee.utils.UilUtils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class ActivityUser extends ActivityEasySlide {
 
 	LinearLayout mInfo;
 	View chat;
 	Button block;
-	User user;
+	User mUser;
 	int uid;
+	@Bind(R.id.user_info_img)
+	ImageView mImageView;
+	@Bind(R.id.name)
+	TextView mNameView;
+	@Bind(R.id.level)
+	TextView mLevelView;
+	@Bind(R.id.uid)
+	TextView mUid;
 	private LocalApi mLocalApi;
 	private AsyncTask mParseTask;
+	@OnClick(R.id.user_info_img)
+	public void onImageClick() {
+		if (mUser != null) {
+			Intent intent = new Intent();
+			intent.setAction(Intent.ACTION_VIEW);
+			intent.setDataAndType(Uri.fromFile(UilUtils.getInstance().getFile(mUser.getImage())), "image/*");
+			startActivity(intent);
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_user);
+		ButterKnife.bind(this);
 
 		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -46,18 +69,16 @@ public class ActivityUser extends ActivityEasySlide {
 		chat.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (user != null) {
+				if (mUser != null) {
 					Intent intent = new Intent(ActivityUser.this, ActivityChat.class);
-					intent.putExtra("uid", user.getId());
-					intent.putExtra("name", user.getName());
+					intent.putExtra("uid", mUser.getId());
+					intent.putExtra("name", mUser.getName());
 					startActivity(intent);
 				}
 			}
 		});
 
 		uid = getIntent().getIntExtra("uid", 0);
-
-		final ImageView imageView = (ImageView) findViewById(R.id.user_info_img);
 
 		setProgressBarIndeterminateVisibility(true);
 
@@ -74,25 +95,20 @@ public class ActivityUser extends ActivityEasySlide {
 
 					@Override
 					protected void onPostExecute(final User user) {
-						ActivityUser.this.user = user;
+						ActivityUser.this.mUser = user;
 
 						if (user.getId() != mLocalApi.getUser().getId()) {
 							chat.setVisibility(View.VISIBLE);
 							block.setVisibility(View.VISIBLE);
 						}
 
-						setProgressBarIndeterminateVisibility(false);
+						ImageLoader.getInstance().displayImage(user.getImage(), mImageView);
 
-						ImageLoader.getInstance().displayImage(user.getImage(), imageView);
-						TextView name = (TextView) findViewById(R.id.name);
-						TextView level = (TextView) findViewById(R.id.level);
-						TextView uid = (TextView) findViewById(R.id.uid);
-
-						name.setText(user.getName());
+						mNameView.setText(user.getName());
 						setTitle(user.getName());
-						name.getPaint().setFakeBoldText(true);
-						level.setText(user.getLevel());
-						uid.setText("No." + user.getId());
+						mNameView.getPaint().setFakeBoldText(true);
+						mLevelView.setText(user.getLevel());
+						mUid.setText("No." + user.getId());
 
 						for (String kv : propertyToString(user)) {
 							View view = getLayoutInflater().inflate(R.layout.user_info_row, null, false);
