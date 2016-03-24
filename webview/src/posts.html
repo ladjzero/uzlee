@@ -27,11 +27,11 @@
 </head>
 
 <body>
-<h3 id="title" v-if="prepareRender">{{title}}</h3>
+<h3 id="title" v-if="prepareRender" v-show="prepareRender" style="display: none;">{{title}}</h3>
 <posts :posts="posts" :posts-style="postsStyle" :on-select="onSelect" :prepare-render="prepareRender" :selected="selected"></posts>
-<div id="footer" v-if="prepareRender">
+<div id="footer" v-if="prepareRender" v-show="prepareRender" style="display: none;">
   <p>{{url}}</p>
-  <p>From UZLEE</p>
+  <p>来自D版带着爱&nbsp;&nbsp;&nbsp;有只梨</p>
 </div>
 <script src="dist/posts.bundle.js"></script>
 </body>

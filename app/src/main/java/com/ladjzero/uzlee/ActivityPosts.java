@@ -18,6 +18,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.widget.AdapterView;
@@ -319,21 +320,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mSeekBar.setMin(1);
 		mSeekBar.setOnProgressChangeListener(this);
 
-//		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-//		alertDialogBuilder
-//				.setView(mMenuView)
-//				.setOnKeyListener(new DialogInterface.OnKeyListener() {
-//					@Override
-//					public boolean onKey(DialogInterface dialogInterface, int keyCode, KeyEvent keyEvent) {
-//						if (keyCode == KeyEvent.KEYCODE_MENU && keyEvent.getAction() == 0) {
-//							mMenuDialog.dismiss();
-//							return true;
-//						}
-//
-//						return false;
-//					}
-//				});
-
 		mMenuDialog = new Dialog(this);
 		ListView menuList = (ListView) mMenuView.findViewById(R.id.actions);
 		actionsAdapter = new PostActionsAdapter(this);
@@ -423,7 +409,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 						model.setToRender(false);
 					}
-				}, 1000);
+				}, 300);
 			}
 		}
 
@@ -436,7 +422,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent ev) {
-		if (keyCode == KeyEvent.KEYCODE_MENU && (ev == null || ev.getAction() == 0) && mPosts.size() > 0) {
+		if (keyCode == KeyEvent.KEYCODE_MENU && (ev == null || ev.getAction() == MotionEvent.ACTION_DOWN) && !model.isFetching()) {
 			mMenuDialog.show();
 
 			return true;
@@ -446,7 +432,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	}
 
 	public void onQuickReply(View v) {
-//		showToast("send");
 		mQuickEdit.setEnabled(false);
 		mQuickSend.setText("{md-refresh spin}");
 		mQuickSend.setClickable(false);
@@ -666,7 +651,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			getSlidrInterface().unlock();
 			Logger.d("unlock");
 
-
 			if (direction == PullToRefreshBase.Mode.PULL_FROM_END) {
 				Logger.d("Quick Edit FadeIn");
 				YoYo.with(Techniques.FadeIn).duration(100).withListener(new Animator.AnimatorListener() {
@@ -692,7 +676,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		} else {
 			getSlidrInterface().lock();
 			Logger.d("lock");
-
 
 			if (direction == PullToRefreshBase.Mode.PULL_FROM_END && mQuickVisible && !isFadingOut) {
 				Logger.d("Quick Edit FadeOut");
@@ -862,7 +845,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		public void setMessage(String message) {
 			this.message = message;
-			showToast(message);
 		}
 
 		public String getUrl() {
@@ -904,7 +886,11 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		public Model setToRender(boolean toRender) {
 			this.toRender = toRender;
 			mWebView.loadUrl("javascript:_postsData.prepareRender=" + toRender);
-			if (!toRender) {
+
+			if (toRender) {
+				mWebView.loadUrl("javascript:_postsData.postsStyle.theme='dark'");
+			} else {
+				mWebView.loadUrl("javascript:_postsData.postsStyle.theme='" + setting.getString("theme", DefaultTheme) + "'");
 				mWebView.loadUrl("javascript:_postsData.selected.splice(0, _postsData.selected.length)");
 			}
 			return this;
@@ -915,12 +901,10 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		@Override
 		public void onChanged(ObservableList sender) {
-
 		}
 
 		@Override
 		public void onItemRangeChanged(ObservableList sender, int positionStart, int itemCount) {
-
 		}
 
 		@Override
@@ -938,7 +922,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		@Override
 		public void onItemRangeMoved(ObservableList sender, int fromPosition, int toPosition, int itemCount) {
-
 		}
 
 		@Override

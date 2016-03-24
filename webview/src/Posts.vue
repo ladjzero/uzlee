@@ -1,8 +1,8 @@
 <template>
   <ol id="post-list" class="unstyled" v-bind:class="classes">
-    <li v-for="post in posts" v-show="!prepareRender || ~selected.indexOf(post.postIndex + '')" id="pid-{{post.id}}" class="post" v-bind:class="postClasses" @click="postClick(post, $event)">
+    <li v-for="post in posts" v-if="!prepareRender || ~selected.indexOf(post.postIndex + '')" id="pid-{{post.id}}" class="post" v-bind:class="postClasses" @click="postClick(post, $event)">
       <post :post="post"></post>
-      <input v-if="postsStyle.selection" value="{{post.postIndex}}" type="checkbox" v-model="selected" @change="onSelect(selected)"/>
+      <input v-show="postsStyle.selection" value="{{post.postIndex}}" type="checkbox" v-model="selected" @change="onSelect(selected)"/>
     </li>
   </ol>
 </template>
@@ -157,7 +157,7 @@ img[src$="common/back.gif"] {
 
 .body {
     line-height: 1.6;
-    margin: 12px 0 6px;
+    margin: 12px 0;
 }
 
 .pstatus {
