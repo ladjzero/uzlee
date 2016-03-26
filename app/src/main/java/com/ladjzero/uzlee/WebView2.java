@@ -32,7 +32,9 @@ public class WebView2 extends WebView {
 	private static final String TAG = "WebView2";
 	private final String JS_INTERFACE_NAME = "WebView2";
 	private boolean isEverScrolled;
+	private boolean isScrolling;
 	private ActionMode mActionMode;
+	private long ms;
 
 	public WebView2(Context context) {
 		super(context);
@@ -58,6 +60,14 @@ public class WebView2 extends WebView {
 	public WebView2(Context context, AttributeSet attrs, int defStyleAttr, boolean privateBrowsing) {
 		super(context, attrs, defStyleAttr, privateBrowsing);
 		this.addJavascriptInterface(this, JS_INTERFACE_NAME);
+	}
+
+	public boolean isScrolling() {
+		return isScrolling;
+	}
+
+	public void setScrolling(boolean scrolling) {
+		isScrolling = scrolling;
 	}
 
 	public boolean finishActionMode() {
@@ -95,6 +105,19 @@ public class WebView2 extends WebView {
 
 	@Override
 	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
+		long now = System.currentTimeMillis();
+
+		setScrolling(true);
+
+		postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				if (System.currentTimeMillis() - ms > 100) setScrolling(false);
+			}
+		}, 100);
+
+		ms = now;
+
 		super.onScrollChanged(l, t, oldl, oldt);
 		isEverScrolled = true;
 	}

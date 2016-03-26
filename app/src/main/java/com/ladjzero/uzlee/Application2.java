@@ -2,24 +2,31 @@ package com.ladjzero.uzlee;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.LruCache;
 import android.webkit.WebView;
 
+import com.alibaba.fastjson.JSON;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.FontAwesomeModule;
 import com.joanzapata.iconify.fonts.MaterialModule;
 import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.PersistenceAdapter;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.UilUtils;
+import com.ladjzero.uzlee.utils.VersionComparator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.orhanobut.logger.Logger;
+import com.rey.material.app.DialogFragment;
+import com.rey.material.app.SimpleDialog;
 
 /**
  * Created by ladjzero on 2015/1/2.

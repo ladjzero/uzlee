@@ -3,6 +3,10 @@ package com.ladjzero.uzlee;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.media.MediaActionSound;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
@@ -17,6 +21,7 @@ import android.widget.TextView;
 
 import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.utils.NotificationUtils;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -228,6 +233,22 @@ public class FragmentNav extends FragmentBase implements Observer {
 					mAlertIcon.setTextColor(unread == 0 ?
 							Utils.getThemeColor(mContext, R.attr.colorText) :
 							Utils.getColor(mContext, R.color.commentNoBg));
+
+					// To-do next version.
+//					if (unread > 0) {
+//						NotificationUtils.Notification noti = new NotificationUtils.Notification();
+//						noti.intent = new Intent(getActivity(), ActivityAlerts.class);
+//						noti.title = "你有新消息";
+//						noti.text = unread + "条未读消息";
+//						try {
+//							Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+//							Ringtone r = RingtoneManager.getRingtone(getActivity(), notification);
+//							r.play();
+//						} catch (Exception e) {
+//							e.printStackTrace();
+//						}
+//						NotificationUtils.nofity(getActivity(), noti);
+//					}
 				}
 			}
 		});

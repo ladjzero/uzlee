@@ -35,7 +35,11 @@ public class HttpClient2 extends HttpClient {
 
 	@Override
 	public void get(String url, final HttpClientCallback callback) {
-		mAsyncHttpClient.get(url, new RequestParams(), new TextHttpResponseHandler(getCode()) {
+		get(url, getCode(), callback);
+	}
+
+	public void get(String url, String code, final HttpClientCallback callback) {
+		mAsyncHttpClient.get(url, new RequestParams(), new TextHttpResponseHandler(code) {
 
 			@Override
 			public void onFailure(int i, Header[] headers, String s, Throwable throwable) {

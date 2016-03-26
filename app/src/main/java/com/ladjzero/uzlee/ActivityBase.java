@@ -21,6 +21,7 @@ import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
 import com.ladjzero.hipda.HttpClientCallback;
+import com.ladjzero.uzlee.model.Version;
 import com.ladjzero.uzlee.utils.EmojiUtils;
 import com.ladjzero.uzlee.utils.Utils;
 import com.ladjzero.uzlee.utils.VersionComparator;
@@ -36,6 +37,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -154,35 +156,36 @@ public abstract class ActivityBase extends ActionBarActivity {
 		Long now = System.currentTimeMillis();
 
 		if (force || now - lastCheck > 12 * 3600 * 1000) {
-			getApp().getHttpClient().get("https://raw.githubusercontent.com/ladjzero/uzlee/master/release/update.json", new HttpClientCallback() {
+			getApp().getHttpClient().get("http://ladjzero.me/uzlee/js/version.json", "utf-8",new HttpClientCallback() {
 				@Override
 				public void onSuccess(String response) {
-					RemotePackageInfo info = null;
+					List<Version> info = null;
 
 					try {
-						info = JSON.parseObject(response, RemotePackageInfo.class);
+						info = JSON.parseArray(response, Version.class);
 					} catch (Exception e) {
-
+						e.printStackTrace();
 					}
 
 					if (info != null) {
 						String version = getVersion();
-						String newVersion = info.getVersion();
+						String newVersion = String.valueOf(info.get(0).getV());
 
 						if (new VersionComparator().compare(version, newVersion) < 0) {
-							final RemotePackageInfo finalInfo = info;
+							final List<Version> finalInfo = info;
 							SimpleDialog.Builder builder = new SimpleDialog.Builder(R.style.Material_App_Dialog_Simple_Light) {
 
 								@Override
 								public void onPositiveActionClicked(DialogFragment fragment) {
-									Uri uri = Uri.parse(finalInfo.getUri());
+									Uri uri = Uri.parse(finalInfo.get(0).getUrl());
 									Intent downloadIntent = new Intent(Intent.ACTION_VIEW, uri);
 									startActivity(downloadIntent);
 								}
 							};
 
-							builder.message(info.getInfo())
-									.positiveAction(getString(R.string.download));
+							builder.message(StringUtils.join(info.get(0).getLogs(), "\n\n"))
+									.positiveAction(getString(R.string.download))
+									.title("新的版本 v" + info.get(0).getV());
 
 							DialogFragment dialog = DialogFragment.newInstance(builder);
 

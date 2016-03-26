@@ -267,7 +267,9 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 			about.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					Utils.gotoActivity(mActivity, ActivityAbout.class);
+					Intent intent = new Intent(Intent.ACTION_VIEW);
+					intent.setData(Uri.parse("http://ladjzero.me/uzlee/"));
+					startActivity(intent);
 					return true;
 				}
 			});

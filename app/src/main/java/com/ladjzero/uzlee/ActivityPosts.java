@@ -107,6 +107,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	private Timeline mTimeline = new Timeline();
 	private Model model = new Model();
 	private ReportableAsyncTask mParseTask;
+	private long ms;
 
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -409,7 +410,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 						model.setToRender(false);
 					}
-				}, 300);
+				}, 600);
 			}
 		}
 
@@ -552,21 +553,31 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@JavascriptInterface
 	public void onPostClick(final int pid) {
-		if (getWebView().finishActionMode()) return;
+		if (getWebView().finishActionMode() || getWebView().isScrolling()) return;
 
-		User me = mLocalApi.getUser();
+		if (ms == 0) {
+			User me = mLocalApi.getUser();
 
-		if (me == null || me.getId() == 0) {
-			showToast(getResources().getString(R.string.error_login_required));
-		} else {
-			startEditActivity((Post) CollectionUtils.find(mPosts, new Predicate() {
-				@Override
-				public boolean evaluate(Object o) {
-					return ((Post) o).getId() == pid;
-				}
-			}));
+			if (me == null || me.getId() == 0) {
+				showToast(getResources().getString(R.string.error_login_required));
+			} else {
+				startEditActivity((Post) CollectionUtils.find(mPosts, new Predicate() {
+					@Override
+					public boolean evaluate(Object o) {
+						return ((Post) o).getId() == pid;
+					}
+				}));
+			}
 		}
 
+		ms = System.currentTimeMillis();
+
+		getWebView().postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				if (System.currentTimeMillis() - ms >= 1000) ms = 0;
+			}
+		}, 1000);
 	}
 
 	private void startEditActivity(Post post) {
@@ -592,7 +603,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@JavascriptInterface
 	public void onLinkClick(String href) {
-		if (getWebView().finishActionMode()) return;
+		if (getWebView().finishActionMode() || getWebView().isScrolling()) return;
 
 		Uri uri = Uri.parse(href);
 
