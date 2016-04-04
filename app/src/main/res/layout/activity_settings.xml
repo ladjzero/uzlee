@@ -6,10 +6,9 @@
 
     <include layout="@layout/toolbar"></include>
 
-    <fragment
+    <FrameLayout
         android:id="@+id/content"
-        android:name="com.ladjzero.uzlee.ActivitySettings$SettingFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"></fragment>
+        android:layout_height="wrap_content"></FrameLayout>
 
 </LinearLayout>

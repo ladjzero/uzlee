@@ -33,13 +33,15 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		mHttpApi = getCore().getHttpApi();
 		mLocalApi = getCore().getLocalApi();
 		mHttpClient = getApp().getHttpClient();
 
+		super.onCreate(savedInstanceState);
+
 		setTitle("设置");
 		setContentView(R.layout.activity_settings);
+
 		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
 		ActionBar actionBar = getSupportActionBar();
@@ -85,7 +87,6 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 
 	public static class SettingFragment extends PreferenceFragment {
 		private ActivityBase mActivity;
-
 
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
@@ -214,6 +215,8 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 				case 1500:
 					imgSizePref.setSummary("1.5MB");
 					break;
+				case 3000:
+					imgSizePref.setSummary("3MB");
 			}
 			imgSizePref.setOnPreferenceClickListener(new ImgSizeClickListener((ActivityBase) getActivity(), "图片大小", Constants.PREF_KEY_IMG_SIZE, R.layout.picker_image_size) {
 				@Override
@@ -342,6 +345,11 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 			setImageSize(1500);
 		}
 
+		@OnClick(R.id.img_bigger_size)
+		void setImageBiggerSize() {
+			setImageSize(3000);
+		}
+
 		void setImageSize(int size) {
 			switch (size) {
 				case 300:
@@ -353,6 +361,8 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 				case 1500:
 					onSelect("1.5MB");
 					break;
+				case 3000:
+					onSelect("3MB");
 			}
 
 			context.getSettings().edit().putInt("img_size", size).commit();

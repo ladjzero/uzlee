@@ -1,8 +1,17 @@
 import Vue from 'vue'
+import './fling.js'
 import Posts from './Posts.vue'
 import echo from './echo.js'
 
 let data = window._postsData
+
+window.onScrollStateChange = function (state) {
+  if (state == 'start') {
+    window.isScrolling = true
+  } else if (state == 'end') {
+    window.isScrolling = false
+  }
+}
 
 window._postsData.enableEcho = function (yes) {
   yes && echo.init({
@@ -24,7 +33,7 @@ new Vue({
 
 document.addEventListener('click', function (e) {
   if (e.target.classList.contains('content-image') && e.target.src.indexOf('http') > -1) {
-    UZLEE.onImageClick(e.target.src);
+    !window.isScrolling && UZLEE.onImageClick(e.target.src);
   }
 })
 

@@ -11,14 +11,4 @@
         android:divider="@null"
         android:layout_height="wrap_content"/>
 
-    <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
-        android:id="@+id/seekbar"
-        android:layout_width="@dimen/menu_dialog_width"
-        android:layout_height="54dp"
-        android:gravity="center"
-        android:padding="10dp"
-        app:dsb_indicatorColor="?attr/colorPrimary"
-        app:dsb_progressColor="?attr/colorPrimary"
-        app:dsb_trackColor="@color/nightTextPrimary"/>
-
 </LinearLayout>

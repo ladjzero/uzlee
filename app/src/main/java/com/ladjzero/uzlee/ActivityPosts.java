@@ -553,7 +553,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@JavascriptInterface
 	public void onPostClick(final int pid) {
-		if (getWebView().finishActionMode() || getWebView().isScrolling()) return;
+		if (getWebView().finishActionMode()) return;
 
 		if (ms == 0) {
 			User me = mLocalApi.getUser();
@@ -603,7 +603,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@JavascriptInterface
 	public void onLinkClick(String href) {
-		if (getWebView().finishActionMode() || getWebView().isScrolling()) return;
+		if (getWebView().finishActionMode()) return;
 
 		Uri uri = Uri.parse(href);
 

@@ -29,7 +29,7 @@ export default {
   },
   methods: {
     postClick: function (post, e) {
-      if (!this.postsStyle.selection && !e.target.classList.contains('content-image')) {
+      if (!window.isScrolling && !this.postsStyle.selection && !e.target.classList.contains('content-image')) {
         UZLEE.onPostClick(post.id);
       }
     }

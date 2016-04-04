@@ -151,7 +151,8 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 		final Thread thread = mAdapter.getItem(position);
 		final Dialog dialog = new Dialog(mActivity);
-		ListView listView = new ListView(mActivity);
+		View v = LayoutInflater.from(getActivity()).inflate(R.layout.threads_actions_dialog, null);
+		ListView listView = (ListView) v.findViewById(R.id.actions);
 		listView.setDivider(null);
 		listView.setAdapter(new ArrayAdapter<>(mActivity, R.layout.list_item_of_dialog, R.id.text, new String[]{"复制标题", "查看最新回复"}));
 		dialog.negativeActionClickListener(new View.OnClickListener() {
@@ -164,8 +165,7 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 		dialog.title("")
 				.titleColor(Utils.getThemeColor(mActivity, R.attr.colorText))
 				.backgroundColor(Utils.getThemeColor(mActivity, android.R.attr.colorBackground))
-//				.negativeAction("取消")
-				.contentView(listView)
+				.contentView(v)
 				.show();
 
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -279,46 +279,6 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 			}));
 
 			mAdapter.notifyDataSetChanged();
-		}
-	}
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-		menu.add(0, 1, 0, "复制标题");
-		menu.add(0, 2, 0, "查看最新回复");
-		super.onCreateContextMenu(menu, v, menuInfo);
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		if (getUserVisibleHint()) {
-			AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-			Thread thread = mAdapter.getItem(info.position);
-
-			switch (item.getItemId()) {
-				case 1:
-
-					ClipboardManager clipboardManager = (ClipboardManager) mActivity.getSystemService(Context.CLIPBOARD_SERVICE);
-					StringBuilder builder = new StringBuilder();
-
-					ClipData clipData = ClipData.newPlainText("post content", thread.getTitle());
-					clipboardManager.setPrimaryClip(clipData);
-					mActivity.showToast("复制到剪切版");
-					break;
-				case 2:
-
-					Intent intent = new Intent(mActivity, ActivityPosts.class);
-					intent.putExtra("tid", thread.getId());
-					intent.putExtra("page", 9999);
-					intent.putExtra("title", thread.getTitle());
-					intent.putExtra("uid", thread.getAuthor().getId());
-
-					startActivity(intent);
-			}
-
-			return super.onContextItemSelected(item);
-		} else {
-			return false;
 		}
 	}
 

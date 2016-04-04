@@ -28,7 +28,7 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 
 	@JavascriptInterface
 	public void onProfileClick(int uid, String name) {
-		if (getWebView().finishActionMode() || getWebView().isScrolling()) return;
+		if (getWebView().finishActionMode()) return;
 
 		User me = getCore().getLocalApi().getUser();
 
@@ -52,7 +52,7 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 
 	@JavascriptInterface
 	public void onImageClick(String src) {
-		if (getWebView().finishActionMode() || getWebView().isScrolling()) return;
+		if (getWebView().finishActionMode()) return;
 
 		Intent intent = new Intent();
 		intent.setAction(Intent.ACTION_VIEW);

@@ -4,7 +4,7 @@
             android:layout_height="match_parent">
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="@dimen/menu_dialog_width"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
@@ -44,5 +44,16 @@
             android:text="1.5MB"
             android:textSize="20dp" />
 
+        <TextView
+            android:id="@+id/img_bigger_size"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingBottom="6dp"
+            android:paddingLeft="48dp"
+            android:paddingRight="48dp"
+            android:paddingTop="6dp"
+            android:text="3MB"
+            android:textSize="20dp" />
     </LinearLayout>
 </ScrollView>

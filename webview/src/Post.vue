@@ -36,7 +36,7 @@ export default {
       e.preventDefault()
       e.cancelBubble = true
       e.stopPropagation && e.stopPropagation()
-      UZLEE.onLinkClick(a.href)
+      !window.isScrolling && UZLEE.onLinkClick(a.href)
     }))
 
     setTimeout(echo.render, 100)
@@ -46,7 +46,7 @@ export default {
       e.preventDefault()
       e.cancelBubble = true
       e.stopPropagation && e.stopPropagation()
-      UZLEE.onProfileClick(uid, name)
+      !window.isScrolling && UZLEE.onProfileClick(uid, name)
     }
   }
 }

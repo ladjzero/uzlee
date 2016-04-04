@@ -7,7 +7,7 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
  * Created by chenzhuo on 16-3-12.
  */
 public class Constants {
-	public static int DEFAULT_IMAGE_UPLOAD_SIZE = 1500; // KB
+	public static int DEFAULT_IMAGE_UPLOAD_SIZE = 3000; // KB
 	public static String PREF_KEY_IMG_SIZE = "img_size";
 	public static String PREF_KEY_ENABLE_DOWNLOAD_IMAGE = "enable_image_only_wifi";
 
