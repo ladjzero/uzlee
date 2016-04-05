@@ -22,6 +22,7 @@ public class FragmentSearchThreads extends FragmentThreadsAbs {
 
 	public void updateSearch(String query) {
 		mQuery = query;
+		getApp().getMemCache().put("search_key", mQuery);
 		fetch(1);
 	}
 
@@ -69,6 +70,6 @@ public class FragmentSearchThreads extends FragmentThreadsAbs {
 
 	@Override
 	protected String keyOfThreadsToCache() {
-		return "threads-search-query-" + mQuery;
+		return "threads-search-query-" + getApp().getMemCache().get("search_key");
 	}
 }

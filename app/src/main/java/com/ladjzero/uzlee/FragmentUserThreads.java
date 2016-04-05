@@ -35,6 +35,7 @@ public class FragmentUserThreads extends FragmentThreadsAbs {
 		Bundle args = getArguments();
 
 		userName = args.getString("userName");
+		getApp().getMemCache().put("search_key", userName);
 
 		assert userName != null;
 
@@ -88,6 +89,6 @@ public class FragmentUserThreads extends FragmentThreadsAbs {
 
 	@Override
 	protected String keyOfThreadsToCache() {
-		return "threads-user-name-" + userName;
+		return "threads-user-name-" + getApp().getMemCache().get("search_key");
 	}
 }

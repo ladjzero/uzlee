@@ -1,6 +1,7 @@
 package com.ladjzero.uzlee;
 
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 public class ActivityMyPosts extends ActivityPagerBase {
@@ -32,5 +33,13 @@ public class ActivityMyPosts extends ActivityPagerBase {
 				return "收藏";
 		}
 		return null;
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		getApp().getMemCache().remove("simple_threads_tab_0");
+		getApp().getMemCache().remove("simple_threads_tab_1");
+		getApp().getMemCache().remove("simple_threads_tab_2");
 	}
 }

@@ -1,6 +1,7 @@
 package com.ladjzero.uzlee;
 
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 public class ActivityAlerts extends ActivityPagerBase {
@@ -30,5 +31,12 @@ public class ActivityAlerts extends ActivityPagerBase {
 				return "提醒";
 		}
 		return null;
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		getApp().getMemCache().remove("alerts_tab_0");
+		getApp().getMemCache().remove("alerts_tab_1");
 	}
 }

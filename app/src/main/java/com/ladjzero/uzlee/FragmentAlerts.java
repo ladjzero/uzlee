@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.HttpApi;
 import com.ladjzero.hipda.HttpClientCallback;
@@ -23,6 +24,7 @@ import com.ladjzero.hipda.Threads;
 import com.ladjzero.hipda.ThreadsParser;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by ladjzero on 2015/1/1.
@@ -36,6 +38,8 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 	private PostsParser mPostsParser;
 	private ThreadsParser mThreadsParser;
 	private AsyncTask mParseTask1, mParseTask2;
+	private Threads mThreads;
+	private Posts mPosts;
 
 	public static FragmentAlerts newInstance(int position) {
 		FragmentAlerts fragment = new FragmentAlerts();
@@ -50,6 +54,22 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 		super.onCreate(savedInstanceState);
 
 		tabIndex = getArguments().getInt("tab_index");
+
+		try {
+			if (tabIndex == 0) {
+				mThreads = new Threads();
+				String cached = getApp().getMemCache().get("alerts_tab_" + tabIndex);
+				List<Thread> ts = JSON.parseArray(cached, Thread.class);
+				mThreads.addAll(ts);
+			} else {
+				mPosts = new Posts();
+				String cached = getApp().getMemCache().get("alerts_tab_" + tabIndex);
+				List<Post> ps = JSON.parseArray(cached, Post.class);
+				mPosts.addAll(ps);
+			}
+		} catch (Exception e) {
+
+		}
 
 		switch (tabIndex) {
 			case 0:
@@ -98,51 +118,62 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 
 		switch (tabIndex) {
 			case 0:
-				mApi.getMessages(new HttpClientCallback() {
-					@Override
-					public void onSuccess(String response) {
-						mParseTask1 = new AsyncTask<String, Object, Threads>() {
-							@Override
-							protected Threads doInBackground(String... strings) {
-								return mThreadsParser.parseMessages(strings[0]);
-							}
+				if (mThreads.size() == 0) {
+					mApi.getMessages(new HttpClientCallback() {
+						@Override
+						public void onSuccess(String response) {
+							mParseTask1 = new AsyncTask<String, Object, Threads>() {
+								@Override
+								protected Threads doInBackground(String... strings) {
+									return mThreadsParser.parseMessages(strings[0]);
+								}
 
-							@Override
-							protected void onPostExecute(Threads threads) {
-								mAdapter.addAll(threads);
-							}
-						}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
-					}
+								@Override
+								protected void onPostExecute(Threads threads) {
+									mThreads.addAll(threads);
+									mAdapter.addAll(threads);
+								}
+							}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
+						}
 
-					@Override
-					public void onFailure(String reason) {
-						((ActivityBase) getActivity()).showToast(reason);
-					}
-				});
+						@Override
+						public void onFailure(String reason) {
+							((ActivityBase) getActivity()).showToast(reason);
+						}
+					});
+				} else {
+					mAdapter.addAll(mThreads);
+				}
+
 				break;
 			case 1:
-				mApi.getMentions(new HttpClientCallback() {
-					@Override
-					public void onSuccess(String response) {
-						mParseTask2 = new AsyncTask<String, Object, Posts>() {
-							@Override
-							protected Posts doInBackground(String... strings) {
-								return mPostsParser.parseMentions(strings[0]);
-							}
+				if (mPosts.size() == 0) {
+					mApi.getMentions(new HttpClientCallback() {
+						@Override
+						public void onSuccess(String response) {
+							mParseTask2 = new AsyncTask<String, Object, Posts>() {
+								@Override
+								protected Posts doInBackground(String... strings) {
+									return mPostsParser.parseMentions(strings[0]);
+								}
 
-							@Override
-							protected void onPostExecute(Posts posts) {
-								mAdapter.addAll(posts);
-								super.onPostExecute(posts);
-							}
-						}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
-					}
+								@Override
+								protected void onPostExecute(Posts posts) {
+									mPosts.addAll(posts);
+									mAdapter.addAll(posts);
+								}
+							}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
+						}
 
-					@Override
-					public void onFailure(String reason) {
-						((ActivityBase) getActivity()).showToast(reason);
-					}
-				});
+						@Override
+						public void onFailure(String reason) {
+							((ActivityBase) getActivity()).showToast(reason);
+						}
+					});
+				} else {
+					mAdapter.addAll(mPosts);
+				}
+
 				break;
 		}
 
@@ -179,6 +210,12 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 
 		if (mParseTask2 != null && !mParseTask2.isCancelled()) {
 			mParseTask2.cancel(true);
+		}
+
+		if (tabIndex == 0) {
+			getApp().getMemCache().put("alerts_tab_" + tabIndex, JSON.toJSONString(mThreads));
+		} else {
+			getApp().getMemCache().put("alerts_tab_" + tabIndex, JSON.toJSONString(mPosts));
 		}
 	}
 }

@@ -84,7 +84,7 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mActivity = (ActivityBase) getActivity();
 
-		LruCache<String, String> cache = ((Application2) getActivity().getApplication()).getMemCache();
+		LruCache<String, String> cache = getApp().getMemCache();
 		String cached = cache.get(keyOfThreadsToCache());
 		List<Thread> threads = null;
 
@@ -201,7 +201,7 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 
 	@Override
 	public void onDestroyView() {
-		LruCache<String, String> cache = ((Application2) getActivity().getApplication()).getMemCache();
+		LruCache<String, String> cache = getApp().getMemCache();
 		String toCache = JSON.toJSONString(mThreads);
 
 		if (toCache != null) {

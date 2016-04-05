@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.HttpApi;
 import com.ladjzero.hipda.HttpClientCallback;
@@ -19,15 +20,13 @@ import com.ladjzero.hipda.Threads;
 import com.ladjzero.hipda.ThreadsParser;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SimpleThreadsFragment extends FragmentBase implements AbsListView.OnItemClickListener {
 
 	Core core;
 	int tabIndex;
-	boolean hasNextPage = false;
-	ArrayList<Thread> threads = new ArrayList<Thread>();
-	int pageToLoad = 1;
-	private OnFragmentInteractionListener mListener;
+	Threads mThreads;
 	private HttpApi mApi;
 	private ThreadsParser mThreadsParser;
 	private ArrayList<AsyncTask> mTasks;
@@ -55,7 +54,6 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 		Bundle args = new Bundle();
 		args.putInt("tab_index", position);
 		fragment.setArguments(args);
-		fragment.mTasks = new ArrayList<>();
 		return fragment;
 	}
 
@@ -67,14 +65,24 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 
 		mApi = getCore().getHttpApi();
 		mThreadsParser = getCore().getThreadsParser();
+		mTasks = new ArrayList<>();
+		mThreads = new Threads();
+
+		try {
+			String cached = getApp().getMemCache().get("simple_threads_tab_" + tabIndex);
+			List<Thread> ts = JSON.parseArray(cached, Thread.class);
+			mThreads.addAll(ts);
+		} catch (Exception e) {
+
+		}
 
 		switch (tabIndex) {
 			case 0:
-				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_thread, R.id.simple_thread_text, threads);
+				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_thread, R.id.simple_thread_text, mThreads);
 				break;
 
 			case 1:
-				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_post, R.id.simple_thread_text, threads) {
+				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_post, R.id.simple_thread_text, mThreads) {
 					@Override
 					public View getView(int position, View convertView, ViewGroup parent) {
 						View row = super.getView(position, convertView, parent);
@@ -100,7 +108,81 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 				break;
 
 			case 2:
-				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_thread, R.id.simple_thread_text, threads);
+				mAdapter = new ArrayAdapter<Thread>(getActivity(), R.layout.simple_thread, R.id.simple_thread_text, mThreads);
+				break;
+		}
+	}
+
+	private void load(int tabIndex) {
+		switch (tabIndex) {
+			case 0:
+				mApi.getOwnThreads(mThreads.getMeta().getPage() + 1, new HttpClientCallback() {
+					@Override
+					public void onSuccess(String response) {
+						mTasks.add(new AsyncTask<String, Object, Threads>() {
+							@Override
+							protected Threads doInBackground(String... strings) {
+								return mThreadsParser.parseOwnThreads(strings[0]);
+							}
+
+							@Override
+							protected void onPostExecute(Threads threads) {
+								onThreads(threads);
+							}
+						}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
+					}
+
+					@Override
+					public void onFailure(String reason) {
+						((ActivityBase) getActivity()).showToast(reason);
+					}
+				});
+				break;
+			case 1:
+				mApi.getOwnPosts(mThreads.getMeta().getPage() + 1, new HttpClientCallback() {
+					@Override
+					public void onSuccess(String response) {
+						mTasks.add(new AsyncTask<String, Object, Threads>() {
+							@Override
+							protected Threads doInBackground(String... strings) {
+								return mThreadsParser.parseOwnPosts(strings[0]);
+							}
+
+							@Override
+							protected void onPostExecute(Threads threads) {
+								onThreads(threads);
+							}
+						}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
+					}
+
+					@Override
+					public void onFailure(String reason) {
+						((ActivityBase) getActivity()).showToast(reason);
+					}
+				});
+				break;
+			case 2:
+				mApi.getMarkedThreads(mThreads.getMeta().getPage() + 1, new HttpClientCallback() {
+					@Override
+					public void onSuccess(String response) {
+						mTasks.add(new AsyncTask<String, Object, Threads>() {
+							@Override
+							protected Threads doInBackground(String... strings) {
+								return mThreadsParser.parseMarkedThreads(strings[0]);
+							}
+
+							@Override
+							protected void onPostExecute(Threads threads) {
+								onThreads(threads);
+							}
+						}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
+					}
+
+					@Override
+					public void onFailure(String reason) {
+						((ActivityBase) getActivity()).showToast(reason);
+					}
+				});
 				break;
 		}
 	}
@@ -120,167 +202,20 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 		mListView.setOnScrollListener(new EndlessScrollListener() {
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
-				if (hasNextPage) {
-
-					switch (tabIndex) {
-						case 0:
-							mApi.getOwnThreads(pageToLoad, new HttpClientCallback() {
-								@Override
-								public void onSuccess(String response) {
-									mTasks.add(new AsyncTask<String, Object, Threads>() {
-										@Override
-										protected Threads doInBackground(String... strings) {
-											return mThreadsParser.parseOwnThreads(strings[0]);
-										}
-
-										@Override
-										protected void onPostExecute(Threads threads) {
-											onThreads(threads);
-										}
-									}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
-								}
-
-								@Override
-								public void onFailure(String reason) {
-									((ActivityBase) getActivity()).showToast(reason);
-								}
-							});
-							break;
-						case 1:
-							mApi.getOwnPosts(pageToLoad, new HttpClientCallback() {
-								@Override
-								public void onSuccess(String response) {
-									mTasks.add(new AsyncTask<String, Object, Threads>() {
-										@Override
-										protected Threads doInBackground(String... strings) {
-											return mThreadsParser.parseOwnPosts(strings[0]);
-										}
-
-										@Override
-										protected void onPostExecute(Threads threads) {
-											onThreads(threads);
-										}
-									}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
-								}
-
-								@Override
-								public void onFailure(String reason) {
-									((ActivityBase) getActivity()).showToast(reason);
-								}
-							});
-							break;
-						case 2:
-							mApi.getMarkedThreads(pageToLoad, new HttpClientCallback() {
-								@Override
-								public void onSuccess(String response) {
-									mTasks.add(new AsyncTask<String, Object, Threads>() {
-										@Override
-										protected Threads doInBackground(String... strings) {
-											return mThreadsParser.parseMarkedThreads(strings[0]);
-										}
-
-										@Override
-										protected void onPostExecute(Threads threads) {
-											onThreads(threads);
-										}
-									}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
-								}
-
-								@Override
-								public void onFailure(String reason) {
-									((ActivityBase) getActivity()).showToast(reason);
-								}
-							});
-							break;
-					}
+				if (mThreads.getMeta().hasNextPage()) {
+					((ActivityBase) getActivity()).showToast("载入下一页");
+					load(tabIndex);
 				}
 			}
 		});
 
-		if (pageToLoad == 1) {
-			switch (tabIndex) {
-				case 0:
-					mApi.getOwnThreads(pageToLoad, new HttpClientCallback() {
-						@Override
-						public void onSuccess(String response) {
-							mTasks.add(new AsyncTask<String, Object, Threads>() {
-								@Override
-								protected Threads doInBackground(String... strings) {
-									return mThreadsParser.parseOwnThreads(strings[0]);
-								}
-
-								@Override
-								protected void onPostExecute(Threads threads) {
-									onThreads(threads);
-								}
-							}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
-						}
-
-						@Override
-						public void onFailure(String reason) {
-							((ActivityBase) getActivity()).showToast(reason);
-						}
-					});
-					break;
-				case 1:
-					mApi.getOwnPosts(pageToLoad, new HttpClientCallback() {
-						@Override
-						public void onSuccess(String response) {
-							mTasks.add(new AsyncTask<String, Object, Threads>() {
-								@Override
-								protected Threads doInBackground(String... strings) {
-									return mThreadsParser.parseOwnPosts(strings[0]);
-								}
-
-								@Override
-								protected void onPostExecute(Threads threads) {
-									onThreads(threads);
-								}
-							}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
-						}
-
-						@Override
-						public void onFailure(String reason) {
-							((ActivityBase) getActivity()).showToast(reason);
-						}
-					});
-					break;
-				case 2:
-					mApi.getMarkedThreads(pageToLoad, new HttpClientCallback() {
-						@Override
-						public void onSuccess(String response) {
-							mTasks.add(new AsyncTask<String, Object, Threads>() {
-								@Override
-								protected Threads doInBackground(String... strings) {
-									return mThreadsParser.parseMarkedThreads(strings[0]);
-								}
-
-								@Override
-								protected void onPostExecute(Threads threads) {
-									onThreads(threads);
-								}
-							}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
-						}
-
-						@Override
-						public void onFailure(String reason) {
-							((ActivityBase) getActivity()).showToast(reason);
-						}
-					});
-					break;
-			}
+		if (mThreads.size() == 0) {
+			load(tabIndex);
 		}
 
 		mListView.setAdapter(mAdapter);
 		return view;
 	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		mListener = null;
-	}
-
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -303,6 +238,8 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 		}
 
 		mTasks.clear();
+
+		getApp().getMemCache().put("simple_threads_tab_" + tabIndex, JSON.toJSONString(mThreads));
 	}
 
 	/**
@@ -319,10 +256,10 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 	}
 
 	public void onThreads(Threads threads) {
-		pageToLoad = threads.getMeta().getPage() + 1;
-		this.threads.addAll(threads);
+		mThreads.addAll(threads);
+		mThreads.getMeta().setHasNextPage(threads.getMeta().hasNextPage());
+		mThreads.getMeta().setPage(threads.getMeta().getPage());
 		mAdapter.notifyDataSetChanged();
-		this.hasNextPage = hasNextPage;
 	}
 
 	/**
