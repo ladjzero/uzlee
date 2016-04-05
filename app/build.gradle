@@ -54,12 +54,12 @@ dependencies {
     compile 'com.orhanobut:logger:1.8'
     compile 'de.hdodenhof:circleimageview:1.3.0'
     compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'me.grantland:autofittextview:0.2.+'
+    compile 'com.r0adkll:slidableactivity:2.0.5'
     // To be deleted
     compile 'com.wefika:flowlayout:0.3.4'
 
     compile project(':PullToRefresh')
-    compile project(':AutoFitTextViewLibrary')
-    compile project(':Slidr')
     // To be deleted
     compile project(':DiscreteSeekBar')
 }
