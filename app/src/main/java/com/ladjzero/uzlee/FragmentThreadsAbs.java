@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.util.LruCache;
@@ -81,8 +82,8 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 	public abstract int layout();
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		mActivity = (ActivityBase) getActivity();
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
 		LruCache<String, String> cache = getApp().getMemCache();
 		String cached = cache.get(keyOfThreadsToCache());
@@ -99,6 +100,11 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 		if (threads != null) {
 			mThreads.addAll(threads);
 		}
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		mActivity = (ActivityBase) getActivity();
 
 		Bundle args = getArguments();
 

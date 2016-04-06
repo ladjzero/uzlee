@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.util.LruCache;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +39,9 @@ public class ActivitySearch extends ActivityHardSlide implements View.OnKeyListe
 
 		mSearch = (EditText) findViewById(R.id.search_input);
 		mSearch.setOnKeyListener(this);
+
+		LruCache cache = getApp().getMemCache();
+		cache.remove("threads-search-query-" + cache.get("search_key"));
 	}
 
 	@Override
