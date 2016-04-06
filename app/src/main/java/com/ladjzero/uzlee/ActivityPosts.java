@@ -489,6 +489,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				mPid = -1;
 				mSkipResumeFetch = true;
 				onHtml(html);
+				model.setFetching(false);
 			}
 		}
 	}
