@@ -1,5 +1,5 @@
 {
-	"version": "0.7",
-	"uri": "http://yun.baidu.com/share/link?shareid=171606232&uk=3020222779",
-	"info": "安装文件瘦身23%，仅为2.9M\n支持超长帖子截图\n使用系统图库应用来打开查看图片\n默认版块改为 Discovery BS E-INK\n默认取消了版块的主题类型选择菜单\n增加了清除缓存的快捷方式\n修复了上传图片可能导致应用崩溃的问题\n支持 Android 5+ 的状态栏着色"
+	"version": "0.7.1",
+	"uri": "http://yun.baidu.com/share/link?shareid=909148003&uk=3020222779",
+	"info": "优化了对话框的宽度\n修复了 0.7 中帖子内容的图片、链接等失效的问题\n修复了屏幕旋转可能导致应用崩溃的问题\n增大了图片上传的默认大小"
 }
