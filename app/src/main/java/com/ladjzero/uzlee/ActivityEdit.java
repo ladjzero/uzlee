@@ -27,6 +27,7 @@ import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.HttpApi;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.Post;
+import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.EmojiUtils;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nineoldandroids.animation.Animator;
@@ -377,7 +378,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 
 				@Override
 				protected File doInBackground(File... params) {
-					return compressImage(params[0], (getSettings().getInt("img_size", 300) - 1) * 1024);
+					return compressImage(params[0], (getSettings().getInt(Constants.PREF_KEY_IMG_SIZE, Constants.DEFAULT_IMAGE_UPLOAD_SIZE) - 1) * 1024);
 				}
 
 				@Override

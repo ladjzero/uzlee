@@ -365,7 +365,7 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 					onSelect("3MB");
 			}
 
-			context.getSettings().edit().putInt("img_size", size).commit();
+			context.getSettings().edit().putInt(Constants.PREF_KEY_IMG_SIZE, size).commit();
 			show(false);
 		}
 	}
