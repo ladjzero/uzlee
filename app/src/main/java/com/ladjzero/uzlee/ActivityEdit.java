@@ -135,11 +135,6 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 				if (mEmojiSelector != null) mEmojiSelector.setVisibility(View.GONE);
 			}
 		});
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
 
 		if (isNewThread) {
 			subjectInput.setVisibility(View.VISIBLE);
