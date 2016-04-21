@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.Core;
@@ -29,6 +30,7 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.utils.L;
+import com.rey.material.app.Dialog;
 import com.rey.material.app.DialogFragment;
 import com.rey.material.app.SimpleDialog;
 import com.tencent.stat.StatService;
@@ -173,23 +175,33 @@ public abstract class ActivityBase extends ActionBarActivity {
 
 						if (new VersionComparator().compare(version, newVersion) < 0) {
 							final List<Version> finalInfo = info;
-							SimpleDialog.Builder builder = new SimpleDialog.Builder(R.style.Material_App_Dialog_Simple_Light) {
 
-								@Override
-								public void onPositiveActionClicked(DialogFragment fragment) {
-									Uri uri = Uri.parse(finalInfo.get(0).getUrl());
-									Intent downloadIntent = new Intent(Intent.ACTION_VIEW, uri);
-									startActivity(downloadIntent);
-								}
-							};
+							final Dialog dialog = new Dialog(ActivityBase.this);
+							View dialogView = getLayoutInflater().inflate(R.layout.update_info, null);
+							TextView infoText = (TextView) dialogView.findViewById(R.id.text);
+							infoText.setText(StringUtils.join(info.get(0).getLogs(), '\n'));
 
-							builder.message(StringUtils.join(info.get(0).getLogs(), "\n\n"))
+							dialog.title("新的版本 v" + info.get(0).getV())
+									.titleColor(Utils.getThemeColor(ActivityBase.this, R.attr.colorText))
+									.backgroundColor(Utils.getThemeColor(ActivityBase.this, android.R.attr.colorBackground))
+									.negativeAction("取消")
+									.negativeActionClickListener(new View.OnClickListener() {
+										@Override
+										public void onClick(View v) {
+											dialog.dismiss();
+										}
+									})
 									.positiveAction(getString(R.string.download))
-									.title("新的版本 v" + info.get(0).getV());
-
-							DialogFragment dialog = DialogFragment.newInstance(builder);
-
-							dialog.show(getSupportFragmentManager(), null);
+									.positiveActionClickListener(new View.OnClickListener() {
+										@Override
+										public void onClick(View v) {
+											Uri uri = Uri.parse(finalInfo.get(0).getUrl());
+											Intent downloadIntent = new Intent(Intent.ACTION_VIEW, uri);
+											startActivity(downloadIntent);
+										}
+									})
+									.contentView(dialogView)
+									.show();
 						} else {
 							showToast("已是最新版");
 						}

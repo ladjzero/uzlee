@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_centerVertical="true"
-    android:padding="12dp">
+    android:padding="6dp">
 
     <TextView
         android:id="@+id/text"
@@ -12,5 +12,5 @@
         android:layout_gravity="center"
         android:text="全部"
         android:textColor="?attr/colorTextMinor"
-        android:textSize="18dp"/>
+        android:textSize="16dp"/>
 </FrameLayout>

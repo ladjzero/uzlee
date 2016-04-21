@@ -161,7 +161,8 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 			List<Forum.Type> types = Forum.findById(getFlattenForums(this), fid).getTypes();
 
 			if (types != null) {
-				ListView listView = new ListView(this);
+				View typesMenuView = getLayoutInflater().inflate(R.layout.threads_actions_dialog, null);
+				ListView listView = (ListView) typesMenuView.findViewById(R.id.actions);
 				listView.setDivider(null);
 				listView.setAdapter(new ArrayAdapter<Forum.Type>(this, R.layout.list_item_of_dialog, R.id.text, types) {
 					@Override
@@ -192,7 +193,7 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 								dialog.dismiss();
 							}
 						})
-						.contentView(listView)
+						.contentView(typesMenuView)
 						.show();
 
 				listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
