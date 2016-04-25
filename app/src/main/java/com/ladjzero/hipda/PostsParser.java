@@ -97,12 +97,18 @@ public class PostsParser extends Parser {
 		String postIndex = ePost.select("a[id^=postnum] > em").text();
 		postIndex = postIndex.trim();
 
-		Element eUinfo = ePost.select("a[href^=space.php?uid=]").get(0);
-		String url = eUinfo.attr("href");
-		String userId = Utils.getUriQueryParameter(url).get("uid");
-		String userName = eUinfo.text();
+		User user = new User().setId(0).setName("");
 
-		User user = new User().setId(Integer.valueOf(userId)).setName(userName);
+		try {
+			Element eUinfo = ePost.select("a[href^=space.php?uid=]").get(0);
+			String url = eUinfo.attr("href");
+			String userId = Utils.getUriQueryParameter(url).get("uid");
+			String userName = eUinfo.text();
+
+			user.setId(Integer.valueOf(userId)).setName(userName);
+		} catch (Exception e) {
+
+		}
 
 		post.setId(Integer.valueOf(id))/*.setNiceBody(niceBody)*/
 				.setAuthor(user).setTimeStr(timeStr).setPostIndex(Integer.valueOf(postIndex));
