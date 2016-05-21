@@ -65,6 +65,8 @@ public class PostsParser extends Parser {
 
 				if (!src.startsWith("http")) {
 					img.attr("src", "http://www.hi-pda.com/forum/" + src);
+				} else {
+					img.attr("src", src);
 				}
 			}
 
