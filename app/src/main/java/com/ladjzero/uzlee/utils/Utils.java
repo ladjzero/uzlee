@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.alibaba.fastjson.JSON;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+import com.ladjzero.hipda.Forum;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.User;
@@ -41,6 +42,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by ladjzero on 2015/2/28.
@@ -286,6 +288,28 @@ public class Utils {
         @Override
         public void onAnimationRepeat(Animator animation) {
 
+        }
+    }
+
+    public static List<Forum> getForums(Context context) {
+        String json = Utils.readAssetFile(context, "hipda.json");
+        List<Forum> forums = JSON.parseArray(json, Forum.class);
+        addALLType(forums);
+
+        return forums;
+    }
+
+    private static void addALLType(List<Forum> forums) {
+        Forum.Type all = new Forum.Type();
+        all.setId(-1);
+        all.setName("全部");
+
+        for (Forum f : forums) {
+            List<Forum.Type> types = f.getTypes();
+            List<Forum> children = f.getChildren();
+
+            if (types != null) types.add(0, all);
+            if (children != null) addALLType(children);
         }
     }
 }

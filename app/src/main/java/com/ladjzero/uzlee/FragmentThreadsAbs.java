@@ -37,6 +37,7 @@ import org.apache.commons.collections.Transformer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.zip.Inflater;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -102,6 +103,8 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 		}
 	}
 
+	protected void onListViewReady(ListView listView, LayoutInflater inflater) {};
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mActivity = (ActivityBase) getActivity();
@@ -112,6 +115,7 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 
 		View rootView = inflater.inflate(layout(), container, false);
 		ButterKnife.bind(this, rootView);
+		onListViewReady(listView, inflater);
 
 		if (this instanceof OnRefreshListener) {
 			mSwipe.setOnRefreshListener((OnRefreshListener) this);
@@ -332,7 +336,7 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 
 		@Override
 		public void onLoadMore(int page, int totalItemsCount) {
-			if (mThreads.getMeta().hasNextPage()) {
+			if (mThreads.getMeta().hasNextPage() && totalItemsCount > 1 /* list header */) {
 				mActivity.showToast("载入下一页");
 
 				setRefreshSpinner(true);

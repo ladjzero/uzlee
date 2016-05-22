@@ -36,7 +36,6 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 	Toolbar toolbar;
 	boolean doubleBackToExitPressedOnce = false;
 	private FragmentNav mFragmentNav;
-	private OnTypeChange mOnTypeChange;
 	private FragmentThreadsPager mFragment;
 	private int mCurrentPagePosition = -1;
 	private boolean mIsRunning = false;
@@ -71,7 +70,6 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 		Bundle bundle = new Bundle();
 
 		mFragment = FragmentThreadsPager.newInstance(bundle);
-		setOnTypeChangeListener(mFragment);
 
 		FragmentManager fragmentManager = getSupportFragmentManager();
 		fragmentManager
@@ -204,7 +202,6 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 
 						Forum.Type type = (Forum.Type) adapterView.getItemAtPosition(i);
 						mFragment.getCurrentForum().setCurrentType(type);
-						if (mOnTypeChange != null) mOnTypeChange.onTypeSelect(fid, type.getId());
 						invalidateOptionsMenu();
 						dialog.dismiss();
 					}
@@ -347,10 +344,6 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 		super.onStop();
 	}
 
-	public void setOnTypeChangeListener(OnTypeChange onTypeChange) {
-		this.mOnTypeChange = onTypeChange;
-	}
-
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if ("theme".equals(key) || "selected_forums".equals(key)) {
@@ -362,9 +355,5 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 		} else if ("show_types".equals(key)) {
 			mNeedReload = true;
 		}
-	}
-
-	interface OnTypeChange {
-		void onTypeSelect(int fid, int typeId);
 	}
 }
