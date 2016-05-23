@@ -6,19 +6,6 @@
             android:key="selected_forums"
             android:title="显示板块"/>
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="show_types"
-            android:title="显示主题分类菜单"/>
-
-        <!--<ListPreference-->
-        <!--android:defaultValue="purple"-->
-        <!--android:entries="@array/theme_color"-->
-        <!--android:entryValues="@array/theme_color_val"-->
-        <!--android:key="theme_color"-->
-        <!--android:summary="%s"-->
-        <!--android:title="配色"/>-->
-
         <Preference
             android:defaultValue="purple"
             android:key="theme"

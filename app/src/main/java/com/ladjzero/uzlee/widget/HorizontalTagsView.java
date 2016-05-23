@@ -10,6 +10,10 @@ import android.widget.LinearLayout;
 
 import com.ladjzero.uzlee.R;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Created by chenzhuo on 16/5/22.
  */
@@ -17,7 +21,7 @@ public class HorizontalTagsView extends HorizontalScrollView {
 	private Object[] mTags;
 	private LinearLayout mContainer;
 	private Context mContext;
-	private TagActiveListener mListener;
+	private TagStateChangeListener mListener;
 
 	public HorizontalTagsView(Context context) {
 		super(context);
@@ -46,6 +50,32 @@ public class HorizontalTagsView extends HorizontalScrollView {
 		addView(mContainer);
 	}
 
+	public void toggle(int index, boolean on) {
+		((TagView) mContainer.getChildAt(index)).setActive(on);
+	}
+
+	public void toggle(boolean on) {
+		for (int i = 0; i < mContainer.getChildCount(); ++i) {
+			toggle(i, on);
+		}
+	}
+
+	public Object[] getTags() {
+		return mTags;
+	}
+
+	public Object[] getTags(boolean active) {
+		List<Object> tags = new ArrayList<>();
+
+		for (int i = 0; i < mTags.length; ++i) {
+			if (((TagView) mContainer.getChildAt(i)).isActive() == active) {
+				tags.add(mTags[i]);
+			}
+		}
+
+		return tags.toArray();
+	}
+
 	public void setTags(Object[] tags, Object init) {
 		mTags = tags;
 
@@ -63,27 +93,31 @@ public class HorizontalTagsView extends HorizontalScrollView {
 				@Override
 				public void onClick(View view) {
 					TagView v = (TagView) view;
+					Object tag = v.getTag();
+					int index = Arrays.asList(mTags).indexOf(tag);
+					v.setActive(!v.isActive());
 
-					if (v.isActive()) return;
-
-					for (int j = 0; j < mContainer.getChildCount(); ++j) {
-						((TagView) mContainer.getChildAt(j)).setActive(false);
+					if (mListener != null) {
+						if (v.isActive()) {
+							mListener.onTagActive(v.getTag(), index);
+						} else {
+							mListener.onTagInactive(v.getTag(), index);
+						}
 					}
 
-					v.setActive(true);
-
-					if (mListener != null) mListener.onTagActive(v.getTag());
 				}
 			});
 		}
 	}
 
-	public void setTagActiveListener(TagActiveListener l) {
+	public void setTagActiveListener(TagStateChangeListener l) {
 		mListener = l;
 	}
 
-	public interface TagActiveListener {
-		void onTagActive(Object tag);
+	public interface TagStateChangeListener {
+		void onTagActive(Object tag, int i);
+
+		void onTagInactive(Object tag, int i);
 	}
 }
 

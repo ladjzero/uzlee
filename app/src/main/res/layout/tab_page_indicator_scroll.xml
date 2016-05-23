@@ -12,6 +12,6 @@
         android:textAppearance="?attr/tabBarStyle"
         app:tpi_indicatorColor="?attr/colorTextInverse07"
         app:tpi_mode="scroll"
-        app:tpi_tabPadding="4dp"/>
+        app:tpi_tabPadding="12dp"/>
 
 </RelativeLayout>

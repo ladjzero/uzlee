@@ -56,8 +56,6 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 	SwipeRefreshLayout mSwipe;
 	@Bind(R.id.threads)
 	ListView listView;
-	@Bind(R.id.error_info)
-	View errorInfo;
 	private ActivityBase mActivity;
 	private boolean mEnablePullToRefresh;
 	private SlidrInterface slidrInterface;
@@ -265,11 +263,7 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 	public void onThreads(Threads threads) {
 		mThreads.setMeta(threads.getMeta());
 
-		if (threads.size() == 0) {
-			errorInfo.setVisibility(View.VISIBLE);
-		} else {
-			errorInfo.setVisibility(View.GONE);
-
+		if (threads.size() != 0) {
 			if (threads.getMeta().getPage() == 1) {
 				mThreads.clear();
 			}

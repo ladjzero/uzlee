@@ -12,18 +12,20 @@ import com.ladjzero.hipda.Forum;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.Threads;
 import com.ladjzero.uzlee.widget.HorizontalTagsView;
+import com.ladjzero.uzlee.widget.TagView;
 
 import java.util.List;
 
 /**
  * Created by chenzhuo on 15-12-14.
  */
-public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRefreshLayout.OnRefreshListener, HorizontalTagsView.TagActiveListener {
+public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRefreshLayout.OnRefreshListener, HorizontalTagsView.TagStateChangeListener {
 
 	private int mFid;
 	private boolean mVisibleInPager = false;
 	private AsyncTask mParseTask;
 	private Forum.Type mType;
+	private HorizontalTagsView mTags;
 
 	public static FragmentThreadsAbs newInstance() {
 		FragmentNormalThreads f = new FragmentNormalThreads();
@@ -45,16 +47,16 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 
 	@Override
 	protected void onListViewReady(ListView listView, LayoutInflater inflater) {
-		HorizontalTagsView tags = (HorizontalTagsView) inflater.inflate(R.layout.horizontal_tags_view, null);
+		mTags = (HorizontalTagsView) inflater.inflate(R.layout.horizontal_tags_view, null);
 		List<Forum> forums = Application2.getInstance().getFlattenForums();
 		Forum f = Forum.findById(forums, mFid);
 		List<Forum.Type> types = f.getTypes();
 
 		if (types != null && types.size() > 0) {
 			mType = types.get(0);
-			tags.setTags(types.toArray(), mType);
-			listView.addHeaderView(tags);
-			tags.setTagActiveListener(this);
+			mTags.setTags(types.toArray(), mType);
+			listView.addHeaderView(mTags);
+			mTags.setTagActiveListener(this);
 		}
 	}
 
@@ -141,10 +143,17 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 	}
 
 	@Override
-	public void onTagActive(Object tag) {
+	public void onTagActive(Object tag, int i) {
+		mTags.toggle(false);
+		mTags.toggle(i, true);
 		mType = (Forum.Type) tag;
 		mThreads.clear();
 		mAdapter.notifyDataSetChanged();
 		fetch(1);
+	}
+
+	@Override
+	public void onTagInactive(Object tag, int i) {
+
 	}
 }
