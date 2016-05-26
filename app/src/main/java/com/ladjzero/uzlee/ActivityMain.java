@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -54,7 +55,7 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 		setContentView(R.layout.activity_main);
 		ButterKnife.bind(this);
 
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 		toolbar.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -94,7 +95,13 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 				mCustomToolbarView.postDelayed(new Runnable() {
 					@Override
 					public void run() {
-						getSupportActionBar().setCustomView(mCustomToolbarView);
+						Toolbar.LayoutParams params = new Toolbar.LayoutParams(
+								Toolbar.LayoutParams.WRAP_CONTENT,
+								Toolbar.LayoutParams.MATCH_PARENT,
+								Gravity.CENTER_HORIZONTAL
+						);
+						mCustomToolbarView.setLayoutParams(params);
+						toolbar.addView(mCustomToolbarView);
 						mPageIndicator.setViewPager(mViewPager, 0);
 						mPageIndicator.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 							int formerPosition = 0;
