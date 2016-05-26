@@ -17,16 +17,20 @@ import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.FontAwesomeModule;
 import com.joanzapata.iconify.fonts.MaterialModule;
 import com.ladjzero.hipda.Core;
+import com.ladjzero.hipda.Forum;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.PersistenceAdapter;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.UilUtils;
+import com.ladjzero.uzlee.utils.Utils;
 import com.ladjzero.uzlee.utils.VersionComparator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.orhanobut.logger.Logger;
 import com.rey.material.app.DialogFragment;
 import com.rey.material.app.SimpleDialog;
+
+import java.util.List;
 
 /**
  * Created by ladjzero on 2015/1/2.
@@ -40,6 +44,8 @@ public class Application2 extends Application implements SharedPreferences.OnSha
 	private Core mCore;
 	private boolean mShouldDownloadImage;
 	private SharedPreferences mPref;
+
+	private List<Forum> mFlattenForums;
 
 	public static Application2 getInstance() {
 		return app;
@@ -98,6 +104,14 @@ public class Application2 extends Application implements SharedPreferences.OnSha
 
 	public LruCache<String, String> getMemCache() {
 		return mMemCache;
+	}
+
+	List<Forum> getFlattenForums() {
+		if (mFlattenForums == null) {
+			mFlattenForums = Forum.flatten(Utils.getForums(this));
+		}
+
+		return mFlattenForums;
 	}
 
 	public boolean shouldDownloadImage() {

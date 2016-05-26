@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -36,7 +37,6 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 	Toolbar toolbar;
 	boolean doubleBackToExitPressedOnce = false;
 	private FragmentNav mFragmentNav;
-	private OnTypeChange mOnTypeChange;
 	private FragmentThreadsPager mFragment;
 	private int mCurrentPagePosition = -1;
 	private boolean mIsRunning = false;
@@ -55,7 +55,7 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 		setContentView(R.layout.activity_main);
 		ButterKnife.bind(this);
 
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 		toolbar.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -71,7 +71,6 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 		Bundle bundle = new Bundle();
 
 		mFragment = FragmentThreadsPager.newInstance(bundle);
-		setOnTypeChangeListener(mFragment);
 
 		FragmentManager fragmentManager = getSupportFragmentManager();
 		fragmentManager
@@ -80,10 +79,7 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 				.commit();
 
 		LayoutInflater mInflater = LayoutInflater.from(this);
-		mCustomToolbarView = mInflater.inflate(
-				getSelectedForums(this).size() > 3 ?
-						R.layout.tab_page_indicator_scroll :
-						R.layout.tab_page_indicator_fixed, null);
+		mCustomToolbarView = mInflater.inflate(R.layout.tab_page_indicator_scroll, null);
 
 		mPageIndicator = (TabPageIndicator) mCustomToolbarView.findViewById(R.id.tabs);
 
@@ -99,7 +95,13 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 				mCustomToolbarView.postDelayed(new Runnable() {
 					@Override
 					public void run() {
-						getSupportActionBar().setCustomView(mCustomToolbarView);
+						Toolbar.LayoutParams params = new Toolbar.LayoutParams(
+								Toolbar.LayoutParams.WRAP_CONTENT,
+								Toolbar.LayoutParams.MATCH_PARENT,
+								Gravity.CENTER_HORIZONTAL
+						);
+						mCustomToolbarView.setLayoutParams(params);
+						toolbar.addView(mCustomToolbarView);
 						mPageIndicator.setViewPager(mViewPager, 0);
 						mPageIndicator.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 							int formerPosition = 0;
@@ -157,59 +159,6 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 			startActivity(intent);
 
 			return true;
-		} else if (id == R.id.thread_types) {
-			List<Forum.Type> types = Forum.findById(getFlattenForums(this), fid).getTypes();
-
-			if (types != null) {
-				View typesMenuView = getLayoutInflater().inflate(R.layout.threads_actions_dialog, null);
-				ListView listView = (ListView) typesMenuView.findViewById(R.id.actions);
-				listView.setDivider(null);
-				listView.setAdapter(new ArrayAdapter<Forum.Type>(this, R.layout.list_item_of_dialog, R.id.text, types) {
-					@Override
-					public View getView(int position, View convertView, ViewGroup parent) {
-						View view = super.getView(position, convertView, parent);
-						Forum.Type type = getItem(position);
-						Forum.Type currentType = mFragment.getCurrentForum().getCurrentType();
-
-						if (currentType != null && currentType.getId() > 0 && type.getId() == currentType.getId()) {
-							view.setBackgroundColor(Utils.getThemeColor(ActivityMain.this, R.attr.colorRead));
-						} else {
-							view.setBackgroundColor(Utils.getColor(ActivityMain.this, android.R.color.transparent));
-						}
-
-						return view;
-					}
-				});
-
-				final Dialog dialog = new Dialog(this);
-
-				dialog.title(title)
-						.titleColor(Utils.getThemeColor(this, R.attr.colorText))
-						.backgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground))
-						.negativeAction("取消")
-						.negativeActionClickListener(new View.OnClickListener() {
-							@Override
-							public void onClick(View v) {
-								dialog.dismiss();
-							}
-						})
-						.contentView(typesMenuView)
-						.show();
-
-				listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-					@Override
-					public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-						Forum f = mFragment.getCurrentForum();
-						int fid = f.getFid();
-
-						Forum.Type type = (Forum.Type) adapterView.getItemAtPosition(i);
-						mFragment.getCurrentForum().setCurrentType(type);
-						if (mOnTypeChange != null) mOnTypeChange.onTypeSelect(fid, type.getId());
-						invalidateOptionsMenu();
-						dialog.dismiss();
-					}
-				});
-			}
 		} else if (id == android.R.id.home) {
 			return false;
 		}
@@ -264,21 +213,9 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.threads, menu);
-		Forum.Type type = null;
-
-		try {
-			type = mFragment.getCurrentForum().getCurrentType();
-		} catch (Throwable t) {
-		}
 
 		menu.findItem(R.id.thread_publish)
 				.setIcon(new IconDrawable(this, MaterialIcons.md_add)
-						.color(Utils.getThemeColor(this, R.attr.colorTextInverse))
-						.actionBarSize());
-
-		menu.findItem(R.id.thread_types)
-				.setVisible(getSettings().getBoolean("show_types", false))
-				.setIcon(new IconDrawable(this, type != null && type.getId() > 0 ? MaterialIcons.md_bookmark : MaterialIcons.md_bookmark_border)
 						.color(Utils.getThemeColor(this, R.attr.colorTextInverse))
 						.actionBarSize());
 
@@ -347,10 +284,6 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 		super.onStop();
 	}
 
-	public void setOnTypeChangeListener(OnTypeChange onTypeChange) {
-		this.mOnTypeChange = onTypeChange;
-	}
-
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if ("theme".equals(key) || "selected_forums".equals(key)) {
@@ -359,12 +292,6 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 			} else {
 				mNeedReload = true;
 			}
-		} else if ("show_types".equals(key)) {
-			mNeedReload = true;
 		}
-	}
-
-	interface OnTypeChange {
-		void onTypeSelect(int fid, int typeId);
 	}
 }

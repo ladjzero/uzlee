@@ -20,7 +20,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTypeChange, FragmentThreadsAbs.OnScrollUpOrDown, ActivityBase.OnToolbarClickListener {
+public class FragmentThreadsPager extends Fragment implements FragmentThreadsAbs.OnScrollUpOrDown, ActivityBase.OnToolbarClickListener {
 	@Bind(R.id.pager)
 	ViewPager mViewPager;
 
@@ -119,13 +119,6 @@ public class FragmentThreadsPager extends Fragment implements ActivityMain.OnTyp
 	@Override
 	public void onDown(int ms) {
 		if (!mTabsContainerVisible || mLockAnimation) return;
-	}
-
-	@Override
-	public void onTypeSelect(int fid, int typeId) {
-		onUp(0);
-		Fragment fragment = mPagerAdapter.getCurrentFragment();
-		((FragmentNormalThreads) fragment).setTypeId(typeId);
 	}
 
 	@Override

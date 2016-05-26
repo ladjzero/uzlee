@@ -52,10 +52,18 @@ public class HttpApi {
 		mHttpClient.get("http://www.hi-pda.com/forum/post.php?action=newthread&fid=57", callback);
 	}
 
-	public void searchThreads(String query, int page, HttpClientCallback callback) {
+	public void searchThreads(String query, int page, int[] fids, HttpClientCallback callback) {
 		String url = null;
 
 		try {
+			String queryFid = "";
+
+			if (fids != null && fids.length > 0) {
+				for (int i = 0; i < fids.length; ++i) {
+					queryFid = queryFid + "srchfid[" + i + "]=" + fids[i] + "&";
+				}
+			}
+
 			url = "http://www.hi-pda.com/forum/search.php?srchtxt=" + URLEncoder.encode(query, mStore.getCode())
 					+ "&srchtype=title&"
 					+ "searchsubmit=true&"
@@ -67,6 +75,7 @@ public class HttpApi {
 					+ "orderby=lastpost&"
 					+ "ascdesc=desc&"
 					+ "srchfid%5B0%5D=all&"
+					+ queryFid
 					+ "page=" + page;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();

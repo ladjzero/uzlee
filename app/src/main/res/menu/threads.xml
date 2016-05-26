@@ -4,11 +4,6 @@
       tools:context="com.ladjzero.uzlee.ActivityMain">
 
     <item
-        android:id="@+id/thread_types"
-        android:title="@string/all_types"
-        app:showAsAction="always"/>
-
-    <item
         android:id="@+id/thread_publish"
         android:title="新主题"
         app:showAsAction="always"/>

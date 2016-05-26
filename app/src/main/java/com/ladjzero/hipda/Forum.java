@@ -84,16 +84,18 @@ public class Forum {
 		return fid;
 	}
 
-	public void setFid(int fid) {
+	public Forum setFid(int fid) {
 		this.fid = fid;
+		return this;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public void setName(String name) {
+	public Forum setName(String name) {
 		this.name = name;
+		return this;
 	}
 
 	public ArrayList<Forum> getChildren() {

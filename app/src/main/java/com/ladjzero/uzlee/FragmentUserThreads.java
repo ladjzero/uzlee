@@ -26,7 +26,7 @@ public class FragmentUserThreads extends FragmentThreadsAbs {
 
 	@Override
 	public int layout() {
-		return R.layout.threads_can_refresh_no_padding_top;
+		return R.layout.threads_can_refresh;
 	}
 
 	@Override
