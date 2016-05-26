@@ -49,7 +49,7 @@ public class PostsParser extends Parser {
 
 				if (src.length() == 0) src = img.attr("src");
 
-				if (!src.startsWith("images/smilies/") &&
+				if (!src.contains("images/smilies/") &&
 						!src.endsWith("common/back.gif") &&
 						!src.endsWith("default/attachimg.gif") &&
 						!img.attr("width").equals("16")) {
