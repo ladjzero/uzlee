@@ -4,11 +4,13 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
 import com.ladjzero.uzlee.R;
+import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +24,7 @@ public class HorizontalTagsView extends HorizontalScrollView {
 	private LinearLayout mContainer;
 	private Context mContext;
 	private TagStateChangeListener mListener;
+	private OnTouchListener mOnInterceptTouchEventListener;
 
 	public HorizontalTagsView(Context context) {
 		super(context);
@@ -42,6 +45,41 @@ public class HorizontalTagsView extends HorizontalScrollView {
 	public HorizontalTagsView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
 		super(context, attrs, defStyleAttr, defStyleRes);
 		init(context);
+	}
+
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent ev) {
+		int action = ev.getAction();
+
+		if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE) {
+			getParent().requestDisallowInterceptTouchEvent(true);
+		} else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+			getParent().requestDisallowInterceptTouchEvent(false);
+		}
+
+		return super.dispatchTouchEvent(ev);
+	}
+
+	@Override
+	public boolean onInterceptTouchEvent(MotionEvent ev) {
+
+		if (mOnInterceptTouchEventListener != null && mOnInterceptTouchEventListener.onTouch(this, ev)) {
+			return true;
+		} else {
+			return super.onInterceptTouchEvent(ev);
+		}
+	}
+
+	public void setOnInterceptTouchEvent(OnTouchListener l) {
+		mOnInterceptTouchEventListener = l;
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent ev) {
+		boolean b = super.onTouchEvent(ev);
+		int action = ev.getAction();
+		if(action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE) b = true;
+		return b;
 	}
 
 	private void init(Context context) {

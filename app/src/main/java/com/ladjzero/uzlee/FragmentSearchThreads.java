@@ -1,5 +1,6 @@
 package com.ladjzero.uzlee;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -10,6 +11,7 @@ import com.ladjzero.hipda.Forum;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.Threads;
 import com.ladjzero.uzlee.widget.HorizontalTagsView;
+import com.orhanobut.logger.Logger;
 import com.r0adkll.slidr.model.SlidrInterface;
 
 import java.util.ArrayList;
@@ -27,6 +29,12 @@ public class FragmentSearchThreads extends FragmentThreadsAbs implements Horizon
 
 	public static FragmentThreadsAbs newInstance() {
 		return new FragmentSearchThreads();
+	}
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		mSlidr = ((ActivitySearch) getActivity()).getSlidrInterface();
 	}
 
 	private static int[] toFids(Object[] forums) {
@@ -85,25 +93,26 @@ public class FragmentSearchThreads extends FragmentThreadsAbs implements Horizon
 	@Override
 	protected void onListViewReady(ListView listView, LayoutInflater inflater) {
 		mTags = (HorizontalTagsView) inflater.inflate(R.layout.horizontal_tags_view, null);
-		mTags.setOnTouchListener(new View.OnTouchListener() {
+		mTags.setOnInterceptTouchEvent(new View.OnTouchListener() {
 			@Override
 			public boolean onTouch(View view, MotionEvent motionEvent) {
-				if (model.isFetchingAndParsing()) {
-					return true;
-				}
-
 				int action = motionEvent.getAction();
-
-				if (mSlidr == null) {
-					mSlidr = ((ActivityHardSlide) getActivity()).getSlidrInterface();
-				}
 
 				if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE) {
 					mSlidr.lock();
-				} else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
-					mSlidr.unlock();
 				}
 
+				return model.isFetchingAndParsing();
+			}
+		});
+		mTags.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View view, MotionEvent motionEvent) {
+				int action = motionEvent.getAction();
+
+				if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+					mSlidr.unlock();
+				}
 				return false;
 			}
 		});

@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -48,6 +49,13 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 	@Override
 	protected void onListViewReady(ListView listView, LayoutInflater inflater) {
 		mTags = (HorizontalTagsView) inflater.inflate(R.layout.horizontal_tags_view, null);
+		mTags.setOnInterceptTouchEvent(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View view, MotionEvent motionEvent) {
+				return model.isFetchingAndParsing();
+			}
+		});
+
 		List<Forum> forums = Application2.getInstance().getFlattenForums();
 		Forum f = Forum.findById(forums, mFid);
 		List<Forum.Type> types = f.getTypes();
