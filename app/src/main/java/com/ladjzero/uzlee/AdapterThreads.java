@@ -16,28 +16,22 @@ import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.lang3.time.DateUtils;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClickListener {
 
 	ActivityBase context;
 	Core core;
 	private float mFontSize;
-	private String mTheme;
 	private int mColorRead, mColorUnread;
 	private LocalApi mLocalApi;
+	private boolean mShowProfileImage;
 
 
 	public AdapterThreads(Context context, ArrayList<Thread> threads) {
@@ -45,9 +39,8 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 
 		this.context = (ActivityBase) context;
 
-		mColorRead = Utils.getThemeColor(context, R.attr.colorRead);
+		mColorRead = Utils.getThemeColor(context, R.attr.colorTextLight);
 		mColorUnread = Utils.getThemeColor(context, R.attr.colorUnread);
-		mTheme = this.context.getSettings().getString("theme", ActivityBase.DefaultTheme);
 
 		mLocalApi = this.context.getCore().getLocalApi();
 
@@ -65,6 +58,8 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 		} else {
 			mFontSize = 24f;
 		}
+
+		mShowProfileImage = setting.getBoolean(Constants.PREF_KEY_SHOW_PROFILE_IMAGE, true);
 	}
 
 	@Override
@@ -101,21 +96,27 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 		int count = thread.getCommentCount();
 		boolean isNew = thread.isNew();
 
-		holder.imageMask.setText(Utils.getFirstChar(userName));
+		if (mShowProfileImage) {
+			holder.userWrapper.setVisibility(View.VISIBLE);
 
-		ImageLoader.getInstance().displayImage(imageUrl, holder.image, ActivityBase.LowQualityDisplay, new SimpleImageLoadingListener() {
-			@Override
-			public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
-				author.setImage(imageUri);
-			}
+			holder.imageMask.setText(Utils.getFirstChar(userName));
 
-			@Override
-			public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
-				((ImageView) view).setImageResource(android.R.color.transparent);
-				author.setImage(null);
-				holder.imageMask.setText(Utils.getFirstChar(userName));
-			}
-		});
+			ImageLoader.getInstance().displayImage(imageUrl, holder.image, ActivityBase.LowQualityDisplay, new SimpleImageLoadingListener() {
+				@Override
+				public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
+					author.setImage(imageUri);
+				}
+
+				@Override
+				public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
+					((ImageView) view).setImageResource(android.R.color.transparent);
+					author.setImage(null);
+					holder.imageMask.setText(Utils.getFirstChar(userName));
+				}
+			});
+		} else {
+			holder.userWrapper.setVisibility(View.GONE);
+		}
 
 		holder.image.setTag(author);
 		holder.name.setTag(author);

@@ -4,7 +4,7 @@
                                    android:layout_width="wrap_content"
                                    android:layout_height="wrap_content"
                                    android:layout_marginLeft="12dp"
-                                   android:background="?attr/colorTextInverse"
+                                   android:background="?android:attr/colorBackground"
                                    android:orientation="vertical"
                                    android:paddingBottom="4dp"
                                    android:paddingLeft="6dp"
