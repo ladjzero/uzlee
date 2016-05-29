@@ -405,6 +405,8 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 										attachIds.add(attachId);
 										mMessageInput.setText(mMessageInput.getText() + "[attachimg]" + attachId + "[/attachimg]");
 									}
+								} else {
+									showToast("图片长传失败: " + response);
 								}
 
 								mDialog.dismiss();

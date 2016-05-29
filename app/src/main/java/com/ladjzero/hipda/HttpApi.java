@@ -283,8 +283,22 @@ public class HttpApi {
 			@Override
 			public void onSuccess(String response) {
 				User user = mStore.getUser();
+				String hash = mStore.getHash();
 
-				if (user == null) return;
+				if (hash == null || hash.length() == 0) {
+					callback.onFailure("error: fail to get hash string.");
+					return;
+				}
+
+				if (user == null) {
+					callback.onFailure("error: fail to get user.");
+					return;
+				}
+
+				if (!(imageFile.isFile() && imageFile.exists())) {
+					callback.onFailure("error: fail to open image file.");
+					return;
+				}
 
 				Map<String, String> params = new HashMap<String, String>();
 				params.put("uid", String.valueOf(user.getId()));
