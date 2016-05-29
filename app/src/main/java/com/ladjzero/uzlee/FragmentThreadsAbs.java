@@ -315,7 +315,6 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 	@Override
 	public void toolbarClick() {
 		listView.setSelection(0);
-		listView.smoothScrollToPosition(0);
 	}
 
 	interface OnScrollUpOrDown {

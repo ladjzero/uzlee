@@ -23,8 +23,8 @@
 
         <CheckBoxPreference
             android:defaultValue="true"
-            android:key="highlight_unread"
-            android:title="突出显示未读主题"/>
+            android:key="show_profile_image"
+            android:title="显示头像"/>
 
         <Preference
             android:defaultValue="2"

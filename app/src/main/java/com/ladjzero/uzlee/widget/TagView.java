@@ -6,6 +6,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.TextView;
@@ -81,5 +82,6 @@ public class TagView extends TextView {
 		canvas.drawLine(width - mBorderWidth / 2, 0, width - mBorderWidth / 2, height, p);
 
 		setTextColor(mActive ? mColor : mInactiveColor);
+		setTypeface(null, mActive ? Typeface.BOLD : Typeface.NORMAL);
 	}
 }

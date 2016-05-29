@@ -1,7 +1,7 @@
 <template>
   <ol id="post-list" class="unstyled" v-bind:class="classes">
     <li v-for="post in posts" v-if="!prepareRender || ~selected.indexOf(post.postIndex + '')" id="pid-{{post.id}}" class="post" v-bind:class="postClasses" @click="postClick(post, $event)">
-      <post :post="post"></post>
+      <post :post="post" :posts-style="postsStyle"></post>
       <input v-show="postsStyle.selection" value="{{post.postIndex}}" type="checkbox" v-model="selected" @change="onSelect(selected)"/>
     </li>
   </ol>
@@ -201,7 +201,7 @@ img[src$="common/back.gif"] {
 }
 
 .night .name-and-date .name {
-    color: #585858;
+    color: #464646;
 }
 
 .night .name-and-date .date {
@@ -210,18 +210,21 @@ img[src$="common/back.gif"] {
 
     .post-header {
         padding-top: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
         .profile-wrapper {
             position: relative;
             width: $profile-height;
             height: $profile-height;
-            display: inline-block;
+            margin-right: 12px;
 
             > span {
                 width: 100%;
                 position: absolute;
                 line-height: $profile-height;
-                font-size: 20px;
+                font-size: 16px;
                 color: #c8c8c8;
                 text-align: center;
             }
@@ -236,28 +239,21 @@ img[src$="common/back.gif"] {
         }
 
         .name-and-date {
-            vertical-align: top;
-            height: $profile-height;
-            margin-left: 12px;
-            padding: 2px 0;
-            display: inline-block;
-
+            flex: 1;
             .name {
                 color: black;
                 font-size: 14px;
-                display: block;
-                line-height: 16px;
+                font-weight: bolder;
             }
 
             .date {
-                color: #3e3e3e;
+                color: #c8c8c8;
+                padding-left: 12px;
                 font-size: 10px;
-                line-height: 12px;
             }
         }
 
         .actions {
-            float: right;
             color: #686868;
 
             .is-lz {

@@ -3,8 +3,8 @@ package com.ladjzero.uzlee;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,32 +16,22 @@ import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.lang3.time.DateUtils;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClickListener {
 
-	private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-	private final Date NOW = new Date();
 	ActivityBase context;
 	Core core;
-	private int mCommentBgColor;
-	private int mUserNameColor;
-	private boolean mHighlightUnread = true;
 	private float mFontSize;
-	private String mTheme;
+	private int mColorRead, mColorUnread;
 	private LocalApi mLocalApi;
+	private boolean mShowProfileImage;
 
 
 	public AdapterThreads(Context context, ArrayList<Thread> threads) {
@@ -49,10 +39,8 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 
 		this.context = (ActivityBase) context;
 
-		Resources res = context.getResources();
-		mCommentBgColor = res.getColor(R.color.commentNoBg);
-		mUserNameColor = res.getColor(R.color.snow_darker);
-		mTheme = this.context.getSettings().getString("theme", ActivityBase.DefaultTheme);
+		mColorRead = Utils.getThemeColor(context, R.attr.colorTextLight);
+		mColorUnread = Utils.getThemeColor(context, R.attr.colorUnread);
 
 		mLocalApi = this.context.getCore().getLocalApi();
 
@@ -71,7 +59,7 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 			mFontSize = 24f;
 		}
 
-		mHighlightUnread = setting.getBoolean("highlight_unread", true);
+		mShowProfileImage = setting.getBoolean(Constants.PREF_KEY_SHOW_PROFILE_IMAGE, true);
 	}
 
 	@Override
@@ -108,29 +96,33 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 		int count = thread.getCommentCount();
 		boolean isNew = thread.isNew();
 
-//		row.setBackgroundResource(uid == Core.UGLEE_ID ? R.color.uglee : android.R.color.transparent);
-		holder.imageMask.setText(Utils.getFirstChar(userName));
+		if (mShowProfileImage) {
+			holder.userWrapper.setVisibility(View.VISIBLE);
 
-		ImageLoader.getInstance().displayImage(imageUrl, holder.image, ActivityBase.LowQualityDisplay, new SimpleImageLoadingListener() {
-			@Override
-			public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
-				author.setImage(imageUri);
-			}
+			holder.imageMask.setText(Utils.getFirstChar(userName));
 
-			@Override
-			public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
-				((ImageView) view).setImageResource(android.R.color.transparent);
-				author.setImage(null);
-				holder.imageMask.setText(Utils.getFirstChar(userName));
-			}
-		});
+			ImageLoader.getInstance().displayImage(imageUrl, holder.image, ActivityBase.LowQualityDisplay, new SimpleImageLoadingListener() {
+				@Override
+				public void onLoadingComplete(String imageUri, android.view.View view, android.graphics.Bitmap loadedImage) {
+					author.setImage(imageUri);
+				}
+
+				@Override
+				public void onLoadingFailed(String imageUri, android.view.View view, FailReason failReason) {
+					((ImageView) view).setImageResource(android.R.color.transparent);
+					author.setImage(null);
+					holder.imageMask.setText(Utils.getFirstChar(userName));
+				}
+			});
+		} else {
+			holder.userWrapper.setVisibility(View.GONE);
+		}
 
 		holder.image.setTag(author);
 		holder.name.setTag(author);
-//		holder.name.getPaint().setFakeBoldText(true);
 		holder.image.setOnClickListener(this);
 		holder.name.setOnClickListener(this);
-		holder.date.setText(prettyTime(thread.getDateStr()));
+		holder.date.setText(Utils.prettyTime(thread.getDateStr()));
 		holder.name.setText(thread.getAuthor().getName());
 
 		if (mLocalApi.getBanned().contains(new User().setId(uid))) {
@@ -148,17 +140,9 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 
 		holder.title.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
 
-		if (mHighlightUnread) {
-			holder.commentCount.setBackgroundColor(isNew ? Utils.getThemeColor(context, R.attr.colorUnread) : Utils.getThemeColor(context, R.attr.colorRead));
-			holder.commentCount.setTextColor(Utils.getThemeColor(context, R.attr.colorTextInverse));
-			holder.commentCount.setText(String.valueOf(count));
-			holder.commentCount.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-		} else {
-			holder.commentCount.setBackgroundResource(android.R.color.transparent);
-			holder.commentCount.setTextColor(mUserNameColor);
-			holder.commentCount.setText(count + " " + (isNew ? "{fa-comments}" : "{fa-comments-o}"));
-			holder.commentCount.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-		}
+		holder.commentCount.setTextColor(isNew ? mColorUnread : mColorRead);
+		holder.commentCount.setTypeface(null, isNew ? Typeface.BOLD : Typeface.NORMAL);
+		holder.commentCount.setText(String.valueOf(count));
 
 		return row;
 	}
@@ -178,36 +162,10 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 		}
 	}
 
-	private String prettyTime(String timeStr) {
-		try {
-			Date thatDate = DATE_FORMAT.parse(timeStr);
-
-			if (DateUtils.isSameDay(thatDate, NOW)) {
-				return "今天";
-			} else if (DateUtils.isSameDay(DateUtils.addDays(thatDate, 1), NOW)) {
-				return "昨天";
-			} else if (NOW.getYear() == thatDate.getYear()) {
-				return DateFormatUtils.format(thatDate, "M月d日");
-			} else {
-				return DateFormatUtils.format(thatDate, "yyyy年M月d日");
-			}
-		} catch (ParseException e) {
-			return timeStr;
-		}
-	}
-
 	private int lowerSaturation(int color) {
 		float[] hsv = new float[3];
 		Color.colorToHSV(color, hsv);
-//		hsv[1] = hsv[1] * 0.43f;
 		hsv[1] = 0.48f;
-		return Color.HSVToColor(hsv);
-	}
-
-	private int lowerSaturation(int color, float rate) {
-		float[] hsv = new float[3];
-		Color.colorToHSV(color, hsv);
-		hsv[1] = hsv[1] * rate;
 		return Color.HSVToColor(hsv);
 	}
 

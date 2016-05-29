@@ -1,12 +1,12 @@
 <template>
     <div class="post-container">
         <div class="post-header">
-            <div class="profile-wrapper" @click="userClick(post.author.id, post.author.name, $event)">
+            <div class="profile-wrapper" @click="userClick(post.author.id, post.author.name, $event)" v-if="postsStyle.showProfileImage">
                 <span>{{post.author.name.charAt(0).toUpperCase()}}</span>
                 <div class="profile" id="uid-{{post.author.id}}" v-bind:style="{backgroundImage: 'url(' + post.author.image + ')'}"></div>
             </div>
             <div class="name-and-date">
-                <span class="name">{{post.author.name}}</span>
+                <span class="name" @click="userClick(post.author.id, post.author.name, $event)">{{post.author.name}}</span>
                 <span class="date">{{post.timeStr}}</span>
             </div>
             <div class="actions">
@@ -21,7 +21,7 @@
 import echo from './echo.js'
 
 export default {
-  props: ['post'],
+  props: ['post', 'postsStyle'],
   compiled: function () {
     let images = this.$el.querySelectorAll('.content-image')
 

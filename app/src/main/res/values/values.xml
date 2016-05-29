@@ -6,10 +6,10 @@
 
     <attr name="colorSecondary" format="color"></attr>
     <attr name="colorText" format="color"></attr>
+    <attr name="colorTextLight" format="color"></attr>
     <attr name="colorTextMinor" format="color"></attr>
     <attr name="colorTextInverse" format="color"></attr>
     <attr name="colorUnread" format="color"></attr>
-    <attr name="colorRead" format="color"></attr>
     <attr name="colorTextInverse07" format="color"></attr>
     <attr name="colorBackgroundSecondary" format="color"></attr>
     <attr name="colorDivider" format="color"></attr>

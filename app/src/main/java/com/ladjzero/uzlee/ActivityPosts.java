@@ -40,6 +40,7 @@ import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.model.ObservablePosts;
 import com.ladjzero.uzlee.utils.CapturePhotoUtils;
+import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.NotificationUtils;
 import com.ladjzero.uzlee.utils.ReportableAsyncTask;
 import com.ladjzero.uzlee.utils.Timeline;
@@ -748,7 +749,8 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		mWebView.loadUrl("javascript:var s=_postsData.postsStyle;s.theme='" + setting.getString("theme", DefaultTheme) + "';" +
 				"s.fontsize='" + setting.getString("font_size", "normal") + "';" +
-				"s.showSig=" + setting.getBoolean("show_sig", false));
+				"s.showSig=" + setting.getBoolean("show_sig", false) + ";" +
+				"s.showProfileImage=" + setting.getBoolean(Constants.PREF_KEY_SHOW_PROFILE_IMAGE, true));
 	}
 
 	@JavascriptInterface

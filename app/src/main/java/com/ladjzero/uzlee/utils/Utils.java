@@ -189,7 +189,7 @@ public class Utils {
             } else if (mNow.getYear() == thatDate.getYear()) {
                 return DateFormatUtils.format(thatDate, "M月d日");
             } else {
-                return DateFormatUtils.format(thatDate, "yyyy年M月d日");
+                return DateFormatUtils.format(thatDate, "yyyy/M/d");
             }
         } catch (ParseException e) {
             return timeStr;
