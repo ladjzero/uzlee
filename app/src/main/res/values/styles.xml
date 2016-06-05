@@ -1,11 +1,13 @@
 <resources>
 
     <style name="AppBaseTheme.Day">
+        <item name="colorEdit">?attr/colorPrimary</item>
         <item name="android:colorBackground">@android:color/white</item>
         <item name="colorAccent">?attr/colorPrimary</item>
         <item name="colorText">@color/dayTextPrimary</item>
         <item name="colorTextMinor">@color/dayTextMinor</item>
-        <item name="colorTextLight">#c8c8c8</item>
+        <item name="colorTextLight">#a3a3a3</item>
+        <item name="colorTextLighter">#cacaca</item>
         <item name="colorTextInverse">@color/dayTextInverse</item>
         <item name="dividerDrawable">@drawable/list_divider</item>
         <item name="drawerArrowStyle">@style/DrawerArrowToggle</item>
@@ -82,6 +84,7 @@
         <item name="android:textColor">@color/nightTextPrimary</item>
         <item name="android:textColorSecondary">@color/nightTextPrimary</item>
 
+        <item name="colorEdit">@color/nightTextPrimary</item>
         <item name="colorAccent">@color/nightTextPrimary</item>
         <item name="colorSecondary">@color/nightSecondary</item>
         <item name="colorPrimary">@color/nightPrimary</item>
@@ -89,19 +92,20 @@
         <item name="colorText">@color/nightTextPrimary</item>
         <item name="colorTextMinor">@color/nightTextMinor</item>
         <item name="colorTextLight">@color/nightTextMinor</item>
+        <item name="colorTextLighter">#47464646</item>
         <item name="colorTextInverse">@color/nightTextPrimary</item>
         <item name="dividerDrawable">@drawable/list_divider_night</item>
         <item name="drawerArrowStyle">@style/DrawerArrowToggle.Night</item>
         <item name="actionMenuTextColor">@color/nightTextPrimary</item>
         <item name="tabBarStyle">@style/TabBarStyle.Night</item>
         <item name="colorTextInverse07">@color/nightTextMinor</item>
-        <item name="colorUnread">@color/nightTextMinor</item>
+        <item name="colorUnread">#df464646</item>
         <item name="loginBg">@drawable/central_gradient_night</item>
         <item name="android:actionModeBackground">@color/nightPrimary</item>
         <item name="colorBackgroundSecondary">#353535</item>
         <item name="colorDivider">#3e3e3e</item>
         <item name="switchToTheme">日间模式</item>
-        <item name="switchToThemeIcon">{md-brightness-7}</item>
+        <item name="switchToThemeIcon">{md-brightness-1}</item>
         <item name="imageOpacity">0.5</item>
     </style>
 

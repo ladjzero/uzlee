@@ -3,10 +3,6 @@ package com.ladjzero.uzlee;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.media.MediaActionSound;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
@@ -19,9 +15,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ladjzero.hipda.ApiStore;
+import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.User;
-import com.ladjzero.uzlee.utils.NotificationUtils;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -98,8 +95,9 @@ public class FragmentNav extends FragmentBase implements Observer {
 			mFromSavedInstanceState = true;
 		}
 
-		mLocalApi = getCore().getLocalApi();
-		getCore().getApiStore().addObserver(this);
+		Core core = App.getInstance().getCore();
+		mLocalApi = core.getLocalApi();
+		core.getApiStore().addObserver(this);
 	}
 
 	@Override
@@ -112,14 +110,15 @@ public class FragmentNav extends FragmentBase implements Observer {
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		getCore().getApiStore().deleteObserver(this);
+		App.getInstance().getCore().getApiStore().deleteObserver(this);
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		update(getCore().getApiStore(), "user");
-		update(getCore().getApiStore(), "unread");
+		ApiStore store = App.getInstance().getCore().getApiStore();
+		update(store, "user");
+		update(store, "unread");
 	}
 
 	@Override

@@ -30,7 +30,7 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 	public void onProfileClick(int uid, String name) {
 		if (getWebView().finishActionMode()) return;
 
-		User me = getCore().getLocalApi().getUser();
+		User me = App.getInstance().getCore().getLocalApi().getUser();
 
 		if (me == null || me.getId() == 0) {
 			showToast(getResources().getString(R.string.error_login_required));
@@ -96,7 +96,7 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 
 				@Override
 				public boolean shouldDownloadImage() {
-					return getApp().shouldDownloadImage();
+					return App.getInstance().shouldDownloadImage();
 				}
 
 				@Override

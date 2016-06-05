@@ -40,7 +40,7 @@ public class ActivitySearch extends ActivityHardSlide implements View.OnKeyListe
 		mSearch = (EditText) findViewById(R.id.search_input);
 		mSearch.setOnKeyListener(this);
 
-		LruCache cache = getApp().getMemCache();
+		LruCache cache = App.getInstance().getMemCache();
 		cache.remove("threads-search-query-" + cache.get("search_key"));
 	}
 

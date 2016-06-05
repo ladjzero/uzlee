@@ -10,9 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.util.LruCache;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -37,7 +35,6 @@ import org.apache.commons.collections.Transformer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.zip.Inflater;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -84,7 +81,7 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		LruCache<String, String> cache = getApp().getMemCache();
+		LruCache<String, String> cache = App.getInstance().getMemCache();
 		String cached = cache.get(keyOfThreadsToCache());
 		List<Thread> threads = null;
 
@@ -157,7 +154,7 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-		final Thread thread = mAdapter.getItem(position);
+		final Thread thread = (Thread) parent.getItemAtPosition(position);
 		final Dialog dialog = new Dialog(mActivity);
 		View v = LayoutInflater.from(getActivity()).inflate(R.layout.threads_actions_dialog, null);
 		ListView listView = (ListView) v.findViewById(R.id.actions);
@@ -209,7 +206,7 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 
 	@Override
 	public void onDestroyView() {
-		LruCache<String, String> cache = getApp().getMemCache();
+		LruCache<String, String> cache = App.getInstance().getMemCache();
 		String toCache = JSON.toJSONString(mThreads);
 
 		if (toCache != null) {
@@ -389,4 +386,6 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 
 		private boolean isFetchingAndParsing;
 	}
+
+	public static class EventRefresh {};
 }

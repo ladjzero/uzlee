@@ -10,6 +10,6 @@ import android.content.Intent;
 public class ConnectionStatusChangedReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		((Application2) context.getApplicationContext()).setImageNetwork();
+		((App) context.getApplicationContext()).setImageNetwork();
 	}
 }

@@ -17,12 +17,8 @@ import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.Posts;
-import com.ladjzero.hipda.Thread;
 import com.ladjzero.uzlee.utils.Utils;
 import com.orhanobut.logger.Logger;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -71,7 +67,7 @@ public class ActivityChat extends ActivityWithWebView implements HttpClientCallb
 					mSend.setClickable(false);
 					mMessage.setText("");
 
-					getCore().getHttpApi().sendMessage(mName, message, ActivityChat.this);
+					App.getInstance().getCore().getHttpApi().sendMessage(mName, message, ActivityChat.this);
 				}
 			}
 		});
@@ -132,13 +128,13 @@ public class ActivityChat extends ActivityWithWebView implements HttpClientCallb
 	private void fetch(int page) {
 		Logger.i("fetching chats uid " + uid);
 
-		getApp().getHttpClient().get("http://www.hi-pda.com/forum/pm.php?uid=" + uid + "&filter=privatepm&daterange=5", new HttpClientCallback() {
+		App.getInstance().getHttpClient().get("http://www.hi-pda.com/forum/pm.php?uid=" + uid + "&filter=privatepm&daterange=5", new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
 				mParseTask = new AsyncTask<String, Void, String>() {
 					@Override
 					protected String doInBackground(String... strings) {
-						String html = getCore().getPostsParser().parseMessagesToHtml(strings[0]);
+						String html = App.getInstance().getCore().getPostsParser().parseMessagesToHtml(strings[0]);
 
 						while (!mWebViewReady) {
 							try {

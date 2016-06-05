@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,10 +38,10 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 
 		this.context = (ActivityBase) context;
 
-		mColorRead = Utils.getThemeColor(context, R.attr.colorTextLight);
+		mColorRead = Utils.getThemeColor(context, R.attr.colorTextLighter);
 		mColorUnread = Utils.getThemeColor(context, R.attr.colorUnread);
 
-		mLocalApi = this.context.getCore().getLocalApi();
+		mLocalApi = App.getInstance().getCore().getLocalApi();
 
 		initalPreferences();
 	}
@@ -114,14 +113,15 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 					holder.imageMask.setText(Utils.getFirstChar(userName));
 				}
 			});
+
+			holder.image.setTag(author);
+			holder.image.setOnClickListener(this);
 		} else {
 			holder.userWrapper.setVisibility(View.GONE);
+			holder.name.setTag(author);
+			holder.name.setOnClickListener(this);
 		}
 
-		holder.image.setTag(author);
-		holder.name.setTag(author);
-		holder.image.setOnClickListener(this);
-		holder.name.setOnClickListener(this);
 		holder.date.setText(Utils.prettyTime(thread.getDateStr()));
 		holder.name.setText(thread.getAuthor().getName());
 
@@ -140,8 +140,7 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 
 		holder.title.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
 
-		holder.commentCount.setTextColor(isNew ? mColorUnread : mColorRead);
-		holder.commentCount.setTypeface(null, isNew ? Typeface.BOLD : Typeface.NORMAL);
+		holder.commentCount.setBackgroundColor(isNew ? mColorUnread : mColorRead);
 		holder.commentCount.setText(String.valueOf(count));
 
 		return row;

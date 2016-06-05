@@ -11,8 +11,9 @@
         android:id="@+id/user_wrapper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginRight="12dp"
         android:alpha="?attr/imageOpacity"
-        android:layout_marginRight="12dp">
+        android:paddingTop="5dp">
 
         <TextView
             android:id="@+id/user_image_mask"
@@ -68,21 +69,27 @@
             <TextView
                 android:id="@+id/thread_comment_count"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="22dp"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
+                android:background="@color/redPrimary"
+                android:gravity="center"
+                android:minWidth="22dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
                 android:text="50"
-                android:textSize="14sp"/>
+                android:alpha="?attr/imageOpacity"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"/>
         </RelativeLayout>
 
         <com.joanzapata.iconify.widget.IconTextView
             android:id="@+id/thread_title"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:lineSpacingExtra="6dp"
-            android:text="人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人人"
+            android:layout_marginTop="2dp"
             android:textColor="?attr/colorText"
+            android:lineSpacingExtra="6sp"
             android:textSize="16sp"/>
     </LinearLayout>
 

@@ -14,9 +14,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.joanzapata.iconify.IconDrawable;
@@ -26,16 +24,15 @@ import com.ladjzero.uzlee.utils.Utils;
 import com.rey.material.app.Dialog;
 import com.rey.material.widget.TabPageIndicator;
 
-import java.util.List;
-
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ActivityMain extends ActivityBase implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class ActivityMain extends ActivityBase implements SharedPreferences.OnSharedPreferenceChangeListener, AdapterView.OnItemClickListener {
 
 	String title = "";
 	Toolbar toolbar;
 	boolean doubleBackToExitPressedOnce = false;
+	AdapterMenuItem actionsAdapter;
 	private FragmentNav mFragmentNav;
 	private FragmentThreadsPager mFragment;
 	private int mCurrentPagePosition = -1;
@@ -44,6 +41,8 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 	private View mCustomToolbarView;
 	private TabPageIndicator mPageIndicator;
 	private ViewPager mViewPager;
+	private Dialog mMenuDialog;
+	private View mMenuView;
 
 	public TabPageIndicator getPageIndicator() {
 		return mPageIndicator;
@@ -143,24 +142,44 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 				});
 			}
 		});
+
+		mMenuView = getLayoutInflater().inflate(R.layout.actions_dialog, null);
+
+
+		mMenuDialog = new Dialog(this);
+		ListView menuList = (ListView) mMenuView.findViewById(R.id.actions);
+		actionsAdapter = new AdapterMenuItem(this, new String[]{
+				"新主题",
+				"刷新"
+		}, new String[]{
+				"{md-add}",
+				"{md-refresh}"
+		});
+		menuList.setAdapter(actionsAdapter);
+		menuList.setOnItemClickListener(this);
+
+		mMenuDialog.title("")
+				.titleColor(Utils.getThemeColor(this, R.attr.colorText))
+				.backgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground))
+				.negativeAction("取消")
+				.negativeActionClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						mMenuDialog.dismiss();
+					}
+				})
+				.contentView(mMenuView)
+				.canceledOnTouchOutside(true);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
-		Forum f = mFragment.getCurrentForum();
-		int fid = f.getFid();
 
-		if (id == R.id.thread_publish) {
-			Intent intent = new Intent(this, ActivityEdit.class);
-			intent.putExtra("title", Forum.findById(getFlattenForums(this), fid).getName());
-			intent.putExtra("fid", fid);
-
-			startActivity(intent);
-
-			return true;
-		} else if (id == android.R.id.home) {
+		if (id == android.R.id.home) {
 			return false;
+		} else if (id == R.id.more) {
+			mMenuDialog.show();
 		}
 
 		return super.onOptionsItemSelected(item);
@@ -214,8 +233,8 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.threads, menu);
 
-		menu.findItem(R.id.thread_publish)
-				.setIcon(new IconDrawable(this, MaterialIcons.md_add)
+		menu.findItem(R.id.more)
+				.setIcon(new IconDrawable(this, MaterialIcons.md_more_vert)
 						.color(Utils.getThemeColor(this, R.attr.colorTextInverse))
 						.actionBarSize());
 
@@ -233,7 +252,7 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 	void onMyPostsClick() {
 		mFragmentNav.closeDrawer();
 
-		if (getCore().getLocalApi().getUser() != null) {
+		if (App.getInstance().getCore().getLocalApi().getUser() != null) {
 			Intent intent = new Intent(this, ActivityMyPosts.class);
 			startActivity(intent);
 		}
@@ -292,6 +311,24 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 			} else {
 				mNeedReload = true;
 			}
+		}
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+		mMenuDialog.dismiss();
+
+		switch (i) {
+			case 0:
+				Forum f = mFragment.getCurrentForum();
+				int fid = f.getFid();
+				Intent intent = new Intent(this, ActivityEdit.class);
+				intent.putExtra("title", Forum.findById(getFlattenForums(this), fid).getName());
+				intent.putExtra("fid", fid);
+				startActivity(intent);
+				return;
+			case 1:
+				App.getInstance().dispatchEvent(new FragmentThreadsAbs.EventRefresh());
 		}
 	}
 }

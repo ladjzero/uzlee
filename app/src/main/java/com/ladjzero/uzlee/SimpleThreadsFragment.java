@@ -63,13 +63,14 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 
 		tabIndex = getArguments().getInt("tab_index");
 
-		mApi = getCore().getHttpApi();
-		mThreadsParser = getCore().getThreadsParser();
+		Core core = App.getInstance().getCore();
+		mApi = core.getHttpApi();
+		mThreadsParser = core.getThreadsParser();
 		mTasks = new ArrayList<>();
 		mThreads = new Threads();
 
 		try {
-			String cached = getApp().getMemCache().get("simple_threads_tab_" + tabIndex);
+			String cached = App.getInstance().getMemCache().get("simple_threads_tab_" + tabIndex);
 			List<Thread> ts = JSON.parseArray(cached, Thread.class);
 			mThreads.addAll(ts);
 		} catch (Exception e) {
@@ -239,7 +240,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 
 		mTasks.clear();
 
-		getApp().getMemCache().put("simple_threads_tab_" + tabIndex, JSON.toJSONString(mThreads));
+		App.getInstance().getMemCache().put("simple_threads_tab_" + tabIndex, JSON.toJSONString(mThreads));
 	}
 
 	/**

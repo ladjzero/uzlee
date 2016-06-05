@@ -38,8 +38,8 @@ public class ActivityMyPosts extends ActivityPagerBase {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getApp().getMemCache().remove("simple_threads_tab_0");
-		getApp().getMemCache().remove("simple_threads_tab_1");
-		getApp().getMemCache().remove("simple_threads_tab_2");
+		App.getInstance().getMemCache().remove("simple_threads_tab_0");
+		App.getInstance().getMemCache().remove("simple_threads_tab_1");
+		App.getInstance().getMemCache().remove("simple_threads_tab_2");
 	}
 }

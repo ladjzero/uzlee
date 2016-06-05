@@ -22,7 +22,7 @@ public class TaskPostsParse extends ReportableAsyncTask {
 		mPosts = posts;
 		mModel = model;
 		mTimeline = new Timeline();
-		mParser = Application2.getInstance().getCore().getPostsParser();
+		mParser = App.getInstance().getCore().getPostsParser();
 		mParser.setProgressReport(this);
 	}
 

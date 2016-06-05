@@ -12,15 +12,15 @@ import android.widget.ListView;
 import com.ladjzero.hipda.Forum;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.Threads;
+import com.ladjzero.uzlee.utils.Utils;
 import com.ladjzero.uzlee.widget.HorizontalTagsView;
-import com.ladjzero.uzlee.widget.TagView;
 
 import java.util.List;
 
 /**
  * Created by chenzhuo on 15-12-14.
  */
-public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRefreshLayout.OnRefreshListener, HorizontalTagsView.TagStateChangeListener {
+public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRefreshLayout.OnRefreshListener, HorizontalTagsView.TagStateChangeListener, App.OnEventListener {
 
 	private int mFid;
 	private boolean mVisibleInPager = false;
@@ -48,23 +48,28 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 
 	@Override
 	protected void onListViewReady(ListView listView, LayoutInflater inflater) {
-		mTags = (HorizontalTagsView) inflater.inflate(R.layout.horizontal_tags_view, null);
-		mTags.setOnInterceptTouchEvent(new View.OnTouchListener() {
-			@Override
-			public boolean onTouch(View view, MotionEvent motionEvent) {
-				return model.isFetchingAndParsing();
+		List<Integer> selected = Utils.getForumsShowingTypes(App.getInstance().getSharedPreferences());
+
+		if (selected.contains(mFid)) {
+			mTags = (HorizontalTagsView) inflater.inflate(R.layout.horizontal_tags_view, null);
+			mTags.setOnInterceptTouchEvent(new View.OnTouchListener() {
+				@Override
+				public boolean onTouch(View view, MotionEvent motionEvent) {
+					return model.isFetchingAndParsing();
+				}
+			});
+
+			List<Forum> forums = App.getInstance().getFlattenForums();
+			Forum f = Forum.findById(forums, mFid);
+			List<Forum.Type> types = f.getTypes();
+			if (types != null && types.size() > 0) {
+				mType = types.get(0);
+				mTags.setTags(types.toArray(), mType);
+				mTags.setTagActiveListener(this);
+				listView.addHeaderView(mTags);
 			}
-		});
-
-		List<Forum> forums = Application2.getInstance().getFlattenForums();
-		Forum f = Forum.findById(forums, mFid);
-		List<Forum.Type> types = f.getTypes();
-
-		if (types != null && types.size() > 0) {
-			mType = types.get(0);
-			mTags.setTags(types.toArray(), mType);
-			listView.addHeaderView(mTags);
-			mTags.setTagActiveListener(this);
+		} else {
+			listView.addHeaderView(new View(getActivity()));
 		}
 	}
 
@@ -81,7 +86,15 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 
 		assert mFid != -1;
 
+		App.getInstance().addEventListener(this);
+
 		return super.onCreateView(inflater, container, savedInstanceState);
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		App.getInstance().removeEventListener(this);
 	}
 
 	// Lazy load.
@@ -107,13 +120,13 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 
 	@Override
 	void fetchPageAt(int page) {
-		getCore().getHttpApi().getThreads(page, mFid, mType.getId(), getOrder(), new HttpClientCallback() {
+		App.getInstance().getCore().getHttpApi().getThreads(page, mFid, mType.getId(), getOrder(), new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
 				mParseTask = new AsyncTask<String, Void, Threads>() {
 					@Override
 					protected Threads doInBackground(String... strings) {
-						return getCore().getThreadsParser().parseThreads(strings[0], getSettings().getBoolean("show_fixed_threads", false));
+						return App.getInstance().getCore().getThreadsParser().parseThreads(strings[0], getSettings().getBoolean("show_fixed_threads", false));
 					}
 
 					@Override
@@ -142,11 +155,13 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 
 	@Override
 	protected String keyOfThreadsToCache() {
-		return "threads-normal-fid-" + mFid + "-typeId-" + mType.getId();
+		return "threads-normal-fid-" + mFid + "-typeId-" + (mType != null ? mType.getId() : -1);
 	}
 
 	@Override
 	public void onRefresh() {
+		mThreads.clear();
+		mAdapter.notifyDataSetChanged();
 		fetch(1);
 	}
 
@@ -163,5 +178,12 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 	@Override
 	public void onTagInactive(Object tag, int i) {
 
+	}
+
+	@Override
+	public void onEvent(Object o) {
+		if ((o instanceof EventRefresh) && mVisibleInPager && !model.isFetchingAndParsing()) {
+			onRefresh();
+		}
 	}
 }

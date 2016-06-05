@@ -36,7 +36,7 @@ public class ActivityAlerts extends ActivityPagerBase {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getApp().getMemCache().remove("alerts_tab_0");
-		getApp().getMemCache().remove("alerts_tab_1");
+		App.getInstance().getMemCache().remove("alerts_tab_0");
+		App.getInstance().getMemCache().remove("alerts_tab_1");
 	}
 }

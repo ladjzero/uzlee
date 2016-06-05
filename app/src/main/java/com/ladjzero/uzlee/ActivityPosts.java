@@ -68,9 +68,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	private static final String TAG = "ActivityPosts";
 	private final int EDIT_CODE = 99;
-	// 0 = asc, 1 = desc
-	public int orderType = 0;
-	PostActionsAdapter actionsAdapter;
+	AdapterMenuItem actionsAdapter;
 	@Bind(R.id.posts)
 	PullToRefreshWebView mPostsView;
 	@Bind(R.id.quick_input)
@@ -138,16 +136,9 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				startActivityForResult(replyIntent, EDIT_CODE);
 				break;
 			case 1:
-				orderType = orderType == 0 ? 1 : 0;
-				fetch(1);
-				// dismiss before data change, visual perfect
-				mMenuDialog.dismiss();
-				actionsAdapter.notifyDataSetChanged();
-				break;
-			case 2:
 				fetch(mPage);
 				break;
-			case 3:
+			case 2:
 				mHttpApi.addToFavorite(mTid, new HttpClientCallback() {
 					@Override
 					public void onFailure(String reason) {
@@ -195,18 +186,18 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 					}
 				});
 				break;
-			case 4:
+			case 3:
 				ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-				ClipData clipData = ClipData.newPlainText("post url", getUri(mPage));
+				ClipData clipData = ClipData.newPlainText("post url", getUri(mPosts.getMeta().getPage()));
 				clipboardManager.setPrimaryClip(clipData);
 				showToast("复制到剪切版");
 				break;
-			case 5:
+			case 4:
 				model.setOnSelection(true);
 				break;
-			case 6:
+			case 5:
 				Intent intent = new Intent(Intent.ACTION_VIEW);
-				intent.setData(Uri.parse(getUri(mPage)));
+				intent.setData(Uri.parse(getUri(mPosts.getMeta().getPage())));
 				startActivity(intent);
 				break;
 		}
@@ -263,7 +254,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		if (mPid > 0) {
 			return String.format("http://www.hi-pda.com/forum/redirect.php?goto=findpost&pid=%d&ptid=%d", mPid, mTid);
 		} else {
-			return "http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + page + "&ordertype=" + orderType;
+			return "http://www.hi-pda.com/forum/viewthread.php?tid=" + mTid + "&page=" + page;
 		}
 	}
 
@@ -324,7 +315,21 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		mMenuDialog = new Dialog(this);
 		ListView menuList = (ListView) mMenuView.findViewById(R.id.actions);
-		actionsAdapter = new PostActionsAdapter(this);
+		actionsAdapter = new AdapterMenuItem(this, new String[]{
+				"回复",
+				"刷新",
+				"收藏",
+				"复制链接",
+				"截图",
+				"从浏览器打开"
+		}, new String[]{
+				"{md-reply}",
+				"{md-refresh}",
+				"{md-bookmark}",
+				"{md-link}",
+				"{md-crop}",
+				"{md-open-in-browser}"
+		});
 		menuList.setAdapter(actionsAdapter);
 		menuList.setOnItemClickListener(this);
 
@@ -345,9 +350,9 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mPosts = new ObservablePosts();
 		mPosts.addOnListChangedCallback(new OnListChangedCallback());
 
-		mHttpClient = getApp().getHttpClient();
-		mHttpApi = getCore().getHttpApi();
-		mLocalApi = getCore().getLocalApi();
+		mHttpClient = App.getInstance().getHttpClient();
+		mHttpApi = App.getInstance().getCore().getHttpApi();
+		mLocalApi = App.getInstance().getCore().getLocalApi();
 		mProgressView.start();
 	}
 
@@ -547,7 +552,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 	@Override
 	public void onStopTrackingTouch(DiscreteSeekBar seekBar) {
-		if (mPage != seekBar.getProgress()) {
+		if (mPosts.getMeta().getPage() != seekBar.getProgress()) {
 			fetch(seekBar.getProgress());
 			mMenuDialog.dismiss();
 		}
@@ -738,7 +743,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		model.setWebviewReady(true);
 
-		mWebView.loadUrl("javascript:_postsData.enableEcho(" + getApp().shouldDownloadImage() + ")");
+		mWebView.loadUrl("javascript:_postsData.enableEcho(" + App.getInstance().shouldDownloadImage() + ")");
 
 		if (!mIsPushedAfterWebReady) {
 			for (Post post : mPosts) {

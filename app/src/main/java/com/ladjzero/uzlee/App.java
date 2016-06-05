@@ -2,52 +2,46 @@ package com.ladjzero.uzlee;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.LruCache;
 import android.webkit.WebView;
 
-import com.alibaba.fastjson.JSON;
 import com.joanzapata.iconify.Iconify;
-import com.joanzapata.iconify.fonts.FontAwesomeModule;
 import com.joanzapata.iconify.fonts.MaterialModule;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
-import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.PersistenceAdapter;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.UilUtils;
 import com.ladjzero.uzlee.utils.Utils;
-import com.ladjzero.uzlee.utils.VersionComparator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.orhanobut.logger.Logger;
-import com.rey.material.app.DialogFragment;
-import com.rey.material.app.SimpleDialog;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by ladjzero on 2015/1/2.
  */
-public class Application2 extends Application implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class App extends Application implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-	private static Application2 app;
+	private static App app;
 
 	private LruCache<String, String> mMemCache;
 	private HttpClient2 mHttpClient;
 	private Core mCore;
 	private boolean mShouldDownloadImage;
 	private SharedPreferences mPref;
+	private List<OnEventListener> mListeners;
 
 	private List<Forum> mFlattenForums;
 
-	public static Application2 getInstance() {
+	public static App getInstance() {
 		return app;
 	}
 
@@ -63,7 +57,7 @@ public class Application2 extends Application implements SharedPreferences.OnSha
 	public void onCreate() {
 		super.onCreate();
 
-		Iconify.with(new FontAwesomeModule()).with(new MaterialModule());
+		Iconify.with(new MaterialModule());
 
 		// 10MB.
 		mMemCache = new LruCache<String, String>(1024 * 1024 * 10) {
@@ -92,6 +86,7 @@ public class Application2 extends Application implements SharedPreferences.OnSha
 		}
 
 		app = this;
+		mListeners = new ArrayList<>();
 
 		Logger.init();
 	}
@@ -106,7 +101,7 @@ public class Application2 extends Application implements SharedPreferences.OnSha
 		return mMemCache;
 	}
 
-	List<Forum> getFlattenForums() {
+	public List<Forum> getFlattenForums() {
 		if (mFlattenForums == null) {
 			mFlattenForums = Forum.flatten(Utils.getForums(this));
 		}
@@ -114,8 +109,18 @@ public class Application2 extends Application implements SharedPreferences.OnSha
 		return mFlattenForums;
 	}
 
+	public List<Forum> getSelectedForums() {
+		return Forum.findByIds(getFlattenForums(), Utils.getSelectedForums(mPref));
+	}
+
+	;
+
 	public boolean shouldDownloadImage() {
 		return mShouldDownloadImage;
+	}
+
+	public SharedPreferences getSharedPreferences() {
+		return mPref;
 	}
 
 	@Override
@@ -143,6 +148,24 @@ public class Application2 extends Application implements SharedPreferences.OnSha
 
 			ImageLoader.getInstance().denyNetworkDownloads(!mShouldDownloadImage);
 			Logger.i("wifi %b load when wifi only %b", isWifi, loadWifiOnly);
+		}
+	}
+
+	public interface OnEventListener {
+		void onEvent(Object o);
+	}
+
+	public void addEventListener(OnEventListener l) {
+		mListeners.add(l);
+	}
+
+	public void removeEventListener(OnEventListener l){
+		mListeners.remove(l);
+	}
+
+	public void dispatchEvent(Object o) {
+		for (OnEventListener l : mListeners) {
+			l.onEvent(o);
 		}
 	}
 }

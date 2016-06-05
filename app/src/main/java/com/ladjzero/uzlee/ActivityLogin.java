@@ -86,7 +86,7 @@ public class ActivityLogin extends ActionBarActivity {
 		ButterKnife.bind(this);
 
 
-		Core core = ((Application2) getApplication()).getCore();
+		Core core = ((App) getApplication()).getCore();
 
 		mHttpApi = core.getHttpApi();
 		mLocalApi = core.getLocalApi();

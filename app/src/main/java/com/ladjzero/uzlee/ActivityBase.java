@@ -19,7 +19,6 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
-import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.uzlee.model.Version;
@@ -31,17 +30,10 @@ import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.utils.L;
 import com.rey.material.app.Dialog;
-import com.rey.material.app.DialogFragment;
-import com.rey.material.app.SimpleDialog;
 import com.tencent.stat.StatService;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 
@@ -104,10 +96,6 @@ public abstract class ActivityBase extends ActionBarActivity {
 		return Forum.flatten(getForums(context));
 	}
 
-	public Core getCore() {
-		return getApp().getCore();
-	}
-
 	public void showToast(String message) {
 		Utils.showToast(this, message);
 	}
@@ -158,7 +146,7 @@ public abstract class ActivityBase extends ActionBarActivity {
 		Long now = System.currentTimeMillis();
 
 		if (force || now - lastCheck > 12 * 3600 * 1000) {
-			getApp().getHttpClient().get("http://ladjzero.me/uzlee/js/version.json", "utf-8",new HttpClientCallback() {
+			App.getInstance().getHttpClient().get("http://ladjzero.me/uzlee/js/version.json", "utf-8", new HttpClientCallback() {
 				@Override
 				public void onSuccess(String response) {
 					List<Version> info = null;
@@ -284,39 +272,8 @@ public abstract class ActivityBase extends ActionBarActivity {
 		setting.unregisterOnSharedPreferenceChangeListener(prefListener);
 	}
 
-	public Application2 getApp() {
-		return (Application2) getApplication();
-	}
-
-	public List<Forum> getSelectedForums(Context context) {
-		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-
-		Collection<Integer> selected = CollectionUtils.collect(Arrays.asList(pref.getString("selected_forums", "").split(",")), new Transformer() {
-			@Override
-			public Object transform(Object o) {
-				try {
-					return Integer.valueOf((String) o);
-				} catch (Exception e) {
-					return -1;
-				}
-			}
-		});
-
-		if (selected.size() == 0 || selected.contains(-1)) {
-			List<String> selectedStrs = Arrays.asList(
-					context.getResources().getStringArray(R.array.default_forums));
-
-			selected = CollectionUtils.collect(selectedStrs, new Transformer() {
-				@Override
-				public Object transform(Object o) {
-					return Integer.valueOf((String) o);
-				}
-			});
-
-			pref.edit().putString("selected_forums", StringUtils.join(selectedStrs, ','));
-		}
-
-		return Forum.findByIds(getForums(context), selected);
+	public App getApp() {
+		return (App) getApplication();
 	}
 
 	public interface OnToolbarClickListener {

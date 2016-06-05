@@ -60,7 +60,7 @@ public class FragmentThreadsPager extends Fragment implements FragmentThreadsAbs
 		ButterKnife.bind(this, rootView);
 
 		mActivity = (ActivityMain) getActivity();
-		mForums = mActivity.getSelectedForums(mActivity);
+		mForums = App.getInstance().getSelectedForums();
 		mPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager(), mForums);
 		mViewPager.setAdapter(mPagerAdapter);
 

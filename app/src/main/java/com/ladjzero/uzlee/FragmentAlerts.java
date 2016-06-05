@@ -1,6 +1,5 @@
 package com.ladjzero.uzlee;
 
-import android.app.Fragment;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -58,12 +57,12 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 		try {
 			if (tabIndex == 0) {
 				mThreads = new Threads();
-				String cached = getApp().getMemCache().get("alerts_tab_" + tabIndex);
+				String cached = App.getInstance().getMemCache().get("alerts_tab_" + tabIndex);
 				List<Thread> ts = JSON.parseArray(cached, Thread.class);
 				mThreads.addAll(ts);
 			} else {
 				mPosts = new Posts();
-				String cached = getApp().getMemCache().get("alerts_tab_" + tabIndex);
+				String cached = App.getInstance().getMemCache().get("alerts_tab_" + tabIndex);
 				List<Post> ps = JSON.parseArray(cached, Post.class);
 				mPosts.addAll(ps);
 			}
@@ -101,9 +100,11 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 				break;
 		}
 
-		mApi = getCore().getHttpApi();
-		mPostsParser = getCore().getPostsParser();
-		mThreadsParser = getCore().getThreadsParser();
+		Core core = App.getInstance().getCore();
+
+		mApi = core.getHttpApi();
+		mPostsParser = core.getPostsParser();
+		mThreadsParser = core.getThreadsParser();
 	}
 
 
@@ -213,9 +214,9 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 		}
 
 		if (tabIndex == 0) {
-			getApp().getMemCache().put("alerts_tab_" + tabIndex, JSON.toJSONString(mThreads));
+			App.getInstance().getMemCache().put("alerts_tab_" + tabIndex, JSON.toJSONString(mThreads));
 		} else {
-			getApp().getMemCache().put("alerts_tab_" + tabIndex, JSON.toJSONString(mPosts));
+			App.getInstance().getMemCache().put("alerts_tab_" + tabIndex, JSON.toJSONString(mPosts));
 		}
 	}
 }

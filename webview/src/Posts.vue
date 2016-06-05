@@ -247,7 +247,7 @@ img[src$="common/back.gif"] {
             }
 
             .date {
-                color: #c8c8c8;
+                color: #a3a3a3;
                 padding-left: 12px;
                 font-size: 10px;
             }

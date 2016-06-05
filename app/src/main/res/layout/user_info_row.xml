@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:background="?android:attr/colorBackground">
 
-        <com.joanzapata.iconify.widget.IconTextView
+        <TextView
             android:id="@+id/key"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
@@ -28,11 +28,11 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="12dp"
-            android:text="{fa-angle-right}"
+            android:text="{md-keyboard-arrow-right}"
             android:textColor="?attr/colorTextMinor"
             android:textSize="24sp"/>
 
-        <com.joanzapata.iconify.widget.IconTextView
+        <TextView
             android:id="@+id/value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

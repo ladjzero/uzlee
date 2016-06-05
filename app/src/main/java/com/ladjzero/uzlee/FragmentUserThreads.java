@@ -1,16 +1,13 @@
 package com.ladjzero.uzlee;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.ladjzero.hipda.HttpApi;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.Threads;
-import com.ladjzero.hipda.ThreadsParser;
 
 /**
  * Created by chenzhuo on 15-12-14.
@@ -35,7 +32,7 @@ public class FragmentUserThreads extends FragmentThreadsAbs {
 		Bundle args = getArguments();
 
 		userName = args.getString("userName");
-		getApp().getMemCache().put("search_key", userName);
+		App.getInstance().getMemCache().put("search_key", userName);
 
 		assert userName != null;
 
@@ -54,13 +51,13 @@ public class FragmentUserThreads extends FragmentThreadsAbs {
 
 	@Override
 	void fetchPageAt(int page) {
-		getCore().getHttpApi().searchUserThreads(userName, page, new HttpClientCallback() {
+		App.getInstance().getCore().getHttpApi().searchUserThreads(userName, page, new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
 				mParseTask = new AsyncTask<String, Object, Threads>() {
 					@Override
 					protected Threads doInBackground(String... strings) {
-						return getCore().getThreadsParser().parseThreads(strings[0], getSettings().getBoolean("show_fixed_threads", false));
+						return App.getInstance().getCore().getThreadsParser().parseThreads(strings[0], getSettings().getBoolean("show_fixed_threads", false));
 					}
 
 					@Override
@@ -89,6 +86,6 @@ public class FragmentUserThreads extends FragmentThreadsAbs {
 
 	@Override
 	protected String keyOfThreadsToCache() {
-		return "threads-user-name-" + getApp().getMemCache().get("search_key");
+		return "threads-user-name-" + App.getInstance().getMemCache().get("search_key");
 	}
 }

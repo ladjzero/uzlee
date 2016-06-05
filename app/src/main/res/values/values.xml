@@ -4,9 +4,11 @@
     <attr name="tabBarStyle" format="reference" />
     <attr name="loginBg" format="reference" />
 
+    <attr name="colorEdit" format="color"></attr>
     <attr name="colorSecondary" format="color"></attr>
     <attr name="colorText" format="color"></attr>
     <attr name="colorTextLight" format="color"></attr>
+    <attr name="colorTextLighter" format="color"></attr>
     <attr name="colorTextMinor" format="color"></attr>
     <attr name="colorTextInverse" format="color"></attr>
     <attr name="colorUnread" format="color"></attr>

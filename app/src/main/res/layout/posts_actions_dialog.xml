@@ -8,8 +8,8 @@
     <ListView
         android:id="@+id/actions"
         android:layout_width="@dimen/menu_dialog_width"
-        android:divider="@null"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:divider="@null"/>
 
     <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
         android:id="@+id/seekbar"

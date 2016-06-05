@@ -82,15 +82,15 @@ public class ActivityUser extends ActivityEasySlide {
 
 		setProgressBarIndeterminateVisibility(true);
 
-		mLocalApi = getCore().getLocalApi();
+		mLocalApi = App.getInstance().getCore().getLocalApi();
 
-		getApp().getHttpClient().get("http://www.hi-pda.com/forum/space.php?uid=" + uid, new HttpClientCallback() {
+		App.getInstance().getHttpClient().get("http://www.hi-pda.com/forum/space.php?uid=" + uid, new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
 				mParseTask = new AsyncTask<String, Object, User>() {
 					@Override
 					protected User doInBackground(String... strings) {
-						return getCore().getUserParser().parseUser(strings[0]);
+						return App.getInstance().getCore().getUserParser().parseUser(strings[0]);
 					}
 
 					@Override
@@ -195,7 +195,7 @@ public class ActivityUser extends ActivityEasySlide {
 		String totalThreads = user.getTotalThreads();
 		String points = user.getPoints();
 
-		if (qq != null && qq.length() > 0) strings.add("{fa-qq}," + qq);
+		if (qq != null && qq.length() > 0) strings.add("QQ," + qq);
 		strings.add("发帖数量," + totalThreads);
 		strings.add("积分," + points);
 		strings.add("注册日期," + registerDate);

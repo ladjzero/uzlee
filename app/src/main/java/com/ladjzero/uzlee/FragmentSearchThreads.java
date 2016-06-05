@@ -11,7 +11,6 @@ import com.ladjzero.hipda.Forum;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.Threads;
 import com.ladjzero.uzlee.widget.HorizontalTagsView;
-import com.orhanobut.logger.Logger;
 import com.r0adkll.slidr.model.SlidrInterface;
 
 import java.util.ArrayList;
@@ -53,7 +52,7 @@ public class FragmentSearchThreads extends FragmentThreadsAbs implements Horizon
 
 	public void updateSearch(String query) {
 		mQuery = query;
-		getApp().getMemCache().put("search_key", mQuery);
+		App.getInstance().getMemCache().put("search_key", mQuery);
 		fetch(1);
 	}
 
@@ -65,13 +64,13 @@ public class FragmentSearchThreads extends FragmentThreadsAbs implements Horizon
 	@Override
 	void fetchPageAt(int page) {
 		if (mQuery != null && mQuery.length() > 0) {
-			getCore().getHttpApi().searchThreads(mQuery, page, toFids(mTags.getTags(true)), new HttpClientCallback() {
+			App.getInstance().getCore().getHttpApi().searchThreads(mQuery, page, toFids(mTags.getTags(true)), new HttpClientCallback() {
 				@Override
 				public void onSuccess(String response) {
 					mParseTask = new AsyncTask<String, Object, Threads>() {
 						@Override
 						protected Threads doInBackground(String... strings) {
-							return getCore().getThreadsParser().parseThreads(strings[0], getSettings().getBoolean("show_fixed_threads", false));
+							return App.getInstance().getCore().getThreadsParser().parseThreads(strings[0], getSettings().getBoolean("show_fixed_threads", false));
 						}
 
 						@Override
@@ -119,7 +118,7 @@ public class FragmentSearchThreads extends FragmentThreadsAbs implements Horizon
 
 		List<Forum> forums = new ArrayList<Forum>();
 		forums.add(new Forum().setFid(-1).setName("全部"));
-		forums.addAll(Application2.getInstance().getFlattenForums());
+		forums.addAll(App.getInstance().getFlattenForums());
 
 		mTags.setTags(forums.toArray(), forums.get(0));
 		listView.addHeaderView(mTags);
@@ -137,7 +136,7 @@ public class FragmentSearchThreads extends FragmentThreadsAbs implements Horizon
 
 	@Override
 	protected String keyOfThreadsToCache() {
-		return "threads-search-query-" + getApp().getMemCache().get("search_key");
+		return "threads-search-query-" + App.getInstance().getMemCache().get("search_key");
 	}
 
 	@Override

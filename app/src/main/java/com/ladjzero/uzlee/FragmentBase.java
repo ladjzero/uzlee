@@ -19,14 +19,6 @@ public class FragmentBase extends Fragment {
 		mActivity = (ActivityBase) activity;
 	}
 
-	public Application2 getApp() {
-		return mActivity.getApp();
-	}
-
-	public Core getCore() {
-		return getApp().getCore();
-	}
-
 	public SharedPreferences getSettings() {
 		return mActivity.getSettings();
 	}

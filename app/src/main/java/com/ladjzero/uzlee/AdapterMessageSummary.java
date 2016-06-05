@@ -29,7 +29,7 @@ public class AdapterMessageSummary extends ArrayAdapter<Thread> implements View.
 	public AdapterMessageSummary(Context context, ArrayList<Thread> threads) {
 		super(context, R.layout.message_row, threads);
 		this.context = (ActivityBase) context;
-		mLocalApi = this.context.getCore().getLocalApi();
+		mLocalApi = App.getInstance().getCore().getLocalApi();
 	}
 
 	@Override

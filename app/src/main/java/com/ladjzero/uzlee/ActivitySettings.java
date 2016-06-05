@@ -12,8 +12,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.alibaba.fastjson.JSON;
+import com.ladjzero.hipda.Forum;
 import com.ladjzero.hipda.HttpApi;
 import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.LocalApi;
@@ -21,6 +23,11 @@ import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.Utils;
 import com.rey.material.app.Dialog;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -33,9 +40,9 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		mHttpApi = getCore().getHttpApi();
-		mLocalApi = getCore().getLocalApi();
-		mHttpClient = getApp().getHttpClient();
+		mHttpApi = App.getInstance().getCore().getHttpApi();
+		mLocalApi = App.getInstance().getCore().getLocalApi();
+		mHttpClient = App.getInstance().getHttpClient();
 
 		super.onCreate(savedInstanceState);
 
@@ -54,7 +61,7 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key.equals("selected_forums")) {
+		if (key.equals(Constants.PREF_KEY_SELECTED_FORUMS) || key.equals(Constants.PREF_KEY_SHOW_TYPES)) {
 			Intent intent = new Intent();
 			intent.putExtra("reload", true);
 			this.setResult(0, intent);
@@ -113,7 +120,7 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 
 			Preference logout = findPreference("logout");
 			final ActivitySettings activity = (ActivitySettings) getActivity();
-			User me = activity.getCore().getLocalApi().getUser();
+			User me = App.getInstance().getCore().getLocalApi().getUser();
 			logout.setTitle(me == null || me.getId() == 0 ? "登入" : "登出");
 
 			logout.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -150,6 +157,21 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 				}
 			});
 
+			Preference typesBtn = findPreference(Constants.PREF_KEY_SHOW_TYPES);
+			typesBtn.setOnPreferenceClickListener(new TypeClickListener((ActivityBase) getActivity(), "显示分类的版块", Constants.PREF_KEY_SHOW_TYPES, R.layout.list_forum) {
+
+				@Override
+				public boolean onPreferenceClick(Preference preference) {
+					show(true);
+					return false;
+				}
+
+				@Override
+				public void onSelect(String summary) {
+
+				}
+			});
+
 			final Preference theme = findPreference("theme");
 			String themeStr = pref.getString("theme", DefaultTheme);
 			theme.setSummary(Utils.getThemeName(getActivity(), themeStr));
@@ -162,7 +184,7 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					dialog.show();
+					show(true);
 					return false;
 				}
 			});
@@ -290,12 +312,21 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 		Dialog dialog;
 		ActivityBase context;
 		String key;
+		View contentView;
+		String title;
+		int layoutId;
 
 		public BaseClickListener(ActivityBase context, String title, String key, int layoutId) {
 			this.key = key;
 			this.context = context;
+			this.title = title;
+			this.layoutId = layoutId;
+			initDialog();
+		}
+
+		private void initDialog() {
 			dialog = new Dialog(context);
-			View contentView = context.getLayoutInflater().inflate(layoutId, null);
+			contentView = context.getLayoutInflater().inflate(layoutId, null);
 			ButterKnife.bind(this, contentView);
 
 			dialog.negativeActionClickListener(new View.OnClickListener() {
@@ -430,6 +461,71 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 		}
 
 		public abstract void onSelect(String summary);
+	}
+
+	static class TypeClickListener extends BaseClickListener {
+		public TypeClickListener(final ActivityBase context, String title, String key, int layoutId) {
+			super(context, title, key, layoutId);
+			this.key = key;
+
+			ListView listView = (ListView) contentView.findViewById(R.id.list);
+			List<Forum> allForums = App.getInstance().getFlattenForums();
+			final List<AdapterCheckableList.DataWrapper> forumsWithTypes = new ArrayList<>();
+			List<Integer> checked = Utils.getForumsShowingTypes(context);
+
+			for (Forum f : allForums) {
+				if (f.getTypes() != null) {
+					forumsWithTypes.add(new AdapterCheckableList.DataWrapper(checked.contains(f.getFid()), f));
+				}
+			}
+
+			listView.setAdapter(new AdapterCheckableList(context, R.layout.checkbox, forumsWithTypes));
+
+			dialog.positiveAction("确定");
+			dialog.negativeActionClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					show(false);
+
+					List<Integer> selected = Utils.getForumsShowingTypes(App.getInstance().getSharedPreferences());
+
+					for (AdapterCheckableList.DataWrapper d : forumsWithTypes) {
+						d.checked = selected.contains(((Forum) d.data).getFid());
+					}
+				}
+			});
+			dialog.positiveActionClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					ArrayList<Integer> toSave = new ArrayList<Integer>();
+
+					for (AdapterCheckableList.DataWrapper d : forumsWithTypes) {
+						if (d.checked) {
+							toSave.add(((Forum) d.data).getFid());
+						}
+					}
+
+					context
+							.getSettings()
+							.edit()
+							.putString(Constants.PREF_KEY_SHOW_TYPES, StringUtils.join(toSave, ','))
+							.commit();
+
+					show(false);
+				}
+			});
+		}
+
+		@Override
+		public void onSelect(String summary) {
+
+		}
+
+		@Override
+		public boolean onPreferenceClick(Preference preference) {
+			show(true);
+			return false;
+		}
 	}
 
 	abstract static class ThemeClickListener extends BaseClickListener {

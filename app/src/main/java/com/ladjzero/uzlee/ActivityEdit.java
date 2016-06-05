@@ -101,12 +101,12 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 				.titleColor(Utils.getThemeColor(this, R.attr.colorText))
 				.backgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground));
 
-		mHttpApi = getCore().getHttpApi();
+		mHttpApi = App.getInstance().getCore().getHttpApi();
 
 		mHttpApi.getExistedAttach(new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
-				String[] ids = getCore().getPostsParser().parseExistedAttach(response);
+				String[] ids = App.getInstance().getCore().getPostsParser().parseExistedAttach(response);
 
 				for (String id : ids) {
 					if (id.length() > 0) existedAttachIds.add(Integer.valueOf(id));
@@ -140,7 +140,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 		if (isNewThread) {
 			subjectInput.setVisibility(View.VISIBLE);
 		} else {
-			if (uid != getCore().getLocalApi().getUser().getId()) {
+			if (uid != App.getInstance().getCore().getLocalApi().getUser().getId()) {
 				//reply
 				subjectInput.setVisibility(View.GONE);
 			} else if (no != 1) {
@@ -164,7 +164,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 					mParseTask = new AsyncTask<String, Object, Post>() {
 						@Override
 						protected Post doInBackground(String... strings) {
-							return getCore().getPostsParser().parseEditablePost(strings[0]);
+							return App.getInstance().getCore().getPostsParser().parseEditablePost(strings[0]);
 						}
 
 						@Override
@@ -415,6 +415,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 							@Override
 							public void onFailure(String reason) {
 								showToast("图片上传失败");
+								mDialog.dismiss();
 							}
 						});
 					}

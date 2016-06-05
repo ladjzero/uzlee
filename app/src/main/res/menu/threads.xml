@@ -4,8 +4,9 @@
       tools:context="com.ladjzero.uzlee.ActivityMain">
 
     <item
-        android:id="@+id/thread_publish"
-        android:title="新主题"
+        android:id="@+id/more"
+        android:title="更多"
         app:showAsAction="always"/>
+
 
 </menu>

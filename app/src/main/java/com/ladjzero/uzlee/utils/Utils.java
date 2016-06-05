@@ -3,9 +3,11 @@ package com.ladjzero.uzlee.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
+import android.preference.Preference;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
@@ -18,6 +20,7 @@ import com.ladjzero.hipda.Forum;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.ActivityBase;
 import com.ladjzero.uzlee.R;
 import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
@@ -41,6 +44,7 @@ import java.io.StreamCorruptedException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -311,5 +315,41 @@ public class Utils {
             if (types != null) types.add(0, all);
             if (children != null) addALLType(children);
         }
+    }
+
+    public static List<Integer> getSelectedForums(ActivityBase context) {
+        return getSelectedForums(context.getSettings());
+    }
+
+    public static List<Integer> getSelectedForums(SharedPreferences pref) {
+        String str = pref.getString(Constants.PREF_KEY_SELECTED_FORUMS, Constants.DEFAULT_SELECTED_FORUMS);
+        String[] strs = str.split(",");
+        ArrayList<Integer> ret = new ArrayList<>();
+        for (String s : strs) {
+            try {
+                ret.add(Integer.valueOf(s));
+            } catch (Exception e) {
+
+            }
+        }
+        return ret;
+    }
+
+    public static List<Integer> getForumsShowingTypes(SharedPreferences pref) {
+        String str = pref.getString(Constants.PREF_KEY_SHOW_TYPES, Constants.DEFAULT_SHOW_TYPES);
+        String[] strs = str.split(",");
+        ArrayList<Integer> ret = new ArrayList<>();
+        for (String s : strs) {
+            try {
+                ret.add(Integer.valueOf(s));
+            } catch (Exception e) {
+
+            }
+        }
+        return ret;
+    }
+
+    public static List<Integer> getForumsShowingTypes(ActivityBase context) {
+        return getForumsShowingTypes(context.getSettings());
     }
 }
