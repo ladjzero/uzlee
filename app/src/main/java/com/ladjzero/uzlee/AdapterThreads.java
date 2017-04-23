@@ -11,8 +11,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ladjzero.hipda.Core;
-import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.utils.Constants;

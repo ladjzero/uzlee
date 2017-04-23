@@ -3,7 +3,6 @@ package com.ladjzero.uzlee;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -11,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.ladjzero.hipda.Forum;
-import com.ladjzero.hipda.HttpClientCallback;
+import com.ladjzero.hipda.Response;
 import com.ladjzero.hipda.Threads;
 import com.ladjzero.uzlee.utils.Utils;
 import com.ladjzero.uzlee.widget.HorizontalTagsView;
@@ -121,27 +120,16 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 
 	@Override
 	void fetchPageAt(int page) {
-		App.getInstance().getCore().getHttpApi().getThreads(page, mFid, mType.getId(), getOrder(), new HttpClientCallback() {
+		App.getInstance().getApi().getThreads(page, mFid, mType.getId(), getOrder(), new Api.OnRespond() {
 			@Override
-			public void onSuccess(String response) {
-				mParseTask = new AsyncTask<String, Void, Threads>() {
-					@Override
-					protected Threads doInBackground(String... strings) {
-						return App.getInstance().getCore().getThreadsParser().parseThreads(strings[0], getSettings().getBoolean("show_fixed_threads", false));
-					}
-
-					@Override
-					protected void onPostExecute(Threads threads) {
-						model.setFetchingAndParsing(false);
-						onThreads(threads);
-					}
-				}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
-			}
-
-			@Override
-			public void onFailure(String reason) {
-				((ActivityBase) getActivity()).showToast(reason);
+			public void onRespond(Response res) {
 				model.setFetchingAndParsing(false);
+
+				if (res.isSuccess()) {
+					onThreads((Threads) res.getData());
+				} else {
+					((ActivityBase) getActivity()).showToast(res.getData().toString());
+				}
 			}
 		});
 	}

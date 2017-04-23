@@ -6,7 +6,6 @@ import android.preference.PreferenceManager;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.ladjzero.hipda.PersistenceAdapter;
 
 import java.util.List;
 

@@ -157,20 +157,20 @@ public class PostsParser extends Parser {
 	}
 
 	public Post parseEditablePost(String html) {
-		Document doc = getDoc(html);
+		Document doc = getDoc(html, new Response.Meta());
 		String title = doc.select("#subject").val();
 		String editBody = doc.select("#e_textarea").text();
 
 		return new Post().setTitle(title).setBody(editBody);
 	}
 
-	public Posts parsePosts(String html) {
-		if (mProgressReporter != null && mProgressReporter.isCancelled()) return null;
+	public Response parse(String html) {
 
 		Posts posts = new Posts();
-		Document doc = getDoc(html);
+		Response.Meta resMeta = new Response.Meta();
 
-		if (mProgressReporter != null && mProgressReporter.isCancelled()) return null;
+		Document doc = getDoc(html, resMeta);
+
 
 
 		Element eFid = doc.select("#nav a").last();
@@ -215,11 +215,7 @@ public class PostsParser extends Parser {
 		int i = 0;
 
 		for (Element ePost : ePosts) {
-			Post post;
-			posts.add(post = toPostObj(ePost));
-
-			if (mProgressReporter != null) mProgressReporter.onProgress(++i, ePosts.size(), post);
-			if (mProgressReporter != null && mProgressReporter.isCancelled()) return null;
+			posts.add(toPostObj(ePost));
 		}
 
 		int currPage = 1;
@@ -238,14 +234,19 @@ public class PostsParser extends Parser {
 		meta.setFid(fid);
 		meta.setTitle(title);
 
-		return posts;
+		Response res = new Response();
+		res.setData(posts);
+		res.setMeta(resMeta);
+		res.setSuccess(true);
+
+		return res;
 	}
 
 	public Posts parseMentions(String html) {
 		Posts mentions = new Posts();
 
 		try {
-			Document doc = getDoc(html);
+			Document doc = getDoc(html, new Response.Meta());
 
 			Elements eNotices = doc.select("ul.feed > li.s_clear > div");
 
@@ -314,7 +315,7 @@ public class PostsParser extends Parser {
 
 	public String parseMessagesToHtml(String html) {
 		Posts posts = new Posts();
-		Document doc = getDoc(html);
+		Document doc = getDoc(html, new Response.Meta());
 		Element ePosts = doc.select("#pmlist > .pm_list").first();
 		Elements avatars = ePosts.select("a.avatar > img");
 

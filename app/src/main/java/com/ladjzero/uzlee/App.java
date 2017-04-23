@@ -12,9 +12,7 @@ import android.webkit.WebView;
 
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.MaterialModule;
-import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
-import com.ladjzero.hipda.PersistenceAdapter;
 import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.UilUtils;
@@ -42,6 +40,7 @@ public class App extends Application implements SharedPreferences.OnSharedPrefer
 	private boolean mShouldDownloadImage;
 	private SharedPreferences mPref;
 	private List<OnEventListener> mListeners;
+	private Api mApi;
 
 	private List<Forum> mFlattenForums;
 
@@ -56,6 +55,8 @@ public class App extends Application implements SharedPreferences.OnSharedPrefer
 	public Core getCore() {
 		return mCore;
 	}
+
+	public Api getApi() { return mApi; }
 
 	@Override
 	public void onCreate() {
@@ -78,6 +79,7 @@ public class App extends Application implements SharedPreferences.OnSharedPrefer
 		ImageLoader.getInstance().init(ilConfig);
 
 		mHttpClient = new HttpClient2(this);
+		mApi = new Api();
 		PersistenceAdapter adapter = new AndroidAdapter(this);
 		mCore = Core.initialize(adapter, mHttpClient);
 		UilUtils.init(this);

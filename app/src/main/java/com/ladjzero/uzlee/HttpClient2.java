@@ -2,8 +2,6 @@ package com.ladjzero.uzlee;
 
 import android.content.Context;
 
-import com.ladjzero.hipda.HttpClient;
-import com.ladjzero.hipda.HttpClientCallback;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.PersistentCookieStore;
 import com.loopj.android.http.RequestParams;

@@ -20,7 +20,6 @@ import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.Forum;
-import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.uzlee.model.Version;
 import com.ladjzero.uzlee.utils.EmojiUtils;
 import com.ladjzero.uzlee.utils.Utils;

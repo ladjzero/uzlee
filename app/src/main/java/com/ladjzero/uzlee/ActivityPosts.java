@@ -8,7 +8,6 @@ import android.databinding.ObservableList;
 import android.graphics.Bitmap;
 import android.media.MediaActionSound;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
@@ -34,16 +33,14 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
-import com.ladjzero.hipda.HttpApi;
-import com.ladjzero.hipda.HttpClientCallback;
-import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.Post;
+import com.ladjzero.hipda.Posts;
+import com.ladjzero.hipda.Response;
 import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.model.ObservablePosts;
 import com.ladjzero.uzlee.utils.CapturePhotoUtils;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.NotificationUtils;
-import com.ladjzero.uzlee.utils.ReportableAsyncTask;
 import com.ladjzero.uzlee.utils.Timeline;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nineoldandroids.animation.Animator;
@@ -56,8 +53,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -108,7 +104,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	private LocalApi mLocalApi;
 	private Timeline mTimeline = new Timeline();
 	private Model model = new Model();
-	private ReportableAsyncTask mParseTask;
 	private long ms;
 
 	@Override
@@ -234,9 +229,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	protected void onDestroy() {
 		super.onDestroy();
 
-		if (mParseTask != null && !mParseTask.isCancelled()) {
-			mParseTask.cancel(true);
-		}
 	}
 
 	private void fetch(int page) {
@@ -244,9 +236,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		model.setFetching(true);
 
-		if (mParseTask != null && !mParseTask.isCancelled()) {
-			mParseTask.cancel(true);
-		}
 
 		try {
 			myid = mLocalApi.getUser().getId();
@@ -258,19 +247,19 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		String url = getUri(page);
 		model.setUrl(url);
 
-		mHttpClient.get(url, new HttpClientCallback() {
+		App.getInstance().getApi().getPosts(url, new Api.OnRespond() {
 			@Override
-			public void onSuccess(String response) {
-				Logger.t(Timeline.TAG).i("html fetched.");
+			public void onRespond(Response res) {
 				model.setFetching(false);
-				onHtml(response);
-			}
 
-			@Override
-			public void onFailure(String reason) {
-				Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
-				model.setFetching(false);
-				showToast(reason);
+				if (res.isSuccess()) {
+					Posts posts = (Posts) res.getData();
+					mPosts.clear();
+					mPosts.addAll(posts);
+					model.setTitle(posts.getMeta().getTitle());
+				} else {
+					showToast(res.getData().toString());
+				}
 			}
 		});
 	}
@@ -508,7 +497,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				mPosts.clear();
 				mQuickEdit.setText("");
 				mPid = -1;
-				onHtml(response);
+				mPosts.addAll((Posts) App.getInstance().getApi().getPostsParser().parse(response).getData());
 			}
 
 			@Override
@@ -519,29 +508,17 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		});
 	}
 
-	private void onHtml(String html) {
-		if (html != null && html.length() > 0) {
-			Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
-
-			mParseTask = new TaskPostsParse(mPosts, model);
-			mParseTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, html);
-		} else {
-			showToast("请求失败");
-		}
-	}
-
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
 		if (requestCode == EDIT_CODE && resultCode == ActivityEdit.EDIT_SUCCESS) {
 			model.setFetching(true);
 
 			if (returnIntent != null) {
-				String html = returnIntent.getStringExtra("html");
+				Posts posts = (Posts) returnIntent.getSerializableExtra("posts-json");
 				mPosts.clear();
+				mPosts.addAll(posts);
 				mPid = -1;
 				mSkipResumeFetch = true;
-				onHtml(html);
-				model.setFetching(false);
 			}
 		}
 	}

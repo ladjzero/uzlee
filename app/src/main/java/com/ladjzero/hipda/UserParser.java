@@ -9,8 +9,9 @@ import org.jsoup.select.Elements;
  */
 public class UserParser extends Parser {
 
-	public User parseUser(String html) {
-		Document doc = getDoc(html);
+	public Response parse(String html) {
+		Response.Meta resMeta = new Response.Meta();
+		Document doc = getDoc(html, resMeta);
 
 		String img = doc.select("div.avatar>img").attr("src");
 		String uidLink = doc.select("li.searchpost a").attr("href");
@@ -34,7 +35,7 @@ public class UserParser extends Parser {
 		String totalThreads = eSubProfiles.get(2).text().trim().substring(4);
 		totalThreads = totalThreads.substring(0, totalThreads.indexOf("篇") - 1);
 
-		return new User()
+		User user = new User()
 				.setId(Integer.valueOf(uid))
 				.setImage(img)
 				.setName(name)
@@ -44,5 +45,11 @@ public class UserParser extends Parser {
 				.setPoints(point)
 				.setLevel(level)
 				.setTotalThreads(totalThreads);
+
+		Response res = new Response();
+		res.setMeta(resMeta);
+		res.setData(res);
+		res.setSuccess(true);
+		return res;
 	}
 }

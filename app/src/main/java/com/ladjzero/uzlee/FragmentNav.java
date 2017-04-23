@@ -15,9 +15,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ladjzero.hipda.ApiStore;
-import com.ladjzero.hipda.Core;
-import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;

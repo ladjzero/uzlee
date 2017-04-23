@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.ladjzero.hipda.HttpClientCallback;
+import com.ladjzero.hipda.Response;
 import com.ladjzero.hipda.Threads;
 
 /**
@@ -51,26 +51,14 @@ public class FragmentUserThreads extends FragmentThreadsAbs {
 
 	@Override
 	void fetchPageAt(int page) {
-		App.getInstance().getCore().getHttpApi().searchUserThreads(userName, page, new HttpClientCallback() {
+		App.getInstance().getApi().searchUserThreads(userName, page, new Api.OnRespond() {
 			@Override
-			public void onSuccess(String response) {
-				mParseTask = new AsyncTask<String, Object, Threads>() {
-					@Override
-					protected Threads doInBackground(String... strings) {
-						return App.getInstance().getCore().getThreadsParser().parseThreads(strings[0], getSettings().getBoolean("show_fixed_threads", false));
-					}
-
-					@Override
-					protected void onPostExecute(Threads threads) {
-						model.setFetchingAndParsing(false);
-						onThreads(threads);
-					}
-				}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
-			}
-
-			@Override
-			public void onFailure(String reason) {
-
+			public void onRespond(Response res) {
+				if (res.isSuccess()) {
+					onThreads((Threads) res.getData());
+				} else {
+					((ActivityBase) getActivity()).showToast(res.getData().toString());
+				}
 			}
 		});
 	}

@@ -12,9 +12,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
-import com.ladjzero.hipda.Core;
-import com.ladjzero.hipda.HttpApi;
-import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.PostsParser;

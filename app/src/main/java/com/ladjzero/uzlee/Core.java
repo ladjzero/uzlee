@@ -1,4 +1,8 @@
-package com.ladjzero.hipda;
+package com.ladjzero.uzlee;
+
+import com.ladjzero.hipda.PostsParser;
+import com.ladjzero.hipda.ThreadsParser;
+import com.ladjzero.hipda.UserParser;
 
 public class Core {
 
@@ -17,8 +21,8 @@ public class Core {
 	 */
 	public static Core initialize(PersistenceAdapter adapter, HttpClient client) {
 		Core core = new Core();
+		ApiStore.initialize(adapter);
 		core.mApiStore = ApiStore.getStore();
-		core.mApiStore.initialize(adapter);
 		core.mPostsParser = new PostsParser();
 		core.mThreadsParser = new ThreadsParser();
 		core.mUserParser = new UserParser();

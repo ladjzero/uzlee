@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
 
-import com.ladjzero.hipda.Core;
-
 /**
  * Created by chenzhuo on 16-2-12.
  */

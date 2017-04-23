@@ -1,4 +1,9 @@
-package com.ladjzero.hipda;
+package com.ladjzero.uzlee;
+
+import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.ApiStore;
+import com.ladjzero.uzlee.HttpClient;
+import com.ladjzero.uzlee.HttpClientCallback;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -324,5 +329,9 @@ public class HttpApi {
 		String url = "http://www.hi-pda.com/forum/post.php?action=edit&fid=" + fid + "&tid=" + tid + "&pid=" + pid + "&page=1";
 
 		mHttpClient.get(url, callback);
+	}
+
+	public void getUser(int uid, HttpClientCallback callback) {
+		mHttpClient.get("http://www.hi-pda.com/forum/space.php?uid=" + uid, callback);
 	}
 }

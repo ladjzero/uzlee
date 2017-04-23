@@ -16,11 +16,12 @@ public class ThreadsParser extends Parser {
 
 	private static final Pattern COLOR_REG = Pattern.compile("#(\\d|[A-F])+");
 
-	public Threads parseThreads(String html, boolean showFixedThreads) {
+	public Response parse(String html) {
 		Threads threads = new Threads();
-		Document doc = getDoc(html);
+		Response.Meta resMeta = new Response.Meta();
+		Document doc = getDoc(html, resMeta);
 
-		String selectStr = showFixedThreads ? "tbody[id^=normalthread_],tbody[id^=stickthread_" : "tbody[id^=normalthread_]";
+		String selectStr = false ? "tbody[id^=normalthread_],tbody[id^=stickthread_" : "tbody[id^=normalthread_]";
 
 		Elements eThreads = doc.select("body#search").size() == 0 ? doc.select(selectStr) : doc.select("div.searchlist tbody");
 
@@ -42,7 +43,12 @@ public class ThreadsParser extends Parser {
 		threads.getMeta().setHasNextPage(nextPage.size() > 0);
 		threads.getMeta().setPage(currPage);
 
-		return threads;
+		Response res = new Response();
+		res.setMeta(resMeta);
+		res.setData(threads);
+		res.setSuccess(true);
+
+		return res;
 	}
 
 	public Threads parseMessages(String html) {

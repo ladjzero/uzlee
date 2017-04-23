@@ -1,4 +1,6 @@
-package com.ladjzero.hipda;
+package com.ladjzero.uzlee;
+
+import com.ladjzero.hipda.User;
 
 import java.util.Set;
 

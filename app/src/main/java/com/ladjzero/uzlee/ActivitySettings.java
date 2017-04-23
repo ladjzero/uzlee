@@ -16,9 +16,6 @@ import android.widget.ListView;
 
 import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.Forum;
-import com.ladjzero.hipda.HttpApi;
-import com.ladjzero.hipda.HttpClientCallback;
-import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.Utils;

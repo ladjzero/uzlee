@@ -12,10 +12,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.ladjzero.hipda.Core;
-import com.ladjzero.hipda.HttpApi;
-import com.ladjzero.hipda.HttpClientCallback;
-import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.utils.Utils;
 import com.rey.material.app.Dialog;

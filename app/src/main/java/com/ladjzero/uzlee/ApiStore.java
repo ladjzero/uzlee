@@ -1,4 +1,7 @@
-package com.ladjzero.hipda;
+package com.ladjzero.uzlee;
+
+import com.ladjzero.hipda.Parser;
+import com.ladjzero.hipda.User;
 
 import java.util.HashSet;
 import java.util.Observable;
@@ -9,7 +12,7 @@ import java.util.Set;
  */
 public class ApiStore extends Observable {
 	private static ApiStore singleton;
-	private PersistenceAdapter mAdapter;
+	private static PersistenceAdapter mAdapter;
 	private User user;
 	private String formhash;
 	private String hash;
@@ -23,7 +26,7 @@ public class ApiStore extends Observable {
 		return singleton;
 	}
 
-	public void initialize(PersistenceAdapter adapter) {
+	public static void initialize(PersistenceAdapter adapter) {
 		mAdapter = adapter;
 	}
 

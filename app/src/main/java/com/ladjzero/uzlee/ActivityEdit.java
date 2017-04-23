@@ -24,8 +24,6 @@ import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
-import com.ladjzero.hipda.HttpApi;
-import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.EmojiUtils;
@@ -443,7 +441,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 	public void onSuccess(String response) {
 		mSaveDraft = false;
 		Intent returnIntent = new Intent();
-		returnIntent.putExtra("html", response);
+		returnIntent.putExtra("posts-json", App.getInstance().getApi().getPostsParser().parse(response));
 		setResult(EDIT_SUCCESS, returnIntent);
 		finish();
 	}

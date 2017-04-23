@@ -11,8 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.ladjzero.hipda.HttpClientCallback;
-import com.ladjzero.hipda.LocalApi;
+import com.ladjzero.hipda.Response;
 import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.utils.UilUtils;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -84,66 +83,56 @@ public class ActivityUser extends ActivityEasySlide {
 
 		mLocalApi = App.getInstance().getCore().getLocalApi();
 
-		App.getInstance().getHttpClient().get("http://www.hi-pda.com/forum/space.php?uid=" + uid, new HttpClientCallback() {
+		App.getInstance().getApi().getUser(uid, new Api.OnRespond() {
 			@Override
-			public void onSuccess(String response) {
-				mParseTask = new AsyncTask<String, Object, User>() {
-					@Override
-					protected User doInBackground(String... strings) {
-						return App.getInstance().getCore().getUserParser().parseUser(strings[0]);
+			public void onRespond(Response res) {
+				if (res.isSuccess()) {
+					final User user = (User) res.getData();
+					ActivityUser.this.mUser = user;
+
+					if (user.getId() != mLocalApi.getUser().getId()) {
+						chat.setVisibility(View.VISIBLE);
+						block.setVisibility(View.VISIBLE);
 					}
 
-					@Override
-					protected void onPostExecute(final User user) {
-						ActivityUser.this.mUser = user;
+					ImageLoader.getInstance().displayImage(user.getImage(), mImageView);
 
-						if (user.getId() != mLocalApi.getUser().getId()) {
-							chat.setVisibility(View.VISIBLE);
-							block.setVisibility(View.VISIBLE);
+					mNameView.setText(user.getName());
+					setTitle(user.getName());
+					mNameView.getPaint().setFakeBoldText(true);
+					mLevelView.setText(user.getLevel());
+					mUid.setText("No." + user.getId());
+
+					for (String kv : propertyToString(user)) {
+						View view = getLayoutInflater().inflate(R.layout.user_info_row, null, false);
+						TextView key = (TextView) view.findViewById(R.id.key);
+						TextView value = (TextView) view.findViewById(R.id.value);
+						View more = view.findViewById(R.id.more);
+
+						String[] strings = kv.split(",");
+						key.setText(strings[0]);
+						value.setText(strings[1]);
+
+						if (strings[0].equals("发帖数量")) {
+							view.setOnClickListener(new View.OnClickListener() {
+								@Override
+								public void onClick(View v) {
+									Intent intent = new Intent(ActivityUser.this, ActivityUserThreads.class);
+									intent.putExtra("name", user.getName());
+									startActivity(intent);
+								}
+							});
+
+							more.setVisibility(View.VISIBLE);
+						} else {
+							more.setVisibility(View.INVISIBLE);
 						}
 
-						ImageLoader.getInstance().displayImage(user.getImage(), mImageView);
-
-						mNameView.setText(user.getName());
-						setTitle(user.getName());
-						mNameView.getPaint().setFakeBoldText(true);
-						mLevelView.setText(user.getLevel());
-						mUid.setText("No." + user.getId());
-
-						for (String kv : propertyToString(user)) {
-							View view = getLayoutInflater().inflate(R.layout.user_info_row, null, false);
-							TextView key = (TextView) view.findViewById(R.id.key);
-							TextView value = (TextView) view.findViewById(R.id.value);
-							View more = view.findViewById(R.id.more);
-
-							String[] strings = kv.split(",");
-							key.setText(strings[0]);
-							value.setText(strings[1]);
-
-							if (strings[0].equals("发帖数量")) {
-								view.setOnClickListener(new View.OnClickListener() {
-									@Override
-									public void onClick(View v) {
-										Intent intent = new Intent(ActivityUser.this, ActivityUserThreads.class);
-										intent.putExtra("name", user.getName());
-										startActivity(intent);
-									}
-								});
-
-								more.setVisibility(View.VISIBLE);
-							} else {
-								more.setVisibility(View.INVISIBLE);
-							}
-
-							mInfo.addView(view);
-						}
+						mInfo.addView(view);
 					}
-				}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
-			}
-
-			@Override
-			public void onFailure(String reason) {
-				showToast(reason);
+				} else {
+					showToast(res.getData().toString());
+				}
 			}
 		});
 

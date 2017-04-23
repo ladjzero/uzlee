@@ -1,5 +1,7 @@
 package com.ladjzero.hipda;
 
+import com.orhanobut.logger.Logger;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -10,24 +12,18 @@ import java.util.ArrayList;
 /**
  * Created by chenzhuo on 16-2-11.
  */
-public class Parser {
+public abstract class Parser implements Parse {
 	public static final String CODE_GBK = "GBK";
 	public static final String CODE_UTF8 = "UTF-8";
 
 	private static final String STATS = "论坛统计";
 	private String mCode = CODE_GBK;
-	private ApiStore mStore;
-	protected ProgressReporter mProgressReporter;
-
-	public Parser() {
-		mStore = ApiStore.getStore();
-	}
-
-	public void setProgressReport(ProgressReporter report) {
-		mProgressReporter = report;
-	}
 
 	public Document getDoc(String html) {
+		return getDoc(html, new Response.Meta());
+	}
+
+	public Document getDoc(String html, Response.Meta meta) {
 		long time = System.currentTimeMillis();
 
 		Document doc = Jsoup.parse(html);
@@ -46,7 +42,7 @@ public class Parser {
 				}
 			}
 
-			mStore.setUnread(msgCount);
+			meta.setUnread(msgCount);
 
 			Elements eUser = doc.select("#umenu > cite > a");
 			String uidHref = eUser.attr("href");
@@ -56,37 +52,35 @@ public class Parser {
 				int id = Integer.valueOf(uid);
 				String name = eUser.text().trim();
 
-				saveUser(id, name);
-
+				meta.setUser(new User().setId(id).setName(name));
 			} else {
-				saveUser(0, "");
+				meta.setUser(new User());
 			}
 		} catch (Error e) {
-//			Logger.e(TAG, e.toString());
+			Logger.e("Parser", e.toString());
 		}
 
 		Elements formHashInput = doc.select("input[name=formhash]");
 
 		if (formHashInput.size() > 0) {
-			mStore.setFormhash(formHashInput.val());
+			meta.setFormhash(formHashInput.val());
 		}
 
 		Elements hashInput = doc.select("input[name=hash]");
 
 		if (hashInput.size() > 0) {
-			mStore.setHash(hashInput.val());
+			meta.setHash(hashInput.val());
 		}
 
 		String stats = doc.select("#footlink a[href=stats.php]").text();
 
 		if (!stats.equals(STATS)) mCode = mCode.equals(CODE_GBK) ? CODE_UTF8 : CODE_GBK;
 
-//		Logger.i("%d ms", System.currentTimeMillis() - time);
 		return doc;
 	}
 
 	public String[] parseExistedAttach(String html) {
-		Document doc = getDoc(html);
+		Document doc = getDoc(html, new Response.Meta());
 
 		Elements tds = doc.select("td[id^=image_td_]");
 		ArrayList<String> attachIds = new ArrayList<>();
@@ -103,9 +97,5 @@ public class Parser {
 		}
 
 		return attachIds.toArray(new String[0]);
-	}
-
-	private void saveUser(int id, String name) {
-		mStore.setUser(new User().setId(id).setName(name));
 	}
 }
