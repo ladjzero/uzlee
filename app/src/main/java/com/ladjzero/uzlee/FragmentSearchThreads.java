@@ -118,7 +118,7 @@ public class FragmentSearchThreads extends FragmentThreadsAbs implements Horizon
 
 		List<Forum> forums = new ArrayList<Forum>();
 		forums.add(new Forum().setFid(-1).setName("全部"));
-		forums.addAll(App.getInstance().getFlattenForums());
+		forums.addAll(App.getInstance().getUserFlattenForums());
 
 		mTags.setTags(forums.toArray(), forums.get(0));
 		listView.addHeaderView(mTags);

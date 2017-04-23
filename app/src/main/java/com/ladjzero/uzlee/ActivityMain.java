@@ -56,26 +56,37 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 
 		final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
+
+		setTitle(null);
+		mFragmentNav = (FragmentNav) getSupportFragmentManager().findFragmentById(R.id.fragment_drawer);
+		mFragmentNav.setup(R.id.fragment_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), (Toolbar) findViewById(R.id.toolbar));
+		mFragmentNav.closeDrawer();
+
+		FragmentManager fragmentManager = getSupportFragmentManager();
+
+		if (Utils.getUserSelectedForums(this).size() == 0) {
+			fragmentManager
+					.beginTransaction()
+					.replace(R.id.container, FragmentToPickForums.newInstance(null))
+					.commit();
+
+			return;
+		}
+
+		Bundle bundle = new Bundle();
+		mFragment = FragmentThreadsPager.newInstance(bundle);
+
+		fragmentManager
+				.beginTransaction()
+				.replace(R.id.container, mFragment)
+				.commit();
+
 		toolbar.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				mFragment.toolbarClick();
 			}
 		});
-
-		setTitle(null);
-		mFragmentNav = (FragmentNav) getSupportFragmentManager().findFragmentById(R.id.fragment_drawer);
-		mFragmentNav.setup(R.id.fragment_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), (Toolbar) findViewById(R.id.toolbar));
-
-		Bundle bundle = new Bundle();
-
-		mFragment = FragmentThreadsPager.newInstance(bundle);
-
-		FragmentManager fragmentManager = getSupportFragmentManager();
-		fragmentManager
-				.beginTransaction()
-				.replace(R.id.container, mFragment)
-				.commit();
 
 		LayoutInflater mInflater = LayoutInflater.from(this);
 		mCustomToolbarView = mInflater.inflate(R.layout.tab_page_indicator_scroll, null);
@@ -148,13 +159,23 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 
 		mMenuDialog = new Dialog(this);
 		ListView menuList = (ListView) mMenuView.findViewById(R.id.actions);
-		actionsAdapter = new AdapterMenuItem(this, new String[]{
-				"新主题",
-				"刷新"
-		}, new String[]{
-				"{md-add}",
-				"{md-refresh}"
-		});
+
+		if (App.getInstance().getCore().getApiStore().getUser().getId() == 0) {
+			actionsAdapter = new AdapterMenuItem(this, new String[]{
+					"刷新"
+			}, new String[]{
+					"{md-refresh}"
+			});
+		} else {
+			actionsAdapter = new AdapterMenuItem(this, new String[]{
+					"新主题",
+					"刷新"
+			}, new String[]{
+					"{md-add}",
+					"{md-refresh}"
+			});
+		}
+
 		menuList.setAdapter(actionsAdapter);
 		menuList.setOnItemClickListener(this);
 
@@ -318,17 +339,23 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 	public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 		mMenuDialog.dismiss();
 
-		switch (i) {
-			case 0:
-				Forum f = mFragment.getCurrentForum();
-				int fid = f.getFid();
-				Intent intent = new Intent(this, ActivityEdit.class);
-				intent.putExtra("title", Forum.findById(getFlattenForums(this), fid).getName());
-				intent.putExtra("fid", fid);
-				startActivity(intent);
-				return;
-			case 1:
-				App.getInstance().dispatchEvent(new FragmentThreadsAbs.EventRefresh());
+		if (App.getInstance().getCore().getApiStore().getUser().getId() == 0) {
+			App.getInstance().dispatchEvent(new FragmentThreadsAbs.EventRefresh());
+		} else {
+			switch (i) {
+				case 0:
+					Forum f = mFragment.getCurrentForum();
+					int fid = f.getFid();
+					Intent intent = new Intent(this, ActivityEdit.class);
+					intent.putExtra("title", Forum.findById(App.getInstance().getFlattenForums(), fid).getName());
+					intent.putExtra("fid", fid);
+					startActivity(intent);
+					return;
+				case 1:
+					App.getInstance().dispatchEvent(new FragmentThreadsAbs.EventRefresh());
+			}
 		}
+
+
 	}
 }

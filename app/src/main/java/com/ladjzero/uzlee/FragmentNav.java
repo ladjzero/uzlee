@@ -43,6 +43,8 @@ public class FragmentNav extends FragmentBase implements Observer {
 	View message;
 	@Bind(R.id.my_posts)
 	View myPosts;
+	@Bind(R.id.search)
+	View mSearch;
 
 	/**
 	 * A pointer to the current callbacks instance (the Activity).
@@ -215,6 +217,7 @@ public class FragmentNav extends FragmentBase implements Observer {
 
 					message.setVisibility(visible ? View.VISIBLE : View.GONE);
 					myPosts.setVisibility(visible ? View.VISIBLE : View.GONE);
+					mSearch.setVisibility(visible ? View.VISIBLE : View.GONE);
 
 					userLayout.postDelayed(new Runnable() {
 						@Override

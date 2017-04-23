@@ -92,10 +92,6 @@ public abstract class ActivityBase extends ActionBarActivity {
 		}
 	}
 
-	public static List<Forum> getFlattenForums(Context context) {
-		return Forum.flatten(getForums(context));
-	}
-
 	public void showToast(String message) {
 		Utils.showToast(this, message);
 	}

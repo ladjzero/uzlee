@@ -43,6 +43,10 @@ public class PostsParser extends Parser {
 				newBody.addAll(otherAttaches);
 			}
 
+			// hipda wraps an a element around image.
+			for (Element a : newBody.select("a[href=javascript:;]")) {
+				a.tagName("span");
+			}
 
 			for (Element img : newBody.select("img")) {
 				String src = img.attr("file");

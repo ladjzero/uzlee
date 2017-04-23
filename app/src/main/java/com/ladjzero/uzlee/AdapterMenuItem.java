@@ -35,4 +35,9 @@ public class AdapterMenuItem extends ArrayAdapter {
 
 		return row;
 	}
+
+	@Override
+	public long getItemId(int position) {
+		return super.getItemId(position);
+	}
 }

@@ -47,11 +47,20 @@ public class ActivityForumPicker extends ActivityEasySlide {
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 		ActionBar mActionbar = getSupportActionBar();
-		mActionbar.setTitle("排序板块");
+		mActionbar.setTitle("选择和排序板块");
 		mActionbar.setDisplayHomeAsUpEnabled(true);
 		mActionbar.setDisplayShowCustomEnabled(true);
 
-		selectedForums = App.getInstance().getSelectedForums();
+		selectedForums = Utils.getUserSelectedForums(this);
+
+		if (selectedForums.size() == 0) {
+			listView.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					showPicker();
+				}
+			}, 100);
+		}
 
 		selectedAdapter = new ArrayAdapter<Forum>(this, R.layout.list_item_forum_sort, R.id.text, selectedForums);
 
@@ -89,12 +98,16 @@ public class ActivityForumPicker extends ActivityEasySlide {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		int id = item.getItemId();
+		showPicker();
+		return super.onOptionsItemSelected(item);
+	}
+
+	private void showPicker() {
 		dialog = new Dialog(this);
 		View contentView = this.getLayoutInflater().inflate(R.layout.list_forum, null);
 		final ListView list = (ListView) contentView.findViewById(R.id.list);
-		final List<Forum> forums = getFlattenForums(this);
-		List<Integer> selected = Utils.getSelectedForums(this);
+		final List<Forum> forums = App.getInstance().getUserFlattenForums();
+		List<Integer> selected = Utils.getAllSelectedForumIds(this);
 
 		final List<AdapterCheckableList.DataWrapper> forums2 = new ArrayList<>();
 
@@ -132,8 +145,6 @@ public class ActivityForumPicker extends ActivityEasySlide {
 				})
 				.contentView(contentView)
 				.show();
-
-		return super.onOptionsItemSelected(item);
 	}
 
 	@Override

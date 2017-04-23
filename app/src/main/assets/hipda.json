@@ -2,12 +2,14 @@
   {
     "name": "Hi!PDA站务与公告",
     "alias": "站务",
-    "fid": 5
+    "fid": 5,
+    "security": true
   },
   {
     "name": "Buy & Sell 交易服务区",
     "alias": "BS",
     "fid": 6,
+    "security": true,
     "types": [
       {
         "name": "手机",
@@ -49,7 +51,8 @@
     "children": [
       {
         "name": "已完成交易",
-        "fid": 63
+        "fid": 63,
+        "security": true
       }
     ]
   },
@@ -57,6 +60,7 @@
     "name": "Geek Talks · 奇客怪谈",
     "alias": "奇客怪谈",
     "fid": 7,
+    "security": false,
     "types": [
       {
         "name": "Gadgets",
@@ -91,6 +95,7 @@
       {
         "name": "E-INK",
         "fid": 59,
+        "security": false,
         "types": [
           {
             "name": "Kindle",
@@ -137,6 +142,7 @@
       {
         "name": "Joggler",
         "fid": 62,
+        "security": false,
         "types": [
           {
             "name": "各类配件",
@@ -185,6 +191,7 @@
   {
     "name": "Smartphone",
     "fid": 9,
+    "security": false,
     "types": [
       {
         "name": "Symbian",
@@ -223,17 +230,20 @@
   {
     "name": "iPhone, iPod Touch，iPad",
     "alias": "iOS",
-    "fid": 56
+    "fid": 56,
+    "security": false
   },
   {
     "name": "Android, Chrome, & Google",
     "alias": "Android Chrome",
-    "fid": 60
+    "fid": 60,
+    "security": false
   },
   {
     "name": "PalmOS ，Treo",
     "alias": "Palm",
     "fid": 12,
+    "security": false,
     "types": [
       {
         "name": "Treo",
@@ -279,7 +289,8 @@
     "children": [
       {
         "name": "芝麻宝典",
-        "fid": 40
+        "fid": 40,
+        "security": false
       }
     ]
   },
@@ -287,6 +298,7 @@
     "name": "Windows Mobile，PocketPC，HPC",
     "alias": "WM",
     "fid": 14,
+    "security": false,
     "types": [
       {
         "name": "心得技巧",
@@ -337,12 +349,14 @@
   {
     "name": "麦客爱苹果",
     "alias": "MAC",
-    "fid": 22
+    "fid": 22,
+    "security": false
   },
   {
     "name": "DC,NB,MP3,Gadgets...",
     "alias": "Gadgets",
     "fid": 50,
+    "security": false,
     "types": [
       {
         "name": "UMPC",
@@ -377,6 +391,7 @@
   {
     "name": "Discovery",
     "fid": 2,
+    "security": true,
     "types": [
       {
         "name": "聚会",
@@ -438,17 +453,20 @@
     "children": [
       {
         "name": "改版建议",
-        "fid": 65
+        "fid": 65,
+        "security": true
       },
       {
         "name": "只讨论2.0",
-        "fid": 64
+        "fid": 64,
+        "security": true
       }
     ]
   },
   {
     "name": "意欲蔓延",
     "fid": 24,
+    "security": true,
     "types": [
       {
         "name": "电影",
@@ -483,11 +501,14 @@
   {
     "name": "随笔与个人文集",
     "alias": "随笔",
-    "fid": 23
+    "fid": 23,
+    "security": true
+
   },
   {
     "name": "吃喝玩乐",
     "fid": 25,
+    "security": true,
     "types": [
       {
         "name": "美食",
@@ -509,10 +530,12 @@
   },
   {
     "name": "La Femme",
-    "fid": 51
+    "fid": 51,
+    "security": true
   },
   {
     "name": "疑似机器人",
-    "fid": 57
+    "fid": 57,
+    "security": true
   }
 ]

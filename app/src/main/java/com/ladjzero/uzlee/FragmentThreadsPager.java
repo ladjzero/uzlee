@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.ladjzero.hipda.Forum;
+import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.utils.Utils;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -60,7 +62,7 @@ public class FragmentThreadsPager extends Fragment implements FragmentThreadsAbs
 		ButterKnife.bind(this, rootView);
 
 		mActivity = (ActivityMain) getActivity();
-		mForums = App.getInstance().getSelectedForums();
+		mForums = Utils.getUserSelectedForums(mActivity);
 		mPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager(), mForums);
 		mViewPager.setAdapter(mPagerAdapter);
 

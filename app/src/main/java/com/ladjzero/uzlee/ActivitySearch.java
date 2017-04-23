@@ -1,5 +1,6 @@
 package com.ladjzero.uzlee;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
@@ -8,6 +9,8 @@ import android.util.LruCache;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 public class ActivitySearch extends ActivityHardSlide implements View.OnKeyListener {
@@ -52,6 +55,12 @@ public class ActivitySearch extends ActivityHardSlide implements View.OnKeyListe
 
 			if (query.length() != 0) {
 				mFragment.updateSearch(query);
+
+				View focused = this.getCurrentFocus();
+				if (focused != null) {
+					InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.hideSoftInputFromWindow(focused.getWindowToken(), 0);
+				}
 			}
 		}
 

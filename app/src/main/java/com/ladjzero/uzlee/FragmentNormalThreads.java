@@ -3,6 +3,7 @@ package com.ladjzero.uzlee;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -139,6 +140,7 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 
 			@Override
 			public void onFailure(String reason) {
+				((ActivityBase) getActivity()).showToast(reason);
 				model.setFetchingAndParsing(false);
 			}
 		});

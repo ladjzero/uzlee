@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
-import android.preference.Preference;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
@@ -21,26 +20,21 @@ import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.ActivityBase;
+import com.ladjzero.uzlee.App;
 import com.ladjzero.uzlee.R;
 import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.io.StreamCorruptedException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -53,303 +47,321 @@ import java.util.List;
  */
 public class Utils {
 
-    private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
-    public static String getFirstChar(String input) {
-        if (input.length() > 0) {
-            String first = input.substring(0, 1);
-            char f = first.charAt(0);
+	public static String getFirstChar(String input) {
+		if (input.length() > 0) {
+			String first = input.substring(0, 1);
+			char f = first.charAt(0);
 
-            if ('a' <= f && f <= 'z') {
-                first = first.toUpperCase();
-            }
+			if ('a' <= f && f <= 'z') {
+				first = first.toUpperCase();
+			}
 
-            return first;
-        } else {
-            return "";
-        }
-    }
+			return first;
+		} else {
+			return "";
+		}
+	}
 
-    public static int changeColorSaturability(int color, float s) {
-        float[] hsv = new float[3];
-        Color.colorToHSV(color, hsv);
-        float newS = hsv[1] * s;
-        hsv[1] = newS;
+	public static int changeColorSaturability(int color, float s) {
+		float[] hsv = new float[3];
+		Color.colorToHSV(color, hsv);
+		float newS = hsv[1] * s;
+		hsv[1] = newS;
 
-        return Color.HSVToColor(hsv);
-    }
+		return Color.HSVToColor(hsv);
+	}
 
-    public static int getColor(Context context, int resId) {
-        return context.getResources().getColor(resId);
-    }
+	public static int getColor(Context context, int resId) {
+		return context.getResources().getColor(resId);
+	}
 
-    public static String toHtml(Posts posts) {
-        Logger.d(JSON.toJSONString(posts));
+	public static String toHtml(Posts posts) {
+		Logger.d(JSON.toJSONString(posts));
 
-        return StringUtils.join(CollectionUtils.collect(posts, new Transformer() {
-            @Override
-            public Object transform(Object o) {
-                Post post = (Post) o;
-                User user = post.getAuthor();
+		return StringUtils.join(CollectionUtils.collect(posts, new Transformer() {
+			@Override
+			public Object transform(Object o) {
+				Post post = (Post) o;
+				User user = post.getAuthor();
 
-                return "<img src=\"" + user.getImage() + "\" onclick=\"ActivityPosts.onUserClick(2)\"><h3>" + user.getName() + "</h3>" + JSON.toJSONString(post);
-            }
-        }), "");
-    }
+				return "<img src=\"" + user.getImage() + "\" onclick=\"ActivityPosts.onUserClick(2)\"><h3>" + user.getName() + "</h3>" + JSON.toJSONString(post);
+			}
+		}), "");
+	}
 
-    public static String readAssetFile(Context context, String file) {
-        BufferedReader reader = null;
-        StringBuilder ret = new StringBuilder();
+	public static String readAssetFile(Context context, String file) {
+		BufferedReader reader = null;
+		StringBuilder ret = new StringBuilder();
 
-        try {
-            reader = new BufferedReader(new InputStreamReader(context.getAssets().open(file), "UTF-8"));
+		try {
+			reader = new BufferedReader(new InputStreamReader(context.getAssets().open(file), "UTF-8"));
 
-            String mLine = reader.readLine();
+			String mLine = reader.readLine();
 
-            while (mLine != null) {
-                ret.append(mLine);
-                mLine = reader.readLine();
-            }
+			while (mLine != null) {
+				ret.append(mLine);
+				mLine = reader.readLine();
+			}
 
-            return ret.toString();
-        } catch (IOException e) {
-            return null;
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                }
-            }
-        }
-    }
+			return ret.toString();
+		} catch (IOException e) {
+			return null;
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+	}
 
-    public static void fadeOut(final View view) {
-        YoYo.with(Techniques.FadeOut).duration(100).withListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
+	public static void fadeOut(final View view) {
+		YoYo.with(Techniques.FadeOut).duration(100).withListener(new Animator.AnimatorListener() {
+			@Override
+			public void onAnimationStart(Animator animation) {
 
-            }
+			}
 
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                view.setVisibility(View.INVISIBLE);
-            }
+			@Override
+			public void onAnimationEnd(Animator animation) {
+				view.setVisibility(View.INVISIBLE);
+			}
 
-            @Override
-            public void onAnimationCancel(Animator animation) {
+			@Override
+			public void onAnimationCancel(Animator animation) {
 
-            }
+			}
 
-            @Override
-            public void onAnimationRepeat(Animator animation) {
+			@Override
+			public void onAnimationRepeat(Animator animation) {
 
-            }
-        }).playOn(view);
-    }
+			}
+		}).playOn(view);
+	}
 
-    public static void fadeIn(final View view) {
-        YoYo.with(Techniques.FadeIn).duration(100).withListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
+	public static void fadeIn(final View view) {
+		YoYo.with(Techniques.FadeIn).duration(100).withListener(new Animator.AnimatorListener() {
+			@Override
+			public void onAnimationStart(Animator animation) {
 
-            }
+			}
 
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                view.setVisibility(View.VISIBLE);
-            }
+			@Override
+			public void onAnimationEnd(Animator animation) {
+				view.setVisibility(View.VISIBLE);
+			}
 
-            @Override
-            public void onAnimationCancel(Animator animation) {
+			@Override
+			public void onAnimationCancel(Animator animation) {
 
-            }
+			}
 
-            @Override
-            public void onAnimationRepeat(Animator animation) {
+			@Override
+			public void onAnimationRepeat(Animator animation) {
 
-            }
-        }).playOn(view);
-    }
+			}
+		}).playOn(view);
+	}
 
-    public static int parseInt(String str) {
-        try {
-            return Integer.parseInt(str);
-        } catch (Exception e) {
-            return 0;
-        }
-    }
+	public static int parseInt(String str) {
+		try {
+			return Integer.parseInt(str);
+		} catch (Exception e) {
+			return 0;
+		}
+	}
 
-    public static String prettyTime(String timeStr) {
-        Date mNow = new Date();
+	public static String prettyTime(String timeStr) {
+		Date mNow = new Date();
 
-        try {
-            Date thatDate = dateFormat.parse(timeStr);
+		try {
+			Date thatDate = dateFormat.parse(timeStr);
 
-            if (DateUtils.isSameDay(thatDate, mNow)) {
-                return DateFormatUtils.format(thatDate, "HH:mm");
-            } else if (DateUtils.isSameDay(DateUtils.addDays(thatDate, 1), mNow)) {
-                return DateFormatUtils.format(thatDate, "昨天 HH:mm");
-            } else if (mNow.getYear() == thatDate.getYear()) {
-                return DateFormatUtils.format(thatDate, "M月d日");
-            } else {
-                return DateFormatUtils.format(thatDate, "yyyy/M/d");
-            }
-        } catch (ParseException e) {
-            return timeStr;
-        }
-    }
+			if (DateUtils.isSameDay(thatDate, mNow)) {
+				return DateFormatUtils.format(thatDate, "HH:mm");
+			} else if (DateUtils.isSameDay(DateUtils.addDays(thatDate, 1), mNow)) {
+				return DateFormatUtils.format(thatDate, "昨天 HH:mm");
+			} else if (mNow.getYear() == thatDate.getYear()) {
+				return DateFormatUtils.format(thatDate, "M月d日");
+			} else {
+				return DateFormatUtils.format(thatDate, "yyyy/M/d");
+			}
+		} catch (ParseException e) {
+			return timeStr;
+		}
+	}
 
-    public static void openInBrowser(Context context, String url) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse(url));
-        context.startActivity(intent);
-    }
+	public static void openInBrowser(Context context, String url) {
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.setData(Uri.parse(url));
+		context.startActivity(intent);
+	}
 
-    public static int getTheme(String color) {
-        if ("red".equals(color)) return R.style.AppBaseTheme_Day_Red;
-        if ("carrot".equals(color)) return R.style.AppBaseTheme_Day_Carrot;
-        if ("orange".equals(color)) return R.style.AppBaseTheme_Day_Orange;
-        if ("green".equals(color)) return R.style.AppBaseTheme_Day_Green;
-        if ("blueGrey".equals(color)) return R.style.AppBaseTheme_Day_BlueGrey;
-        if ("blue".equals(color)) return R.style.AppBaseTheme_Day_Blue;
-        if ("dark".equals(color)) return R.style.AppBaseTheme_Day_Dark;
-        if ("night".equals(color)) return R.style.AppBaseTheme_Night;
-        return R.style.AppBaseTheme_Day_Purple;
-    }
+	public static int getTheme(String color) {
+		if ("red".equals(color)) return R.style.AppBaseTheme_Day_Red;
+		if ("carrot".equals(color)) return R.style.AppBaseTheme_Day_Carrot;
+		if ("orange".equals(color)) return R.style.AppBaseTheme_Day_Orange;
+		if ("green".equals(color)) return R.style.AppBaseTheme_Day_Green;
+		if ("blueGrey".equals(color)) return R.style.AppBaseTheme_Day_BlueGrey;
+		if ("blue".equals(color)) return R.style.AppBaseTheme_Day_Blue;
+		if ("dark".equals(color)) return R.style.AppBaseTheme_Day_Dark;
+		if ("night".equals(color)) return R.style.AppBaseTheme_Night;
+		return R.style.AppBaseTheme_Day_Purple;
+	}
 
-    public static String getThemeName(Context context, String color) {
-        Resources res = context.getResources();
-        if ("red".equals(color)) return res.getString(R.string.red);
-        if ("carrot".equals(color)) return res.getString(R.string.carrot);
-        if ("orange".equals(color)) return res.getString(R.string.orange);
-        if ("green".equals(color)) return res.getString(R.string.green);
-        if ("blueGrey".equals(color)) return res.getString(R.string.blueGrey);
-        if ("blue".equals(color)) return res.getString(R.string.blue);
-        if ("dark".equals(color)) return res.getString(R.string.dark);
-        if ("night".equals(color)) return res.getString(R.string.night);
-        return res.getString(R.string.purple);
-    }
+	public static String getThemeName(Context context, String color) {
+		Resources res = context.getResources();
+		if ("red".equals(color)) return res.getString(R.string.red);
+		if ("carrot".equals(color)) return res.getString(R.string.carrot);
+		if ("orange".equals(color)) return res.getString(R.string.orange);
+		if ("green".equals(color)) return res.getString(R.string.green);
+		if ("blueGrey".equals(color)) return res.getString(R.string.blueGrey);
+		if ("blue".equals(color)) return res.getString(R.string.blue);
+		if ("dark".equals(color)) return res.getString(R.string.dark);
+		if ("night".equals(color)) return res.getString(R.string.night);
+		return res.getString(R.string.purple);
+	}
 
-    public static String getFontSizeName(String fontsize) {
-        if ("big".equals(fontsize)) return "更大";
-        if ("bigger".equals(fontsize)) return  "比更大还更大";
-        return "正常";
-    }
+	public static String getFontSizeName(String fontsize) {
+		if ("big".equals(fontsize)) return "更大";
+		if ("bigger".equals(fontsize)) return "比更大还更大";
+		return "正常";
+	}
 
-    public static String getSortName(String sort) {
-        if ("2".equals(sort)) return "回复时间";
-        return "发表时间";
-    }
+	public static String getSortName(String sort) {
+		if ("2".equals(sort)) return "回复时间";
+		return "发表时间";
+	}
 
-    public static int getThemeColor(Context context, int attrId) {
-        TypedValue typedValue = new TypedValue();
-        Resources.Theme theme = context.getTheme();
-        theme.resolveAttribute(attrId, typedValue, true);
-        return typedValue.data;
-    }
+	public static int getThemeColor(Context context, int attrId) {
+		TypedValue typedValue = new TypedValue();
+		Resources.Theme theme = context.getTheme();
+		theme.resolveAttribute(attrId, typedValue, true);
+		return typedValue.data;
+	}
 
-    public static void showToast(Context context, String message) {
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-    }
+	public static void showToast(Context context, String message) {
+		Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+	}
 
-    public static void replaceActivity(Activity current, Class next) {
-        gotoActivity(current, next, Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_NEW_TASK);
-    }
+	public static void replaceActivity(Activity current, Class next) {
+		gotoActivity(current, next, Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_NEW_TASK);
+	}
 
-    public static void gotoActivity(Activity current, Class next) {
-        Intent intent = new Intent(current, next);
-        current.startActivity(intent);
-        current.finish();
-    }
+	public static void gotoActivity(Activity current, Class next) {
+		Intent intent = new Intent(current, next);
+		current.startActivity(intent);
+		current.finish();
+	}
 
-    public static void gotoActivity(Activity current, Class next, int flags) {
-        Intent intent = new Intent(current, next);
-        intent.setFlags(flags);
-        current.startActivity(intent);
-        current.finish();
-    }
+	public static void gotoActivity(Activity current, Class next, int flags) {
+		Intent intent = new Intent(current, next);
+		intent.setFlags(flags);
+		current.startActivity(intent);
+		current.finish();
+	}
 
-    public static int dp2px(Context context, int dp) {
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-        return px;
-    }
+	public static int dp2px(Context context, int dp) {
+		DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+		int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+		return px;
+	}
 
-    public static abstract class OnAnimatorStartEndListener implements Animator.AnimatorListener {
+	public static List<Forum> getAllForums(Context context) {
+		String json = Utils.readAssetFile(context, "hipda.json");
+		List<Forum> forums = JSON.parseArray(json, Forum.class);
+		addALLType(forums);
 
-        @Override
-        public abstract void onAnimationStart(Animator animation);
+		return forums;
+	}
 
-        @Override
-        public abstract void onAnimationEnd(Animator animation);
+	private static void addALLType(List<Forum> forums) {
+		Forum.Type all = new Forum.Type();
+		all.setId(-1);
+		all.setName("全部");
 
-        @Override
-        public void onAnimationCancel(Animator animation) {
+		for (Forum f : forums) {
+			List<Forum.Type> types = f.getTypes();
+			List<Forum> children = f.getChildren();
 
-        }
+			if (types != null) types.add(0, all);
+			if (children != null) addALLType(children);
+		}
+	}
 
-        @Override
-        public void onAnimationRepeat(Animator animation) {
+	public static List<Forum> getUserSelectedForums(ActivityBase context) {
+		List<Integer> selectedForumIds = getAllSelectedForumIds(context);
+		final List<Forum> allForums = getAllForums(context);
+		final User me = App.getInstance().getCore().getApiStore().getUser();
 
-        }
-    }
+		ArrayList<Forum> ret = new ArrayList<>();
 
-    public static List<Forum> getForums(Context context) {
-        String json = Utils.readAssetFile(context, "hipda.json");
-        List<Forum> forums = JSON.parseArray(json, Forum.class);
-        addALLType(forums);
+		for (int id : selectedForumIds) {
+			Forum f = Forum.findById(allForums, id);
 
-        return forums;
-    }
+			if (me.getId() != 0 || !f.isSecurity()) {
+				ret.add(f);
+			}
+		}
 
-    private static void addALLType(List<Forum> forums) {
-        Forum.Type all = new Forum.Type();
-        all.setId(-1);
-        all.setName("全部");
+		return ret;
+	}
 
-        for (Forum f : forums) {
-            List<Forum.Type> types = f.getTypes();
-            List<Forum> children = f.getChildren();
+	public static List<Integer> getAllSelectedForumIds(ActivityBase context) {
+		return getAllSelectedForumIds(context.getSettings());
+	}
 
-            if (types != null) types.add(0, all);
-            if (children != null) addALLType(children);
-        }
-    }
+	public static List<Integer> getAllSelectedForumIds(SharedPreferences pref) {
+		String str = pref.getString(Constants.PREF_KEY_SELECTED_FORUMS, Constants.DEFAULT_SELECTED_FORUMS);
+		String[] strs = str.split(",");
+		ArrayList<Integer> ret = new ArrayList<>();
+		for (String s : strs) {
+			try {
+				ret.add(Integer.valueOf(s));
+			} catch (Exception e) {
 
-    public static List<Integer> getSelectedForums(ActivityBase context) {
-        return getSelectedForums(context.getSettings());
-    }
+			}
+		}
+		return ret;
+	}
 
-    public static List<Integer> getSelectedForums(SharedPreferences pref) {
-        String str = pref.getString(Constants.PREF_KEY_SELECTED_FORUMS, Constants.DEFAULT_SELECTED_FORUMS);
-        String[] strs = str.split(",");
-        ArrayList<Integer> ret = new ArrayList<>();
-        for (String s : strs) {
-            try {
-                ret.add(Integer.valueOf(s));
-            } catch (Exception e) {
+	public static List<Integer> getForumsShowingTypes(SharedPreferences pref) {
+		String str = pref.getString(Constants.PREF_KEY_SHOW_TYPES, Constants.DEFAULT_SHOW_TYPES);
+		String[] strs = str.split(",");
+		ArrayList<Integer> ret = new ArrayList<>();
+		for (String s : strs) {
+			try {
+				ret.add(Integer.valueOf(s));
+			} catch (Exception e) {
 
-            }
-        }
-        return ret;
-    }
+			}
+		}
+		return ret;
+	}
 
-    public static List<Integer> getForumsShowingTypes(SharedPreferences pref) {
-        String str = pref.getString(Constants.PREF_KEY_SHOW_TYPES, Constants.DEFAULT_SHOW_TYPES);
-        String[] strs = str.split(",");
-        ArrayList<Integer> ret = new ArrayList<>();
-        for (String s : strs) {
-            try {
-                ret.add(Integer.valueOf(s));
-            } catch (Exception e) {
+	public static List<Integer> getForumsShowingTypes(ActivityBase context) {
+		return getForumsShowingTypes(context.getSettings());
+	}
 
-            }
-        }
-        return ret;
-    }
+	public static abstract class OnAnimatorStartEndListener implements Animator.AnimatorListener {
 
-    public static List<Integer> getForumsShowingTypes(ActivityBase context) {
-        return getForumsShowingTypes(context.getSettings());
-    }
+		@Override
+		public abstract void onAnimationStart(Animator animation);
+
+		@Override
+		public abstract void onAnimationEnd(Animator animation);
+
+		@Override
+		public void onAnimationCancel(Animator animation) {
+
+		}
+
+		@Override
+		public void onAnimationRepeat(Animator animation) {
+
+		}
+	}
 }

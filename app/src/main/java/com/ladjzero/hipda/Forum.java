@@ -12,6 +12,16 @@ public class Forum {
 	private int fid;
 	private String name;
 
+	public boolean isSecurity() {
+		return security;
+	}
+
+	public void setSecurity(boolean security) {
+		this.security = security;
+	}
+
+	private boolean security;
+
 	public String getAlias() {
 		return alias;
 	}

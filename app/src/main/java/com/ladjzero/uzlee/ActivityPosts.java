@@ -14,6 +14,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -55,6 +56,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -127,79 +130,101 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	// Menu item click.
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		switch (position) {
-			case 0:
-				Intent replyIntent = new Intent(this, ActivityEdit.class);
-				replyIntent.putExtra("tid", mTid);
-				replyIntent.putExtra("title", "回复主题");
-				replyIntent.putExtra("hideTitleInput", true);
-				startActivityForResult(replyIntent, EDIT_CODE);
-				break;
-			case 1:
-				fetch(mPage);
-				break;
-			case 2:
-				mHttpApi.addToFavorite(mTid, new HttpClientCallback() {
-					@Override
-					public void onFailure(String reason) {
-						showToast(reason);
-					}
+		if (App.getInstance().getCore().getApiStore().getUser().getId() == 0) {
+			switch (position) {
+				case 0:
+					fetch(mPage);
+					break;
+				case 1:
+					ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+					ClipData clipData = ClipData.newPlainText("post url", getUri(mPosts.getMeta().getPage()));
+					clipboardManager.setPrimaryClip(clipData);
+					showToast("复制到剪切版");
+					break;
+				case 2:
+					model.setOnSelection(true);
+					break;
+				case 3:
+					Intent intent = new Intent(Intent.ACTION_VIEW);
+					intent.setData(Uri.parse(getUri(mPosts.getMeta().getPage())));
+					startActivity(intent);
+					break;
+			}
+		} else {
+			switch (position) {
+				case 0:
+					Intent replyIntent = new Intent(this, ActivityEdit.class);
+					replyIntent.putExtra("tid", mTid);
+					replyIntent.putExtra("title", "回复主题");
+					replyIntent.putExtra("hideTitleInput", true);
+					startActivityForResult(replyIntent, EDIT_CODE);
+					break;
+				case 1:
+					fetch(mPage);
+					break;
+				case 2:
+					mHttpApi.addToFavorite(mTid, new HttpClientCallback() {
+						@Override
+						public void onFailure(String reason) {
+							showToast(reason);
+						}
 
-					@Override
-					public void onSuccess(String response) {
-						if (response.contains("此主题已成功添加到收藏夹中")) {
-							showToast("收藏成功");
-						} else {
-							if (response.contains("您曾经收藏过这个主题")) {
-								final Dialog dialog = new Dialog(ActivityPosts.this);
-
-								dialog.setTitle("已经收藏过该主题");
-								dialog.setCanceledOnTouchOutside(true);
-								dialog.positiveAction("移除收藏").positiveActionClickListener(new View.OnClickListener() {
-									@Override
-									public void onClick(View v) {
-										dialog.dismiss();
-										mHttpApi.removeFromFavoriate(mTid, new HttpClientCallback() {
-											@Override
-											public void onFailure(String reason) {
-												showToast(reason);
-											}
-
-
-											@Override
-											public void onSuccess(String html) {
-												if (html.contains("此主题已成功从您的收藏夹中移除")) {
-													showToast("移除成功");
-												} else {
-													showToast("移除失败");
-												}
-											}
-										});
-									}
-								});
-
-								dialog.show();
+						@Override
+						public void onSuccess(String response) {
+							if (response.contains("此主题已成功添加到收藏夹中")) {
+								showToast("收藏成功");
 							} else {
-								showToast("收藏失败");
+								if (response.contains("您曾经收藏过这个主题")) {
+									final Dialog dialog = new Dialog(ActivityPosts.this);
+
+									dialog.setTitle("已经收藏过该主题");
+									dialog.setCanceledOnTouchOutside(true);
+									dialog.positiveAction("移除收藏").positiveActionClickListener(new View.OnClickListener() {
+										@Override
+										public void onClick(View v) {
+											dialog.dismiss();
+											mHttpApi.removeFromFavoriate(mTid, new HttpClientCallback() {
+												@Override
+												public void onFailure(String reason) {
+													showToast(reason);
+												}
+
+
+												@Override
+												public void onSuccess(String html) {
+													if (html.contains("此主题已成功从您的收藏夹中移除")) {
+														showToast("移除成功");
+													} else {
+														showToast("移除失败");
+													}
+												}
+											});
+										}
+									});
+
+									dialog.show();
+								} else {
+									showToast("收藏失败");
+								}
 							}
 						}
-					}
-				});
-				break;
-			case 3:
-				ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-				ClipData clipData = ClipData.newPlainText("post url", getUri(mPosts.getMeta().getPage()));
-				clipboardManager.setPrimaryClip(clipData);
-				showToast("复制到剪切版");
-				break;
-			case 4:
-				model.setOnSelection(true);
-				break;
-			case 5:
-				Intent intent = new Intent(Intent.ACTION_VIEW);
-				intent.setData(Uri.parse(getUri(mPosts.getMeta().getPage())));
-				startActivity(intent);
-				break;
+					});
+					break;
+				case 3:
+					ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+					ClipData clipData = ClipData.newPlainText("post url", getUri(mPosts.getMeta().getPage()));
+					clipboardManager.setPrimaryClip(clipData);
+					showToast("复制到剪切版");
+					break;
+				case 4:
+					model.setOnSelection(true);
+					break;
+				case 5:
+					Intent intent = new Intent(Intent.ACTION_VIEW);
+					intent.setData(Uri.parse(getUri(mPosts.getMeta().getPage())));
+					startActivity(intent);
+					break;
+			}
 		}
 
 		mMenuDialog.dismiss();
@@ -264,6 +289,10 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		this.setContentView(R.layout.activity_posts);
 		ButterKnife.bind(this);
 
+		if (App.getInstance().getCore().getApiStore().getUser().getId() == 0) {
+			mQuickReplyLayout.setVisibility(View.INVISIBLE);
+		}
+
 		LayoutInflater mInflater = LayoutInflater.from(this);
 		View customView = mInflater.inflate(R.layout.toolbar_title, null);
 		mTitleView = (TextView) customView.findViewById(R.id.title);
@@ -315,21 +344,38 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		mMenuDialog = new Dialog(this);
 		ListView menuList = (ListView) mMenuView.findViewById(R.id.actions);
-		actionsAdapter = new AdapterMenuItem(this, new String[]{
-				"回复",
-				"刷新",
-				"收藏",
-				"复制链接",
-				"截图",
-				"从浏览器打开"
-		}, new String[]{
-				"{md-reply}",
-				"{md-refresh}",
-				"{md-bookmark}",
-				"{md-link}",
-				"{md-crop}",
-				"{md-open-in-browser}"
-		});
+
+		if (App.getInstance().getCore().getApiStore().getUser().getId() == 0) {
+			actionsAdapter = new AdapterMenuItem(this, new String[]{
+					"刷新",
+					"复制链接",
+					"截图",
+					"从浏览器打开"
+			}, new String[]{
+					"{md-refresh}",
+					"{md-link}",
+					"{md-crop}",
+					"{md-open-in-browser}"
+			});
+		} else {
+			actionsAdapter = new AdapterMenuItem(this, new String[]{
+					"回复",
+					"刷新",
+					"收藏",
+					"复制链接",
+					"截图",
+					"从浏览器打开"
+			}, new String[]{
+					"{md-reply}",
+					"{md-refresh}",
+					"{md-bookmark}",
+					"{md-link}",
+					"{md-crop}",
+					"{md-open-in-browser}"
+			});
+		}
+
+
 		menuList.setAdapter(actionsAdapter);
 		menuList.setOnItemClickListener(this);
 
@@ -933,6 +979,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			if (model.isWebviewReady()) {
 				for (int i = mIsPushedAfterWebReady ? positionStart : 0; i < positionStart + itemCount; i++) {
 					Post post = (Post) sender.get(i);
+					Log.i("lalala", JSON.toJSONString(post));
 					mWebView.loadUrl("javascript:_postsData.posts.push(" + JSON.toJSONString(post) + ")");
 					mIsPushedAfterWebReady = true;
 				}

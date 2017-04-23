@@ -18,6 +18,7 @@ import com.ladjzero.hipda.HttpClientCallback;
 import com.ladjzero.hipda.LocalApi;
 import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.utils.Utils;
+import com.rey.material.app.Dialog;
 import com.rey.material.widget.Spinner;
 import com.tencent.stat.StatConfig;
 import com.tencent.stat.StatService;
@@ -30,10 +31,6 @@ import butterknife.OnClick;
  * Created by chenzhuo on 15-11-8.
  */
 public class ActivityLogin extends ActionBarActivity {
-	private HttpApi mHttpApi;
-	private LocalApi mLocalApi;
-	private User mUser;
-
 	@Bind(R.id.user_name)
 	TextView name;
 	@Bind(R.id.user_password)
@@ -44,6 +41,9 @@ public class ActivityLogin extends ActionBarActivity {
 	Spinner spn;
 	@Bind(R.id.logo)
 	View logo;
+	private HttpApi mHttpApi;
+	private LocalApi mLocalApi;
+	private User mUser;
 
 	@OnClick(R.id.login)
 	void onLogin() {
@@ -52,6 +52,12 @@ public class ActivityLogin extends ActionBarActivity {
 			public void onSuccess(String response) {
 				Utils.showToast(ActivityLogin.this, "登录成功");
 				Utils.replaceActivity(ActivityLogin.this, ActivityMain.class);
+
+				/*
+				Hack. apiStore.user will be fetched with any page. BUT one mock user MUST
+				be set to authorize fetching security forums.
+				 */
+				App.getInstance().getCore().getApiStore().setUser(new User().setId(1));
 			}
 
 			@Override
@@ -63,11 +69,29 @@ public class ActivityLogin extends ActionBarActivity {
 
 	@OnClick(R.id.register)
 	void onRegister() {
-		String url = "http://www.hi-pda.com/forum/tobenew.php";
+		final Dialog dialog = new Dialog(this);
+		dialog.title("注册")
+				.contentView(R.layout.register_info)
+				.positiveAction("前往HiPDA注册")
+				.negativeAction("取消")
+				.positiveActionClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						String url = "http://www.hi-pda.com/forum/tobenew.php";
 
-		Intent intent = new Intent(Intent.ACTION_VIEW);
-		intent.setData(Uri.parse(url));
-		startActivity(intent);
+						Intent intent = new Intent(Intent.ACTION_VIEW);
+						intent.setData(Uri.parse(url));
+						startActivity(intent);
+					}
+				})
+				.negativeActionClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						dialog.dismiss();
+					}
+				})
+				.cancelable(true)
+				.show();
 	}
 
 	@OnClick(R.id.view_as_visitor)

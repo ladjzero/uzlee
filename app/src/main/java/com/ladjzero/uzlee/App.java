@@ -15,12 +15,16 @@ import com.joanzapata.iconify.fonts.MaterialModule;
 import com.ladjzero.hipda.Core;
 import com.ladjzero.hipda.Forum;
 import com.ladjzero.hipda.PersistenceAdapter;
+import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.UilUtils;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.orhanobut.logger.Logger;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,18 +106,23 @@ public class App extends Application implements SharedPreferences.OnSharedPrefer
 	}
 
 	public List<Forum> getFlattenForums() {
-		if (mFlattenForums == null) {
-			mFlattenForums = Forum.flatten(Utils.getForums(this));
-		}
-
-		return mFlattenForums;
+		return Forum.flatten(Utils.getAllForums(this));
 	}
 
-	public List<Forum> getSelectedForums() {
-		return Forum.findByIds(getFlattenForums(), Utils.getSelectedForums(mPref));
-	}
+	public List<Forum> getUserFlattenForums() {
+		final User me = getInstance().getCore().getApiStore().getUser();
+		List<Forum> forums = getFlattenForums();
 
-	;
+		CollectionUtils.filter(forums, new Predicate() {
+			@Override
+			public boolean evaluate(Object o) {
+				Forum f = (Forum) o;
+				return me.getId() != 0 || !f.isSecurity();
+			}
+		});
+
+		return forums;
+	}
 
 	public boolean shouldDownloadImage() {
 		return mShouldDownloadImage;

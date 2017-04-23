@@ -144,7 +144,7 @@ public class HttpApi {
 		mHttpClient.get("http://www.hi-pda.com/forum/logging.php?action=logout&formhash=" + mStore.getFormhash(), new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
-				mStore.setUser(null);
+				mStore.setUser(new User());
 				mStore.setUnread(0);
 				callback.onSuccess(response);
 			}

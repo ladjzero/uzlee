@@ -43,7 +43,7 @@ public class ApiStore extends Observable {
 			user = mAdapter.getValue("user", User.class, null);
 		}
 
-		return user;
+		return user == null ? new User() : user;
 	}
 
 	public void setUser(User user) {
