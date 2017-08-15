@@ -79,8 +79,11 @@ public abstract class Parser implements Parse {
 		return doc;
 	}
 
-	public String[] parseExistedAttach(String html) {
-		Document doc = getDoc(html, new Response.Meta());
+	public Response parseExistedAttach(String html) {
+		Response res = new Response();
+		Response.Meta meta = new Response.Meta();
+
+		Document doc = getDoc(html, meta);
 
 		Elements tds = doc.select("td[id^=image_td_]");
 		ArrayList<String> attachIds = new ArrayList<>();
@@ -96,6 +99,9 @@ public abstract class Parser implements Parse {
 			}
 		}
 
-		return attachIds.toArray(new String[0]);
+		res.setMeta(meta);
+		res.setData(attachIds.toArray(new String[0]));
+
+		return res;
 	}
 }

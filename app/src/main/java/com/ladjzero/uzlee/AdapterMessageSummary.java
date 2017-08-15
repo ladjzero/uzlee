@@ -86,13 +86,8 @@ public class AdapterMessageSummary extends ArrayAdapter<Thread> implements View.
 		holder.name.setOnClickListener(this);
 		holder.date.setText(com.ladjzero.uzlee.utils.Utils.prettyTime(thread.getDateStr()));
 		holder.name.setText(thread.getAuthor().getName());
-
-		if (mLocalApi.getBanned().contains(new User().setId(uid))) {
-			holder.title.setText(context.getString(R.string.blocked));
-		} else {
-			holder.title.setText(thread.getTitle());
-			holder.title.getPaint().setFakeBoldText(thread.getBold());
-		}
+		holder.title.setText(thread.getTitle());
+		holder.title.getPaint().setFakeBoldText(thread.getBold());
 
 		return row;
 	}

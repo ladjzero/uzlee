@@ -38,11 +38,6 @@
 
         <CheckBoxPreference
             android:defaultValue="false"
-            android:key="enable_image_only_wifi"
-            android:title="只在WIFI网络下加载图像"/>
-
-        <CheckBoxPreference
-            android:defaultValue="false"
             android:key="show_sig"
             android:title="显示客户端签名"/>
 

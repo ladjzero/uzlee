@@ -25,6 +25,7 @@ import com.daimajia.androidanimations.library.YoYo;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.Post;
+import com.ladjzero.hipda.Response;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.EmojiUtils;
 import com.ladjzero.uzlee.utils.Utils;
@@ -104,10 +105,15 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 		mHttpApi.getExistedAttach(new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
-				String[] ids = App.getInstance().getCore().getPostsParser().parseExistedAttach(response);
+				try {
+					Response res = App.getInstance().getCore().getPostsParser().parseExistedAttach(response);
+					App.getInstance().getCore().getApiStore().setHash(res.getMeta().getHash());
+					String[] ids = (String[]) res.getData();
 
-				for (String id : ids) {
-					if (id.length() > 0) existedAttachIds.add(Integer.valueOf(id));
+					for (String id : ids) {
+						if (id.length() > 0) existedAttachIds.add(Integer.valueOf(id));
+					}
+				} catch (Exception e) {
 				}
 			}
 
@@ -441,7 +447,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 	public void onSuccess(String response) {
 		mSaveDraft = false;
 		Intent returnIntent = new Intent();
-		returnIntent.putExtra("posts-json", App.getInstance().getApi().getPostsParser().parse(response));
+		returnIntent.putExtra("posts-html", response);
 		setResult(EDIT_SUCCESS, returnIntent);
 		finish();
 	}

@@ -18,7 +18,6 @@ public class ApiStore extends Observable {
 	private String hash;
 	private String code;
 	private int unread;
-	private Set<User> banned;
 
 	public static ApiStore getStore() {
 		if (singleton == null) singleton = new ApiStore();
@@ -80,17 +79,5 @@ public class ApiStore extends Observable {
 		setChanged();
 		this.unread = unread;
 		notifyObservers("unread");
-	}
-
-	public Set<User> getBanned() {
-		if (banned == null) banned = mAdapter.getValue("banned", Set.class, new HashSet<User>());
-		return banned;
-	}
-
-	public void setBanned(Set<User> banned) {
-		setChanged();
-		this.banned = banned;
-		mAdapter.putValue("banned", banned);
-		notifyObservers("banned");
 	}
 }

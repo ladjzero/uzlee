@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Created by ladjzero on 2015/1/2.
  */
-public class App extends Application implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class App extends Application {
 
 	private static App app;
 
@@ -84,8 +84,6 @@ public class App extends Application implements SharedPreferences.OnSharedPrefer
 		mCore = Core.initialize(adapter, mHttpClient);
 		UilUtils.init(this);
 		mPref = PreferenceManager.getDefaultSharedPreferences(this);
-		mPref.registerOnSharedPreferenceChangeListener(this);
-		setImageNetwork();
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			WebView.setWebContentsDebuggingEnabled(true);
@@ -95,12 +93,6 @@ public class App extends Application implements SharedPreferences.OnSharedPrefer
 		mListeners = new ArrayList<>();
 
 		Logger.init();
-	}
-
-	@Override
-	public void onTerminate() {
-		mPref.unregisterOnSharedPreferenceChangeListener(this);
-		super.onTerminate();
 	}
 
 	public LruCache<String, String> getMemCache() {
@@ -126,40 +118,14 @@ public class App extends Application implements SharedPreferences.OnSharedPrefer
 		return forums;
 	}
 
-	public boolean shouldDownloadImage() {
-		return mShouldDownloadImage;
-	}
-
 	public SharedPreferences getSharedPreferences() {
 		return mPref;
-	}
-
-	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-		if (s.equals(Constants.PREF_KEY_ENABLE_DOWNLOAD_IMAGE)) {
-			setImageNetwork();
-		}
 	}
 
 	@Override
 	public void onLowMemory() {
 		super.onLowMemory();
 		ImageLoader.getInstance().clearMemoryCache();
-	}
-
-	public void setImageNetwork() {
-		ConnectivityManager connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
-
-		if (activeNetInfo != null) {
-			boolean isWifi = activeNetInfo.getType() == ConnectivityManager.TYPE_WIFI;
-			boolean loadWifiOnly = mPref.getBoolean(Constants.PREF_KEY_ENABLE_DOWNLOAD_IMAGE, false);
-
-			mShouldDownloadImage = isWifi || !loadWifiOnly;
-
-			ImageLoader.getInstance().denyNetworkDownloads(!mShouldDownloadImage);
-			Logger.i("wifi %b load when wifi only %b", isWifi, loadWifiOnly);
-		}
 	}
 
 	public interface OnEventListener {

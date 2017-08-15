@@ -58,6 +58,8 @@ import java.util.Collection;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
+import static com.ladjzero.uzlee.App.*;
+
 
 public class ActivityPosts extends ActivityWithWebView implements AdapterView.OnItemClickListener,
 		DiscreteSeekBar.OnProgressChangeListener,
@@ -125,7 +127,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	// Menu item click.
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		if (App.getInstance().getCore().getApiStore().getUser().getId() == 0) {
+		if (getInstance().getCore().getApiStore().getUser().getId() == 0) {
 			switch (position) {
 				case 0:
 					fetch(mPage);
@@ -247,19 +249,20 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		String url = getUri(page);
 		model.setUrl(url);
 
-		App.getInstance().getApi().getPosts(url, new Api.OnRespond() {
+		getInstance().getApi().getPosts(url, new Api.OnRespond() {
 			@Override
 			public void onRespond(Response res) {
-				model.setFetching(false);
-
 				if (res.isSuccess()) {
 					Posts posts = (Posts) res.getData();
 					mPosts.clear();
 					mPosts.addAll(posts);
+					mPosts.setMeta(posts.getMeta());
 					model.setTitle(posts.getMeta().getTitle());
 				} else {
 					showToast(res.getData().toString());
 				}
+
+				model.setFetching(false);
 			}
 		});
 	}
@@ -278,7 +281,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		this.setContentView(R.layout.activity_posts);
 		ButterKnife.bind(this);
 
-		if (App.getInstance().getCore().getApiStore().getUser().getId() == 0) {
+		if (getInstance().getCore().getApiStore().getUser().getId() == 0) {
 			mQuickReplyLayout.setVisibility(View.INVISIBLE);
 		}
 
@@ -334,7 +337,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mMenuDialog = new Dialog(this);
 		ListView menuList = (ListView) mMenuView.findViewById(R.id.actions);
 
-		if (App.getInstance().getCore().getApiStore().getUser().getId() == 0) {
+		if (getInstance().getCore().getApiStore().getUser().getId() == 0) {
 			actionsAdapter = new AdapterMenuItem(this, new String[]{
 					"刷新",
 					"复制链接",
@@ -385,9 +388,9 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mPosts = new ObservablePosts();
 		mPosts.addOnListChangedCallback(new OnListChangedCallback());
 
-		mHttpClient = App.getInstance().getHttpClient();
-		mHttpApi = App.getInstance().getCore().getHttpApi();
-		mLocalApi = App.getInstance().getCore().getLocalApi();
+		mHttpClient = getInstance().getHttpClient();
+		mHttpApi = getInstance().getCore().getHttpApi();
+		mLocalApi = getInstance().getCore().getLocalApi();
 		mProgressView.start();
 	}
 
@@ -497,7 +500,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				mPosts.clear();
 				mQuickEdit.setText("");
 				mPid = -1;
-				mPosts.addAll((Posts) App.getInstance().getApi().getPostsParser().parse(response).getData());
+				mPosts.addAll((Posts) getInstance().getApi().getPostsParser().parse(response).getData());
 			}
 
 			@Override
@@ -514,12 +517,15 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			model.setFetching(true);
 
 			if (returnIntent != null) {
-				Posts posts = (Posts) returnIntent.getSerializableExtra("posts-json");
+				String html = returnIntent.getStringExtra("posts-html");
+				Posts posts = (Posts) getInstance().getApi().getPostsParser().parse(html).getData();
 				mPosts.clear();
 				mPosts.addAll(posts);
 				mPid = -1;
 				mSkipResumeFetch = true;
 			}
+
+			model.setFetching(false);
 		}
 	}
 
@@ -766,8 +772,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		model.setWebviewReady(true);
 
-		mWebView.loadUrl("javascript:_postsData.enableEcho(" + App.getInstance().shouldDownloadImage() + ")");
-
 		if (!mIsPushedAfterWebReady) {
 			for (Post post : mPosts) {
 				mWebView.loadUrl("javascript:_postsData.posts.push(" + JSON.toJSONString(post) + ")");
@@ -824,23 +828,12 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			isFetching = fetching;
 
 			if (fetching) {
+				mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
 				mProgressView.setProgress(0f);
 				mProgressView.start();
 			} else {
 				mPostsView.onRefreshComplete();
-			}
-		}
 
-		public boolean isParsing() {
-			return isParsing;
-		}
-
-		public void setParsing(boolean parsing) {
-			isParsing = parsing;
-
-			if (parsing) {
-				mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
-			} else {
 				if (mPosts.size() > 0) {
 					int lastPostId = mPosts.get(mPosts.size() - 1).getId();
 

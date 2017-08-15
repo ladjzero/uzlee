@@ -260,6 +260,7 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 
 	public void onThreads(Threads threads) {
 		mThreads.setMeta(threads.getMeta());
+		model.setFetchingAndParsing(false);
 
 		if (threads.size() != 0) {
 			if (threads.getMeta().getPage() == 1) {

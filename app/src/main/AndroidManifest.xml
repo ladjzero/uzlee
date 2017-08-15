@@ -2,7 +2,7 @@
     package="com.ladjzero.uzlee"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:versionCode="19"
-    android:versionName="0.8.2">
+    android:versionName="0.8.3">
 
     <uses-sdk
         android:minSdkVersion="16"
@@ -86,11 +86,5 @@
             android:name=".ActivityForumPicker"
             android:label="板块">
         </activity>
-
-        <receiver android:name=".ConnectionStatusChangedReceiver">
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
-            </intent-filter>
-        </receiver>
     </application>
 </manifest>

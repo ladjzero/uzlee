@@ -122,13 +122,8 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 
 		holder.date.setText(Utils.prettyTime(thread.getDateStr()));
 		holder.name.setText(thread.getAuthor().getName());
-
-		if (mLocalApi.getBanned().contains(new User().setId(uid))) {
-			holder.title.setText(context.getString(R.string.blocked));
-		} else {
-			holder.title.setText(thread.getTitle());
-			holder.title.getPaint().setFakeBoldText(thread.getBold());
-		}
+		holder.title.setText(thread.getTitle());
+		holder.title.getPaint().setFakeBoldText(thread.getBold());
 
 		if (color != null && color.length() > 0) {
 			holder.title.setTextColor(lowerSaturation(Color.parseColor(color)));

@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -26,7 +25,6 @@ public class ActivityUser extends ActivityEasySlide {
 
 	LinearLayout mInfo;
 	View chat;
-	Button block;
 	User mUser;
 	int uid;
 	@Bind(R.id.user_info_img)
@@ -60,10 +58,8 @@ public class ActivityUser extends ActivityEasySlide {
 
 		mInfo = (LinearLayout) findViewById(R.id.user_info_list);
 		chat = findViewById(R.id.chat);
-		block = (Button) findViewById(R.id.block);
 
 		chat.setVisibility(View.GONE);
-		block.setVisibility(View.GONE);
 
 		chat.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -92,7 +88,6 @@ public class ActivityUser extends ActivityEasySlide {
 
 					if (user.getId() != mLocalApi.getUser().getId()) {
 						chat.setVisibility(View.VISIBLE);
-						block.setVisibility(View.VISIBLE);
 					}
 
 					ImageLoader.getInstance().displayImage(user.getImage(), mImageView);
@@ -138,33 +133,6 @@ public class ActivityUser extends ActivityEasySlide {
 
 		final String userName = getIntent().getStringExtra("name");
 		setTitle(userName);
-
-		updateBlockButton();
-
-		block.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				User banned = new User().setId(uid);
-
-				if (mLocalApi.getBanned().contains(banned)) {
-					mLocalApi.deleteBanned(banned);
-				} else {
-					mLocalApi.insertBanned(banned);
-				}
-
-				updateBlockButton();
-			}
-		});
-	}
-
-	private void updateBlockButton() {
-		if (mLocalApi.getBanned().contains(new User().setId(uid))) {
-			block.setText("移除黑名单");
-			block.setBackgroundResource(R.color.greenPrimary);
-		} else {
-			block.setText("加入黑名单");
-			block.setBackgroundResource(R.color.redPrimary);
-		}
 	}
 
 	@Override

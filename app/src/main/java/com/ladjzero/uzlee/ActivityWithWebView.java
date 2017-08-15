@@ -7,8 +7,11 @@ import android.os.Bundle;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.utils.Timeline;
@@ -56,7 +59,7 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 
 		Intent intent = new Intent();
 		intent.setAction(Intent.ACTION_VIEW);
-		intent.setDataAndType(Uri.fromFile(UilUtils.getInstance().getFile(src)), "image/*");
+		intent.setData(Uri.parse(src));
 		startActivity(intent);
 	}
 
@@ -81,7 +84,7 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 			final WebView2 webView = getWebView();
 
 			webView.addJavascriptInterface(this, "UZLEE");
-			webView.setWebViewClient(new WebView2.ImageCacheClient() {
+			webView.setWebViewClient(new WebViewClient() {
 
 				@Override
 				public void onPageStarted(WebView view, String url, Bitmap favicon) {
@@ -90,21 +93,16 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 				}
 
 				@Override
-				protected boolean isCancelled() {
-					return cancelImage;
-				}
-
-				@Override
-				public boolean shouldDownloadImage() {
-					return App.getInstance().shouldDownloadImage();
-				}
-
-				@Override
 				public void onPageFinished(WebView view, String url) {
 					Logger.t(Timeline.TAG).i("%dms", mTimeline.timeLine());
 					super.onPageFinished(view, url);
-					webView.clearCache(true);
+//					webView.clearCache(true);
 					onWebViewReady();
+				}
+
+				@Override
+				public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+					Logger.e(error.toString());
 				}
 			});
 			webView.setWebChromeClient(new WebChromeClient() {
@@ -117,10 +115,9 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 
 			WebSettings settings = webView.getSettings();
 			settings.setJavaScriptEnabled(true);
-			settings.setAppCacheEnabled(false);
-			settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-			// All images loadings will handled by WebViewClient.
-			settings.setBlockNetworkLoads(true);
+//			settings.setAppCacheEnabled(false);
+//			settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+			settings.setDomStorageEnabled(true);
 			webView.setBackgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground));
 
 			webView.loadUrl(getHTMLFilePath());

@@ -1,6 +1,5 @@
 package com.ladjzero.uzlee;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +14,6 @@ import com.ladjzero.hipda.Threads;
 public class FragmentUserThreads extends FragmentThreadsAbs {
 
 	private String userName;
-	private AsyncTask mParseTask;
 
 	public static FragmentThreadsAbs newInstance() {
 		return new FragmentUserThreads();
@@ -64,16 +62,10 @@ public class FragmentUserThreads extends FragmentThreadsAbs {
 	}
 
 	@Override
-	public void onDestroy() {
-		super.onDestroy();
-
-		if (mParseTask != null && !mParseTask.isCancelled()) {
-			mParseTask.cancel(true);
-		}
-	}
-
-	@Override
 	protected String keyOfThreadsToCache() {
-		return "threads-user-name-" + App.getInstance().getMemCache().get("search_key");
+		Bundle args = getArguments();
+		userName = args.getString("userName");
+
+		return "threads-user-name-" + userName;
 	}
 }

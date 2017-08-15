@@ -141,7 +141,7 @@ public abstract class ActivityBase extends ActionBarActivity {
 		Long now = System.currentTimeMillis();
 
 		if (force || now - lastCheck > 12 * 3600 * 1000) {
-			App.getInstance().getHttpClient().get("http://ladjzero.me/uzlee/js/version.json", "utf-8", new HttpClientCallback() {
+			App.getInstance().getHttpClient().get("http://ladjzero.github.io/uzlee/js/version.json", "utf-8", new HttpClientCallback() {
 				@Override
 				public void onSuccess(String response) {
 					List<Version> info = null;

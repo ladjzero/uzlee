@@ -1,11 +1,14 @@
 package com.ladjzero.hipda;
 
+import com.orhanobut.logger.Logger;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * Created by chenzhuo on 16-2-11.
@@ -164,13 +167,26 @@ public class PostsParser extends Parser {
 		return new Post().setTitle(title).setBody(editBody);
 	}
 
+	private void replaceThumbImage(Document doc) {
+		for (Element img : doc.select("img")) {
+			String src = img.attr("src");
+
+			try {
+				Logger.i("111 - " + src + " - " + src.split(".thumb.jpg")[0]);
+				img.attr("src", src.split(".thumb.jpg")[0]);
+			} catch (Exception e) {
+				Logger.e(e.toString());
+			}
+		}
+	}
+
 	public Response parse(String html) {
 
 		Posts posts = new Posts();
 		Response.Meta resMeta = new Response.Meta();
 
 		Document doc = getDoc(html, resMeta);
-
+		replaceThumbImage(doc);
 
 
 		Element eFid = doc.select("#nav a").last();

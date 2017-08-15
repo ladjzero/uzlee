@@ -13,13 +13,11 @@ window.onScrollStateChange = function (state) {
   }
 }
 
-window._postsData.enableEcho = function (yes) {
-  yes && echo.init({
-    offset: 100,
-    throttle: 250,
-    unload: false
-  })
-}
+echo.init({
+  offset: 100,
+  throttle: 250,
+  unload: false
+})
 
 Vue.config.debug = true
 

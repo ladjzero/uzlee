@@ -48,7 +48,7 @@ public class UserParser extends Parser {
 
 		Response res = new Response();
 		res.setMeta(resMeta);
-		res.setData(res);
+		res.setData(user);
 		res.setSuccess(true);
 		return res;
 	}

@@ -12,12 +12,14 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="用户名"
+        android:text="ladjzero"
         android:inputType="text"
         app:met_floatingLabel="normal"
         app:met_primaryColor="@color/dark_primary"/>
 
     <com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/user_password"
+        android:text="chainladjzero"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"

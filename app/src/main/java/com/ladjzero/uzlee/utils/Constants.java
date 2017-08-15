@@ -9,7 +9,6 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 public class Constants {
 	public static int DEFAULT_IMAGE_UPLOAD_SIZE = 3000; // KB
 	public static String PREF_KEY_IMG_SIZE = "img_size";
-	public static String PREF_KEY_ENABLE_DOWNLOAD_IMAGE = "enable_image_only_wifi";
 	public static String PREF_KEY_SHOW_PROFILE_IMAGE = "show_profile_image";
 	public static String PREF_KEY_SHOW_TYPES = "show_types";
 	public static String DEFAULT_SHOW_TYPES = "6";
