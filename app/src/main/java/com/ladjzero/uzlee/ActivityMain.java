@@ -102,7 +102,7 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 				mViewPager = viewPager;
 				// Delay because TabPageIndicator can not be re-rendered after menu icon were inserted.
 				// The underline of the default tab will be wider as it should be.
-				mCustomToolbarView.postDelayed(new Runnable() {
+				new Handler().postDelayed(new Runnable() {
 					@Override
 					public void run() {
 						Toolbar.LayoutParams params = new Toolbar.LayoutParams(
@@ -143,7 +143,7 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 				mFragment.setOnPageChangeListener(new FragmentThreadsPager.OnPageChangeListener() {
 					@Override
 					public void onPageChange(FragmentThreadsAbs f) {
-						mViewPager.postDelayed(new Runnable() {
+						new Handler().postDelayed(new Runnable() {
 							@Override
 							public void run() {
 								invalidateOptionsMenu();

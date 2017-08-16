@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.media.MediaActionSound;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -432,7 +433,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 				return true;
 			} else {
 				model.setToRender(true).setOnSelection(false).setMessage(null);
-				mWebView.postDelayed(new Runnable() {
+				new Handler().postDelayed(new Runnable() {
 					@Override
 					public void run() {
 						Bitmap bitmap = mWebView.toBitmap();
@@ -608,7 +609,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		ms = System.currentTimeMillis();
 
-		getWebView().postDelayed(new Runnable() {
+		new Handler().postDelayed(new Runnable() {
 			@Override
 			public void run() {
 				if (System.currentTimeMillis() - ms >= 1000) ms = 0;
@@ -828,7 +829,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			isFetching = fetching;
 
 			if (fetching) {
-				mPostsView.setMode(PullToRefreshBase.Mode.DISABLED);
 				mProgressView.setProgress(0f);
 				mProgressView.start();
 			} else {

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -216,7 +217,7 @@ public class FragmentNav extends FragmentBase implements Observer {
 					myPosts.setVisibility(visible ? View.VISIBLE : View.GONE);
 					mSearch.setVisibility(visible ? View.VISIBLE : View.GONE);
 
-					userLayout.postDelayed(new Runnable() {
+					new Handler().postDelayed(new Runnable() {
 						@Override
 						public void run() {
 							if (visible) {

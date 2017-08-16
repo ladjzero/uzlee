@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
@@ -297,7 +298,7 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 
 		if (visible) {
 			// Hack. http://stackoverflow.com/questions/26858692/swiperefreshlayout-setrefreshing-not-showing-indicator-initially
-			mSwipe.postDelayed(new Runnable() {
+			new Handler().postDelayed(new Runnable() {
 				@Override
 				public void run() {
 					Logger.i("is fetching %b", model.isFetchingAndParsing());

@@ -3,6 +3,7 @@ package com.ladjzero.uzlee;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -193,12 +194,12 @@ public class ActivityChat extends ActivityWithWebView implements HttpClientCallb
 		mSend.setText("{md-send}");
 		mSend.setClickable(true);
 
-		mSend.postDelayed(new Runnable() {
+		new Handler().postDelayed(new Runnable() {
 			@Override
 			public void run() {
 				fetch(1);
 			}
-		}, 300);
+		}, 1000);
 	}
 
 	@Override

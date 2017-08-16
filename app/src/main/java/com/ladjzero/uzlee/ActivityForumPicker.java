@@ -2,6 +2,7 @@ package com.ladjzero.uzlee;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -54,7 +55,7 @@ public class ActivityForumPicker extends ActivityEasySlide {
 		selectedForums = Utils.getUserSelectedForums(this);
 
 		if (selectedForums.size() == 0) {
-			listView.postDelayed(new Runnable() {
+			new Handler().postDelayed(new Runnable() {
 				@Override
 				public void run() {
 					showPicker();
