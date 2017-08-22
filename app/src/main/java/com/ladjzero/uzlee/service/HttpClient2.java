@@ -1,7 +1,9 @@
-package com.ladjzero.uzlee;
+package com.ladjzero.uzlee.service;
 
 import android.content.Context;
 
+import com.ladjzero.uzlee.HttpClientCallback;
+import com.ladjzero.uzlee.service.HttpClient;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.PersistentCookieStore;
 import com.loopj.android.http.RequestParams;

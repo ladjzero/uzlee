@@ -17,6 +17,8 @@ import android.widget.TextView;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.Posts;
+import com.ladjzero.hipda.Response;
+import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.Utils;
 import com.orhanobut.logger.Logger;
 
@@ -24,7 +26,7 @@ import com.orhanobut.logger.Logger;
 /**
  * Created by ladjzero on 2015/4/25.
  */
-public class ActivityChat extends ActivityWithWebView implements HttpClientCallback {
+public class ActivityChat extends ActivityWithWebView implements Api.OnRespond {
 	private EditText mMessage;
 	private TextView mSend;
 	private Posts mCharts;
@@ -67,7 +69,7 @@ public class ActivityChat extends ActivityWithWebView implements HttpClientCallb
 					mSend.setClickable(false);
 					mMessage.setText("");
 
-					App.getInstance().getCore().getHttpApi().sendMessage(mName, message, ActivityChat.this);
+					App.getInstance().getApi().sendMessage(mName, message, ActivityChat.this);
 				}
 			}
 		});
@@ -190,16 +192,20 @@ public class ActivityChat extends ActivityWithWebView implements HttpClientCallb
 	}
 
 	@Override
-	public void onSuccess(String response) {
-		mSend.setText("{md-send}");
-		mSend.setClickable(true);
+	public void onRespond(Response res) {
+		if (res.isSuccess()) {
+			mSend.setText("{md-send}");
+			mSend.setClickable(true);
 
-		new Handler().postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				fetch(1);
-			}
-		}, 1000);
+			new Handler().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					fetch(1);
+				}
+			}, 1000);
+		} else {
+			showToast(res.getData().toString());
+		}
 	}
 
 	@Override
@@ -209,10 +215,5 @@ public class ActivityChat extends ActivityWithWebView implements HttpClientCallb
 		if (mParseTask != null && !mParseTask.isCancelled()) {
 			mParseTask.cancel(true);
 		}
-	}
-
-	@Override
-	public void onFailure(String reason) {
-		showToast(reason);
 	}
 }

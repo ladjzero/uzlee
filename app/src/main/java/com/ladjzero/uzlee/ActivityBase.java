@@ -20,7 +20,9 @@ import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.Forum;
+import com.ladjzero.hipda.Response;
 import com.ladjzero.uzlee.model.Version;
+import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.EmojiUtils;
 import com.ladjzero.uzlee.utils.Utils;
 import com.ladjzero.uzlee.utils.VersionComparator;
@@ -141,59 +143,50 @@ public abstract class ActivityBase extends ActionBarActivity {
 		Long now = System.currentTimeMillis();
 
 		if (force || now - lastCheck > 12 * 3600 * 1000) {
-			App.getInstance().getHttpClient().get("http://ladjzero.github.io/uzlee/js/version.json", "utf-8", new HttpClientCallback() {
+			App.getInstance().getApi().getVersions(new Api.OnRespond() {
 				@Override
-				public void onSuccess(String response) {
-					List<Version> info = null;
+				public void onRespond(Response res) {
+					if (res.isSuccess()) {
+						List<Version> info = (List<Version>) res.getData();
 
-					try {
-						info = JSON.parseArray(response, Version.class);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+						if (info != null) {
+							String version = getVersion();
+							String newVersion = String.valueOf(info.get(0).getV());
 
-					if (info != null) {
-						String version = getVersion();
-						String newVersion = String.valueOf(info.get(0).getV());
+							if (new VersionComparator().compare(version, newVersion) < 0) {
+								final List<Version> finalInfo = info;
 
-						if (new VersionComparator().compare(version, newVersion) < 0) {
-							final List<Version> finalInfo = info;
+								final Dialog dialog = new Dialog(ActivityBase.this);
+								View dialogView = getLayoutInflater().inflate(R.layout.update_info, null);
+								TextView infoText = (TextView) dialogView.findViewById(R.id.text);
+								infoText.setText(StringUtils.join(info.get(0).getLogs(), '\n'));
 
-							final Dialog dialog = new Dialog(ActivityBase.this);
-							View dialogView = getLayoutInflater().inflate(R.layout.update_info, null);
-							TextView infoText = (TextView) dialogView.findViewById(R.id.text);
-							infoText.setText(StringUtils.join(info.get(0).getLogs(), '\n'));
-
-							dialog.title("新的版本 v" + info.get(0).getV())
-									.titleColor(Utils.getThemeColor(ActivityBase.this, R.attr.colorText))
-									.backgroundColor(Utils.getThemeColor(ActivityBase.this, android.R.attr.colorBackground))
-									.negativeAction("取消")
-									.negativeActionClickListener(new View.OnClickListener() {
-										@Override
-										public void onClick(View v) {
-											dialog.dismiss();
-										}
-									})
-									.positiveAction(getString(R.string.download))
-									.positiveActionClickListener(new View.OnClickListener() {
-										@Override
-										public void onClick(View v) {
-											Uri uri = Uri.parse(finalInfo.get(0).getUrl());
-											Intent downloadIntent = new Intent(Intent.ACTION_VIEW, uri);
-											startActivity(downloadIntent);
-										}
-									})
-									.contentView(dialogView)
-									.show();
-						} else {
-							showToast("已是最新版");
+								dialog.title("新的版本 v" + info.get(0).getV())
+										.titleColor(Utils.getThemeColor(ActivityBase.this, R.attr.colorText))
+										.backgroundColor(Utils.getThemeColor(ActivityBase.this, android.R.attr.colorBackground))
+										.negativeAction("取消")
+										.negativeActionClickListener(new View.OnClickListener() {
+											@Override
+											public void onClick(View v) {
+												dialog.dismiss();
+											}
+										})
+										.positiveAction(getString(R.string.download))
+										.positiveActionClickListener(new View.OnClickListener() {
+											@Override
+											public void onClick(View v) {
+												Uri uri = Uri.parse(finalInfo.get(0).getUrl());
+												Intent downloadIntent = new Intent(Intent.ACTION_VIEW, uri);
+												startActivity(downloadIntent);
+											}
+										})
+										.contentView(dialogView)
+										.show();
+							} else {
+								showToast("已是最新版");
+							}
 						}
 					}
-				}
-
-				@Override
-				public void onFailure(String reason) {
-					showToast("检查更新失败");
 				}
 			});
 

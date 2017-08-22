@@ -12,9 +12,12 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
+import com.ladjzero.hipda.Response;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.Threads;
 import com.ladjzero.hipda.ThreadsParser;
+import com.ladjzero.uzlee.service.Api;
+import com.ladjzero.uzlee.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +27,6 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 	Core core;
 	int tabIndex;
 	Threads mThreads;
-	private HttpApi mApi;
 	private ThreadsParser mThreadsParser;
 	private ArrayList<AsyncTask> mTasks;
 	/**
@@ -61,7 +63,6 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 		tabIndex = getArguments().getInt("tab_index");
 
 		Core core = App.getInstance().getCore();
-		mApi = core.getHttpApi();
 		mThreadsParser = core.getThreadsParser();
 		mTasks = new ArrayList<>();
 		mThreads = new Threads();
@@ -114,71 +115,38 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 	private void load(int tabIndex) {
 		switch (tabIndex) {
 			case 0:
-				mApi.getOwnThreads(mThreads.getMeta().getPage() + 1, new HttpClientCallback() {
+				App.getInstance().getApi().getOwnThreads(mThreads.getMeta().getPage() + 1, new Api.OnRespond() {
 					@Override
-					public void onSuccess(String response) {
-						mTasks.add(new AsyncTask<String, Object, Threads>() {
-							@Override
-							protected Threads doInBackground(String... strings) {
-								return mThreadsParser.parseOwnThreads(strings[0]);
-							}
-
-							@Override
-							protected void onPostExecute(Threads threads) {
-								onThreads(threads);
-							}
-						}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
-					}
-
-					@Override
-					public void onFailure(String reason) {
-						((ActivityBase) getActivity()).showToast(reason);
+					public void onRespond(Response res) {
+						if (res.isSuccess()) {
+							onThreads((Threads) res.getData());
+						} else {
+							Utils.showToast(getActivity(), res.getData().toString());
+						}
 					}
 				});
 				break;
 			case 1:
-				mApi.getOwnPosts(mThreads.getMeta().getPage() + 1, new HttpClientCallback() {
+				App.getInstance().getApi().getOwnPosts(mThreads.getMeta().getPage() + 1, new Api.OnRespond() {
 					@Override
-					public void onSuccess(String response) {
-						mTasks.add(new AsyncTask<String, Object, Threads>() {
-							@Override
-							protected Threads doInBackground(String... strings) {
-								return mThreadsParser.parseOwnPosts(strings[0]);
-							}
-
-							@Override
-							protected void onPostExecute(Threads threads) {
-								onThreads(threads);
-							}
-						}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
-					}
-
-					@Override
-					public void onFailure(String reason) {
-						((ActivityBase) getActivity()).showToast(reason);
+					public void onRespond(Response res) {
+						if (res.isSuccess()) {
+							onThreads((Threads) res.getData());
+						} else {
+							Utils.showToast(getActivity(), res.getData().toString());
+						}
 					}
 				});
 				break;
 			case 2:
-				mApi.getMarkedThreads(mThreads.getMeta().getPage() + 1, new HttpClientCallback() {
+				App.getInstance().getApi().getMarkedThreads(mThreads.getMeta().getPage() + 1, new Api.OnRespond() {
 					@Override
-					public void onSuccess(String response) {
-						mTasks.add(new AsyncTask<String, Object, Threads>() {
-							@Override
-							protected Threads doInBackground(String... strings) {
-								return mThreadsParser.parseMarkedThreads(strings[0]);
-							}
-
-							@Override
-							protected void onPostExecute(Threads threads) {
-								onThreads(threads);
-							}
-						}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response));
-					}
-
-					@Override
-					public void onFailure(String reason) {
-						((ActivityBase) getActivity()).showToast(reason);
+					public void onRespond(Response res) {
+						if (res.isSuccess()) {
+							onThreads((Threads) res.getData());
+						} else {
+							Utils.showToast(getActivity(), res.getData().toString());
+						}
 					}
 				});
 				break;

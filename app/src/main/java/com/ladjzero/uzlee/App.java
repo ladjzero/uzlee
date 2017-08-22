@@ -1,10 +1,7 @@
 package com.ladjzero.uzlee;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.LruCache;
@@ -14,6 +11,8 @@ import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.MaterialModule;
 import com.ladjzero.hipda.Forum;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.service.Api;
+import com.ladjzero.uzlee.service.HttpClient2;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.UilUtils;
 import com.ladjzero.uzlee.utils.Utils;

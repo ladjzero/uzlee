@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.ladjzero.hipda.Response;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.UilUtils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 

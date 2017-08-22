@@ -16,7 +16,9 @@ import android.widget.ListView;
 
 import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.Forum;
+import com.ladjzero.hipda.Response;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.Utils;
 import com.rey.material.app.Dialog;
@@ -31,15 +33,11 @@ import butterknife.OnClick;
 
 
 public class ActivitySettings extends ActivityEasySlide implements SharedPreferences.OnSharedPreferenceChangeListener {
-	private HttpApi mHttpApi;
 	private LocalApi mLocalApi;
-	private HttpClient2 mHttpClient;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		mHttpApi = App.getInstance().getCore().getHttpApi();
 		mLocalApi = App.getInstance().getCore().getLocalApi();
-		mHttpClient = App.getInstance().getHttpClient();
 
 		super.onCreate(savedInstanceState);
 
@@ -123,20 +121,16 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 			logout.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					activity.mHttpApi.logout(new HttpClientCallback() {
+					App.getInstance().getApi().logout(new Api.OnRespond() {
 						@Override
-						public void onSuccess(String response) {
-							activity.mHttpClient.getCookieStore().clear();
-
-							Utils.gotoActivity(mActivity, ActivityLogin.class,
-									Intent.FLAG_ACTIVITY_TASK_ON_HOME |
-											Intent.FLAG_ACTIVITY_NEW_TASK |
-											Intent.FLAG_ACTIVITY_CLEAR_TASK);
-						}
-
-						@Override
-						public void onFailure(String reason) {
-							mActivity.showToast(reason);
+						public void onRespond(Response res) {
+							if (res.isSuccess()) {
+								App.getInstance().getHttpClient().getCookieStore().clear();
+								Utils.gotoActivity(mActivity, ActivityLogin.class,
+										Intent.FLAG_ACTIVITY_TASK_ON_HOME |
+												Intent.FLAG_ACTIVITY_NEW_TASK |
+												Intent.FLAG_ACTIVITY_CLEAR_TASK);
+							}
 						}
 					});
 

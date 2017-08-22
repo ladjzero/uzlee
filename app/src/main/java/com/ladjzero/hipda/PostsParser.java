@@ -159,12 +159,17 @@ public class PostsParser extends Parser {
 		}
 	}
 
-	public Post parseEditablePost(String html) {
-		Document doc = getDoc(html, new Response.Meta());
+	public Response parseEditablePost(String html) {
+		Response res = new Response();
+		Tuple<Document, Response.Meta> tuple = getDoc(html);
+		Document doc = tuple.x;
+		res.setMeta(tuple.y);
+
 		String title = doc.select("#subject").val();
 		String editBody = doc.select("#e_textarea").text();
-
-		return new Post().setTitle(title).setBody(editBody);
+		Post post =  new Post().setTitle(title).setBody(editBody);
+		res.setData(post);
+		return res;
 	}
 
 	private void replaceThumbImage(Document doc) {
@@ -181,11 +186,13 @@ public class PostsParser extends Parser {
 	}
 
 	public Response parse(String html) {
-
+		Response res = new Response();
 		Posts posts = new Posts();
-		Response.Meta resMeta = new Response.Meta();
+		Tuple<Document, Response.Meta> tuple = getDoc(html);
+		Document doc = tuple.x;
+		Response.Meta resMeta = tuple.y;
+		res.setMeta(resMeta);
 
-		Document doc = getDoc(html, resMeta);
 		replaceThumbImage(doc);
 
 
@@ -250,19 +257,20 @@ public class PostsParser extends Parser {
 		meta.setFid(fid);
 		meta.setTitle(title);
 
-		Response res = new Response();
 		res.setData(posts);
-		res.setMeta(resMeta);
 		res.setSuccess(true);
 
 		return res;
 	}
 
-	public Posts parseMentions(String html) {
+	public Response parseMentions(String html) {
+		Response res = new Response();
 		Posts mentions = new Posts();
 
 		try {
-			Document doc = getDoc(html, new Response.Meta());
+			Tuple<Document, Response.Meta> tuple = getDoc(html);
+			Document doc = tuple.x;
+			res.setMeta(tuple.y);
 
 			Elements eNotices = doc.select("ul.feed > li.s_clear > div");
 
@@ -326,12 +334,15 @@ public class PostsParser extends Parser {
 			e.printStackTrace();
 		}
 
-		return mentions;
+		res.setData(mentions);
+
+		return res;
 	}
 
 	public String parseMessagesToHtml(String html) {
 		Posts posts = new Posts();
-		Document doc = getDoc(html, new Response.Meta());
+		Tuple<Document, Response.Meta> tuple = getDoc(html);
+		Document doc = tuple.x;
 		Element ePosts = doc.select("#pmlist > .pm_list").first();
 		Elements avatars = ePosts.select("a.avatar > img");
 

@@ -15,9 +15,12 @@ import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.Post;
 import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.PostsParser;
+import com.ladjzero.hipda.Response;
 import com.ladjzero.hipda.Thread;
 import com.ladjzero.hipda.Threads;
 import com.ladjzero.hipda.ThreadsParser;
+import com.ladjzero.uzlee.service.Api;
+import com.ladjzero.uzlee.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +33,6 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 	private int tabIndex = -1;
 	private AbsListView mListView;
 	private ArrayAdapter mAdapter;
-	private HttpApi mApi;
 	private PostsParser mPostsParser;
 	private ThreadsParser mThreadsParser;
 	private AsyncTask mParseTask1, mParseTask2;
@@ -99,7 +101,6 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 
 		Core core = App.getInstance().getCore();
 
-		mApi = core.getHttpApi();
 		mPostsParser = core.getPostsParser();
 		mThreadsParser = core.getThreadsParser();
 	}
@@ -117,26 +118,16 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 		switch (tabIndex) {
 			case 0:
 				if (mThreads.size() == 0) {
-					mApi.getMessages(new HttpClientCallback() {
+					App.getInstance().getApi().getMessages(new Api.OnRespond() {
 						@Override
-						public void onSuccess(String response) {
-							mParseTask1 = new AsyncTask<String, Object, Threads>() {
-								@Override
-								protected Threads doInBackground(String... strings) {
-									return mThreadsParser.parseMessages(strings[0]);
-								}
-
-								@Override
-								protected void onPostExecute(Threads threads) {
-									mThreads.addAll(threads);
-									mAdapter.addAll(threads);
-								}
-							}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
-						}
-
-						@Override
-						public void onFailure(String reason) {
-							((ActivityBase) getActivity()).showToast(reason);
+						public void onRespond(Response res) {
+							if (res.isSuccess()) {
+								Threads threads = (Threads) res.getData();
+								mThreads.addAll(threads);
+								mAdapter.addAll(threads);
+							} else {
+								Utils.showToast(getActivity(), res.getData().toString());
+							}
 						}
 					});
 				} else {
@@ -146,26 +137,16 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 				break;
 			case 1:
 				if (mPosts.size() == 0) {
-					mApi.getMentions(new HttpClientCallback() {
+					App.getInstance().getApi().getMentions(new Api.OnRespond() {
 						@Override
-						public void onSuccess(String response) {
-							mParseTask2 = new AsyncTask<String, Object, Posts>() {
-								@Override
-								protected Posts doInBackground(String... strings) {
-									return mPostsParser.parseMentions(strings[0]);
-								}
-
-								@Override
-								protected void onPostExecute(Posts posts) {
-									mPosts.addAll(posts);
-									mAdapter.addAll(posts);
-								}
-							}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
-						}
-
-						@Override
-						public void onFailure(String reason) {
-							((ActivityBase) getActivity()).showToast(reason);
+						public void onRespond(Response res) {
+							if (res.isSuccess()) {
+								Posts posts = (Posts) res.getData();
+								mPosts.addAll(posts);
+								mAdapter.addAll(posts);
+							} else {
+								Utils.showToast(getActivity(), res.getData().toString());
+							}
 						}
 					});
 				} else {

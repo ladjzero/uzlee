@@ -1,9 +1,9 @@
-package com.ladjzero.uzlee;
+package com.ladjzero.uzlee.service;
 
 import com.ladjzero.hipda.User;
-import com.ladjzero.uzlee.ApiStore;
-import com.ladjzero.uzlee.HttpClient;
 import com.ladjzero.uzlee.HttpClientCallback;
+import com.ladjzero.uzlee.service.ApiStore;
+import com.ladjzero.uzlee.service.HttpClient;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -24,27 +24,27 @@ public class HttpApi {
 		mStore = ApiStore.getStore();
 	}
 
-	public void getMentions(HttpClientCallback callback) {
+	protected void getMentions(HttpClientCallback callback) {
 		mHttpClient.get("http://www.hi-pda.com/forum/notice.php", callback);
 	}
 
-	public void getMessages(HttpClientCallback callback) {
+	protected void getMessages(HttpClientCallback callback) {
 		mHttpClient.get("http://www.hi-pda.com/forum/pm.php?filter=privatepm", callback);
 	}
 
-	public void getOwnPosts(int page, HttpClientCallback callback) {
+	protected void getOwnPosts(int page, HttpClientCallback callback) {
 		mHttpClient.get("http://www.hi-pda.com/forum/my.php?item=posts&page=" + page, callback);
 	}
 
-	public void getOwnThreads(int page, HttpClientCallback callback) {
+	protected void getOwnThreads(int page, HttpClientCallback callback) {
 		mHttpClient.get("http://www.hi-pda.com/forum/my.php?item=threads&page" + page, callback);
 	}
 
-	public void getMarkedThreads(int page, HttpClientCallback callback) {
+	protected void getMarkedThreads(int page, HttpClientCallback callback) {
 		mHttpClient.get("http://www.hi-pda.com/forum/my.php?item=favorites&type=thread&page=" + page, callback);
 	}
 
-	public void getThreads(int page, int fid, int typeid, String order, HttpClientCallback callback) {
+	protected void getThreads(int page, int fid, int typeid, String order, HttpClientCallback callback) {
 		String url = "http://www.hi-pda.com/forum/forumdisplay.php?fid=" + fid
 				+ "&page=" + page
 				+ "&filter=type&typeid=" + typeid
@@ -53,11 +53,11 @@ public class HttpApi {
 		mHttpClient.get(url, callback);
 	}
 
-	public void getExistedAttach(HttpClientCallback callback) {
+	protected void getExistedAttach(HttpClientCallback callback) {
 		mHttpClient.get("http://www.hi-pda.com/forum/post.php?action=newthread&fid=57", callback);
 	}
 
-	public void searchThreads(String query, int page, int[] fids, HttpClientCallback callback) {
+	protected void searchThreads(String query, int page, int[] fids, HttpClientCallback callback) {
 		String url = null;
 
 		try {
@@ -90,7 +90,7 @@ public class HttpApi {
 		if (url != null) mHttpClient.get(url, callback);
 	}
 
-	public void searchUserThreads(String username, int page, HttpClientCallback callback) {
+	protected void searchUserThreads(String username, int page, HttpClientCallback callback) {
 		String url = null;
 
 		try {
@@ -107,15 +107,15 @@ public class HttpApi {
 		if (url != null) mHttpClient.get(url, callback);
 	}
 
-	public void addToFavorite(int tid, HttpClientCallback callback) {
+	protected void addToFavorite(int tid, HttpClientCallback callback) {
 		mHttpClient.get("http://www.hi-pda.com/forum/my.php?item=favorites&tid=" + tid + "&inajax=1&ajaxtarget=favorite_msg", callback);
 	}
 
-	public void removeFromFavoriate(int tid, HttpClientCallback callback) {
+	protected void removeFromFavoriate(int tid, HttpClientCallback callback) {
 		mHttpClient.get("http://www.hi-pda.com/forum/my.php?item=favorites&action=remove&tid=" + tid + "&inajax=1&ajaxtarget=favorite_msg", callback);
 	}
 
-	public void login(String username, String password, int questionId, String answer, final HttpClientCallback callback) {
+	protected void login(String username, String password, int questionId, String answer, final HttpClientCallback callback) {
 		Map<String, String> params = new HashMap();
 		params.put("sid", "fa6m4o");
 		params.put("formhash", "ad793a3f");
@@ -145,7 +145,7 @@ public class HttpApi {
 		});
 	}
 
-	public void logout(final HttpClientCallback callback) {
+	protected void logout(final HttpClientCallback callback) {
 		mHttpClient.get("http://www.hi-pda.com/forum/logging.php?action=logout&formhash=" + mStore.getFormhash(), new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
@@ -161,7 +161,7 @@ public class HttpApi {
 		});
 	}
 
-	public void sendMessage(String name, String message, HttpClientCallback callback) {
+	protected void sendMessage(String name, String message, HttpClientCallback callback) {
 		String url = "http://www.hi-pda.com/forum/pm.php?action=send&pmsubmit=yes&infloat=yes&sendnew=yes";
 
 		Map<String, String> params = new HashMap();
@@ -173,7 +173,7 @@ public class HttpApi {
 		mHttpClient.post(url, params, null, callback);
 	}
 
-	public void newThread(int fid, String subject, String message, ArrayList<Integer> attachIds, HttpClientCallback callback) {
+	protected void newThread(int fid, String subject, String message, ArrayList<Integer> attachIds, HttpClientCallback callback) {
 		String url = "http://www.hi-pda.com/forum/post.php?action=newthread&fid=" + fid + "&extra=&topicsubmit=yes";
 
 		Map<String, String> params = new HashMap();
@@ -195,7 +195,7 @@ public class HttpApi {
 		mHttpClient.post(url, params, null, callback);
 	}
 
-	public void sendReply(int tid, String content, ArrayList<Integer> attachIds, ArrayList<Integer> existedAttchIds, HttpClientCallback callback) {
+	protected void sendReply(int tid, String content, ArrayList<Integer> attachIds, ArrayList<Integer> existedAttchIds, HttpClientCallback callback) {
 		String url = "http://www.hi-pda.com/forum/post.php?action=reply&fid=57&tid=" + tid + "&extra=&replysubmit=yes";
 
 		Map<String, String> params = new HashMap<>();
@@ -224,7 +224,7 @@ public class HttpApi {
 		mHttpClient.post(url, params, null, callback);
 	}
 
-	public void deletePost(int fid, int tid, int pid, final HttpClientCallback callback) {
+	protected void deletePost(int fid, int tid, int pid, final HttpClientCallback callback) {
 		String url = "http://www.hi-pda.com/forum/post.php?action=edit&extra=&editsubmit=yes&mod=";
 
 		Map<String, String> params = new HashMap<>();
@@ -257,7 +257,7 @@ public class HttpApi {
 		});
 	}
 
-	public void editPost(int fid, int tid, int pid, String subject, String message, ArrayList<Integer> attachIds, HttpClientCallback callback) {
+	protected void editPost(int fid, int tid, int pid, String subject, String message, ArrayList<Integer> attachIds, HttpClientCallback callback) {
 		String url = "http://www.hi-pda.com/forum/post.php?action=edit&extra=&editsubmit=yes&mod=";
 
 		Map<String, String> params = new HashMap<>();
@@ -283,7 +283,7 @@ public class HttpApi {
 		mHttpClient.post(url, params, null, callback);
 	}
 
-	public void uploadImage(final File imageFile, final HttpClientCallback callback) {
+	protected void uploadImage(final File imageFile, final HttpClientCallback callback) {
 		mHttpClient.get("http://www.hi-pda.com/forum/post.php?action=newthread&fid=57", new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
@@ -325,13 +325,13 @@ public class HttpApi {
 		});
 	}
 
-	public void getEditBody(int fid, int tid, int pid, HttpClientCallback callback) {
+	protected void getEditBody(int fid, int tid, int pid, HttpClientCallback callback) {
 		String url = "http://www.hi-pda.com/forum/post.php?action=edit&fid=" + fid + "&tid=" + tid + "&pid=" + pid + "&page=1";
 
 		mHttpClient.get(url, callback);
 	}
 
-	public void getUser(int uid, HttpClientCallback callback) {
+	protected void getUser(int uid, HttpClientCallback callback) {
 		mHttpClient.get("http://www.hi-pda.com/forum/space.php?uid=" + uid, callback);
 	}
 }

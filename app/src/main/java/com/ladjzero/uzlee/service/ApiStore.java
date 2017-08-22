@@ -1,11 +1,10 @@
-package com.ladjzero.uzlee;
+package com.ladjzero.uzlee.service;
 
 import com.ladjzero.hipda.Parser;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.PersistenceAdapter;
 
-import java.util.HashSet;
 import java.util.Observable;
-import java.util.Set;
 
 /**
  * Created by chenzhuo on 16-2-12.
@@ -29,11 +28,11 @@ public class ApiStore extends Observable {
 		mAdapter = adapter;
 	}
 
-	public String getCode() {
+	protected String getCode() {
 		return code;
 	}
 
-	public void setCode(String code) {
+	protected void setCode(String code) {
 		if (!code.equals(this.code)) {
 			notifyObservers("code");
 			this.code = code;
@@ -48,26 +47,26 @@ public class ApiStore extends Observable {
 		return user == null ? new User() : user;
 	}
 
-	public void setUser(User user) {
+	protected void setUser(User user) {
 		setChanged();
 		this.user = user;
 		mAdapter.putValue("user", user);
 		notifyObservers("user");
 	}
 
-	public String getFormhash() {
+	protected String getFormhash() {
 		return formhash;
 	}
 
-	public void setFormhash(String formhash) {
+	protected void setFormhash(String formhash) {
 		this.formhash = formhash;
 	}
 
-	public String getHash() {
+	protected String getHash() {
 		return hash;
 	}
 
-	public void setHash(String hash) {
+	protected void setHash(String hash) {
 		this.hash = hash;
 	}
 
@@ -75,7 +74,7 @@ public class ApiStore extends Observable {
 		return unread;
 	}
 
-	public void setUnread(int unread) {
+	protected void setUnread(int unread) {
 		setChanged();
 		this.unread = unread;
 		notifyObservers("unread");

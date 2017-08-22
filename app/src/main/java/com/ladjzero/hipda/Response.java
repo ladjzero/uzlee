@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Created by chenzhuo on 2017/4/23.
  */
 public class Response implements Serializable {
-	private boolean success;
+	private boolean success = true;
 	private Meta meta;
 
 	public Object getData() {

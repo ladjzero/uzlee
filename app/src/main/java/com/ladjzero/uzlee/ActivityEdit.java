@@ -43,8 +43,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import static com.ladjzero.uzlee.service.Api.*;
 
-public class ActivityEdit extends ActivityHardSlide implements HttpClientCallback {
+
+public class ActivityEdit extends ActivityHardSlide implements HttpClientCallback, OnRespond {
 	public static final int EDIT_SUCCESS = 10;
 	private static final int SELECT_PHOTO = 100;
 	int tid;
@@ -64,7 +66,6 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 	private View mEmojiSelector;
 	private InputMethodManager mImeManager;
 	private boolean mIsAnimating = false;
-	private HttpApi mHttpApi;
 	private AsyncTask mImageTask, mParseTask;
 
 	@Override
@@ -100,26 +101,18 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 				.titleColor(Utils.getThemeColor(this, R.attr.colorText))
 				.backgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground));
 
-		mHttpApi = App.getInstance().getCore().getHttpApi();
-
-		mHttpApi.getExistedAttach(new HttpClientCallback() {
+		App.getInstance().getApi().getExistedAttach(new OnRespond() {
 			@Override
-			public void onSuccess(String response) {
-				try {
-					Response res = App.getInstance().getCore().getPostsParser().parseExistedAttach(response);
-					App.getInstance().getCore().getApiStore().setHash(res.getMeta().getHash());
+			public void onRespond(Response res) {
+				if (res.isSuccess()) {
 					String[] ids = (String[]) res.getData();
 
 					for (String id : ids) {
 						if (id.length() > 0) existedAttachIds.add(Integer.valueOf(id));
 					}
-				} catch (Exception e) {
+				} else {
+					showToast(res.getData().toString());
 				}
-			}
-
-			@Override
-			public void onFailure(String reason) {
-				showToast(reason);
 			}
 		});
 
@@ -162,27 +155,18 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 			progress.setTitle("载入中");
 			progress.show();
 
-			mHttpApi.getEditBody(fid, tid, pid, new HttpClientCallback() {
+			getApp().getApi().getEditBody(fid, tid, pid, new OnRespond() {
 				@Override
-				public void onSuccess(String response) {
-					mParseTask = new AsyncTask<String, Object, Post>() {
-						@Override
-						protected Post doInBackground(String... strings) {
-							return App.getInstance().getCore().getPostsParser().parseEditablePost(strings[0]);
-						}
+				public void onRespond(Response res) {
+					if (res.isSuccess()) {
+						Post post = (Post) res.getData();
+						subjectInput.setText(post.getTitle());
+						mMessageInput.setText(post.getBody());
+					} else {
+						showToast(res.getData().toString());
+					}
 
-						@Override
-						protected void onPostExecute(Post post) {
-							subjectInput.setText(post.getTitle());
-							mMessageInput.setText(post.getBody());
-							progress.dismiss();
-						}
-					}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
-				}
-
-				@Override
-				public void onFailure(String reason) {
-
+					progress.dismiss();
 				}
 			});
 		}
@@ -239,7 +223,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 					if (sig.length() > 0)
 						message += "\t\t\t[size=1][color=Gray]" + sig + "[/color][/size]";
 
-					mHttpApi.newThread(fid, subject, message, attachIds, this);
+					getApp().getApi().newThread(fid, subject, message, attachIds, this);
 				}
 			} else if (isEdit) {
 				if (no == 1 && subject.length() == 0) {
@@ -250,7 +234,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 					progress.setTitle("发送");
 					progress.show();
 
-					mHttpApi.editPost(fid, tid, pid, subject, message, attachIds, this);
+					getApp().getApi().editPost(fid, tid, pid, subject, message, attachIds, this);
 				}
 			} else if (isReplyToOne) {
 				progress.setTitle("发送");
@@ -258,13 +242,13 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 
 				message = "[b]回复 [url=http://www.hi-pda.com/forum/redirect.php?goto=findpost&pid=" + pid + "&ptid=" + tid + "]" + intent.getIntExtra("no", 0) + "#[/url] [i]" + intent.getStringExtra("userName") + "[/i] [/b]\n\n" + message;
 				message += "\t\t\t[size=1][color=Gray]" + sig + "[/color][/size]";
-				mHttpApi.sendReply(tid, message, attachIds, existedAttachIds, this);
+				getApp().getApi().sendReply(tid, message, attachIds, existedAttachIds, this);
 			} else if (isReply) {
 				progress.setTitle("发送");
 				progress.show();
 
 				message += "\t\t\t[size=1][color=Gray]" + sig + "[/color][/size]";
-				mHttpApi.sendReply(tid, message, attachIds, existedAttachIds, this);
+				getApp().getApi().sendReply(tid, message, attachIds, existedAttachIds, this);
 			}
 		} else if (id == R.id.reply_add_image) {
 			Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
@@ -281,7 +265,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 						@Override
 						public void onClick(View v) {
 							mDialog.dismiss();
-							mHttpApi.deletePost(fid, tid, pid, ActivityEdit.this);
+							getApp().getApi().deletePost(fid, tid, pid, ActivityEdit.this);
 						}
 					})
 					.negativeActionClickListener(new View.OnClickListener() {
@@ -393,32 +377,17 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 					} else {
 						mDialog.title("图片上传").show();
 
-						mHttpApi.uploadImage(tempFile, new HttpClientCallback() {
+						App.getInstance().getApi().uploadImage(tempFile, new OnRespond() {
 							@Override
-							public void onSuccess(String response) {
-								if (response.startsWith("DISCUZUPLOAD")) {
-									int attachId = -1;
-
-									try {
-										attachId = Integer.valueOf(response.split("\\|")[2]);
-									} catch (Exception e) {
-
-									}
-
-									if (attachId != -1) {
-										attachIds.add(attachId);
-										mMessageInput.setText(mMessageInput.getText() + "[attachimg]" + attachId + "[/attachimg]");
-									}
+							public void onRespond(Response res) {
+								if (res.isSuccess()) {
+									int attachId = (int) res.getData();
+									attachIds.add(attachId);
+									mMessageInput.setText(mMessageInput.getText() + "[attachimg]" + attachId + "[/attachimg]");
 								} else {
-									showToast("图片长传失败: " + response);
+									showToast("图片上传失败");
 								}
 
-								mDialog.dismiss();
-							}
-
-							@Override
-							public void onFailure(String reason) {
-								showToast("图片上传失败");
 								mDialog.dismiss();
 							}
 						});
@@ -645,6 +614,19 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 		}
 
 		return outImage;
+	}
+
+	@Override
+	public void onRespond(Response res) {
+		if (res.isSuccess()) {
+			mSaveDraft = false;
+			Intent returnIntent = new Intent();
+			returnIntent.putExtra("posts-html", res);
+			setResult(EDIT_SUCCESS, returnIntent);
+			finish();
+		} else {
+			showToast(res.getData().toString());
+		}
 	}
 
 	public static class Draft {

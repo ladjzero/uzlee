@@ -17,9 +17,12 @@ public class ThreadsParser extends Parser {
 	private static final Pattern COLOR_REG = Pattern.compile("#(\\d|[A-F])+");
 
 	public Response parse(String html) {
+		Response res = new Response();
 		Threads threads = new Threads();
-		Response.Meta resMeta = new Response.Meta();
-		Document doc = getDoc(html, resMeta);
+		Tuple<Document, Response.Meta> tuple = getDoc(html);
+		Document doc = tuple.x;
+		Response.Meta resMeta = tuple.y;
+		res.setMeta(resMeta);
 
 		String selectStr = false ? "tbody[id^=normalthread_],tbody[id^=stickthread_" : "tbody[id^=normalthread_]";
 
@@ -43,16 +46,18 @@ public class ThreadsParser extends Parser {
 		threads.getMeta().setHasNextPage(nextPage.size() > 0);
 		threads.getMeta().setPage(currPage);
 
-		Response res = new Response();
-		res.setMeta(resMeta);
 		res.setData(threads);
 		res.setSuccess(true);
 
 		return res;
 	}
 
-	public Threads parseMessages(String html) {
-		Document doc = getDoc(html);
+	public Response parseMessages(String html) {
+		Response res = new Response();
+		Tuple<Document, Response.Meta> tuple = getDoc(html);
+		Document doc = tuple.x;
+		Response.Meta meta = tuple.y;
+		res.setMeta(meta);
 
 		Elements pms = doc.select("ul.pm_list li.s_clear");
 		Threads threads = new Threads();
@@ -89,11 +94,18 @@ public class ThreadsParser extends Parser {
 		threads.getMeta().setHasNextPage(hasNextPage);
 		threads.getMeta().setPage(currPage);
 
-		return threads;
+		res.setData(threads);
+
+		return res;
 	}
 
-	public Threads parseOwnPosts(String html) {
-		Document doc = getDoc(html);
+	public Response parseOwnPosts(String html) {
+		Response res = new Response();
+		Tuple<Document, Response.Meta> tuple = getDoc(html);
+		Document doc = tuple.x;
+		Response.Meta meta = tuple.y;
+		res.setMeta(meta);
+
 
 		Elements eThreads = doc.select("div.threadlist tbody tr");
 		Threads threads = new Threads();
@@ -134,11 +146,16 @@ public class ThreadsParser extends Parser {
 		threads.getMeta().setPage(currPage);
 		threads.getMeta().setHasNextPage(hasNextPage);
 
-		return threads;
+		res.setData(threads);
+		return res;
 	}
 
-	public Threads parseOwnThreads(String html) {
-		Document doc = getDoc(html);
+	public Response parseOwnThreads(String html) {
+		Response res = new Response();
+		Tuple<Document, Response.Meta> tuple = getDoc(html);
+		Document doc = tuple.x;
+		Response.Meta meta = tuple.y;
+		res.setMeta(meta);
 
 		Elements eThreads = doc.select("div.threadlist tbody tr");
 		Threads threads = new Threads();
@@ -175,11 +192,17 @@ public class ThreadsParser extends Parser {
 		threads.getMeta().setHasNextPage(hasNextPage);
 		threads.getMeta().setPage(currPage);
 
-		return threads;
+		res.setData(threads);
+
+		return res;
 	}
 
-	public Threads parseMarkedThreads(String html) {
-		Document doc = getDoc(html);
+	public Response parseMarkedThreads(String html) {
+		Response res = new Response();
+		Tuple<Document, Response.Meta> tuple = getDoc(html);
+		Document doc = tuple.x;
+		Response.Meta meta = tuple.y;
+		res.setMeta(meta);
 
 		Elements eThreads = doc.select("form[method=post] tbody tr");
 		Threads threads = new Threads();
@@ -209,7 +232,8 @@ public class ThreadsParser extends Parser {
 		threads.getMeta().setHasNextPage(hasNextPage);
 		threads.getMeta().setPage(currPage);
 
-		return threads;
+		res.setData(threads);
+		return res;
 	}
 
 	private Thread toThreadObj(Element eThread) {

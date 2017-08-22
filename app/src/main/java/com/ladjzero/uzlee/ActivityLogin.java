@@ -12,7 +12,9 @@ import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.ladjzero.hipda.Response;
 import com.ladjzero.hipda.User;
+import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.Utils;
 import com.rey.material.app.Dialog;
 import com.rey.material.widget.Spinner;
@@ -37,30 +39,28 @@ public class ActivityLogin extends ActionBarActivity {
 	Spinner spn;
 	@Bind(R.id.logo)
 	View logo;
-	private HttpApi mHttpApi;
 	private LocalApi mLocalApi;
 	private User mUser;
 
 	@OnClick(R.id.login)
 	void onLogin() {
-		mHttpApi.login(name.getText().toString(), passwd.getText().toString(), spn.getSelectedItemPosition(), answer.getText().toString(), new HttpClientCallback() {
-			@Override
-			public void onSuccess(String response) {
-				Utils.showToast(ActivityLogin.this, "登录成功");
-				Utils.replaceActivity(ActivityLogin.this, ActivityMain.class);
-
-				/*
-				Hack. apiStore.user will be fetched with any page. BUT one mock user MUST
-				be set to authorize fetching security forums.
-				 */
-				App.getInstance().getCore().getApiStore().setUser(new User().setId(1));
-			}
-
-			@Override
-			public void onFailure(String reason) {
-				Utils.showToast(ActivityLogin.this, "登录失败");
-			}
-		});
+		App.getInstance().getApi().login(
+				name.getText().toString(),
+				passwd.getText().toString(),
+				spn.getSelectedItemPosition(),
+				answer.getText().toString(),
+				new Api.OnRespond() {
+					@Override
+					public void onRespond(Response res) {
+						if (res.isSuccess()) {
+							Utils.showToast(ActivityLogin.this, "登录成功");
+							Utils.replaceActivity(ActivityLogin.this, ActivityMain.class);
+						} else {
+							Utils.showToast(ActivityLogin.this, res.getData().toString());
+						}
+					}
+				}
+		);
 	}
 
 	@OnClick(R.id.register)
@@ -108,7 +108,6 @@ public class ActivityLogin extends ActionBarActivity {
 
 		Core core = ((App) getApplication()).getCore();
 
-		mHttpApi = core.getHttpApi();
 		mLocalApi = core.getLocalApi();
 
 		Animation animation = AnimationUtils.loadAnimation(this, R.anim.rotate);

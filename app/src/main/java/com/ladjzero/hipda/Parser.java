@@ -1,5 +1,7 @@
 package com.ladjzero.hipda;
 
+import com.alibaba.fastjson.JSON;
+import com.ladjzero.uzlee.model.Version;
 import com.orhanobut.logger.Logger;
 
 import org.jsoup.Jsoup;
@@ -8,6 +10,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by chenzhuo on 16-2-11.
@@ -19,12 +22,13 @@ public abstract class Parser implements Parse {
 	private static final String STATS = "论坛统计";
 	private String mCode = CODE_GBK;
 
-	public Document getDoc(String html) {
-		return getDoc(html, new Response.Meta());
-	}
+//	public Document getDoc(String html) {
+//		return getDoc(html, new Response.Meta());
+//	}
 
-	public Document getDoc(String html, Response.Meta meta) {
+	public Tuple<Document, Response.Meta> getDoc(String html) {
 		long time = System.currentTimeMillis();
+		Response.Meta meta = new Response.Meta();
 
 		Document doc = Jsoup.parse(html);
 
@@ -76,14 +80,15 @@ public abstract class Parser implements Parse {
 
 		if (!stats.equals(STATS)) mCode = mCode.equals(CODE_GBK) ? CODE_UTF8 : CODE_GBK;
 
-		return doc;
+		return new Tuple<>(doc, meta);
 	}
 
 	public Response parseExistedAttach(String html) {
 		Response res = new Response();
-		Response.Meta meta = new Response.Meta();
-
-		Document doc = getDoc(html, meta);
+		Tuple<Document, Response.Meta> tuple = getDoc(html);
+		Document doc = tuple.x;
+		Response.Meta meta = tuple.y;
+		res.setMeta(meta);
 
 		Elements tds = doc.select("td[id^=image_td_]");
 		ArrayList<String> attachIds = new ArrayList<>();
@@ -101,6 +106,22 @@ public abstract class Parser implements Parse {
 
 		res.setMeta(meta);
 		res.setData(attachIds.toArray(new String[0]));
+
+		return res;
+	}
+
+	public Response parseVersions(String json) {
+		Response res = new Response();
+		List<Version> info = null;
+
+		try {
+			info = JSON.parseArray(json, Version.class);
+			res.setData(info);
+		} catch (Exception e) {
+			e.printStackTrace();
+			res.setSuccess(false);
+			res.setData(e);
+		}
 
 		return res;
 	}

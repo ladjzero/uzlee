@@ -39,6 +39,7 @@ import com.ladjzero.hipda.Posts;
 import com.ladjzero.hipda.Response;
 import com.ladjzero.hipda.User;
 import com.ladjzero.uzlee.model.ObservablePosts;
+import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.CapturePhotoUtils;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.NotificationUtils;
@@ -54,7 +55,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -102,8 +102,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	private TextView mTitleView;
 	private boolean mSkipResumeFetch = false;
 	private boolean mIsPushedAfterWebReady = false;
-	private HttpClient2 mHttpClient;
-	private HttpApi mHttpApi;
 	private LocalApi mLocalApi;
 	private Timeline mTimeline = new Timeline();
 	private Model model = new Model();
@@ -161,18 +159,13 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 					fetch(mPage);
 					break;
 				case 2:
-					mHttpApi.addToFavorite(mTid, new HttpClientCallback() {
+					App.getInstance().getApi().addToFavorite(mTid, new Api.OnRespond() {
 						@Override
-						public void onFailure(String reason) {
-							showToast(reason);
-						}
+						public void onRespond(Response res) {
+							if (res.isSuccess()) {
+								String content = (String) res.getData();
 
-						@Override
-						public void onSuccess(String response) {
-							if (response.contains("此主题已成功添加到收藏夹中")) {
-								showToast("收藏成功");
-							} else {
-								if (response.contains("您曾经收藏过这个主题")) {
+								if (content.equals("您曾经收藏过这个主题")) {
 									final Dialog dialog = new Dialog(ActivityPosts.this);
 
 									dialog.setTitle("已经收藏过该主题");
@@ -181,29 +174,19 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 										@Override
 										public void onClick(View v) {
 											dialog.dismiss();
-											mHttpApi.removeFromFavoriate(mTid, new HttpClientCallback() {
+											App.getInstance().getApi().removeFromFavoriate(mTid, new Api.OnRespond() {
 												@Override
-												public void onFailure(String reason) {
-													showToast(reason);
-												}
-
-
-												@Override
-												public void onSuccess(String html) {
-													if (html.contains("此主题已成功从您的收藏夹中移除")) {
-														showToast("移除成功");
-													} else {
-														showToast("移除失败");
-													}
+												public void onRespond(Response res) {
+													showToast(res.getData().toString());
 												}
 											});
 										}
 									});
 
 									dialog.show();
-								} else {
-									showToast("收藏失败");
 								}
+							} else {
+								showToast(res.getData().toString());
 							}
 						}
 					});
@@ -389,8 +372,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mPosts = new ObservablePosts();
 		mPosts.addOnListChangedCallback(new OnListChangedCallback());
 
-		mHttpClient = getInstance().getHttpClient();
-		mHttpApi = getInstance().getCore().getHttpApi();
 		mLocalApi = getInstance().getCore().getLocalApi();
 		mProgressView.start();
 	}
@@ -488,26 +469,22 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			reply += "\t\t\t[size=1][color=Gray]有只梨[/color][/size]";
 		}
 
-		mHttpApi.sendReply(mTid, reply, null, null, new HttpClientCallback() {
-			private void reset() {
-				mQuickSend.setClickable(true);
-				mQuickEdit.setEnabled(true);
-				mQuickSend.setText("{md-send}");
-			}
-
+		App.getInstance().getApi().sendReply(mTid, reply, null, null, new Api.OnRespond() {
 			@Override
-			public void onSuccess(String response) {
-				reset();
-				mPosts.clear();
-				mQuickEdit.setText("");
-				mPid = -1;
-				mPosts.addAll((Posts) getInstance().getApi().getPostsParser().parse(response).getData());
-			}
+			public void onRespond(Response res) {
+				if (res.isSuccess()) {
+					mQuickSend.setClickable(true);
+					mQuickEdit.setEnabled(true);
+					mQuickSend.setText("{md-send}");
 
-			@Override
-			public void onFailure(String reason) {
-				showToast(reason);
-				reset();
+					Posts posts = (Posts) res.getData();
+					mPosts.clear();
+					mQuickEdit.setText("");
+					mPid = -1;
+					mPosts.addAll(posts);
+				} else {
+					showToast(res.getData().toString());
+				}
 			}
 		});
 	}

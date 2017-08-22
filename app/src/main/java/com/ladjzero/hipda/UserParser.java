@@ -10,8 +10,11 @@ import org.jsoup.select.Elements;
 public class UserParser extends Parser {
 
 	public Response parse(String html) {
-		Response.Meta resMeta = new Response.Meta();
-		Document doc = getDoc(html, resMeta);
+		Response res = new Response();
+		Tuple<Document, Response.Meta> tuple = getDoc(html);
+		Document doc = tuple.x;
+		Response.Meta resMeta = tuple.y;
+		res.setMeta(resMeta);
 
 		String img = doc.select("div.avatar>img").attr("src");
 		String uidLink = doc.select("li.searchpost a").attr("href");
@@ -46,8 +49,6 @@ public class UserParser extends Parser {
 				.setLevel(level)
 				.setTotalThreads(totalThreads);
 
-		Response res = new Response();
-		res.setMeta(resMeta);
 		res.setData(user);
 		res.setSuccess(true);
 		return res;
