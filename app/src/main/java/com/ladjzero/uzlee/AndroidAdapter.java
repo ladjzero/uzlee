@@ -4,19 +4,18 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-
-import java.util.List;
+import com.google.gson.Gson;
 
 /**
  * Created by chenzhuo on 16-2-11.
  */
 public class AndroidAdapter implements PersistenceAdapter {
 	private SharedPreferences mPref;
+	private Gson mGson;
 
 	public AndroidAdapter(Context context) {
 		mPref = PreferenceManager.getDefaultSharedPreferences(context);
+		mGson = new Gson();
 	}
 
 	@Override
@@ -39,11 +38,7 @@ public class AndroidAdapter implements PersistenceAdapter {
 			if (value == null) {
 				return defaultValue;
 			} else {
-				if (List.class.isAssignableFrom(t)) {
-					ret = JSON.parseArray(value);
-				} else {
-					ret = JSON.parse(value);
-				}
+				ret = mGson.fromJson(value, t);
 			}
 		}
 
@@ -65,7 +60,7 @@ public class AndroidAdapter implements PersistenceAdapter {
 		} else if (value instanceof String) {
 			editor.putString(key, (String) value);
 		} else {
-			editor.putString(key, JSON.toJSONString(value, SerializerFeature.WriteClassName));
+			editor.putString(key, mGson.toJson(value));
 		}
 
 		editor.commit();

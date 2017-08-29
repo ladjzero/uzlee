@@ -16,6 +16,7 @@ import java.util.Map;
  * Created by chenzhuo on 8/29/17.
  */
 public class MentionsParser extends Parser {
+    @Override
     public Response parse(String html) {
         Response res = new Response();
         Posts mentions = new Posts();

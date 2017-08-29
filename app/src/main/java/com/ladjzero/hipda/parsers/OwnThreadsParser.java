@@ -12,6 +12,7 @@ import org.jsoup.select.Elements;
  * Created by chenzhuo on 8/29/17.
  */
 public class OwnThreadsParser extends Parser {
+    @Override
     public Response parse(String html) {
         Response res = new Response();
         Tuple<Document, Response.Meta> tuple = getDoc(html);

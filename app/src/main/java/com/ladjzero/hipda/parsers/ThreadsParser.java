@@ -19,6 +19,7 @@ public class ThreadsParser extends Parser {
 
 	private static final Pattern COLOR_REG = Pattern.compile("#(\\d|[A-F])+");
 
+	@Override
 	public Response parse(String html) {
 		Response res = new Response();
 		Threads threads = new Threads();

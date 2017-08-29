@@ -10,6 +10,7 @@ import org.jsoup.nodes.Document;
  * Created by chenzhuo on 8/29/17.
  */
 public class EditablePostParser extends Parser{
+    @Override
     public Response parse(String html) {
         Response res = new Response();
         Tuple<Document, Response.Meta> tuple = getDoc(html);

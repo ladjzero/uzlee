@@ -33,6 +33,8 @@ dependencies {
     compile files('libs/android-async-http-1.4.6.jar')
     compile files('libs/commons-collections-3.0.jar')
     compile files('libs/commons-lang3-3.3.2.jar')
+    // replace fastjson with gson
+    compile 'com.google.code.gson:gson:2.3.1'
     compile files('libs/fastjson-1.1.34.android.jar')
     compile files('libs/jsoup-1.8.1.jar')
     compile files('libs/universal-image-loader-1.9.3.jar')

@@ -14,6 +14,7 @@ import org.jsoup.select.Elements;
  */
 public class UserParser extends Parser {
 
+	@Override
 	public Response parse(String html) {
 		Response res = new Response();
 		Tuple<Document, Response.Meta> tuple = getDoc(html);

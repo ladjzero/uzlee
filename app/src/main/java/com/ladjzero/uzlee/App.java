@@ -79,7 +79,7 @@ public class App extends Application {
 
 		mHttpClient = new HttpClient2(this);
 		mApi = Api.getApi();
-		mApi.setmMode(Api.Mode.LOCAL);
+		mApi.setMode(Api.Mode.LOCAL);
 		PersistenceAdapter adapter = new AndroidAdapter(this);
 		mCore = Core.initialize(adapter, mHttpClient);
 		UilUtils.init(this);

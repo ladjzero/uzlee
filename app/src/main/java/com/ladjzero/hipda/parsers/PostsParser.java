@@ -188,6 +188,7 @@ public class PostsParser extends Parser {
 		}
 	}
 
+	@Override
 	public Response parse(String html) {
 		Response res = new Response();
 		Posts posts = new Posts();

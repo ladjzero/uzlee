@@ -10,9 +10,10 @@ import java.util.List;
  * Created by chenzhuo on 8/29/17.
  */
 public class VersionsParser extends Parser {
+    @Override
     public Response parse(String json) {
         Response res = new Response();
-        List<Version> info = null;
+        List<Version> info;
 
         try {
             info = JSON.parseArray(json, Version.class);

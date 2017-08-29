@@ -17,7 +17,6 @@ import org.jsoup.select.Elements;
 public abstract class Parser implements Parsable {
 	public static final String CODE_GBK = "GBK";
 	public static final String CODE_UTF8 = "UTF-8";
-
 	private static final String STATS = "论坛统计";
 	private String mCode = CODE_GBK;
 

@@ -496,7 +496,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 			if (returnIntent != null) {
 				String html = returnIntent.getStringExtra("posts-html");
-				Posts posts = (Posts) getInstance().getApi().getPostsParser().parse(html).getData();
+				Posts posts = (Posts) getInstance().getApi().getParser("Posts").parse(html).getData();
 				mPosts.clear();
 				mPosts.addAll(posts);
 				mPid = -1;
