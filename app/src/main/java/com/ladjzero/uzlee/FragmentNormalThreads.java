@@ -9,10 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
-import com.ladjzero.hipda.entities.Forum;
-import com.ladjzero.hipda.Response;
+import com.ladjzero.hipda.api.OnRespondCallback;
+import com.ladjzero.uzlee.model.Forum;
+import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.Threads;
-import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.Utils;
 import com.ladjzero.uzlee.widget.HorizontalTagsView;
 
@@ -121,7 +121,7 @@ public class FragmentNormalThreads extends FragmentThreadsAbs implements SwipeRe
 
 	@Override
 	void fetchPageAt(int page) {
-		App.getInstance().getApi().getThreads(page, mFid, mType.getId(), getOrder(), new Api.OnRespond() {
+		App.getInstance().getApi().getThreads(page, mFid, mType.getId(), getOrder(), new OnRespondCallback() {
 			@Override
 			public void onRespond(Response res) {
 				model.setFetchingAndParsing(false);

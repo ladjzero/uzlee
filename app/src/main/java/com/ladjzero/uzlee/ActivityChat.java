@@ -16,9 +16,10 @@ import android.widget.TextView;
 
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
+import com.ladjzero.hipda.api.OnRespondCallback;
 import com.ladjzero.hipda.entities.Posts;
-import com.ladjzero.hipda.Response;
-import com.ladjzero.uzlee.service.Api;
+import com.ladjzero.hipda.api.Response;
+import com.ladjzero.uzlee.api.HttpClientCallback;
 import com.ladjzero.uzlee.utils.Utils;
 import com.orhanobut.logger.Logger;
 
@@ -26,14 +27,13 @@ import com.orhanobut.logger.Logger;
 /**
  * Created by ladjzero on 2015/4/25.
  */
-public class ActivityChat extends ActivityWithWebView implements Api.OnRespond {
+public class ActivityChat extends ActivityWithWebView implements OnRespondCallback {
 	private EditText mMessage;
 	private TextView mSend;
 	private Posts mCharts;
 	private int uid;
 	private String mName;
 	private WebView2 mWebView;
-	private AsyncTask mParseTask;
 	private boolean mWebViewReady;
 
 	protected void onCreate(Bundle savedInstanceState) {
@@ -130,38 +130,22 @@ public class ActivityChat extends ActivityWithWebView implements Api.OnRespond {
 	private void fetch(int page) {
 		Logger.i("fetching chats uid " + uid);
 
-		App.getInstance().getHttpClient().get("http://www.hi-pda.com/forum/pm.php?uid=" + uid + "&filter=privatepm&daterange=5", new HttpClientCallback() {
+		App.getInstance().getApi().getRawMessages(new OnRespondCallback() {
 			@Override
-			public void onSuccess(String response) {
-				mParseTask = new AsyncTask<String, Void, String>() {
-					@Override
-					protected String doInBackground(String... strings) {
-						String html = App.getInstance().getCore().getPostsParser().parseMessagesToHtml(strings[0]);
+			public void onRespond(Response res) {
+				String html = (String) res.getData();
 
-						while (!mWebViewReady) {
-							try {
-								java.lang.Thread.sleep(300);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
-
-						return html;
+				while (!mWebViewReady) {
+					try {
+						java.lang.Thread.sleep(300);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
+				}
 
-					@Override
-					protected void onPostExecute(String html) {
-						String js = "javascript:loadHTML(\"" + html.replaceAll("\"", "\\\\\"").replaceAll("[\\t\\n\\r]", "") + "\")";
-						Logger.d(js);
-						mWebView.loadUrl(js);
-					}
-				}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
-			}
-
-			@Override
-			public void onFailure(String reason) {
-				setProgressBarIndeterminateVisibility(false);
-				showToast(reason);
+				String js = "javascript:loadHTML(\"" + html.replaceAll("\"", "\\\\\"").replaceAll("[\\t\\n\\r]", "") + "\")";
+				Logger.d(js);
+				mWebView.loadUrl(js);
 			}
 		});
 	}
@@ -205,15 +189,6 @@ public class ActivityChat extends ActivityWithWebView implements Api.OnRespond {
 			}, 1000);
 		} else {
 			showToast(res.getData().toString());
-		}
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-
-		if (mParseTask != null && !mParseTask.isCancelled()) {
-			mParseTask.cancel(true);
 		}
 	}
 }

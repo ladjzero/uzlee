@@ -15,7 +15,7 @@ import android.widget.Toast;
 import com.alibaba.fastjson.JSON;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
-import com.ladjzero.hipda.entities.Forum;
+import com.ladjzero.uzlee.model.Forum;
 import com.ladjzero.hipda.entities.Post;
 import com.ladjzero.hipda.entities.Posts;
 import com.ladjzero.hipda.entities.User;
@@ -294,7 +294,7 @@ public class Utils {
 	public static List<Forum> getUserSelectedForums(ActivityBase context) {
 		List<Integer> selectedForumIds = getAllSelectedForumIds(context);
 		final List<Forum> allForums = getAllForums(context);
-		final User me = App.getInstance().getCore().getApiStore().getUser();
+		final User me = App.getInstance().getApi().getStore().getUser();
 
 		ArrayList<Forum> ret = new ArrayList<>();
 

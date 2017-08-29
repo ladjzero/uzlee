@@ -15,10 +15,10 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.alibaba.fastjson.JSON;
-import com.ladjzero.hipda.entities.Forum;
-import com.ladjzero.hipda.Response;
+import com.ladjzero.hipda.api.OnRespondCallback;
+import com.ladjzero.uzlee.model.Forum;
+import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.User;
-import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.Utils;
 import com.rey.material.app.Dialog;
@@ -121,11 +121,11 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 			logout.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					App.getInstance().getApi().logout(new Api.OnRespond() {
+					App.getInstance().getApi().logout(new OnRespondCallback() {
 						@Override
 						public void onRespond(Response res) {
 							if (res.isSuccess()) {
-								App.getInstance().getHttpClient().getCookieStore().clear();
+								App.getInstance().getApi().getCookieStore().clear();
 								Utils.gotoActivity(mActivity, ActivityLogin.class,
 										Intent.FLAG_ACTIVITY_TASK_ON_HOME |
 												Intent.FLAG_ACTIVITY_NEW_TASK |

@@ -24,8 +24,10 @@ import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
+import com.ladjzero.hipda.api.OnRespondCallback;
 import com.ladjzero.hipda.entities.Post;
-import com.ladjzero.hipda.Response;
+import com.ladjzero.hipda.api.Response;
+import com.ladjzero.uzlee.api.HttpClientCallback;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.EmojiUtils;
 import com.ladjzero.uzlee.utils.Utils;
@@ -43,10 +45,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-import static com.ladjzero.uzlee.service.Api.*;
 
-
-public class ActivityEdit extends ActivityHardSlide implements HttpClientCallback, OnRespond {
+public class ActivityEdit extends ActivityHardSlide implements HttpClientCallback, OnRespondCallback {
 	public static final int EDIT_SUCCESS = 10;
 	private static final int SELECT_PHOTO = 100;
 	int tid;
@@ -101,7 +101,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 				.titleColor(Utils.getThemeColor(this, R.attr.colorText))
 				.backgroundColor(Utils.getThemeColor(this, android.R.attr.colorBackground));
 
-		App.getInstance().getApi().getExistedAttach(new OnRespond() {
+		App.getInstance().getApi().getExistedAttach(new OnRespondCallback() {
 			@Override
 			public void onRespond(Response res) {
 				if (res.isSuccess()) {
@@ -155,7 +155,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 			progress.setTitle("载入中");
 			progress.show();
 
-			getApp().getApi().getEditBody(fid, tid, pid, new OnRespond() {
+			getApp().getApi().getEditBody(fid, tid, pid, new OnRespondCallback() {
 				@Override
 				public void onRespond(Response res) {
 					if (res.isSuccess()) {
@@ -377,7 +377,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 					} else {
 						mDialog.title("图片上传").show();
 
-						App.getInstance().getApi().uploadImage(tempFile, new OnRespond() {
+						App.getInstance().getApi().uploadImage(tempFile, new OnRespondCallback() {
 							@Override
 							public void onRespond(Response res) {
 								if (res.isSuccess()) {

@@ -19,7 +19,7 @@ import android.widget.ListView;
 
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
-import com.ladjzero.hipda.entities.Forum;
+import com.ladjzero.uzlee.model.Forum;
 import com.ladjzero.uzlee.utils.Utils;
 import com.rey.material.app.Dialog;
 import com.rey.material.widget.TabPageIndicator;
@@ -160,7 +160,7 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 		mMenuDialog = new Dialog(this);
 		ListView menuList = (ListView) mMenuView.findViewById(R.id.actions);
 
-		if (App.getInstance().getCore().getApiStore().getUser().getId() == 0) {
+		if (App.getInstance().getApi().getStore().getUser().getId() == 0) {
 			actionsAdapter = new AdapterMenuItem(this, new String[]{
 					"刷新"
 			}, new String[]{
@@ -339,7 +339,7 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 	public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 		mMenuDialog.dismiss();
 
-		if (App.getInstance().getCore().getApiStore().getUser().getId() == 0) {
+		if (App.getInstance().getApi().getStore().getUser().getId() == 0) {
 			App.getInstance().dispatchEvent(new FragmentThreadsAbs.EventRefresh());
 		} else {
 			switch (i) {

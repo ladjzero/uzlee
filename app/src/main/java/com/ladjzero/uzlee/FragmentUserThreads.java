@@ -5,9 +5,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.ladjzero.hipda.Response;
+import com.ladjzero.hipda.api.OnRespondCallback;
+import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.Threads;
-import com.ladjzero.uzlee.service.Api;
 
 /**
  * Created by chenzhuo on 15-12-14.
@@ -50,7 +50,7 @@ public class FragmentUserThreads extends FragmentThreadsAbs {
 
 	@Override
 	void fetchPageAt(int page) {
-		App.getInstance().getApi().searchUserThreads(userName, page, new Api.OnRespond() {
+		App.getInstance().getApi().searchUserThreads(userName, page, new OnRespondCallback() {
 			@Override
 			public void onRespond(Response res) {
 				if (res.isSuccess()) {

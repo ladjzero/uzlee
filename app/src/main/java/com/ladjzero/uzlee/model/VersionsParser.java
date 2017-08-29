@@ -1,7 +1,8 @@
-package com.ladjzero.hipda.parsers;
+package com.ladjzero.uzlee.model;
 
 import com.alibaba.fastjson.JSON;
-import com.ladjzero.hipda.Response;
+import com.ladjzero.hipda.api.Response;
+import com.ladjzero.hipda.parsers.Parser;
 import com.ladjzero.uzlee.model.Version;
 
 import java.util.List;

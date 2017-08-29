@@ -1,9 +1,7 @@
-package com.ladjzero.uzlee.service;
+package com.ladjzero.uzlee.api;
 
 import android.content.Context;
 
-import com.ladjzero.uzlee.HttpClientCallback;
-import com.ladjzero.uzlee.service.HttpClient;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.PersistentCookieStore;
 import com.loopj.android.http.RequestParams;
@@ -19,11 +17,22 @@ import java.util.Map;
 /**
  * Created by chenzhuo on 16-2-11.
  */
-public class HttpClient2 extends HttpClient {
+class HttpClient {
 	private AsyncHttpClient mAsyncHttpClient;
 	private CookieStore mCookieStore;
 
-	public HttpClient2(Context context) {
+	public ApiStore getStore() {
+		return mStore;
+	}
+
+	private ApiStore mStore;
+
+	public String getCode() {
+		return mStore.getCode();
+	}
+
+	public HttpClient(Context context) {
+		mStore = ApiStore.getStore();
 		mAsyncHttpClient = new AsyncHttpClient();
 		mCookieStore = new PersistentCookieStore(context);
 		mAsyncHttpClient.setCookieStore(mCookieStore);
@@ -33,7 +42,6 @@ public class HttpClient2 extends HttpClient {
 		return mCookieStore;
 	}
 
-	@Override
 	public void get(String url, final HttpClientCallback callback) {
 		get(url, getCode(), callback);
 	}
@@ -53,7 +61,6 @@ public class HttpClient2 extends HttpClient {
 		});
 	}
 
-	@Override
 	public void post(String url, Map<String, String> form, Map<String, File> files, final HttpClientCallback callback) {
 		RequestParams params = new RequestParams();
 		params.setContentEncoding(getCode());

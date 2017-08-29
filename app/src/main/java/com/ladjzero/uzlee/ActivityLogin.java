@@ -12,9 +12,9 @@ import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.ladjzero.hipda.Response;
+import com.ladjzero.hipda.api.OnRespondCallback;
+import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.User;
-import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.Utils;
 import com.rey.material.app.Dialog;
 import com.rey.material.widget.Spinner;
@@ -49,7 +49,7 @@ public class ActivityLogin extends ActionBarActivity {
 				passwd.getText().toString(),
 				spn.getSelectedItemPosition(),
 				answer.getText().toString(),
-				new Api.OnRespond() {
+				new OnRespondCallback() {
 					@Override
 					public void onRespond(Response res) {
 						if (res.isSuccess()) {

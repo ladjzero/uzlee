@@ -1,4 +1,4 @@
-package com.ladjzero.uzlee.service;
+package com.ladjzero.uzlee.api;
 
 import com.ladjzero.hipda.parsers.Parser;
 import com.ladjzero.hipda.entities.User;

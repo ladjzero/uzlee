@@ -11,7 +11,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.ladjzero.hipda.entities.Forum;
+import com.ladjzero.uzlee.model.Forum;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.Utils;
 import com.mobeta.android.dslv.DragSortListView;

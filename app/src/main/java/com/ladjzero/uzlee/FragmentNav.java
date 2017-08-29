@@ -17,7 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ladjzero.hipda.entities.User;
-import com.ladjzero.uzlee.service.ApiStore;
+import com.ladjzero.uzlee.api.ApiStore;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -98,7 +98,7 @@ public class FragmentNav extends FragmentBase implements Observer {
 
 		Core core = App.getInstance().getCore();
 		mLocalApi = core.getLocalApi();
-		core.getApiStore().addObserver(this);
+		App.getInstance().getApi().getStore().addObserver(this);
 	}
 
 	@Override
@@ -111,13 +111,13 @@ public class FragmentNav extends FragmentBase implements Observer {
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		App.getInstance().getCore().getApiStore().deleteObserver(this);
+		App.getInstance().getApi().getStore().deleteObserver(this);
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		ApiStore store = App.getInstance().getCore().getApiStore();
+		ApiStore store = App.getInstance().getApi().getStore();
 		update(store, "user");
 		update(store, "unread");
 	}

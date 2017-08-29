@@ -34,12 +34,12 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
+import com.ladjzero.hipda.api.OnRespondCallback;
 import com.ladjzero.hipda.entities.Post;
 import com.ladjzero.hipda.entities.Posts;
-import com.ladjzero.hipda.Response;
+import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.User;
 import com.ladjzero.uzlee.model.ObservablePosts;
-import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.CapturePhotoUtils;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.NotificationUtils;
@@ -126,7 +126,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	// Menu item click.
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		if (getInstance().getCore().getApiStore().getUser().getId() == 0) {
+		if (getInstance().getApi().getStore().getUser().getId() == 0) {
 			switch (position) {
 				case 0:
 					fetch(mPage);
@@ -159,7 +159,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 					fetch(mPage);
 					break;
 				case 2:
-					App.getInstance().getApi().addToFavorite(mTid, new Api.OnRespond() {
+					App.getInstance().getApi().addToFavorite(mTid, new OnRespondCallback() {
 						@Override
 						public void onRespond(Response res) {
 							if (res.isSuccess()) {
@@ -174,7 +174,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 										@Override
 										public void onClick(View v) {
 											dialog.dismiss();
-											App.getInstance().getApi().removeFromFavoriate(mTid, new Api.OnRespond() {
+											App.getInstance().getApi().removeFromFavoriate(mTid, new OnRespondCallback() {
 												@Override
 												public void onRespond(Response res) {
 													showToast(res.getData().toString());
@@ -233,7 +233,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		String url = getUri(page);
 		model.setUrl(url);
 
-		getInstance().getApi().getPosts(url, new Api.OnRespond() {
+		getInstance().getApi().getPosts(url, new OnRespondCallback() {
 			@Override
 			public void onRespond(Response res) {
 				if (res.isSuccess()) {
@@ -265,7 +265,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		this.setContentView(R.layout.activity_posts);
 		ButterKnife.bind(this);
 
-		if (getInstance().getCore().getApiStore().getUser().getId() == 0) {
+		if (getInstance().getApi().getStore().getUser().getId() == 0) {
 			mQuickReplyLayout.setVisibility(View.INVISIBLE);
 		}
 
@@ -321,7 +321,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mMenuDialog = new Dialog(this);
 		ListView menuList = (ListView) mMenuView.findViewById(R.id.actions);
 
-		if (getInstance().getCore().getApiStore().getUser().getId() == 0) {
+		if (getInstance().getApi().getStore().getUser().getId() == 0) {
 			actionsAdapter = new AdapterMenuItem(this, new String[]{
 					"刷新",
 					"复制链接",
@@ -469,7 +469,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			reply += "\t\t\t[size=1][color=Gray]有只梨[/color][/size]";
 		}
 
-		App.getInstance().getApi().sendReply(mTid, reply, null, null, new Api.OnRespond() {
+		App.getInstance().getApi().sendReply(mTid, reply, null, null, new OnRespondCallback() {
 			@Override
 			public void onRespond(Response res) {
 				if (res.isSuccess()) {

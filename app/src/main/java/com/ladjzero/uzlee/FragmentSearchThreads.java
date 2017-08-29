@@ -7,10 +7,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ListView;
 
-import com.ladjzero.hipda.entities.Forum;
-import com.ladjzero.hipda.Response;
+import com.ladjzero.hipda.api.OnRespondCallback;
+import com.ladjzero.uzlee.model.Forum;
+import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.Threads;
-import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.widget.HorizontalTagsView;
 import com.r0adkll.slidr.model.SlidrInterface;
 
@@ -65,7 +65,7 @@ public class FragmentSearchThreads extends FragmentThreadsAbs implements Horizon
 	@Override
 	void fetchPageAt(int page) {
 		if (mQuery != null && mQuery.length() > 0) {
-			App.getInstance().getApi().searchThreads(mQuery, page, toFids(mTags.getTags(true)), new Api.OnRespond() {
+			App.getInstance().getApi().searchThreads(mQuery, page, toFids(mTags.getTags(true)), new OnRespondCallback() {
 				@Override
 				public void onRespond(Response res) {
 					model.setFetchingAndParsing(false);

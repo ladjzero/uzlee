@@ -1,6 +1,7 @@
 package com.ladjzero.hipda.parsers;
 
 import com.ladjzero.hipda.*;
+import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.Thread;
 import com.ladjzero.hipda.entities.Threads;
 

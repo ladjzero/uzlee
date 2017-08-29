@@ -19,10 +19,10 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
-import com.ladjzero.hipda.entities.Forum;
-import com.ladjzero.hipda.Response;
+import com.ladjzero.hipda.api.OnRespondCallback;
+import com.ladjzero.uzlee.model.Forum;
+import com.ladjzero.hipda.api.Response;
 import com.ladjzero.uzlee.model.Version;
-import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.EmojiUtils;
 import com.ladjzero.uzlee.utils.Utils;
 import com.ladjzero.uzlee.utils.VersionComparator;
@@ -143,7 +143,7 @@ public abstract class ActivityBase extends ActionBarActivity {
 		Long now = System.currentTimeMillis();
 
 		if (force || now - lastCheck > 12 * 3600 * 1000) {
-			App.getInstance().getApi().getVersions(new Api.OnRespond() {
+			App.getInstance().getApi().getVersions(new OnRespondCallback() {
 				@Override
 				public void onRespond(Response res) {
 					if (res.isSuccess()) {

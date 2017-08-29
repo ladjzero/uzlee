@@ -2,7 +2,7 @@ package com.ladjzero.hipda.parsers;
 
 import com.ladjzero.hipda.entities.Post;
 import com.ladjzero.hipda.entities.Posts;
-import com.ladjzero.hipda.Response;
+import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.Tuple;
 import com.ladjzero.hipda.entities.User;
 import com.ladjzero.hipda.Utils;
@@ -265,21 +265,5 @@ public class PostsParser extends Parser {
 		res.setSuccess(true);
 
 		return res;
-	}
-
-
-	public String parseMessagesToHtml(String html) {
-		Posts posts = new Posts();
-		Tuple<Document, Response.Meta> tuple = getDoc(html);
-		Document doc = tuple.x;
-		Element ePosts = doc.select("#pmlist > .pm_list").first();
-		Elements avatars = ePosts.select("a.avatar > img");
-
-		for (Element avatar : avatars) {
-			String src = avatar.attr("src");
-			avatar.attr("src", src.replaceAll("_avatar_small", "_avatar_middle"));
-		}
-
-		return ePosts == null ? "" : ePosts.outerHtml();
 	}
 }

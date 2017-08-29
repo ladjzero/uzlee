@@ -9,10 +9,9 @@ import android.webkit.WebView;
 
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.MaterialModule;
-import com.ladjzero.hipda.entities.Forum;
+import com.ladjzero.uzlee.model.Forum;
 import com.ladjzero.hipda.entities.User;
-import com.ladjzero.uzlee.service.Api;
-import com.ladjzero.uzlee.service.HttpClient2;
+import com.ladjzero.uzlee.api.Api;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.UilUtils;
 import com.ladjzero.uzlee.utils.Utils;
@@ -34,7 +33,6 @@ public class App extends Application {
 	private static App app;
 
 	private LruCache<String, String> mMemCache;
-	private HttpClient2 mHttpClient;
 	private Core mCore;
 	private boolean mShouldDownloadImage;
 	private SharedPreferences mPref;
@@ -47,9 +45,6 @@ public class App extends Application {
 		return app;
 	}
 
-	public HttpClient2 getHttpClient() {
-		return mHttpClient;
-	}
 
 	public Core getCore() {
 		return mCore;
@@ -77,11 +72,10 @@ public class App extends Application {
 				.defaultDisplayImageOptions(Constants.DIO_USER_IMAGE).build();
 		ImageLoader.getInstance().init(ilConfig);
 
-		mHttpClient = new HttpClient2(this);
-		mApi = Api.getApi();
+		mApi = Api.getApi(this);
 		mApi.setMode(Api.Mode.LOCAL);
 		PersistenceAdapter adapter = new AndroidAdapter(this);
-		mCore = Core.initialize(adapter, mHttpClient);
+		mCore = Core.initialize(adapter);
 		UilUtils.init(this);
 		mPref = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -104,7 +98,7 @@ public class App extends Application {
 	}
 
 	public List<Forum> getUserFlattenForums() {
-		final User me = getInstance().getCore().getApiStore().getUser();
+		final User me = getInstance().getApi().getStore().getUser();
 		List<Forum> forums = getFlattenForums();
 
 		CollectionUtils.filter(forums, new Predicate() {

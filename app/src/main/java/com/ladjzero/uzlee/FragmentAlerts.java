@@ -12,14 +12,14 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
+import com.ladjzero.hipda.api.OnRespondCallback;
 import com.ladjzero.hipda.entities.Post;
 import com.ladjzero.hipda.entities.Posts;
 import com.ladjzero.hipda.parsers.PostsParser;
-import com.ladjzero.hipda.Response;
+import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.Thread;
 import com.ladjzero.hipda.entities.Threads;
 import com.ladjzero.hipda.parsers.ThreadsParser;
-import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.Utils;
 
 import java.util.ArrayList;
@@ -33,9 +33,6 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 	private int tabIndex = -1;
 	private AbsListView mListView;
 	private ArrayAdapter mAdapter;
-	private PostsParser mPostsParser;
-	private ThreadsParser mThreadsParser;
-	private AsyncTask mParseTask1, mParseTask2;
 	private Threads mThreads;
 	private Posts mPosts;
 
@@ -98,11 +95,6 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 				};
 				break;
 		}
-
-		Core core = App.getInstance().getCore();
-
-		mPostsParser = core.getPostsParser();
-		mThreadsParser = core.getThreadsParser();
 	}
 
 
@@ -118,7 +110,7 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 		switch (tabIndex) {
 			case 0:
 				if (mThreads.size() == 0) {
-					App.getInstance().getApi().getMessages(new Api.OnRespond() {
+					App.getInstance().getApi().getMessages(new OnRespondCallback() {
 						@Override
 						public void onRespond(Response res) {
 							if (res.isSuccess()) {
@@ -137,7 +129,7 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 				break;
 			case 1:
 				if (mPosts.size() == 0) {
-					App.getInstance().getApi().getMentions(new Api.OnRespond() {
+					App.getInstance().getApi().getMentions(new OnRespondCallback() {
 						@Override
 						public void onRespond(Response res) {
 							if (res.isSuccess()) {
@@ -182,14 +174,6 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-
-		if (mParseTask1 != null && !mParseTask1.isCancelled()) {
-			mParseTask1.cancel(true);
-		}
-
-		if (mParseTask2 != null && !mParseTask2.isCancelled()) {
-			mParseTask2.cancel(true);
-		}
 
 		if (tabIndex == 0) {
 			App.getInstance().getMemCache().put("alerts_tab_" + tabIndex, JSON.toJSONString(mThreads));

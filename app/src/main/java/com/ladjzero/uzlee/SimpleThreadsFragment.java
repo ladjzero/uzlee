@@ -12,11 +12,11 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
-import com.ladjzero.hipda.Response;
+import com.ladjzero.hipda.api.OnRespondCallback;
+import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.Thread;
 import com.ladjzero.hipda.entities.Threads;
 import com.ladjzero.hipda.parsers.ThreadsParser;
-import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.Utils;
 
 import java.util.ArrayList;
@@ -27,7 +27,6 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 	Core core;
 	int tabIndex;
 	Threads mThreads;
-	private ThreadsParser mThreadsParser;
 	private ArrayList<AsyncTask> mTasks;
 	/**
 	 * The fragment's ListView/GridView.
@@ -63,7 +62,6 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 		tabIndex = getArguments().getInt("tab_index");
 
 		Core core = App.getInstance().getCore();
-		mThreadsParser = core.getThreadsParser();
 		mTasks = new ArrayList<>();
 		mThreads = new Threads();
 
@@ -115,7 +113,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 	private void load(int tabIndex) {
 		switch (tabIndex) {
 			case 0:
-				App.getInstance().getApi().getOwnThreads(mThreads.getMeta().getPage() + 1, new Api.OnRespond() {
+				App.getInstance().getApi().getOwnThreads(mThreads.getMeta().getPage() + 1, new OnRespondCallback() {
 					@Override
 					public void onRespond(Response res) {
 						if (res.isSuccess()) {
@@ -127,7 +125,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 				});
 				break;
 			case 1:
-				App.getInstance().getApi().getOwnPosts(mThreads.getMeta().getPage() + 1, new Api.OnRespond() {
+				App.getInstance().getApi().getOwnPosts(mThreads.getMeta().getPage() + 1, new OnRespondCallback() {
 					@Override
 					public void onRespond(Response res) {
 						if (res.isSuccess()) {
@@ -139,7 +137,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 				});
 				break;
 			case 2:
-				App.getInstance().getApi().getMarkedThreads(mThreads.getMeta().getPage() + 1, new Api.OnRespond() {
+				App.getInstance().getApi().getMarkedThreads(mThreads.getMeta().getPage() + 1, new OnRespondCallback() {
 					@Override
 					public void onRespond(Response res) {
 						if (res.isSuccess()) {

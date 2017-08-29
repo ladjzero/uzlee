@@ -1,4 +1,4 @@
-package com.ladjzero.hipda.entities;
+package com.ladjzero.uzlee.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;

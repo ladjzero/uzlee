@@ -1,4 +1,4 @@
-package com.ladjzero.hipda;
+package com.ladjzero.hipda.api;
 
 import com.ladjzero.hipda.entities.User;
 import com.ladjzero.hipda.parsers.Parser;

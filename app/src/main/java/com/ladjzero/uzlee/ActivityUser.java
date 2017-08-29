@@ -10,9 +10,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.ladjzero.hipda.Response;
+import com.ladjzero.hipda.api.OnRespondCallback;
+import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.User;
-import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.UilUtils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -80,7 +80,7 @@ public class ActivityUser extends ActivityEasySlide {
 
 		mLocalApi = App.getInstance().getCore().getLocalApi();
 
-		App.getInstance().getApi().getUser(uid, new Api.OnRespond() {
+		App.getInstance().getApi().getUser(uid, new OnRespondCallback() {
 			@Override
 			public void onRespond(Response res) {
 				if (res.isSuccess()) {

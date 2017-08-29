@@ -1,7 +1,7 @@
 package com.ladjzero.hipda.parsers;
 
 import com.alibaba.fastjson.JSON;
-import com.ladjzero.hipda.Response;
+import com.ladjzero.hipda.api.Response;
 
 /**
  * Created by chenzhuo on 8/29/17.
