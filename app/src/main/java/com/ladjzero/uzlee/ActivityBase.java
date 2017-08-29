@@ -19,7 +19,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
-import com.ladjzero.hipda.Forum;
+import com.ladjzero.hipda.entities.Forum;
 import com.ladjzero.hipda.Response;
 import com.ladjzero.uzlee.model.Version;
 import com.ladjzero.uzlee.service.Api;

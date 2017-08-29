@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.ladjzero.hipda.Response;
-import com.ladjzero.hipda.Threads;
+import com.ladjzero.hipda.entities.Threads;
 import com.ladjzero.uzlee.service.Api;
 
 /**

@@ -1,6 +1,6 @@
 package com.ladjzero.uzlee;
 
-import com.ladjzero.hipda.User;
+import com.ladjzero.hipda.entities.User;
 import com.ladjzero.uzlee.service.ApiStore;
 
 /**

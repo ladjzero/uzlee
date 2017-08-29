@@ -15,9 +15,9 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.alibaba.fastjson.JSON;
-import com.ladjzero.hipda.Forum;
+import com.ladjzero.hipda.entities.Forum;
 import com.ladjzero.hipda.Response;
-import com.ladjzero.hipda.User;
+import com.ladjzero.hipda.entities.User;
 import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.Utils;

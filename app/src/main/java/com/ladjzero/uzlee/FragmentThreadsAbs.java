@@ -10,7 +10,6 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.util.Log;
 import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,8 +20,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.alibaba.fastjson.JSON;
-import com.ladjzero.hipda.Thread;
-import com.ladjzero.hipda.Threads;
+import com.ladjzero.hipda.entities.Thread;
+import com.ladjzero.hipda.entities.Threads;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;

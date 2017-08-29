@@ -9,8 +9,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ladjzero.hipda.*;
-import com.ladjzero.hipda.Thread;
+import com.ladjzero.hipda.entities.Thread;
+import com.ladjzero.hipda.entities.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;

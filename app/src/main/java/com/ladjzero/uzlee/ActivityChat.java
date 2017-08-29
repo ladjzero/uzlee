@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
-import com.ladjzero.hipda.Posts;
+import com.ladjzero.hipda.entities.Posts;
 import com.ladjzero.hipda.Response;
 import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.Utils;

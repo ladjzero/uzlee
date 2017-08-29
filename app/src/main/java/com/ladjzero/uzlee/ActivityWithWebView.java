@@ -13,9 +13,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.ladjzero.hipda.User;
+import com.ladjzero.hipda.entities.User;
 import com.ladjzero.uzlee.utils.Timeline;
-import com.ladjzero.uzlee.utils.UilUtils;
 import com.ladjzero.uzlee.utils.Utils;
 import com.orhanobut.logger.Logger;
 

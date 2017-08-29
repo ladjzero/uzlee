@@ -1,8 +1,8 @@
 package com.ladjzero.uzlee;
 
-import com.ladjzero.hipda.PostsParser;
-import com.ladjzero.hipda.ThreadsParser;
-import com.ladjzero.hipda.UserParser;
+import com.ladjzero.hipda.parsers.PostsParser;
+import com.ladjzero.hipda.parsers.ThreadsParser;
+import com.ladjzero.hipda.parsers.UserParser;
 import com.ladjzero.uzlee.service.ApiStore;
 import com.ladjzero.uzlee.service.HttpApi;
 import com.ladjzero.uzlee.service.HttpClient;

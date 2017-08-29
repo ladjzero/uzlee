@@ -9,8 +9,8 @@ import android.webkit.WebView;
 
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.MaterialModule;
-import com.ladjzero.hipda.Forum;
-import com.ladjzero.hipda.User;
+import com.ladjzero.hipda.entities.Forum;
+import com.ladjzero.hipda.entities.User;
 import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.service.HttpClient2;
 import com.ladjzero.uzlee.utils.Constants;
@@ -78,7 +78,8 @@ public class App extends Application {
 		ImageLoader.getInstance().init(ilConfig);
 
 		mHttpClient = new HttpClient2(this);
-		mApi = new Api();
+		mApi = Api.getApi();
+		mApi.setmMode(Api.Mode.LOCAL);
 		PersistenceAdapter adapter = new AndroidAdapter(this);
 		mCore = Core.initialize(adapter, mHttpClient);
 		UilUtils.init(this);

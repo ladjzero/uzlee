@@ -24,7 +24,7 @@ import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
-import com.ladjzero.hipda.Post;
+import com.ladjzero.hipda.entities.Post;
 import com.ladjzero.hipda.Response;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.EmojiUtils;

@@ -13,7 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.ladjzero.hipda.Response;
-import com.ladjzero.hipda.User;
+import com.ladjzero.hipda.entities.User;
 import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.Utils;
 import com.rey.material.app.Dialog;

@@ -1,9 +1,7 @@
 package com.ladjzero.uzlee.service;
 
-import com.ladjzero.hipda.User;
+import com.ladjzero.hipda.entities.User;
 import com.ladjzero.uzlee.HttpClientCallback;
-import com.ladjzero.uzlee.service.ApiStore;
-import com.ladjzero.uzlee.service.HttpClient;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;

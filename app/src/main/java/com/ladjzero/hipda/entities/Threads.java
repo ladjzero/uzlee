@@ -1,4 +1,4 @@
-package com.ladjzero.hipda;
+package com.ladjzero.hipda.entities;
 
 import java.util.ArrayList;
 

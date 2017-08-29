@@ -2,15 +2,23 @@ package com.ladjzero.uzlee.service;
 
 import android.os.AsyncTask;
 
-import com.ladjzero.hipda.Parse;
-import com.ladjzero.hipda.PostsParser;
+import com.alibaba.fastjson.JSON;
+import com.ladjzero.hipda.parsers.EditablePostParser;
+import com.ladjzero.hipda.parsers.ExistedAttachParser;
+import com.ladjzero.hipda.parsers.MarkedThreadsParser;
+import com.ladjzero.hipda.parsers.MentionsParser;
+import com.ladjzero.hipda.parsers.MessagesParser;
+import com.ladjzero.hipda.parsers.OwnPostsParser;
+import com.ladjzero.hipda.parsers.OwnThreadsParser;
+import com.ladjzero.hipda.parsers.Parsable;
+import com.ladjzero.hipda.parsers.PostsParser;
 import com.ladjzero.hipda.Response;
-import com.ladjzero.hipda.ThreadsParser;
-import com.ladjzero.hipda.User;
-import com.ladjzero.hipda.UserParser;
+import com.ladjzero.hipda.parsers.ThreadsParser;
+import com.ladjzero.hipda.entities.User;
+import com.ladjzero.hipda.parsers.UserParser;
+import com.ladjzero.hipda.parsers.VersionsParser;
 import com.ladjzero.uzlee.App;
 import com.ladjzero.uzlee.HttpClientCallback;
-import com.ladjzero.uzlee.service.ApiStore;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -21,17 +29,77 @@ import java.util.Map;
  * Created by chenzhuo on 2017/4/23.
  */
 public class Api {
-	private ThreadsParser mThreadsParser = new ThreadsParser();
+	private static Api singleton;
+
+	public void setmMode(Mode mMode) {
+		this.mMode = mMode;
+	}
+
+	private Mode mMode = Mode.REMOTE;
+
+	public enum Mode{ REMOTE, LOCAL }
+
+
+	private Api() {
+		mThreadsParser = new ThreadsParser();
+		mPostsParser = new PostsParser();
+		mUserParser = new UserParser();
+		mJsonParser = new Parsable() {
+			@Override
+			public Response parse(String json) {
+				return JSON.parseObject(json, Response.class);
+			}
+		};
+	}
+
+	public static Api getApi() {
+		if (singleton == null) {
+			singleton = new Api();
+		}
+
+		return singleton;
+	}
+
+	private Parsable mJsonParser;
+
+	private Parsable getmThreadsParser() {
+		switch (mMode) {
+			case REMOTE:
+				return mJsonParser;
+			default:
+				return mThreadsParser;
+		}
+	}
+
+	private Parsable getmPostsParser() {
+		switch (mMode) {
+			case REMOTE:
+				return mJsonParser;
+			default:
+				return mPostsParser;
+		}
+	}
+
+	private Parsable getmUserParser() {
+		switch (mMode) {
+			case REMOTE:
+				return mJsonParser;
+			default:
+				return mUserParser;
+		}
+	}
+
+	private ThreadsParser mThreadsParser;
 
 	public PostsParser getPostsParser() {
 		return mPostsParser;
 	}
 
-	private PostsParser mPostsParser = new PostsParser();
-	private UserParser mUserParser = new UserParser();
+	private PostsParser mPostsParser;
+	private UserParser mUserParser;
 
 	public void getPosts(String url, OnRespond onRespond) {
-		App.getInstance().getHttpClient().get(url, new ApiHttpClientCallback(mPostsParser, onRespond));
+		App.getInstance().getHttpClient().get(url, new ApiHttpClientCallback(getPostsParser(), onRespond));
 	}
 
 	public void getThreads(int page, int fid, int typeid, String order, OnRespond onRespond) {
@@ -39,38 +107,28 @@ public class Api {
 	}
 
 	public void searchThreads(String query, int page, int[] fids, OnRespond onRespond) {
-		App.getInstance().getCore().getHttpApi().searchThreads(query, page, fids, new ApiHttpClientCallback(mThreadsParser, onRespond));
+		App.getInstance().getCore().getHttpApi().searchThreads(query, page, fids, new ApiHttpClientCallback(getmThreadsParser(), onRespond));
 	}
 
 	public void searchUserThreads(String name, int page, OnRespond onRespond) {
-		App.getInstance().getCore().getHttpApi().searchUserThreads(name, page, new ApiHttpClientCallback(mThreadsParser, onRespond));
+		App.getInstance().getCore().getHttpApi().searchUserThreads(name, page, new ApiHttpClientCallback(getmThreadsParser(), onRespond));
 	}
 
 	public void getUser(int uid, OnRespond onRespond) {
-		App.getInstance().getCore().getHttpApi().getUser(uid, new ApiHttpClientCallback(mUserParser, onRespond));
+		App.getInstance().getCore().getHttpApi().getUser(uid, new ApiHttpClientCallback(getmUserParser(), onRespond));
 	}
 
 	public void getExistedAttach(OnRespond onRespond) {
 		App.getInstance().getHttpClient().get(
 				"http://www.hi-pda.com/forum/post.php?action=newthread&fid=57",
-				new ApiHttpClientCallback(new Parse() {
-					@Override
-					public Response parse(String html) {
-						return mPostsParser.parseExistedAttach(html);
-					}
-				}, onRespond)
+				new ApiHttpClientCallback(new ExistedAttachParser(), onRespond)
 		);
 	}
 
 	public void getEditBody(int fid, int tid, int pid, OnRespond onRespond) {
 		String url = "http://www.hi-pda.com/forum/post.php?action=edit&fid=" + fid + "&tid=" + tid + "&pid=" + pid + "&page=1";
 
-		App.getInstance().getHttpClient().get(url, new ApiHttpClientCallback(new Parse() {
-			@Override
-			public Response parse(String html) {
-				return mPostsParser.parseEditablePost(html);
-			}
-		}, onRespond));
+		App.getInstance().getHttpClient().get(url, new ApiHttpClientCallback(new EditablePostParser(), onRespond));
 	}
 
 	public void newThread(int fid, String subject, String message, ArrayList<Integer> attachIds, OnRespond onRespond) {
@@ -92,7 +150,7 @@ public class Api {
 			}
 		}
 
-		App.getInstance().getHttpClient().post(url, params, null, new ApiHttpClientCallback(mPostsParser, onRespond));
+		App.getInstance().getHttpClient().post(url, params, null, new ApiHttpClientCallback(getPostsParser(), onRespond));
 	}
 
 	public void editPost(int fid, int tid, int pid, String subject, String message, ArrayList<Integer> attachIds, OnRespond onRespond) {
@@ -118,7 +176,7 @@ public class Api {
 			}
 		}
 
-		App.getInstance().getHttpClient().post(url, params, null, new ApiHttpClientCallback(mPostsParser, onRespond));
+		App.getInstance().getHttpClient().post(url, params, null, new ApiHttpClientCallback(getPostsParser(), onRespond));
 	}
 
 	public void sendReply(int tid, String content, ArrayList<Integer> attachIds, ArrayList<Integer> existedAttchIds, OnRespond onRespond) {
@@ -147,7 +205,7 @@ public class Api {
 			}
 		}
 
-		App.getInstance().getHttpClient().post(url, params, null, new ApiHttpClientCallback(mPostsParser, onRespond));
+		App.getInstance().getHttpClient().post(url, params, null, new ApiHttpClientCallback(getPostsParser(), onRespond));
 	}
 
 
@@ -167,7 +225,7 @@ public class Api {
 		params.put("tid", String.valueOf(tid));
 		params.put("pid", String.valueOf(pid));
 
-		App.getInstance().getHttpClient().post(url, params, null, new ApiHttpClientCallback(new Parse() {
+		App.getInstance().getHttpClient().post(url, params, null, new ApiHttpClientCallback(new Parsable() {
 			@Override
 			public Response parse(String html) {
 				Response res = new Response();
@@ -222,7 +280,7 @@ public class Api {
 
 				String url = "http://www.hi-pda.com/forum/misc.php?action=swfupload&operation=upload&simple=1&type=image";
 
-				App.getInstance().getHttpClient().post(url, params, files, new ApiHttpClientCallback(new Parse() {
+				App.getInstance().getHttpClient().post(url, params, files, new ApiHttpClientCallback(new Parsable() {
 					@Override
 					public Response parse(String html) {
 						if (html.startsWith("DISCUZUPLOAD")) {
@@ -264,7 +322,7 @@ public class Api {
 				password,
 				questionId,
 				answer,
-				new ApiHttpClientCallback(new Parse() {
+				new ApiHttpClientCallback(new Parsable() {
 			@Override
 			public Response parse(String html) {
 					Response.Meta meta = new Response.Meta();
@@ -365,60 +423,29 @@ public class Api {
 	}
 
 	public void getMessages(OnRespond onRespond) {
-		App.getInstance().getCore().getHttpApi().getMessages(new ApiHttpClientCallback(new Parse() {
-			@Override
-			public Response parse(String html) {
-				Response res = mThreadsParser.parseMessages(html);
-				return res;
-			}
-		}, onRespond));
+		App.getInstance().getCore().getHttpApi().getMessages(new ApiHttpClientCallback(new MessagesParser(), onRespond));
 	}
 
 	public void getMentions(OnRespond onRespond) {
-		App.getInstance().getCore().getHttpApi().getMentions(new ApiHttpClientCallback(new Parse() {
-			@Override
-			public Response parse(String html) {
-				return mPostsParser.parseMentions(html);
-			}
-		}, onRespond));
+		App.getInstance().getCore().getHttpApi().getMentions(new ApiHttpClientCallback(new MentionsParser(), onRespond));
 	}
 	public void getOwnThreads(int page, OnRespond onRespond) {
-		App.getInstance().getCore().getHttpApi().getOwnThreads(page, new ApiHttpClientCallback(new Parse() {
-			@Override
-			public Response parse(String html) {
-				return mThreadsParser.parseOwnThreads(html);
-			}
-		}, onRespond));
+		App.getInstance().getCore().getHttpApi().getOwnThreads(page, new ApiHttpClientCallback(new OwnThreadsParser(), onRespond));
 	}
 
 	public void getOwnPosts(int page, OnRespond onRespond) {
-		App.getInstance().getCore().getHttpApi().getOwnPosts(page, new ApiHttpClientCallback(new Parse() {
-			@Override
-			public Response parse(String html) {
-				return mThreadsParser.parseOwnPosts(html);
-			}
-		}, onRespond));
+		App.getInstance().getCore().getHttpApi().getOwnPosts(page, new ApiHttpClientCallback(new OwnPostsParser(), onRespond));
 	}
 
 	public void getMarkedThreads(int page, OnRespond onRespond) {
-		App.getInstance().getCore().getHttpApi().getMarkedThreads(page, new ApiHttpClientCallback(new Parse() {
-			@Override
-			public Response parse(String html) {
-				return mThreadsParser.parseMarkedThreads(html);
-			}
-		}, onRespond));
+		App.getInstance().getCore().getHttpApi().getMarkedThreads(page, new ApiHttpClientCallback(new MarkedThreadsParser(), onRespond));
 	}
 
 	public void getVersions(OnRespond onRespond) {
 		App.getInstance().getHttpClient().get(
 				"http://ladjzero.github.io/uzlee/js/version.json",
 				"utf-8",
-				new ApiHttpClientCallback(new Parse() {
-					@Override
-					public Response parse(String json) {
-						return mPostsParser.parseVersions(json);
-					}
-				}, onRespond));
+				new ApiHttpClientCallback(new VersionsParser(), onRespond));
 	}
 
 	public interface OnRespond {
@@ -426,10 +453,10 @@ public class Api {
 	}
 
 	protected class ApiHttpClientCallback implements HttpClientCallback {
-		private Parse p;
+		private Parsable p;
 		private OnRespond onRespond;
 
-		public ApiHttpClientCallback(Parse p, OnRespond onRespond) {
+		public ApiHttpClientCallback(Parsable p, OnRespond onRespond) {
 			this.p = p;
 			this.onRespond = onRespond;
 		}
@@ -448,11 +475,14 @@ public class Api {
 
 					ApiStore store = App.getInstance().getCore().getApiStore();
 					Response.Meta meta = res.getMeta();
-					store.setUser(meta.getUser());
-					store.setCode(meta.getCode());
-					store.setFormhash(meta.getFormhash());
-					store.setHash(meta.getHash());
-					store.setUnread(meta.getUnread());
+
+					if (meta != null) {
+						store.setUser(meta.getUser());
+						store.setCode(meta.getCode());
+						store.setFormhash(meta.getFormhash());
+						store.setHash(meta.getHash());
+						store.setUnread(meta.getUnread());
+					}
 
 					onRespond.onRespond(res);
 				}

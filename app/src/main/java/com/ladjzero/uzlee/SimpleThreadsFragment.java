@@ -13,9 +13,9 @@ import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.Response;
-import com.ladjzero.hipda.Thread;
-import com.ladjzero.hipda.Threads;
-import com.ladjzero.hipda.ThreadsParser;
+import com.ladjzero.hipda.entities.Thread;
+import com.ladjzero.hipda.entities.Threads;
+import com.ladjzero.hipda.parsers.ThreadsParser;
 import com.ladjzero.uzlee.service.Api;
 import com.ladjzero.uzlee.utils.Utils;
 

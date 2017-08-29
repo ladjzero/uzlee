@@ -11,8 +11,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ladjzero.hipda.Thread;
-import com.ladjzero.hipda.User;
+import com.ladjzero.hipda.entities.Thread;
+import com.ladjzero.hipda.entities.User;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;

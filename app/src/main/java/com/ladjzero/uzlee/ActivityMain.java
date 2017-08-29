@@ -19,7 +19,7 @@ import android.widget.ListView;
 
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
-import com.ladjzero.hipda.Forum;
+import com.ladjzero.hipda.entities.Forum;
 import com.ladjzero.uzlee.utils.Utils;
 import com.rey.material.app.Dialog;
 import com.rey.material.widget.TabPageIndicator;

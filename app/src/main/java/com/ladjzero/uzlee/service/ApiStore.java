@@ -1,7 +1,7 @@
 package com.ladjzero.uzlee.service;
 
-import com.ladjzero.hipda.Parser;
-import com.ladjzero.hipda.User;
+import com.ladjzero.hipda.parsers.Parser;
+import com.ladjzero.hipda.entities.User;
 import com.ladjzero.uzlee.PersistenceAdapter;
 
 import java.util.Observable;

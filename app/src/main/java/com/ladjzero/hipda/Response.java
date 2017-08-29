@@ -1,5 +1,8 @@
 package com.ladjzero.hipda;
 
+import com.ladjzero.hipda.entities.User;
+import com.ladjzero.hipda.parsers.Parser;
+
 import java.io.Serializable;
 
 /**

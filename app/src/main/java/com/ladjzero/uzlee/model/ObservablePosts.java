@@ -2,8 +2,8 @@ package com.ladjzero.uzlee.model;
 
 import android.databinding.ObservableArrayList;
 
-import com.ladjzero.hipda.Post;
-import com.ladjzero.hipda.Posts;
+import com.ladjzero.hipda.entities.Post;
+import com.ladjzero.hipda.entities.Posts;
 
 /**
  * Created by chenzhuo on 2016/2/14.
