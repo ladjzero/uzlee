@@ -14,12 +14,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
-import com.alibaba.fastjson.JSON;
 import com.ladjzero.hipda.api.OnRespondCallback;
 import com.ladjzero.uzlee.model.Forum;
 import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.User;
 import com.ladjzero.uzlee.utils.Constants;
+import com.ladjzero.uzlee.utils.Json;
 import com.ladjzero.uzlee.utils.Utils;
 import com.rey.material.app.Dialog;
 
@@ -254,7 +254,7 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 						ActivityEdit.Draft draft = null;
 
 						try {
-							draft = JSON.parseObject(json, ActivityEdit.Draft.class);
+							draft = Json.fromJson(json, ActivityEdit.Draft.class);
 						} catch (Exception e) {
 						}
 

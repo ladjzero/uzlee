@@ -27,7 +27,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.alibaba.fastjson.JSON;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -42,6 +41,7 @@ import com.ladjzero.hipda.entities.User;
 import com.ladjzero.uzlee.model.ObservablePosts;
 import com.ladjzero.uzlee.utils.CapturePhotoUtils;
 import com.ladjzero.uzlee.utils.Constants;
+import com.ladjzero.uzlee.utils.Json;
 import com.ladjzero.uzlee.utils.NotificationUtils;
 import com.ladjzero.uzlee.utils.Timeline;
 import com.ladjzero.uzlee.utils.Utils;
@@ -752,7 +752,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 		if (!mIsPushedAfterWebReady) {
 			for (Post post : mPosts) {
-				mWebView.loadUrl("javascript:_postsData.posts.push(" + JSON.toJSONString(post) + ")");
+				mWebView.loadUrl("javascript:_postsData.posts.push(" + Json.toJson(post) + ")");
 				mIsPushedAfterWebReady = true;
 			}
 		}
@@ -926,8 +926,8 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 			if (model.isWebviewReady()) {
 				for (int i = mIsPushedAfterWebReady ? positionStart : 0; i < positionStart + itemCount; i++) {
 					Post post = (Post) sender.get(i);
-					Log.i("lalala", JSON.toJSONString(post));
-					mWebView.loadUrl("javascript:_postsData.posts.push(" + JSON.toJSONString(post) + ")");
+					Log.i("lalala", Json.toJson(post));
+					mWebView.loadUrl("javascript:_postsData.posts.push(" + Json.toJson(post) + ")");
 					mIsPushedAfterWebReady = true;
 				}
 			}

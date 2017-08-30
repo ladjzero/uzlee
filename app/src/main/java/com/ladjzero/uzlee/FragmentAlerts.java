@@ -11,15 +11,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.alibaba.fastjson.JSON;
+import com.google.gson.reflect.TypeToken;
 import com.ladjzero.hipda.api.OnRespondCallback;
 import com.ladjzero.hipda.entities.Post;
 import com.ladjzero.hipda.entities.Posts;
-import com.ladjzero.hipda.parsers.PostsParser;
 import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.Thread;
 import com.ladjzero.hipda.entities.Threads;
-import com.ladjzero.hipda.parsers.ThreadsParser;
+import com.ladjzero.uzlee.utils.Json;
 import com.ladjzero.uzlee.utils.Utils;
 
 import java.util.ArrayList;
@@ -54,12 +53,12 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 			if (tabIndex == 0) {
 				mThreads = new Threads();
 				String cached = App.getInstance().getMemCache().get("alerts_tab_" + tabIndex);
-				List<Thread> ts = JSON.parseArray(cached, Thread.class);
+				List<Thread> ts = Json.fromJson(cached, new TypeToken<ArrayList<Thread>>(){}.getType());
 				mThreads.addAll(ts);
 			} else {
 				mPosts = new Posts();
 				String cached = App.getInstance().getMemCache().get("alerts_tab_" + tabIndex);
-				List<Post> ps = JSON.parseArray(cached, Post.class);
+				List<Post> ps = Json.fromJson(cached, new TypeToken<ArrayList<Post>>(){}.getType());
 				mPosts.addAll(ps);
 			}
 		} catch (Exception e) {
@@ -176,9 +175,9 @@ public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemCl
 		super.onDestroy();
 
 		if (tabIndex == 0) {
-			App.getInstance().getMemCache().put("alerts_tab_" + tabIndex, JSON.toJSONString(mThreads));
+			App.getInstance().getMemCache().put("alerts_tab_" + tabIndex, Json.toJson(mThreads));
 		} else {
-			App.getInstance().getMemCache().put("alerts_tab_" + tabIndex, JSON.toJSONString(mPosts));
+			App.getInstance().getMemCache().put("alerts_tab_" + tabIndex, Json.toJson(mPosts));
 		}
 	}
 }

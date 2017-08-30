@@ -12,9 +12,9 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
 
-import com.alibaba.fastjson.JSON;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+import com.google.gson.reflect.TypeToken;
 import com.ladjzero.uzlee.model.Forum;
 import com.ladjzero.hipda.entities.Post;
 import com.ladjzero.hipda.entities.Posts;
@@ -77,7 +77,7 @@ public class Utils {
 	}
 
 	public static String toHtml(Posts posts) {
-		Logger.d(JSON.toJSONString(posts));
+		Logger.d(Json.toJson(posts));
 
 		return StringUtils.join(CollectionUtils.collect(posts, new Transformer() {
 			@Override
@@ -85,7 +85,7 @@ public class Utils {
 				Post post = (Post) o;
 				User user = post.getAuthor();
 
-				return "<img src=\"" + user.getImage() + "\" onclick=\"ActivityPosts.onUserClick(2)\"><h3>" + user.getName() + "</h3>" + JSON.toJSONString(post);
+				return "<img src=\"" + user.getImage() + "\" onclick=\"ActivityPosts.onUserClick(2)\"><h3>" + user.getName() + "</h3>" + Json.toJson(post);
 			}
 		}), "");
 	}
@@ -271,7 +271,7 @@ public class Utils {
 
 	public static List<Forum> getAllForums(Context context) {
 		String json = Utils.readAssetFile(context, "hipda.json");
-		List<Forum> forums = JSON.parseArray(json, Forum.class);
+		List<Forum> forums = Json.fromJson(json, new TypeToken<ArrayList<Forum>>(){}.getType());
 		addALLType(forums);
 
 		return forums;

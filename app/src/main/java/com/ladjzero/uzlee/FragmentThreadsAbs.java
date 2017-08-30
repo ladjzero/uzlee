@@ -19,9 +19,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.alibaba.fastjson.JSON;
+import com.google.gson.reflect.TypeToken;
 import com.ladjzero.hipda.entities.Thread;
 import com.ladjzero.hipda.entities.Threads;
+import com.ladjzero.uzlee.utils.Json;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
@@ -87,7 +88,7 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 		List<Thread> threads = null;
 
 		try {
-			threads = JSON.parseArray(cached, Thread.class);
+			threads = Json.fromJson(cached, new TypeToken<ArrayList<Thread>>(){}.getType());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -208,7 +209,7 @@ public abstract class FragmentThreadsAbs extends FragmentBase implements
 	@Override
 	public void onDestroyView() {
 		LruCache<String, String> cache = App.getInstance().getMemCache();
-		String toCache = JSON.toJSONString(mThreads);
+		String toCache = Json.toJson(mThreads);
 
 		if (toCache != null) {
 			cache.put(keyOfThreadsToCache(), toCache);

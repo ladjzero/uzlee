@@ -39,6 +39,7 @@ public class ApiStore extends Observable {
 		}
 	}
 
+	// TODO. remove this method.
 	public User getUser() {
 		if (user == null) {
 			user = mAdapter.getValue("user", User.class, null);

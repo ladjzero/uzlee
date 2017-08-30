@@ -11,12 +11,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.alibaba.fastjson.JSON;
+import com.google.gson.reflect.TypeToken;
 import com.ladjzero.hipda.api.OnRespondCallback;
 import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.Thread;
 import com.ladjzero.hipda.entities.Threads;
-import com.ladjzero.hipda.parsers.ThreadsParser;
+import com.ladjzero.uzlee.utils.Json;
 import com.ladjzero.uzlee.utils.Utils;
 
 import java.util.ArrayList;
@@ -67,7 +67,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 
 		try {
 			String cached = App.getInstance().getMemCache().get("simple_threads_tab_" + tabIndex);
-			List<Thread> ts = JSON.parseArray(cached, Thread.class);
+			List<Thread> ts = Json.fromJson(cached, new TypeToken<ArrayList<Thread>>(){}.getType());
 			mThreads.addAll(ts);
 		} catch (Exception e) {
 
@@ -203,7 +203,7 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 
 		mTasks.clear();
 
-		App.getInstance().getMemCache().put("simple_threads_tab_" + tabIndex, JSON.toJSONString(mThreads));
+		App.getInstance().getMemCache().put("simple_threads_tab_" + tabIndex, Json.toJson(mThreads));
 	}
 
 	/**

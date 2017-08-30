@@ -19,9 +19,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.alibaba.fastjson.JSON;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+import com.google.gson.Gson;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.api.OnRespondCallback;
@@ -460,7 +460,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 			draft.uid = uid;
 			draft.no = no;
 
-			String json = JSON.toJSONString(draft);
+			String json = new Gson().toJson(draft);
 			getSettings().edit().putString("draft", json).commit();
 		}
 

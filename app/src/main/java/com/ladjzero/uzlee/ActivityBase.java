@@ -18,7 +18,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.ladjzero.hipda.api.OnRespondCallback;
 import com.ladjzero.uzlee.model.Forum;
 import com.ladjzero.hipda.api.Response;
@@ -35,6 +36,7 @@ import com.tencent.stat.StatService;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -73,7 +75,7 @@ public abstract class ActivityBase extends ActionBarActivity {
 	}
 
 	public static List<Forum> buildFromJSON(String json) {
-		List<Forum> forums = JSON.parseArray(json, Forum.class);
+		List<Forum> forums = new Gson().fromJson(json, new TypeToken<ArrayList<Forum>>(){}.getType());
 		addALLType(forums);
 
 		return forums;
