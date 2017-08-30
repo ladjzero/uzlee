@@ -7,4 +7,5 @@ import com.ladjzero.hipda.api.Response;
  */
 public interface Parsable {
 	Response parse(String html);
+	boolean test(String urlPattern);
 }

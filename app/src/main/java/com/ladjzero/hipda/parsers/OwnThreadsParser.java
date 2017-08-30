@@ -1,6 +1,5 @@
 package com.ladjzero.hipda.parsers;
 
-import com.ladjzero.hipda.*;
 import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.Thread;
 import com.ladjzero.hipda.entities.Threads;
@@ -8,6 +7,8 @@ import com.ladjzero.hipda.entities.Threads;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import java.util.Map;
 
 /**
  * Created by chenzhuo on 8/29/17.
@@ -61,4 +62,8 @@ public class OwnThreadsParser extends Parser {
         return res;
     }
 
+    @Override
+    boolean test(String[] paths, Map<String, String> query) {
+        return false;
+    }
 }

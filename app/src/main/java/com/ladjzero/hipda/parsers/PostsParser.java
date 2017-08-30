@@ -3,9 +3,7 @@ package com.ladjzero.hipda.parsers;
 import com.ladjzero.hipda.entities.Post;
 import com.ladjzero.hipda.entities.Posts;
 import com.ladjzero.hipda.api.Response;
-import com.ladjzero.hipda.Tuple;
 import com.ladjzero.hipda.entities.User;
-import com.ladjzero.hipda.Utils;
 import com.orhanobut.logger.Logger;
 
 import org.jsoup.nodes.Document;

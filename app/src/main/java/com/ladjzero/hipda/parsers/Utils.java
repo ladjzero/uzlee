@@ -1,4 +1,4 @@
-package com.ladjzero.hipda;
+package com.ladjzero.hipda.parsers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;

@@ -1,6 +1,5 @@
 package com.ladjzero.hipda.parsers;
 
-import com.ladjzero.hipda.*;
 import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.Thread;
 import com.ladjzero.hipda.entities.Threads;
@@ -64,5 +63,10 @@ public class OwnPostsParser extends Parser {
 
         res.setData(threads);
         return res;
+    }
+
+    @Override
+    boolean test(String[] paths, Map<String, String> query) {
+        return false;
     }
 }

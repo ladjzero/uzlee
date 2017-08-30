@@ -1,6 +1,5 @@
 package com.ladjzero.hipda.parsers;
 
-import com.ladjzero.hipda.Tuple;
 import com.ladjzero.hipda.api.Response;
 
 import org.jsoup.nodes.Document;

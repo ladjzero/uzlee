@@ -1,4 +1,4 @@
-package com.ladjzero.hipda;
+package com.ladjzero.hipda.parsers;
 
 /**
  * Created by chenzhuo on 2017/8/19.
