@@ -67,7 +67,6 @@ public class FragmentNav extends FragmentBase implements Observer {
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
 	private ActivityBase mContext;
-	private LocalApi mLocalApi;
 	private User mUser;
 
 	@OnClick(R.id.nav_user)
@@ -96,8 +95,6 @@ public class FragmentNav extends FragmentBase implements Observer {
 			mFromSavedInstanceState = true;
 		}
 
-		Core core = App.getInstance().getCore();
-		mLocalApi = core.getLocalApi();
 		App.getInstance().getApi().getStore().addObserver(this);
 	}
 
@@ -211,7 +208,7 @@ public class FragmentNav extends FragmentBase implements Observer {
 			@Override
 			public void run() {
 				if ("user".equals(o)) {
-					mUser = mLocalApi.getUser();
+					mUser = App.getInstance().getApi().getStore().getUser();
 					final boolean visible = mUser != null && mUser.getId() != 0;
 
 					message.setVisibility(visible ? View.VISIBLE : View.GONE);
@@ -229,7 +226,7 @@ public class FragmentNav extends FragmentBase implements Observer {
 						}
 					}, 300);
 				} else if ("unread".equals(o)) {
-					int unread = mLocalApi.getUnread();
+					int unread = App.getInstance().getApi().getStore().getUnread();
 
 					mAlertIcon.setTextColor(unread == 0 ?
 							Utils.getThemeColor(mContext, R.attr.colorText) :

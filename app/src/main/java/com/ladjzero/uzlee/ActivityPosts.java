@@ -102,7 +102,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	private TextView mTitleView;
 	private boolean mSkipResumeFetch = false;
 	private boolean mIsPushedAfterWebReady = false;
-	private LocalApi mLocalApi;
 	private Timeline mTimeline = new Timeline();
 	private Model model = new Model();
 	private long ms;
@@ -224,7 +223,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 
 		try {
-			myid = mLocalApi.getUser().getId();
+			myid = App.getInstance().getApi().getStore().getUser().getId();
 		} catch (Exception e) {
 		}
 
@@ -372,7 +371,6 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mPosts = new ObservablePosts();
 		mPosts.addOnListChangedCallback(new OnListChangedCallback());
 
-		mLocalApi = getInstance().getCore().getLocalApi();
 		mProgressView.start();
 	}
 
@@ -570,7 +568,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		if (getWebView().finishActionMode()) return;
 
 		if (ms == 0) {
-			User me = mLocalApi.getUser();
+			User me = App.getInstance().getApi().getStore().getUser();
 
 			if (me == null || me.getId() == 0) {
 				showToast(getResources().getString(R.string.error_login_required));

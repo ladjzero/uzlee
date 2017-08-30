@@ -22,14 +22,10 @@ import java.util.ArrayList;
  */
 public class AdapterMessageSummary extends ArrayAdapter<Thread> implements View.OnClickListener{
 	ActivityBase context;
-	Core core;
-	private LocalApi mLocalApi;
-
 
 	public AdapterMessageSummary(Context context, ArrayList<Thread> threads) {
 		super(context, R.layout.message_row, threads);
 		this.context = (ActivityBase) context;
-		mLocalApi = App.getInstance().getCore().getLocalApi();
 	}
 
 	@Override

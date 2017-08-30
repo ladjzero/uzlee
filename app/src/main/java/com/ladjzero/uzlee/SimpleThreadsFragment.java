@@ -24,7 +24,6 @@ import java.util.List;
 
 public class SimpleThreadsFragment extends FragmentBase implements AbsListView.OnItemClickListener {
 
-	Core core;
 	int tabIndex;
 	Threads mThreads;
 	private ArrayList<AsyncTask> mTasks;
@@ -61,7 +60,6 @@ public class SimpleThreadsFragment extends FragmentBase implements AbsListView.O
 
 		tabIndex = getArguments().getInt("tab_index");
 
-		Core core = App.getInstance().getCore();
 		mTasks = new ArrayList<>();
 		mThreads = new Threads();
 

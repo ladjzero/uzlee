@@ -36,7 +36,6 @@ public class ActivityUser extends ActivityEasySlide {
 	TextView mLevelView;
 	@Bind(R.id.uid)
 	TextView mUid;
-	private LocalApi mLocalApi;
 	private AsyncTask mParseTask;
 	@OnClick(R.id.user_info_img)
 	public void onImageClick() {
@@ -78,8 +77,6 @@ public class ActivityUser extends ActivityEasySlide {
 
 		setProgressBarIndeterminateVisibility(true);
 
-		mLocalApi = App.getInstance().getCore().getLocalApi();
-
 		App.getInstance().getApi().getUser(uid, new OnRespondCallback() {
 			@Override
 			public void onRespond(Response res) {
@@ -87,7 +84,7 @@ public class ActivityUser extends ActivityEasySlide {
 					final User user = (User) res.getData();
 					ActivityUser.this.mUser = user;
 
-					if (user.getId() != mLocalApi.getUser().getId()) {
+					if (user.getId() != App.getInstance().getApi().getStore().getUser().getId()) {
 						chat.setVisibility(View.VISIBLE);
 					}
 

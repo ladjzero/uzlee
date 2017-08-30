@@ -273,7 +273,7 @@ public class ActivityMain extends ActivityBase implements SharedPreferences.OnSh
 	void onMyPostsClick() {
 		mFragmentNav.closeDrawer();
 
-		if (App.getInstance().getCore().getLocalApi().getUser() != null) {
+		if (App.getInstance().getApi().getStore().getUser() != null) {
 			Intent intent = new Intent(this, ActivityMyPosts.class);
 			startActivity(intent);
 		}

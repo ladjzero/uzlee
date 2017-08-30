@@ -28,7 +28,6 @@ import java.util.List;
  * Created by ladjzero on 2015/1/1.
  */
 public class FragmentAlerts extends FragmentBase implements AbsListView.OnItemClickListener {
-	Core core;
 	private int tabIndex = -1;
 	private AbsListView mListView;
 	private ArrayAdapter mAdapter;

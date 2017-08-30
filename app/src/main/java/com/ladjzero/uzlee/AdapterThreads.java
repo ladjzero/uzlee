@@ -24,10 +24,8 @@ import java.util.ArrayList;
 public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClickListener {
 
 	ActivityBase context;
-	Core core;
 	private float mFontSize;
 	private int mColorRead, mColorUnread;
-	private LocalApi mLocalApi;
 	private boolean mShowProfileImage;
 
 
@@ -38,8 +36,6 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 
 		mColorRead = Utils.getThemeColor(context, R.attr.colorTextLighter);
 		mColorUnread = Utils.getThemeColor(context, R.attr.colorUnread);
-
-		mLocalApi = App.getInstance().getCore().getLocalApi();
 
 		initalPreferences();
 	}
@@ -141,7 +137,7 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 
 	@Override
 	public void onClick(View view) {
-		User me = mLocalApi.getUser();
+		User me = App.getInstance().getApi().getStore().getUser();
 
 		if (me == null || me.getId() == 0) {
 			context.showToast(context.getResources().getString(R.string.error_login_required));

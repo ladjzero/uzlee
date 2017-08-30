@@ -33,12 +33,9 @@ import butterknife.OnClick;
 
 
 public class ActivitySettings extends ActivityEasySlide implements SharedPreferences.OnSharedPreferenceChangeListener {
-	private LocalApi mLocalApi;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		mLocalApi = App.getInstance().getCore().getLocalApi();
-
 		super.onCreate(savedInstanceState);
 
 		setTitle("设置");
@@ -114,8 +111,7 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 			});
 
 			Preference logout = findPreference("logout");
-			final ActivitySettings activity = (ActivitySettings) getActivity();
-			User me = App.getInstance().getCore().getLocalApi().getUser();
+			User me = App.getInstance().getApi().getStore().getUser();
 			logout.setTitle(me == null || me.getId() == 0 ? "登入" : "登出");
 
 			logout.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

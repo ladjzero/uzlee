@@ -39,7 +39,6 @@ public class ActivityLogin extends ActionBarActivity {
 	Spinner spn;
 	@Bind(R.id.logo)
 	View logo;
-	private LocalApi mLocalApi;
 	private User mUser;
 
 	@OnClick(R.id.login)
@@ -105,15 +104,10 @@ public class ActivityLogin extends ActionBarActivity {
 		setContentView(R.layout.activity_login);
 		ButterKnife.bind(this);
 
-
-		Core core = ((App) getApplication()).getCore();
-
-		mLocalApi = core.getLocalApi();
-
 		Animation animation = AnimationUtils.loadAnimation(this, R.anim.rotate);
 		logo.setAnimation(animation);
 
-		User user = mLocalApi.getUser();
+		User user = App.getInstance().getApi().getStore().getUser();
 
 		if (user != null && user.getId() > 0) {
 			Utils.replaceActivity(this, ActivityMain.class);

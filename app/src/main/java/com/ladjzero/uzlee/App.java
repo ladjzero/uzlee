@@ -29,25 +29,14 @@ import java.util.List;
  * Created by ladjzero on 2015/1/2.
  */
 public class App extends Application {
-
 	private static App app;
-
 	private LruCache<String, String> mMemCache;
-	private Core mCore;
-	private boolean mShouldDownloadImage;
 	private SharedPreferences mPref;
 	private List<OnEventListener> mListeners;
 	private Api mApi;
 
-	private List<Forum> mFlattenForums;
-
 	public static App getInstance() {
 		return app;
-	}
-
-
-	public Core getCore() {
-		return mCore;
 	}
 
 	public Api getApi() { return mApi; }
@@ -75,7 +64,6 @@ public class App extends Application {
 		mApi = Api.getApi(this);
 		mApi.setMode(Api.Mode.LOCAL);
 		PersistenceAdapter adapter = new AndroidAdapter(this);
-		mCore = Core.initialize(adapter);
 		UilUtils.init(this);
 		mPref = PreferenceManager.getDefaultSharedPreferences(this);
 

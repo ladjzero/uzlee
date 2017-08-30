@@ -15,11 +15,8 @@ import java.util.Map;
  * Created by chenzhuo on 16-2-12.
  */
 class HttpClientApi extends HttpClient{
-	private ApiStore mStore;
-
 	public HttpClientApi(Context context) {
 		super(context);
-		mStore = ApiStore.getStore();
 	}
 
 	protected void getMentions(HttpClientCallback callback) {
@@ -67,7 +64,7 @@ class HttpClientApi extends HttpClient{
 				}
 			}
 
-			url = "http://www.hi-pda.com/forum/search.php?srchtxt=" + URLEncoder.encode(query, mStore.getCode())
+			url = "http://www.hi-pda.com/forum/search.php?srchtxt=" + URLEncoder.encode(query, getStore().getCode())
 					+ "&srchtype=title&"
 					+ "searchsubmit=true&"
 					+ "st=on&"
@@ -93,7 +90,7 @@ class HttpClientApi extends HttpClient{
 
 		try {
 			url = "http://www.hi-pda.com/forum/search.php?srchtype=title&srchtxt=&searchsubmit=true&st=on&srchuname="
-					+ URLEncoder.encode(username, mStore.getCode())
+					+ URLEncoder.encode(username, getStore().getCode())
 					+ "&srchfilter=all&srchfrom=0&before=&orderby=lastpost&ascdesc=desc&page="
 					+ page;
 
@@ -144,11 +141,11 @@ class HttpClientApi extends HttpClient{
 	}
 
 	protected void logout(final HttpClientCallback callback) {
-		get("http://www.hi-pda.com/forum/logging.php?action=logout&formhash=" + mStore.getFormhash(), new HttpClientCallback() {
+		get("http://www.hi-pda.com/forum/logging.php?action=logout&formhash=" + getStore().getFormhash(), new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
-				mStore.setUser(new User());
-				mStore.setUnread(0);
+				getStore().setUser(new User());
+				getStore().setUnread(0);
 				callback.onSuccess(response);
 			}
 
@@ -163,7 +160,7 @@ class HttpClientApi extends HttpClient{
 		String url = "http://www.hi-pda.com/forum/pm.php?action=send&pmsubmit=yes&infloat=yes&sendnew=yes";
 
 		Map<String, String> params = new HashMap();
-		params.put("formhash", mStore.getFormhash());
+		params.put("formhash", getStore().getFormhash());
 		params.put("msgto", name);
 		params.put("message", message);
 		params.put("pmsubmit", "true");
@@ -175,7 +172,7 @@ class HttpClientApi extends HttpClient{
 		String url = "http://www.hi-pda.com/forum/post.php?action=newthread&fid=" + fid + "&extra=&topicsubmit=yes";
 
 		Map<String, String> params = new HashMap();
-		params.put("formhash", mStore.getFormhash());
+		params.put("formhash", getStore().getFormhash());
 		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
 		params.put("wysiwyg", "1");
 		params.put("iconid", "");
@@ -197,7 +194,7 @@ class HttpClientApi extends HttpClient{
 		String url = "http://www.hi-pda.com/forum/post.php?action=reply&fid=57&tid=" + tid + "&extra=&replysubmit=yes";
 
 		Map<String, String> params = new HashMap<>();
-		params.put("formhash", mStore.getFormhash());
+		params.put("formhash", getStore().getFormhash());
 		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
 		params.put("subject", "");
 		params.put("wysiwyg", "1");
@@ -226,7 +223,7 @@ class HttpClientApi extends HttpClient{
 		String url = "http://www.hi-pda.com/forum/post.php?action=edit&extra=&editsubmit=yes&mod=";
 
 		Map<String, String> params = new HashMap<>();
-		params.put("formhash", mStore.getFormhash());
+		params.put("formhash", getStore().getFormhash());
 		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
 		params.put("wysiwyg", "1");
 		params.put("page", "1");
@@ -259,7 +256,7 @@ class HttpClientApi extends HttpClient{
 		String url = "http://www.hi-pda.com/forum/post.php?action=edit&extra=&editsubmit=yes&mod=";
 
 		Map<String, String> params = new HashMap<>();
-		params.put("formhash", mStore.getFormhash());
+		params.put("formhash", getStore().getFormhash());
 		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
 		params.put("wysiwyg", "1");
 		params.put("iconid", "0");
@@ -285,8 +282,8 @@ class HttpClientApi extends HttpClient{
 		get("http://www.hi-pda.com/forum/post.php?action=newthread&fid=57", new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
-				User user = mStore.getUser();
-				String hash = mStore.getHash();
+				User user = getStore().getUser();
+				String hash = getStore().getHash();
 
 				if (hash == null || hash.length() == 0) {
 					callback.onFailure("error: fail to get hash string.");
@@ -305,7 +302,7 @@ class HttpClientApi extends HttpClient{
 
 				Map<String, String> params = new HashMap<String, String>();
 				params.put("uid", String.valueOf(user.getId()));
-				params.put("hash", mStore.getHash());
+				params.put("hash", getStore().getHash());
 				params.put("filename", imageFile.getName());
 
 				Map<String, File> files = new HashMap<String, File>();
@@ -334,7 +331,7 @@ class HttpClientApi extends HttpClient{
 	}
 
 	protected void getRawMessages(HttpClientCallback callback) {
-		User user = mStore.getUser();
+		User user = getStore().getUser();
 		get("http://www.hi-pda.com/forum/pm.php?uid=" + user.getId() + "&filter=privatepm&daterange=5", callback);
 	}
 }

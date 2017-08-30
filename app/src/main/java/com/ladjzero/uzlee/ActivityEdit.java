@@ -137,7 +137,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 		if (isNewThread) {
 			subjectInput.setVisibility(View.VISIBLE);
 		} else {
-			if (uid != App.getInstance().getCore().getLocalApi().getUser().getId()) {
+			if (uid != App.getInstance().getApi().getStore().getUser().getId()) {
 				//reply
 				subjectInput.setVisibility(View.GONE);
 			} else if (no != 1) {
