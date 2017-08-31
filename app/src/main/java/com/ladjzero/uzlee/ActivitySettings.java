@@ -111,7 +111,7 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 			});
 
 			Preference logout = findPreference("logout");
-			User me = App.getInstance().getApi().getStore().getUser();
+			User me = App.getInstance().getApi().getStore().getMeta().getUser();
 			logout.setTitle(me == null || me.getId() == 0 ? "登入" : "登出");
 
 			logout.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -121,7 +121,7 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 						@Override
 						public void onRespond(Response res) {
 							if (res.isSuccess()) {
-								App.getInstance().getApi().getCookieStore().clear();
+								App.getInstance().getApi().clearCookie();
 								Utils.gotoActivity(mActivity, ActivityLogin.class,
 										Intent.FLAG_ACTIVITY_TASK_ON_HOME |
 												Intent.FLAG_ACTIVITY_NEW_TASK |

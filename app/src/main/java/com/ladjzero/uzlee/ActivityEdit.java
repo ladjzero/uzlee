@@ -27,7 +27,6 @@ import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.api.OnRespondCallback;
 import com.ladjzero.hipda.entities.Post;
 import com.ladjzero.hipda.api.Response;
-import com.ladjzero.uzlee.api.HttpClientCallback;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.EmojiUtils;
 import com.ladjzero.uzlee.utils.Utils;
@@ -46,7 +45,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 
-public class ActivityEdit extends ActivityHardSlide implements HttpClientCallback, OnRespondCallback {
+public class ActivityEdit extends ActivityHardSlide implements OnRespondCallback {
 	public static final int EDIT_SUCCESS = 10;
 	private static final int SELECT_PHOTO = 100;
 	int tid;
@@ -137,7 +136,7 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 		if (isNewThread) {
 			subjectInput.setVisibility(View.VISIBLE);
 		} else {
-			if (uid != App.getInstance().getApi().getStore().getUser().getId()) {
+			if (uid != App.getInstance().getApi().getStore().getMeta().getUser().getId()) {
 				//reply
 				subjectInput.setVisibility(View.GONE);
 			} else if (no != 1) {
@@ -410,20 +409,6 @@ public class ActivityEdit extends ActivityHardSlide implements HttpClientCallbac
 				cursor.close();
 			}
 		}
-	}
-
-	@Override
-	public void onSuccess(String response) {
-		mSaveDraft = false;
-		Intent returnIntent = new Intent();
-		returnIntent.putExtra("posts-html", response);
-		setResult(EDIT_SUCCESS, returnIntent);
-		finish();
-	}
-
-	@Override
-	public void onFailure(String reason) {
-		showToast(reason);
 	}
 
 	public void addEmoji(View v) {

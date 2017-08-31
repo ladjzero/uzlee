@@ -98,6 +98,4 @@ public abstract class Parser implements Parsable, ParserMatcher {
 
 		return new Tuple<>(doc, meta);
 	}
-
-
 }

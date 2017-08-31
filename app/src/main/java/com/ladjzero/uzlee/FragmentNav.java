@@ -28,7 +28,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class FragmentNav extends FragmentBase implements Observer {
+public class FragmentNav extends FragmentBase {
 	/**
 	 * Remember the position of the selected item.
 	 */
@@ -94,8 +94,6 @@ public class FragmentNav extends FragmentBase implements Observer {
 			mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
 			mFromSavedInstanceState = true;
 		}
-
-		App.getInstance().getApi().getStore().addObserver(this);
 	}
 
 	@Override
@@ -103,20 +101,6 @@ public class FragmentNav extends FragmentBase implements Observer {
 		View view = inflater.inflate(R.layout.nav, container, false);
 		ButterKnife.bind(this, view);
 		return view;
-	}
-
-	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
-		App.getInstance().getApi().getStore().deleteObserver(this);
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		ApiStore store = App.getInstance().getApi().getStore();
-		update(store, "user");
-		update(store, "unread");
 	}
 
 	@Override
@@ -202,13 +186,12 @@ public class FragmentNav extends FragmentBase implements Observer {
 		return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mFragmentContainerView);
 	}
 
-	@Override
 	public void update(Observable observable, final Object o) {
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				if ("user".equals(o)) {
-					mUser = App.getInstance().getApi().getStore().getUser();
+					mUser = App.getInstance().getApi().getStore().getMeta().getUser();
 					final boolean visible = mUser != null && mUser.getId() != 0;
 
 					message.setVisibility(visible ? View.VISIBLE : View.GONE);
@@ -226,27 +209,11 @@ public class FragmentNav extends FragmentBase implements Observer {
 						}
 					}, 300);
 				} else if ("unread".equals(o)) {
-					int unread = App.getInstance().getApi().getStore().getUnread();
+					int unread = App.getInstance().getApi().getStore().getMeta().getUnread();
 
 					mAlertIcon.setTextColor(unread == 0 ?
 							Utils.getThemeColor(mContext, R.attr.colorText) :
 							Utils.getColor(mContext, R.color.commentNoBg));
-
-					// To-do next version.
-//					if (unread > 0) {
-//						NotificationUtils.Notification noti = new NotificationUtils.Notification();
-//						noti.intent = new Intent(getActivity(), ActivityAlerts.class);
-//						noti.title = "你有新消息";
-//						noti.text = unread + "条未读消息";
-//						try {
-//							Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-//							Ringtone r = RingtoneManager.getRingtone(getActivity(), notification);
-//							r.play();
-//						} catch (Exception e) {
-//							e.printStackTrace();
-//						}
-//						NotificationUtils.nofity(getActivity(), noti);
-//					}
 				}
 			}
 		});

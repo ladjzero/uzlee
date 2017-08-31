@@ -126,7 +126,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	// Menu item click.
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		if (getInstance().getApi().getStore().getUser().getId() == 0) {
+		if (getInstance().getApi().getStore().getMeta().getUser().getId() == 0) {
 			switch (position) {
 				case 0:
 					fetch(mPage);
@@ -174,7 +174,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 										@Override
 										public void onClick(View v) {
 											dialog.dismiss();
-											App.getInstance().getApi().removeFromFavoriate(mTid, new OnRespondCallback() {
+											App.getInstance().getApi().removeFromFavorite(mTid, new OnRespondCallback() {
 												@Override
 												public void onRespond(Response res) {
 													showToast(res.getData().toString());
@@ -224,7 +224,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 
 		try {
-			myid = App.getInstance().getApi().getStore().getUser().getId();
+			myid = App.getInstance().getApi().getStore().getMeta().getUser().getId();
 		} catch (Exception e) {
 		}
 
@@ -265,7 +265,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		this.setContentView(R.layout.activity_posts);
 		ButterKnife.bind(this);
 
-		if (getInstance().getApi().getStore().getUser().getId() == 0) {
+		if (getInstance().getApi().getStore().getMeta().getUser().getId() == 0) {
 			mQuickReplyLayout.setVisibility(View.INVISIBLE);
 		}
 
@@ -321,7 +321,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mMenuDialog = new Dialog(this);
 		ListView menuList = (ListView) mMenuView.findViewById(R.id.actions);
 
-		if (getInstance().getApi().getStore().getUser().getId() == 0) {
+		if (getInstance().getApi().getStore().getMeta().getUser().getId() == 0) {
 			actionsAdapter = new AdapterMenuItem(this, new String[]{
 					"刷新",
 					"复制链接",
@@ -569,7 +569,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		if (getWebView().finishActionMode()) return;
 
 		if (ms == 0) {
-			User me = App.getInstance().getApi().getStore().getUser();
+			User me = App.getInstance().getApi().getStore().getMeta().getUser();
 
 			if (me == null || me.getId() == 0) {
 				showToast(getResources().getString(R.string.error_login_required));

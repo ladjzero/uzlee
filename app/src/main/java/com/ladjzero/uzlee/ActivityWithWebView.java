@@ -32,7 +32,7 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 	public void onProfileClick(int uid, String name) {
 		if (getWebView().finishActionMode()) return;
 
-		User me = App.getInstance().getApi().getStore().getUser();
+		User me = App.getInstance().getApi().getStore().getMeta().getUser();
 
 		if (me == null || me.getId() == 0) {
 			showToast(getResources().getString(R.string.error_login_required));

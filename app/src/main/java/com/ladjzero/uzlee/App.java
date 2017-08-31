@@ -85,7 +85,7 @@ public class App extends Application {
 	}
 
 	public List<Forum> getUserFlattenForums() {
-		final User me = getInstance().getApi().getStore().getUser();
+		final User me = getInstance().getApi().getStore().getMeta().getUser();
 		List<Forum> forums = getFlattenForums();
 
 		CollectionUtils.filter(forums, new Predicate() {

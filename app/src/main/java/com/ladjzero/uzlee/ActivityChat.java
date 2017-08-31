@@ -19,7 +19,6 @@ import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.api.OnRespondCallback;
 import com.ladjzero.hipda.entities.Posts;
 import com.ladjzero.hipda.api.Response;
-import com.ladjzero.uzlee.api.HttpClientCallback;
 import com.ladjzero.uzlee.utils.Utils;
 import com.orhanobut.logger.Logger;
 

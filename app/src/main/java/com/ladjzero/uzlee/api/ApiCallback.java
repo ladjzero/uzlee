@@ -36,11 +36,7 @@ class ApiCallback implements HttpClientCallback {
                 Response.Meta meta = res.getMeta();
 
                 if (meta != null) {
-                    store.setUser(meta.getUser());
-                    store.setCode(meta.getCode());
-                    store.setFormhash(meta.getFormhash());
-                    store.setHash(meta.getHash());
-                    store.setUnread(meta.getUnread());
+                    store.setMeta(meta);
                 }
 
                 onRespondCallback.onRespond(res);

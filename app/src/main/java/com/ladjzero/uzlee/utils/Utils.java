@@ -294,7 +294,7 @@ public class Utils {
 	public static List<Forum> getUserSelectedForums(ActivityBase context) {
 		List<Integer> selectedForumIds = getAllSelectedForumIds(context);
 		final List<Forum> allForums = getAllForums(context);
-		final User me = App.getInstance().getApi().getStore().getUser();
+		final User me = App.getInstance().getApi().getStore().getMeta().getUser();
 
 		ArrayList<Forum> ret = new ArrayList<>();
 

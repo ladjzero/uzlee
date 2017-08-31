@@ -7,12 +7,15 @@ import com.ladjzero.hipda.parsers.EditablePostParser;
 import com.ladjzero.hipda.parsers.ExistedAttachParser;
 import com.ladjzero.hipda.parsers.FavoritesParser;
 import com.ladjzero.hipda.parsers.JsonParser;
+import com.ladjzero.hipda.parsers.LoggingParser;
 import com.ladjzero.hipda.parsers.MarkedThreadsParser;
 import com.ladjzero.hipda.parsers.MentionsParser;
+import com.ladjzero.hipda.parsers.NullParser;
 import com.ladjzero.hipda.parsers.OwnPostsParser;
 import com.ladjzero.hipda.parsers.OwnThreadsParser;
 import com.ladjzero.hipda.parsers.Parsable;
 import com.ladjzero.hipda.parsers.ParserMatcher;
+import com.ladjzero.hipda.parsers.PostEditingParser;
 import com.ladjzero.hipda.parsers.PostsParser;
 import com.ladjzero.hipda.parsers.RawMessagesParser;
 import com.ladjzero.hipda.parsers.ThreadsParser;
@@ -44,12 +47,18 @@ public class Api extends HttpClientApi {
 			return new JsonParser();
 		}
 
-		return (Parsable) CollectionUtils.find(mParsers, new Predicate() {
+		Object parser = CollectionUtils.find(mParsers, new Predicate() {
 			@Override
 			public boolean evaluate(Object o) {
 				return ((ParserMatcher) o).test(urlPattern);
 			}
 		});
+
+		if (parser == null) {
+			return new NullParser();
+		}
+
+		return (Parsable) parser;
 	}
 
 	public enum Mode{ REMOTE, LOCAL }
@@ -61,10 +70,12 @@ public class Api extends HttpClientApi {
 						new EditablePostParser(),
 						new ExistedAttachParser(),
 						new FavoritesParser(),
+						new LoggingParser(),
 						new MarkedThreadsParser(),
 						new MentionsParser(),
 						new OwnPostsParser(),
 						new OwnThreadsParser(),
+						new PostEditingParser(),
 						new PostsParser(),
 						new RawMessagesParser(),
 						new ThreadsParser(),

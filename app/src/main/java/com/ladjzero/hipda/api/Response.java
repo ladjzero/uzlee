@@ -72,7 +72,7 @@ public class Response implements Serializable {
 		}
 
 		public User getUser() {
-			return user;
+			return user == null ? new User() : user;
 		}
 
 		public void setUser(User user) {

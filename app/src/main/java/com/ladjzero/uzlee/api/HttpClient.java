@@ -8,7 +8,6 @@ import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
 
 import org.apache.http.Header;
-import org.apache.http.client.CookieStore;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,7 +18,7 @@ import java.util.Map;
  */
 class HttpClient {
 	private AsyncHttpClient mAsyncHttpClient;
-	private CookieStore mCookieStore;
+	private PersistentCookieStore mCookieStore;
 
 	public ApiStore getStore() {
 		return mStore;
@@ -27,8 +26,8 @@ class HttpClient {
 
 	private ApiStore mStore;
 
-	public String getCode() {
-		return mStore.getCode();
+	private String getCode() {
+		return mStore.getMeta().getCode();
 	}
 
 	public HttpClient(Context context) {
@@ -38,8 +37,8 @@ class HttpClient {
 		mAsyncHttpClient.setCookieStore(mCookieStore);
 	}
 
-	public CookieStore getCookieStore() {
-		return mCookieStore;
+	public void clearCookie() {
+		mCookieStore.clear();
 	}
 
 	public void get(String url, final HttpClientCallback callback) {

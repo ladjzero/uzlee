@@ -84,7 +84,7 @@ public class ActivityUser extends ActivityEasySlide {
 					final User user = (User) res.getData();
 					ActivityUser.this.mUser = user;
 
-					if (user.getId() != App.getInstance().getApi().getStore().getUser().getId()) {
+					if (user.getId() != App.getInstance().getApi().getStore().getMeta().getUser().getId()) {
 						chat.setVisibility(View.VISIBLE);
 					}
 

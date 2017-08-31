@@ -28,6 +28,9 @@ public class EditablePostParser extends Parser{
 
     @Override
     boolean test(List<String> paths, Map<String, String> query) {
-        return paths.contains("post.php") && "edit".equals(query.get("action"));
+        String editsubmit = query.get("editsubmit");
+        String action = query.get("action");
+
+        return paths.contains("post.php") && "edit".equals(action) && editsubmit == null;
     }
 }

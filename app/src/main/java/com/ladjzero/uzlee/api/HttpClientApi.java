@@ -82,7 +82,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 				}
 			}
 
-			url = "http://www.hi-pda.com/forum/search.php?srchtxt=" + URLEncoder.encode(query, getStore().getCode())
+			url = "http://www.hi-pda.com/forum/search.php?srchtxt=" + URLEncoder.encode(query, getStore().getMeta().getCode())
 					+ "&srchtype=title&"
 					+ "searchsubmit=true&"
 					+ "st=on&"
@@ -111,7 +111,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 
 		try {
 			url = "http://www.hi-pda.com/forum/search.php?srchtype=title&srchtxt=&searchsubmit=true&st=on&srchuname="
-					+ URLEncoder.encode(username, getStore().getCode())
+					+ URLEncoder.encode(username, getStore().getMeta().getCode())
 					+ "&srchfilter=all&srchfrom=0&before=&orderby=lastpost&ascdesc=desc&page="
 					+ page;
 
@@ -132,7 +132,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 		get(url, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	public void removeFromFavoriate(int tid, OnRespondCallback callback) {
+	public void removeFromFavorite(int tid, OnRespondCallback callback) {
 		final String url = "http://www.hi-pda.com/forum/my.php?item=favorites&action=remove&tid=" + tid + "&inajax=1&ajaxtarget=favorite_msg";
 
 		get(url, new ApiCallback(this, getParserByUrl(url), callback));
@@ -141,6 +141,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 	public void login(String username, String password, int questionId, String answer, final OnRespondCallback callback) {
 		Map<String, String> params = new HashMap();
 		final Response res = new Response();
+		final String url = "http://www.hi-pda.com/forum/logging.php?action=login&loginsubmit=yes";
 		params.put("sid", "fa6m4o");
 		params.put("formhash", "ad793a3f");
 		params.put("loginfield", "username");
@@ -150,49 +151,13 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 		params.put("answer", answer);
 		params.put("loginsubmit", "true");
 
-		post("http://www.hi-pda.com/forum/logging.php?action=login&loginsubmit=yes", params, null, new HttpClientCallback() {
-			@Override
-			public void onSuccess(String response) {
-				if (response.contains("欢迎您回来")) {
-					callback.onRespond(res);
-				} else if (response.contains("密码错误次数过多，请 15 分钟后重新登录")) {
-					res.setSuccess(false);
-					res.setData("密码错误次数过多，请 15 分钟后重新登录");
-				} else {
-					res.setSuccess(false);
-					res.setData("登录错误");
-				}
-
-				callback.onRespond(res);
-			}
-
-			@Override
-			public void onFailure(String reason) {
-				res.setSuccess(false);
-				res.setData(reason);
-				callback.onRespond(res);
-			}
-		});
+		post(url, params, null, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
 	public void logout(final OnRespondCallback callback) {
-		final Response res = new Response();
+		final String url = "http://www.hi-pda.com/forum/logging.php?action=logout&formhash=" + getStore().getMeta().getFormhash();
 		
-		get("http://www.hi-pda.com/forum/logging.php?action=logout&formhash=" + getStore().getFormhash(), new HttpClientCallback() {
-			@Override
-			public void onSuccess(String response) {
-				getStore().setUser(new User());
-				getStore().setUnread(0);
-				callback.onRespond(res);
-			}
-
-			@Override
-			public void onFailure(String reason) {
-				res.setSuccess(false);
-				res.setData(reason);
-				callback.onRespond(res);
-			}
-		});
+		get(url, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
 	public void sendMessage(String name, String message, final OnRespondCallback callback) {
@@ -200,31 +165,19 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 		final Response res = new Response();
 
 		Map<String, String> params = new HashMap();
-		params.put("formhash", getStore().getFormhash());
+		params.put("formhash", getStore().getMeta().getFormhash());
 		params.put("msgto", name);
 		params.put("message", message);
 		params.put("pmsubmit", "true");
 
-		post(url, params, null, new HttpClientCallback() {
-			@Override
-			public void onSuccess(String response) {
-				callback.onRespond(res);
-			}
-
-			@Override
-			public void onFailure(String reason) {
-				res.setSuccess(false);
-				res.setData(reason);
-				callback.onRespond(res);
-			}
-		});
+		post(url, params, null, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
 	public void newThread(int fid, String subject, String message, ArrayList<Integer> attachIds, OnRespondCallback callback) {
 		final String url = "http://www.hi-pda.com/forum/post.php?action=newthread&fid=" + fid + "&extra=&topicsubmit=yes";
 
 		Map<String, String> params = new HashMap();
-		params.put("formhash", getStore().getFormhash());
+		params.put("formhash", getStore().getMeta().getFormhash());
 		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
 		params.put("wysiwyg", "1");
 		params.put("iconid", "");
@@ -242,11 +195,11 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 		post(url, params, null, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	public void sendReply(int tid, String content, ArrayList<Integer> attachIds, ArrayList<Integer> existedAttchIds, OnRespondCallback callback) {
+	public void sendReply(int tid, String content, ArrayList<Integer> attachIds, ArrayList<Integer> existedAttachIds, OnRespondCallback callback) {
 		final String url = "http://www.hi-pda.com/forum/post.php?action=reply&fid=57&tid=" + tid + "&extra=&replysubmit=yes";
 
 		Map<String, String> params = new HashMap<>();
-		params.put("formhash", getStore().getFormhash());
+		params.put("formhash", getStore().getMeta().getFormhash());
 		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
 		params.put("subject", "");
 		params.put("wysiwyg", "1");
@@ -262,8 +215,8 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 			}
 		}
 
-		if (existedAttchIds != null) {
-			for (Integer id : existedAttchIds) {
+		if (existedAttachIds != null) {
+			for (Integer id : existedAttachIds) {
 				params.put("attachdel[]", String.valueOf(id));
 			}
 		}
@@ -275,7 +228,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 		String url = "http://www.hi-pda.com/forum/post.php?action=edit&extra=&editsubmit=yes&mod=";
 
 		Map<String, String> params = new HashMap<>();
-		params.put("formhash", getStore().getFormhash());
+		params.put("formhash", getStore().getMeta().getFormhash());
 		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
 		params.put("wysiwyg", "1");
 		params.put("page", "1");
@@ -287,34 +240,14 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 		params.put("tid", String.valueOf(tid));
 		params.put("pid", String.valueOf(pid));
 
-		post(url, params, null, new HttpClientCallback() {
-			@Override
-			public void onSuccess(String response) {
-				if (response.contains("未定义操作，请返回。")) {
-					onFailure("未定义操作");
-				} else {
-					Response res = new Response();
-					res.setSuccess(false);
-					res.setData(response);
-					callback.onRespond(res);
-				}
-			}
-
-			@Override
-			public void onFailure(String reason) {
-				Response res = new Response();
-				res.setSuccess(false);
-				res.setData(reason);
-				callback.onRespond(res);
-			}
-		});
+		post(url, params, null, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
 	public void editPost(int fid, int tid, int pid, String subject, String message, ArrayList<Integer> attachIds, OnRespondCallback callback) {
 		String url = "http://www.hi-pda.com/forum/post.php?action=edit&extra=&editsubmit=yes&mod=";
 
 		Map<String, String> params = new HashMap<>();
-		params.put("formhash", getStore().getFormhash());
+		params.put("formhash", getStore().getMeta().getFormhash());
 		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
 		params.put("wysiwyg", "1");
 		params.put("iconid", "0");
@@ -337,65 +270,48 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 	}
 
 	public void uploadImage(final File imageFile, final OnRespondCallback callback) {
-		final Response res = new Response();
-		
-		get("http://www.hi-pda.com/forum/post.php?action=newthread&fid=57", new HttpClientCallback() {
+		getExistedAttach(new OnRespondCallback() {
 			@Override
-			public void onSuccess(String response) {
-				User user = getStore().getUser();
-				String hash = getStore().getHash();
+			public void onRespond(Response res) {
+				if (res.isSuccess()) {
+					User user = getStore().getMeta().getUser();
+					String hash = getStore().getMeta().getHash();
 
-				if (hash == null || hash.length() == 0) {
-					res.setSuccess(false);
-					res.setData("error: fail to get hash string.");
-					callback.onRespond(res);
-					return;
-				}
-
-				if (user == null) {
-					res.setSuccess(false);
-					res.setData("error: fail to get user.");
-					callback.onRespond(res);
-					return;
-				}
-
-				if (!(imageFile.isFile() && imageFile.exists())) {
-					res.setSuccess(false);
-					res.setData("error: fail to open image file.");
-					callback.onRespond(res);
-					return;
-				}
-
-				Map<String, String> params = new HashMap<String, String>();
-				params.put("uid", String.valueOf(user.getId()));
-				params.put("hash", getStore().getHash());
-				params.put("filename", imageFile.getName());
-
-				Map<String, File> files = new HashMap<String, File>();
-				files.put("Filedata", imageFile);
-
-				String url = "http://www.hi-pda.com/forum/misc.php?action=swfupload&operation=upload&simple=1&type=image";
-
-				post(url, params, files, new HttpClientCallback() {
-					@Override
-					public void onSuccess(String response) {
-						callback.onRespond(res);
-					}
-
-					@Override
-					public void onFailure(String reason) {
+					if (hash == null || hash.length() == 0) {
 						res.setSuccess(false);
-						res.setData(reason);
+						res.setData("error: fail to get hash string.");
 						callback.onRespond(res);
+						return;
 					}
-				});
-			}
 
-			@Override
-			public void onFailure(String reason) {
-				res.setSuccess(false);
-				res.setData(reason);
-				callback.onRespond(res);
+					if (user == null) {
+						res.setSuccess(false);
+						res.setData("error: fail to get user.");
+						callback.onRespond(res);
+						return;
+					}
+
+					if (!(imageFile.isFile() && imageFile.exists())) {
+						res.setSuccess(false);
+						res.setData("error: fail to open image file.");
+						callback.onRespond(res);
+						return;
+					}
+
+					Map<String, String> params = new HashMap<String, String>();
+					params.put("uid", String.valueOf(user.getId()));
+					params.put("hash", getStore().getMeta().getHash());
+					params.put("filename", imageFile.getName());
+
+					Map<String, File> files = new HashMap<String, File>();
+					files.put("Filedata", imageFile);
+
+					String url = "http://www.hi-pda.com/forum/misc.php?action=swfupload&operation=upload&simple=1&type=image";
+
+					post(url, params, files, new ApiCallback(HttpClientApi.this, getParserByUrl(url), callback));
+				} else {
+					callback.onRespond(res);
+				}
 			}
 		});
 	}
@@ -413,7 +329,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 	}
 
 	public void getRawMessages(OnRespondCallback callback) {
-		User user = getStore().getUser();
+		User user = getStore().getMeta().getUser();
 		final String url = "http://www.hi-pda.com/forum/pm.php?uid=" + user.getId() + "&filter=privatepm&daterange=5";
 		
 		get(url, new ApiCallback(this, getParserByUrl(url), callback));
