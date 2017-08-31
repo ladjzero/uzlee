@@ -2,6 +2,8 @@ package com.ladjzero.uzlee.api;
 
 import android.content.Context;
 
+import com.ladjzero.hipda.api.OnRespondCallback;
+import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.User;
 
 import java.io.File;
@@ -14,45 +16,61 @@ import java.util.Map;
 /**
  * Created by chenzhuo on 16-2-12.
  */
-class HttpClientApi extends HttpClient{
+abstract class HttpClientApi extends HttpClient implements ParserProvider {
 	public HttpClientApi(Context context) {
 		super(context);
 	}
 
-	protected void getMentions(HttpClientCallback callback) {
-		get("http://www.hi-pda.com/forum/notice.php", callback);
+	public void getPosts(String url, OnRespondCallback callback) {
+		get(url, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	protected void getMessages(HttpClientCallback callback) {
-		get("http://www.hi-pda.com/forum/pm.php?filter=privatepm", callback);
+	public void getMentions(OnRespondCallback callback) {
+		final String url = "http://www.hi-pda.com/forum/notice.php";
+
+		get(url, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	protected void getOwnPosts(int page, HttpClientCallback callback) {
-		get("http://www.hi-pda.com/forum/my.php?item=posts&page=" + page, callback);
+	public void getMessages(OnRespondCallback callback) {
+		final String url = "http://www.hi-pda.com/forum/pm.php?filter=privatepm";
+
+		get(url, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	protected void getOwnThreads(int page, HttpClientCallback callback) {
-		get("http://www.hi-pda.com/forum/my.php?item=threads&page" + page, callback);
+	public void getOwnPosts(int page, OnRespondCallback callback) {
+		final String url = "http://www.hi-pda.com/forum/my.php?item=posts&page=" + page;
+
+		get(url, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	protected void getMarkedThreads(int page, HttpClientCallback callback) {
-		get("http://www.hi-pda.com/forum/my.php?item=favorites&type=thread&page=" + page, callback);
+	public void getOwnThreads(int page, OnRespondCallback callback) {
+		final String url = "http://www.hi-pda.com/forum/my.php?item=threads&page" + page;
+
+		get(url, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	protected void getThreads(int page, int fid, int typeid, String order, HttpClientCallback callback) {
-		String url = "http://www.hi-pda.com/forum/forumdisplay.php?fid=" + fid
+	public void getMarkedThreads(int page, OnRespondCallback callback) {
+		final String url = "http://www.hi-pda.com/forum/my.php?item=favorites&type=thread&page=" + page;
+
+		get(url, new ApiCallback(this, getParserByUrl(url), callback));
+	}
+
+	public void getThreads(int page, int fid, int typeid, String order, OnRespondCallback callback) {
+		final String url = "http://www.hi-pda.com/forum/forumdisplay.php?fid=" + fid
 				+ "&page=" + page
 				+ "&filter=type&typeid=" + typeid
 				+ "&orderby=" + order;
 
-		get(url, callback);
+		get(url, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	protected void getExistedAttach(HttpClientCallback callback) {
-		get("http://www.hi-pda.com/forum/post.php?action=newthread&fid=57", callback);
+	public void getExistedAttach(OnRespondCallback callback) {
+		final String url = "http://www.hi-pda.com/forum/post.php?action=newthread&fid=57";
+
+		get(url, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	protected void searchThreads(String query, int page, int[] fids, HttpClientCallback callback) {
+	public void searchThreads(String query, int page, int[] fids, OnRespondCallback callback) {
 		String url = null;
 
 		try {
@@ -79,13 +97,16 @@ class HttpClientApi extends HttpClient{
 					+ "page=" + page;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
-			callback.onFailure(e.toString());
+			Response res = new Response();
+			res.setSuccess(false);
+			res.setData(e.toString());
+			callback.onRespond(res);
 		}
 
-		if (url != null) get(url, callback);
+		if (url != null) get(url, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	protected void searchUserThreads(String username, int page, HttpClientCallback callback) {
+	public void searchUserThreads(String username, int page, OnRespondCallback callback) {
 		String url = null;
 
 		try {
@@ -96,22 +117,30 @@ class HttpClientApi extends HttpClient{
 
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
-			callback.onFailure(e.toString());
+			Response res = new Response();
+			res.setSuccess(false);
+			res.setData(e.toString());
+			return;
 		}
 
-		if (url != null) get(url, callback);
+		if (url != null) get(url, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	protected void addToFavorite(int tid, HttpClientCallback callback) {
-		get("http://www.hi-pda.com/forum/my.php?item=favorites&tid=" + tid + "&inajax=1&ajaxtarget=favorite_msg", callback);
+	public void addToFavorite(int tid, OnRespondCallback callback) {
+		final String url = "http://www.hi-pda.com/forum/my.php?item=favorites&tid=" + tid + "&inajax=1&ajaxtarget=favorite_msg";
+
+		get(url, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	protected void removeFromFavoriate(int tid, HttpClientCallback callback) {
-		get("http://www.hi-pda.com/forum/my.php?item=favorites&action=remove&tid=" + tid + "&inajax=1&ajaxtarget=favorite_msg", callback);
+	public void removeFromFavoriate(int tid, OnRespondCallback callback) {
+		final String url = "http://www.hi-pda.com/forum/my.php?item=favorites&action=remove&tid=" + tid + "&inajax=1&ajaxtarget=favorite_msg";
+
+		get(url, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	protected void login(String username, String password, int questionId, String answer, final HttpClientCallback callback) {
+	public void login(String username, String password, int questionId, String answer, final OnRespondCallback callback) {
 		Map<String, String> params = new HashMap();
+		final Response res = new Response();
 		params.put("sid", "fa6m4o");
 		params.put("formhash", "ad793a3f");
 		params.put("loginfield", "username");
@@ -125,39 +154,50 @@ class HttpClientApi extends HttpClient{
 			@Override
 			public void onSuccess(String response) {
 				if (response.contains("欢迎您回来")) {
-					callback.onSuccess(response);
+					callback.onRespond(res);
 				} else if (response.contains("密码错误次数过多，请 15 分钟后重新登录")) {
-					callback.onFailure("密码错误次数过多，请 15 分钟后重新登录");
+					res.setSuccess(false);
+					res.setData("密码错误次数过多，请 15 分钟后重新登录");
 				} else {
-					callback.onFailure("登录错误");
+					res.setSuccess(false);
+					res.setData("登录错误");
 				}
+
+				callback.onRespond(res);
 			}
 
 			@Override
 			public void onFailure(String reason) {
-				callback.onFailure(reason);
+				res.setSuccess(false);
+				res.setData(reason);
+				callback.onRespond(res);
 			}
 		});
 	}
 
-	protected void logout(final HttpClientCallback callback) {
+	public void logout(final OnRespondCallback callback) {
+		final Response res = new Response();
+		
 		get("http://www.hi-pda.com/forum/logging.php?action=logout&formhash=" + getStore().getFormhash(), new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
 				getStore().setUser(new User());
 				getStore().setUnread(0);
-				callback.onSuccess(response);
+				callback.onRespond(res);
 			}
 
 			@Override
 			public void onFailure(String reason) {
-				callback.onFailure(reason);
+				res.setSuccess(false);
+				res.setData(reason);
+				callback.onRespond(res);
 			}
 		});
 	}
 
-	protected void sendMessage(String name, String message, HttpClientCallback callback) {
+	public void sendMessage(String name, String message, final OnRespondCallback callback) {
 		String url = "http://www.hi-pda.com/forum/pm.php?action=send&pmsubmit=yes&infloat=yes&sendnew=yes";
+		final Response res = new Response();
 
 		Map<String, String> params = new HashMap();
 		params.put("formhash", getStore().getFormhash());
@@ -165,11 +205,23 @@ class HttpClientApi extends HttpClient{
 		params.put("message", message);
 		params.put("pmsubmit", "true");
 
-		post(url, params, null, callback);
+		post(url, params, null, new HttpClientCallback() {
+			@Override
+			public void onSuccess(String response) {
+				callback.onRespond(res);
+			}
+
+			@Override
+			public void onFailure(String reason) {
+				res.setSuccess(false);
+				res.setData(reason);
+				callback.onRespond(res);
+			}
+		});
 	}
 
-	protected void newThread(int fid, String subject, String message, ArrayList<Integer> attachIds, HttpClientCallback callback) {
-		String url = "http://www.hi-pda.com/forum/post.php?action=newthread&fid=" + fid + "&extra=&topicsubmit=yes";
+	public void newThread(int fid, String subject, String message, ArrayList<Integer> attachIds, OnRespondCallback callback) {
+		final String url = "http://www.hi-pda.com/forum/post.php?action=newthread&fid=" + fid + "&extra=&topicsubmit=yes";
 
 		Map<String, String> params = new HashMap();
 		params.put("formhash", getStore().getFormhash());
@@ -187,11 +239,11 @@ class HttpClientApi extends HttpClient{
 			}
 		}
 
-		post(url, params, null, callback);
+		post(url, params, null, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	protected void sendReply(int tid, String content, ArrayList<Integer> attachIds, ArrayList<Integer> existedAttchIds, HttpClientCallback callback) {
-		String url = "http://www.hi-pda.com/forum/post.php?action=reply&fid=57&tid=" + tid + "&extra=&replysubmit=yes";
+	public void sendReply(int tid, String content, ArrayList<Integer> attachIds, ArrayList<Integer> existedAttchIds, OnRespondCallback callback) {
+		final String url = "http://www.hi-pda.com/forum/post.php?action=reply&fid=57&tid=" + tid + "&extra=&replysubmit=yes";
 
 		Map<String, String> params = new HashMap<>();
 		params.put("formhash", getStore().getFormhash());
@@ -216,10 +268,10 @@ class HttpClientApi extends HttpClient{
 			}
 		}
 
-		post(url, params, null, callback);
+		post(url, params, null, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	protected void deletePost(int fid, int tid, int pid, final HttpClientCallback callback) {
+	public void deletePost(int fid, int tid, int pid, final OnRespondCallback callback) {
 		String url = "http://www.hi-pda.com/forum/post.php?action=edit&extra=&editsubmit=yes&mod=";
 
 		Map<String, String> params = new HashMap<>();
@@ -241,18 +293,24 @@ class HttpClientApi extends HttpClient{
 				if (response.contains("未定义操作，请返回。")) {
 					onFailure("未定义操作");
 				} else {
-					callback.onSuccess(response);
+					Response res = new Response();
+					res.setSuccess(false);
+					res.setData(response);
+					callback.onRespond(res);
 				}
 			}
 
 			@Override
 			public void onFailure(String reason) {
-				callback.onFailure(reason);
+				Response res = new Response();
+				res.setSuccess(false);
+				res.setData(reason);
+				callback.onRespond(res);
 			}
 		});
 	}
 
-	protected void editPost(int fid, int tid, int pid, String subject, String message, ArrayList<Integer> attachIds, HttpClientCallback callback) {
+	public void editPost(int fid, int tid, int pid, String subject, String message, ArrayList<Integer> attachIds, OnRespondCallback callback) {
 		String url = "http://www.hi-pda.com/forum/post.php?action=edit&extra=&editsubmit=yes&mod=";
 
 		Map<String, String> params = new HashMap<>();
@@ -275,10 +333,12 @@ class HttpClientApi extends HttpClient{
 			}
 		}
 
-		post(url, params, null, callback);
+		post(url, params, null, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	protected void uploadImage(final File imageFile, final HttpClientCallback callback) {
+	public void uploadImage(final File imageFile, final OnRespondCallback callback) {
+		final Response res = new Response();
+		
 		get("http://www.hi-pda.com/forum/post.php?action=newthread&fid=57", new HttpClientCallback() {
 			@Override
 			public void onSuccess(String response) {
@@ -286,17 +346,23 @@ class HttpClientApi extends HttpClient{
 				String hash = getStore().getHash();
 
 				if (hash == null || hash.length() == 0) {
-					callback.onFailure("error: fail to get hash string.");
+					res.setSuccess(false);
+					res.setData("error: fail to get hash string.");
+					callback.onRespond(res);
 					return;
 				}
 
 				if (user == null) {
-					callback.onFailure("error: fail to get user.");
+					res.setSuccess(false);
+					res.setData("error: fail to get user.");
+					callback.onRespond(res);
 					return;
 				}
 
 				if (!(imageFile.isFile() && imageFile.exists())) {
-					callback.onFailure("error: fail to open image file.");
+					res.setSuccess(false);
+					res.setData("error: fail to open image file.");
+					callback.onRespond(res);
 					return;
 				}
 
@@ -310,28 +376,47 @@ class HttpClientApi extends HttpClient{
 
 				String url = "http://www.hi-pda.com/forum/misc.php?action=swfupload&operation=upload&simple=1&type=image";
 
-				post(url, params, files, callback);
+				post(url, params, files, new HttpClientCallback() {
+					@Override
+					public void onSuccess(String response) {
+						callback.onRespond(res);
+					}
+
+					@Override
+					public void onFailure(String reason) {
+						res.setSuccess(false);
+						res.setData(reason);
+						callback.onRespond(res);
+					}
+				});
 			}
 
 			@Override
 			public void onFailure(String reason) {
-				callback.onFailure(reason);
+				res.setSuccess(false);
+				res.setData(reason);
+				callback.onRespond(res);
 			}
 		});
 	}
 
-	protected void getEditBody(int fid, int tid, int pid, HttpClientCallback callback) {
-		String url = "http://www.hi-pda.com/forum/post.php?action=edit&fid=" + fid + "&tid=" + tid + "&pid=" + pid + "&page=1";
+	public void getEditBody(int fid, int tid, int pid, OnRespondCallback callback) {
+		final String url = "http://www.hi-pda.com/forum/post.php?action=edit&fid=" + fid + "&tid=" + tid + "&pid=" + pid + "&page=1";
 
-		get(url, callback);
+		get(url, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	protected void getUser(int uid, HttpClientCallback callback) {
-		get("http://www.hi-pda.com/forum/space.php?uid=" + uid, callback);
+	public void getUser(int uid, OnRespondCallback callback) {
+		final String url = "http://www.hi-pda.com/forum/space.php?uid=" + uid;
+		
+		get(url, new ApiCallback(this, getParserByUrl(url), callback));
 	}
 
-	protected void getRawMessages(HttpClientCallback callback) {
+	public void getRawMessages(OnRespondCallback callback) {
 		User user = getStore().getUser();
-		get("http://www.hi-pda.com/forum/pm.php?uid=" + user.getId() + "&filter=privatepm&daterange=5", callback);
+		final String url = "http://www.hi-pda.com/forum/pm.php?uid=" + user.getId() + "&filter=privatepm&daterange=5";
+		
+		get(url, new ApiCallback(this, getParserByUrl(url), callback));
+		
 	}
 }

@@ -63,7 +63,6 @@ public class App extends Application {
 
 		mApi = Api.getApi(this);
 		mApi.setMode(Api.Mode.LOCAL);
-		PersistenceAdapter adapter = new AndroidAdapter(this);
 		UilUtils.init(this);
 		mPref = PreferenceManager.getDefaultSharedPreferences(this);
 

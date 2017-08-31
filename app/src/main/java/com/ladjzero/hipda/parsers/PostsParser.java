@@ -11,6 +11,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by chenzhuo on 16-2-11.
  */
@@ -263,5 +266,19 @@ public class PostsParser extends Parser {
 		res.setSuccess(true);
 
 		return res;
+	}
+
+	@Override
+	boolean test(List<String> paths, Map<String, String> query) {
+		String action = query.get("action");
+		String topicsubmit = query.get("topicsubmit");
+
+		return (
+				paths.contains("redirect.php") ||
+				paths.contains("viewthread.php") ||
+				(paths.contains("post.php") && "newthread".equals(action) && "yes".equals(topicsubmit)) ||
+				(paths.contains("post.php") && "edit".equals(action)) ||
+				(paths.contains("post.php") && "reply".equals(action))
+		);
 	}
 }

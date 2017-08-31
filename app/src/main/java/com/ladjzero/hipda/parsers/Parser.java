@@ -11,13 +11,15 @@ import org.jsoup.select.Elements;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by chenzhuo on 16-2-11.
  */
-public abstract class Parser implements Parsable {
+public abstract class Parser implements Parsable, ParserMatcher {
 	public static final String CODE_GBK = "GBK";
 	public static final String CODE_UTF8 = "UTF-8";
 	private static final String STATS = "论坛统计";
@@ -27,15 +29,16 @@ public abstract class Parser implements Parsable {
 		try {
 			URL url = new URL(urlPattern);
 			String[] paths = url.getPath().split("/");
+			ArrayList<String> pathList = new ArrayList<>(Arrays.asList(paths));
 			Map<String, String> query = Utils.getUriQueryParameter(urlPattern);
-			return test(paths, query);
+			return test(pathList, query);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
 		return false;
 	}
 
-	boolean test(String[] paths, Map<String, String> query) {
+	boolean test(List<String> paths, Map<String, String> query) {
 		return false;
 	};
 

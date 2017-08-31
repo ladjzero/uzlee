@@ -5,6 +5,9 @@ import com.ladjzero.hipda.api.Response;
 
 import org.jsoup.nodes.Document;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by chenzhuo on 8/29/17.
  */
@@ -21,5 +24,10 @@ public class EditablePostParser extends Parser{
         Post post =  new Post().setTitle(title).setBody(editBody);
         res.setData(post);
         return res;
+    }
+
+    @Override
+    boolean test(List<String> paths, Map<String, String> query) {
+        return paths.contains("post.php") && "edit".equals(query.get("action"));
     }
 }

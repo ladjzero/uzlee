@@ -2,7 +2,6 @@ package com.ladjzero.uzlee.api;
 
 import com.ladjzero.hipda.parsers.Parser;
 import com.ladjzero.hipda.entities.User;
-import com.ladjzero.uzlee.PersistenceAdapter;
 
 import java.util.Observable;
 
@@ -11,7 +10,6 @@ import java.util.Observable;
  */
 public class ApiStore extends Observable {
 	private static ApiStore singleton;
-	private static PersistenceAdapter mAdapter;
 	private User user;
 	private String formhash;
 	private String hash;
@@ -24,9 +22,6 @@ public class ApiStore extends Observable {
 		return singleton;
 	}
 
-	public static void initialize(PersistenceAdapter adapter) {
-		mAdapter = adapter;
-	}
 
 	protected String getCode() {
 		return code;
@@ -39,20 +34,12 @@ public class ApiStore extends Observable {
 		}
 	}
 
-	// TODO. remove this method.
 	public User getUser() {
-		if (user == null) {
-			user = mAdapter.getValue("user", User.class, null);
-		}
-
 		return user == null ? new User() : user;
 	}
 
 	protected void setUser(User user) {
-		setChanged();
 		this.user = user;
-		mAdapter.putValue("user", user);
-		notifyObservers("user");
 	}
 
 	protected String getFormhash() {

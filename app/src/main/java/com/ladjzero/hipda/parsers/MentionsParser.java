@@ -8,6 +8,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -91,4 +92,8 @@ public class MentionsParser extends Parser {
         return res;
     }
 
+    @Override
+    boolean test(List<String> paths, Map<String, String> query) {
+        return paths.contains("notice.php");
+    }
 }

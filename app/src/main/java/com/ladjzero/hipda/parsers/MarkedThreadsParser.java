@@ -8,6 +8,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by chenzhuo on 8/29/17.
  */
@@ -52,4 +55,11 @@ public class MarkedThreadsParser extends Parser {
         return res;
     }
 
+    @Override
+    boolean test(List<String> paths, Map<String, String> query) {
+        String item = query.get("item");
+        String type = query.get("type");
+
+        return paths.contains("my.php") && "favorites".equals(item) && "thread".equals(type);
+    }
 }

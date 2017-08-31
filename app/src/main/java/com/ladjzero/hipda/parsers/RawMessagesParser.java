@@ -6,6 +6,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by chenzhuo on 8/29/17.
  */
@@ -31,4 +34,11 @@ public class RawMessagesParser extends Parser {
         return ePosts == null ? "" : ePosts.outerHtml();
     }
 
+    @Override
+    boolean test(List<String> paths, Map<String, String> query) {
+        String filter = query.get("filter");
+        String uid = query.get("uid");
+
+        return paths.contains("pm.php") && "privatepm".equals(filter) && uid != null;
+    }
 }

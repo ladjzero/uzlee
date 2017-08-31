@@ -10,11 +10,11 @@ import com.ladjzero.hipda.parsers.Parsable;
  * Created by chenzhuo on 8/29/17.
  */
 class ApiCallback implements HttpClientCallback {
-    private Api api;
+    private HttpClientApi api;
     private Parsable p;
     private OnRespondCallback onRespondCallback;
 
-    public ApiCallback(Api api, Parsable p, OnRespondCallback onRespondCallback) {
+    public ApiCallback(HttpClientApi api, Parsable p, OnRespondCallback onRespondCallback) {
         this.api = api;
         this.p = p;
         this.onRespondCallback = onRespondCallback;

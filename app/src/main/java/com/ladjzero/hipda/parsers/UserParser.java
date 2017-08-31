@@ -7,6 +7,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by chenzhuo on 16-2-12.
  */
@@ -56,5 +59,10 @@ public class UserParser extends Parser {
 		res.setData(user);
 		res.setSuccess(true);
 		return res;
+	}
+
+	@Override
+	boolean test(List<String> paths, Map<String, String> query) {
+		return paths.contains("space.php");
 	}
 }

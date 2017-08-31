@@ -9,6 +9,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,5 +114,10 @@ public class ThreadsParser extends Parser {
 		} else {
 			return null;
 		}
+	}
+
+	@Override
+	boolean test(List<String> paths, Map<String, String> query) {
+		return paths.contains("forumdisplay.php") || "newthread".equals(query.get("action"));
 	}
 }

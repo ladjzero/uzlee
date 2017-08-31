@@ -8,6 +8,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -63,7 +64,9 @@ public class OwnThreadsParser extends Parser {
     }
 
     @Override
-    boolean test(String[] paths, Map<String, String> query) {
-        return false;
+    boolean test(List<String> paths, Map<String, String> query) {
+        String item = query.get("item");
+
+        return paths.contains("pm.php") && "threads".equals(item);
     }
 }

@@ -38,6 +38,7 @@ import com.ladjzero.hipda.entities.Post;
 import com.ladjzero.hipda.entities.Posts;
 import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.User;
+import com.ladjzero.hipda.parsers.PostsParser;
 import com.ladjzero.uzlee.model.ObservablePosts;
 import com.ladjzero.uzlee.utils.CapturePhotoUtils;
 import com.ladjzero.uzlee.utils.Constants;
@@ -494,7 +495,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 			if (returnIntent != null) {
 				String html = returnIntent.getStringExtra("posts-html");
-				Posts posts = (Posts) getInstance().getApi().getParser("Posts").parse(html).getData();
+				Posts posts = (Posts) (new PostsParser()).parse(html).getData();
 				mPosts.clear();
 				mPosts.addAll(posts);
 				mPid = -1;

@@ -7,6 +7,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by chenzhuo on 8/29/17.
@@ -38,5 +40,13 @@ public class ExistedAttachParser extends Parser{
         res.setData(attachIds.toArray(new String[0]));
 
         return res;
+    }
+
+    @Override
+    boolean test(List<String> paths, Map<String, String> query) {
+        String action = query.get("action");
+        String topicsubmit = query.get("topicsubmit");
+
+        return paths.contains("post.php") && "newthread".equals(action) && !"yes".equals(topicsubmit);
     }
 }
