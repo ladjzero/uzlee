@@ -10,6 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,6 +20,10 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 	public HttpClientApi(Context context) {
 		super(context);
 	}
+
+	abstract List<Interceptor> getInterceptors();
+
+	abstract void intercept(Interceptor i);
 
 	public void getPosts(String url, OnRespondCallback callback) {
 		get(url, new ApiCallback(this, getParserByUrl(url), callback));
@@ -81,7 +86,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 				}
 			}
 
-			url = "http://www.hi-pda.com/forum/search.php?srchtxt=" + URLEncoder.encode(query, getStore().getMeta().getCode())
+			url = "http://www.hi-pda.com/forum/search.php?srchtxt=" + URLEncoder.encode(query, getMeta().getCode())
 					+ "&srchtype=title&"
 					+ "searchsubmit=true&"
 					+ "st=on&"
@@ -110,7 +115,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 
 		try {
 			url = "http://www.hi-pda.com/forum/search.php?srchtype=title&srchtxt=&searchsubmit=true&st=on&srchuname="
-					+ URLEncoder.encode(username, getStore().getMeta().getCode())
+					+ URLEncoder.encode(username, getMeta().getCode())
 					+ "&srchfilter=all&srchfrom=0&before=&orderby=lastpost&ascdesc=desc&page="
 					+ page;
 
@@ -154,7 +159,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 	}
 
 	public void logout(final OnRespondCallback callback) {
-		final String url = "http://www.hi-pda.com/forum/logging.php?action=logout&formhash=" + getStore().getMeta().getFormhash();
+		final String url = "http://www.hi-pda.com/forum/logging.php?action=logout&formhash=" + getMeta().getFormhash();
 		
 		get(url, new ApiCallback(this, getParserByUrl(url), callback));
 	}
@@ -164,7 +169,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 		final Response res = new Response();
 
 		Map<String, String> params = new HashMap();
-		params.put("formhash", getStore().getMeta().getFormhash());
+		params.put("formhash", getMeta().getFormhash());
 		params.put("msgto", name);
 		params.put("message", message);
 		params.put("pmsubmit", "true");
@@ -176,7 +181,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 		final String url = "http://www.hi-pda.com/forum/post.php?action=newthread&fid=" + fid + "&extra=&topicsubmit=yes";
 
 		Map<String, String> params = new HashMap();
-		params.put("formhash", getStore().getMeta().getFormhash());
+		params.put("formhash", getMeta().getFormhash());
 		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
 		params.put("wysiwyg", "1");
 		params.put("iconid", "");
@@ -198,7 +203,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 		final String url = "http://www.hi-pda.com/forum/post.php?action=reply&fid=57&tid=" + tid + "&extra=&replysubmit=yes";
 
 		Map<String, String> params = new HashMap<>();
-		params.put("formhash", getStore().getMeta().getFormhash());
+		params.put("formhash", getMeta().getFormhash());
 		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
 		params.put("subject", "");
 		params.put("wysiwyg", "1");
@@ -227,7 +232,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 		String url = "http://www.hi-pda.com/forum/post.php?action=edit&extra=&editsubmit=yes&mod=";
 
 		Map<String, String> params = new HashMap<>();
-		params.put("formhash", getStore().getMeta().getFormhash());
+		params.put("formhash", getMeta().getFormhash());
 		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
 		params.put("wysiwyg", "1");
 		params.put("page", "1");
@@ -246,7 +251,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 		String url = "http://www.hi-pda.com/forum/post.php?action=edit&extra=&editsubmit=yes&mod=";
 
 		Map<String, String> params = new HashMap<>();
-		params.put("formhash", getStore().getMeta().getFormhash());
+		params.put("formhash", getMeta().getFormhash());
 		params.put("posttime", Long.valueOf(System.currentTimeMillis() / 1000).toString());
 		params.put("wysiwyg", "1");
 		params.put("iconid", "0");
@@ -273,8 +278,8 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 			@Override
 			public void onRespond(Response res) {
 				if (res.isSuccess()) {
-					int uid = getStore().getMeta().getUid();
-					String hash = getStore().getMeta().getHash();
+					int uid = getMeta().getUid();
+					String hash = getMeta().getHash();
 
 					if (hash == null || hash.length() == 0) {
 						res.setSuccess(false);
@@ -299,7 +304,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 
 					Map<String, String> params = new HashMap<String, String>();
 					params.put("uid", String.valueOf(uid));
-					params.put("hash", getStore().getMeta().getHash());
+					params.put("hash", getMeta().getHash());
 					params.put("filename", imageFile.getName());
 
 					Map<String, File> files = new HashMap<String, File>();
@@ -328,7 +333,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 	}
 
 	public void getRawMessages(OnRespondCallback callback) {
-		int uid = getStore().getMeta().getUid();
+		int uid = getMeta().getUid();
 		final String url = "http://www.hi-pda.com/forum/pm.php?uid=" + uid + "&filter=privatepm&daterange=5";
 		
 		get(url, new ApiCallback(this, getParserByUrl(url), callback));

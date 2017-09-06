@@ -137,9 +137,9 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 
 	@Override
 	public void onClick(View view) {
-		int myId = App.getInstance().getApi().getStore().getMeta().getUid();
+		Integer myId = App.getInstance().getUid();
 
-		if (myId == 0) {
+		if (myId == null) {
 			context.showToast(context.getResources().getString(R.string.error_login_required));
 		} else {
 			User user = (User) view.getTag();

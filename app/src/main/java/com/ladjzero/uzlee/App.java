@@ -9,8 +9,9 @@ import android.webkit.WebView;
 
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.MaterialModule;
+import com.ladjzero.hipda.api.Response;
+import com.ladjzero.uzlee.api.Interceptor;
 import com.ladjzero.uzlee.model.Forum;
-import com.ladjzero.hipda.entities.User;
 import com.ladjzero.uzlee.api.Api;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.UilUtils;
@@ -34,6 +35,23 @@ public class App extends Application {
 	private SharedPreferences mPref;
 	private List<OnEventListener> mListeners;
 	private Api mApi;
+
+	public Integer getUid() {
+		return mUid;
+	}
+
+	public String getUserName() {
+		return mUserName;
+	}
+
+	private String mUserName;
+	private Integer mUid;
+
+	public Integer getUnread() {
+		return mUnread;
+	}
+
+	private Integer mUnread;
 
 	public static App getInstance() {
 		return app;
@@ -62,6 +80,28 @@ public class App extends Application {
 		ImageLoader.getInstance().init(ilConfig);
 
 		mApi = Api.getApi(this);
+		mApi.intercept(new Interceptor() {
+			@Override
+			public Response intercept(Response res) {
+				Response.Meta meta = res.getMeta();
+
+				if (meta != null) {
+					if (meta.getUid() != null) {
+						mUid = meta.getUid();
+					}
+
+					if (meta.getUserName() != null) {
+						mUserName = meta.getUserName();
+					}
+
+					if (meta.getUnread() != null) {
+						mUnread = meta.getUnread();
+					}
+				}
+
+				return res;
+			}
+		});
 		mApi.setMode(Api.Mode.LOCAL);
 		UilUtils.init(this);
 		mPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -85,14 +125,13 @@ public class App extends Application {
 	}
 
 	public List<Forum> getUserFlattenForums() {
-		final int myId = getInstance().getApi().getStore().getMeta().getUid();
 		List<Forum> forums = getFlattenForums();
 
 		CollectionUtils.filter(forums, new Predicate() {
 			@Override
 			public boolean evaluate(Object o) {
 				Forum f = (Forum) o;
-				return myId != 0 || !f.isSecurity();
+				return (mUid != null && mUid != 0) || !f.isSecurity();
 			}
 		});
 

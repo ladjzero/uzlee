@@ -51,7 +51,7 @@ public class ActivityEdit extends ActivityHardSlide implements OnRespondCallback
 	int tid;
 	int pid;
 	int fid;
-	int uid;
+	Integer uid;
 	int no;
 	boolean isNewThread, isReplyToOne, isReply, isEdit;
 	String content;
@@ -136,7 +136,7 @@ public class ActivityEdit extends ActivityHardSlide implements OnRespondCallback
 		if (isNewThread) {
 			subjectInput.setVisibility(View.VISIBLE);
 		} else {
-			if (uid != App.getInstance().getApi().getStore().getMeta().getUid()) {
+			if (uid != App.getInstance().getUid()) {
 				//reply
 				subjectInput.setVisibility(View.GONE);
 			} else if (no != 1) {

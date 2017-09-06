@@ -2,6 +2,7 @@ package com.ladjzero.uzlee.api;
 
 import android.content.Context;
 
+import com.ladjzero.hipda.api.Response;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.PersistentCookieStore;
 import com.loopj.android.http.RequestParams;
@@ -16,22 +17,15 @@ import java.util.Map;
 /**
  * Created by chenzhuo on 16-2-11.
  */
-class HttpClient {
+abstract class HttpClient {
 	private AsyncHttpClient mAsyncHttpClient;
 	private PersistentCookieStore mCookieStore;
 
-	public ApiStore getStore() {
-		return mStore;
-	}
+	abstract Response.Meta getMeta();
 
-	private ApiStore mStore;
-
-	private String getCode() {
-		return mStore.getMeta().getCode();
-	}
+	abstract String getCode();
 
 	public HttpClient(Context context) {
-		mStore = ApiStore.getStore();
 		mAsyncHttpClient = new AsyncHttpClient();
 		mCookieStore = new PersistentCookieStore(context);
 		mAsyncHttpClient.setCookieStore(mCookieStore);

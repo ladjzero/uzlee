@@ -32,11 +32,8 @@ class ApiCallback implements HttpClientCallback {
             protected void onPostExecute(Object o) {
                 Response res = (Response) o;
 
-                ApiStore store = api.getStore();
-                Response.Meta meta = res.getMeta();
-
-                if (meta != null) {
-                    store.setMeta(meta);
+                for (Interceptor i : api.getInterceptors()) {
+                    res = i.intercept(res);
                 }
 
                 onRespondCallback.onRespond(res);

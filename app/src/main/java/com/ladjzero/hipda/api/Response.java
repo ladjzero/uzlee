@@ -63,7 +63,7 @@ public class Response implements Serializable {
 			this.hash = hash;
 		}
 
-		public int getUnread() {
+		public Integer getUnread() {
 			return unread;
 		}
 
@@ -71,7 +71,7 @@ public class Response implements Serializable {
 			this.unread = unread;
 		}
 
-		public int getUid() {
+		public Integer getUid() {
 			return uid;
 		}
 
@@ -88,10 +88,10 @@ public class Response implements Serializable {
 		}
 
 		private String userName;
-		private int uid;
+		private Integer uid;
 		private String formhash;
 		private String hash;
 		private String code = Parser.CODE_GBK;
-		private int unread;
+		private Integer unread;
 	}
 }

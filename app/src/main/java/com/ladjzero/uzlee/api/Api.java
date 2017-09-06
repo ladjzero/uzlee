@@ -3,6 +3,7 @@ package com.ladjzero.uzlee.api;
 import android.content.Context;
 
 import com.ladjzero.hipda.api.OnRespondCallback;
+import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.parsers.EditablePostParser;
 import com.ladjzero.hipda.parsers.ExistedAttachParser;
 import com.ladjzero.hipda.parsers.FavoritesParser;
@@ -14,6 +15,7 @@ import com.ladjzero.hipda.parsers.NullParser;
 import com.ladjzero.hipda.parsers.OwnPostsParser;
 import com.ladjzero.hipda.parsers.OwnThreadsParser;
 import com.ladjzero.hipda.parsers.Parsable;
+import com.ladjzero.hipda.parsers.Parser;
 import com.ladjzero.hipda.parsers.ParserMatcher;
 import com.ladjzero.hipda.parsers.PostEditingParser;
 import com.ladjzero.hipda.parsers.PostsParser;
@@ -25,6 +27,7 @@ import com.ladjzero.uzlee.model.VersionsParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,6 +37,8 @@ import java.util.List;
 public class Api extends HttpClientApi {
 	private static Api singleton;
 	private List<Parsable> mParsers;
+	private Response.Meta mMeta;
+	private List<Interceptor> mInterceptors = new ArrayList<>();
 
 	public void setMode(Mode mMode) {
 		this.mMode = mMode;
@@ -63,6 +68,26 @@ public class Api extends HttpClientApi {
 
 	public enum Mode{ REMOTE, LOCAL }
 
+	@Override
+	Response.Meta getMeta() {
+		return mMeta;
+	}
+
+	@Override
+	String getCode() {
+		if (mMeta == null) {
+			return Parser.CODE_GBK;
+		}
+
+		String code = mMeta.getCode();
+
+		if (code == null) {
+			return Parser.CODE_GBK;
+		}
+
+		return code;
+	}
+
 	private Api(Context context) {
 		super(context);
 
@@ -82,6 +107,29 @@ public class Api extends HttpClientApi {
 						new UserParser(),
 				}
 		);
+
+		intercept(new Interceptor() {
+			@Override
+			public Response intercept(Response res) {
+				Response.Meta meta = res.getMeta();
+
+				if (meta != null) {
+					mMeta = meta;
+				}
+
+				return res;
+			}
+		});
+	}
+
+	@Override
+	public List<Interceptor> getInterceptors() {
+		return mInterceptors;
+	}
+
+	@Override
+	public void intercept(Interceptor i) {
+		mInterceptors.add(i);
 	}
 
 	public static Api getApi(Context context) {
