@@ -67,15 +67,15 @@ public class FragmentNav extends FragmentBase {
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
 	private ActivityBase mContext;
-	private User mUser;
+	private int mUserId;
 
 	@OnClick(R.id.nav_user)
 	void onUserClick() {
-		if (mUser == null || mUser.getId() == 0) {
+		if (mUserId == 0) {
 			mContext.toLoginPage();
 		} else {
 			Intent intent = new Intent(mContext, ActivityUser.class);
-			intent.putExtra("uid", mUser.getId());
+			intent.putExtra("uid", mUserId);
 			startActivity(intent);
 		}
 	}
@@ -191,8 +191,8 @@ public class FragmentNav extends FragmentBase {
 			@Override
 			public void run() {
 				if ("user".equals(o)) {
-					mUser = App.getInstance().getApi().getStore().getMeta().getUser();
-					final boolean visible = mUser != null && mUser.getId() != 0;
+					mUserId = App.getInstance().getApi().getStore().getMeta().getUid();
+					final boolean visible = mUserId != 0;
 
 					message.setVisibility(visible ? View.VISIBLE : View.GONE);
 					myPosts.setVisibility(visible ? View.VISIBLE : View.GONE);
@@ -202,10 +202,10 @@ public class FragmentNav extends FragmentBase {
 						@Override
 						public void run() {
 							if (visible) {
-								ImageLoader.getInstance().displayImage(mUser.getImage(), imageView);
+								ImageLoader.getInstance().displayImage(new User().setId(mUserId).getImage(), imageView);
 							}
 
-							userName.setText(visible ? mUser.getName() : "未登录");
+							userName.setText(visible ? App.getInstance().getApi().getStore().getMeta().getUserName() : "未登录");
 						}
 					}, 300);
 				} else if ("unread".equals(o)) {

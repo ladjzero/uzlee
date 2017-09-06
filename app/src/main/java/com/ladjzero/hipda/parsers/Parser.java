@@ -72,9 +72,11 @@ public abstract class Parser implements Parsable, ParserMatcher {
 				int id = Integer.valueOf(uid);
 				String name = eUser.text().trim();
 
-				meta.setUser(new User().setId(id).setName(name));
+				meta.setUid(id);
+				meta.setUserName(name);
 			} else {
-				meta.setUser(new User());
+				meta.setUid(0);
+				meta.setUserName(null);
 			}
 		} catch (Error e) {
 			Logger.e("Parser", e.toString());

@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.ladjzero.hipda.api.OnRespondCallback;
 import com.ladjzero.hipda.api.Response;
-import com.ladjzero.hipda.entities.User;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -274,7 +273,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 			@Override
 			public void onRespond(Response res) {
 				if (res.isSuccess()) {
-					User user = getStore().getMeta().getUser();
+					int uid = getStore().getMeta().getUid();
 					String hash = getStore().getMeta().getHash();
 
 					if (hash == null || hash.length() == 0) {
@@ -284,7 +283,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 						return;
 					}
 
-					if (user == null) {
+					if (uid == 0) {
 						res.setSuccess(false);
 						res.setData("error: fail to get user.");
 						callback.onRespond(res);
@@ -299,7 +298,7 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 					}
 
 					Map<String, String> params = new HashMap<String, String>();
-					params.put("uid", String.valueOf(user.getId()));
+					params.put("uid", String.valueOf(uid));
 					params.put("hash", getStore().getMeta().getHash());
 					params.put("filename", imageFile.getName());
 
@@ -329,8 +328,8 @@ abstract class HttpClientApi extends HttpClient implements ParserProvider {
 	}
 
 	public void getRawMessages(OnRespondCallback callback) {
-		User user = getStore().getMeta().getUser();
-		final String url = "http://www.hi-pda.com/forum/pm.php?uid=" + user.getId() + "&filter=privatepm&daterange=5";
+		int uid = getStore().getMeta().getUid();
+		final String url = "http://www.hi-pda.com/forum/pm.php?uid=" + uid + "&filter=privatepm&daterange=5";
 		
 		get(url, new ApiCallback(this, getParserByUrl(url), callback));
 		

@@ -294,14 +294,14 @@ public class Utils {
 	public static List<Forum> getUserSelectedForums(ActivityBase context) {
 		List<Integer> selectedForumIds = getAllSelectedForumIds(context);
 		final List<Forum> allForums = getAllForums(context);
-		final User me = App.getInstance().getApi().getStore().getMeta().getUser();
+		final int myId = App.getInstance().getApi().getStore().getMeta().getUid();
 
 		ArrayList<Forum> ret = new ArrayList<>();
 
 		for (int id : selectedForumIds) {
 			Forum f = Forum.findById(allForums, id);
 
-			if (me.getId() != 0 || !f.isSecurity()) {
+			if (myId != 0 || !f.isSecurity()) {
 				ret.add(f);
 			}
 		}

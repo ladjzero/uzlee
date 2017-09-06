@@ -85,14 +85,14 @@ public class App extends Application {
 	}
 
 	public List<Forum> getUserFlattenForums() {
-		final User me = getInstance().getApi().getStore().getMeta().getUser();
+		final int myId = getInstance().getApi().getStore().getMeta().getUid();
 		List<Forum> forums = getFlattenForums();
 
 		CollectionUtils.filter(forums, new Predicate() {
 			@Override
 			public boolean evaluate(Object o) {
 				Forum f = (Forum) o;
-				return me.getId() != 0 || !f.isSecurity();
+				return myId != 0 || !f.isSecurity();
 			}
 		});
 

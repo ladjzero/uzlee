@@ -71,15 +71,24 @@ public class Response implements Serializable {
 			this.unread = unread;
 		}
 
-		public User getUser() {
-			return user == null ? new User() : user;
+		public int getUid() {
+			return uid;
 		}
 
-		public void setUser(User user) {
-			this.user = user;
+		public void setUid(int uid) {
+			this.uid = uid;
 		}
 
-		private User user;
+		public String getUserName() {
+			return userName;
+		}
+
+		public void setUserName(String userName) {
+			this.userName = userName;
+		}
+
+		private String userName;
+		private int uid;
 		private String formhash;
 		private String hash;
 		private String code = Parser.CODE_GBK;

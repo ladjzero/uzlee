@@ -107,9 +107,9 @@ public class ActivityLogin extends ActionBarActivity {
 		Animation animation = AnimationUtils.loadAnimation(this, R.anim.rotate);
 		logo.setAnimation(animation);
 
-		User user = App.getInstance().getApi().getStore().getMeta().getUser();
+		int userId = App.getInstance().getApi().getStore().getMeta().getUid();
 
-		if (user != null && user.getId() > 0) {
+		if (userId > 0) {
 			Utils.replaceActivity(this, ActivityMain.class);
 		} else {
 			String[] questions = getResources().getStringArray(R.array.questions);
