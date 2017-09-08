@@ -16,14 +16,15 @@ import java.util.Map;
 /**
  * Created by chenzhuo on 16-2-12.
  */
-abstract class HttpClientApi extends HttpClient implements ParserProvider {
+abstract class HttpClientApi extends HttpClient implements ParserProvider, InterceptorProvider {
 	public HttpClientApi(Context context) {
 		super(context);
 	}
 
-	abstract List<Interceptor> getInterceptors();
+	abstract Response.Meta getMeta();
 
-	abstract void intercept(Interceptor i);
+	public abstract void intercept(Interceptor i);
+	public abstract void unIntercept(Interceptor i);
 
 	public void getPosts(String url, OnRespondCallback callback) {
 		get(url, new ApiCallback(this, getParserByUrl(url), callback));

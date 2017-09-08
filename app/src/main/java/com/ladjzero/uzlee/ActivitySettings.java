@@ -18,6 +18,7 @@ import com.ladjzero.hipda.api.OnRespondCallback;
 import com.ladjzero.uzlee.model.Forum;
 import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.User;
+import com.ladjzero.uzlee.stores.MetaStore;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.Json;
 import com.ladjzero.uzlee.utils.Utils;
@@ -111,7 +112,7 @@ public class ActivitySettings extends ActivityEasySlide implements SharedPrefere
 			});
 
 			Preference logout = findPreference("logout");
-			Integer myId = App.getInstance().getUid();
+			Integer myId = MetaStore.getMeta().getUid();
 			logout.setTitle(myId == null ? "登入" : "登出");
 
 			logout.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

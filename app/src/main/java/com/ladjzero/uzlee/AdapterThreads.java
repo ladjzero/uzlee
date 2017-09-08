@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.ladjzero.hipda.entities.Thread;
 import com.ladjzero.hipda.entities.User;
+import com.ladjzero.uzlee.stores.MetaStore;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -137,7 +138,7 @@ public class AdapterThreads extends ArrayAdapter<Thread> implements View.OnClick
 
 	@Override
 	public void onClick(View view) {
-		Integer myId = App.getInstance().getUid();
+		Integer myId = MetaStore.getMeta().getUid();
 
 		if (myId == null) {
 			context.showToast(context.getResources().getString(R.string.error_login_required));

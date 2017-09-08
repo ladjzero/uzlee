@@ -23,6 +23,7 @@ import com.ladjzero.hipda.parsers.RawMessagesParser;
 import com.ladjzero.hipda.parsers.ThreadsParser;
 import com.ladjzero.hipda.parsers.UserParser;
 import com.ladjzero.uzlee.model.VersionsParser;
+import com.orhanobut.logger.Logger;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -129,7 +130,13 @@ public class Api extends HttpClientApi {
 
 	@Override
 	public void intercept(Interceptor i) {
+		Logger.d("Response interceptor added, length before: " + mInterceptors.size());
 		mInterceptors.add(i);
+	}
+
+	@Override
+	public void unIntercept(Interceptor i) {
+		mInterceptors.remove(i);
 	}
 
 	public static Api getApi(Context context) {

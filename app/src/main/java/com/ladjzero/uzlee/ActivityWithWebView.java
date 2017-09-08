@@ -14,6 +14,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.ladjzero.hipda.entities.User;
+import com.ladjzero.uzlee.stores.MetaStore;
 import com.ladjzero.uzlee.utils.Timeline;
 import com.ladjzero.uzlee.utils.Utils;
 import com.orhanobut.logger.Logger;
@@ -32,7 +33,7 @@ public abstract class ActivityWithWebView extends ActivityHardSlide implements A
 	public void onProfileClick(int uid, String name) {
 		if (getWebView().finishActionMode()) return;
 
-		Integer myId = App.getInstance().getUid();
+		Integer myId = MetaStore.getMeta().getUid();
 
 		if (myId == null) {
 			showToast(getResources().getString(R.string.error_login_required));

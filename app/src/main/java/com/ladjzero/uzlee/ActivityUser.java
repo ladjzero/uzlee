@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.ladjzero.hipda.api.OnRespondCallback;
 import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.User;
+import com.ladjzero.uzlee.stores.MetaStore;
 import com.ladjzero.uzlee.utils.UilUtils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -84,7 +85,7 @@ public class ActivityUser extends ActivityEasySlide {
 					final User user = (User) res.getData();
 					ActivityUser.this.mUser = user;
 
-					if (user.getId() != App.getInstance().getUid()) {
+					if (user.getId() != MetaStore.getMeta().getUid()) {
 						chat.setVisibility(View.VISIBLE);
 					}
 

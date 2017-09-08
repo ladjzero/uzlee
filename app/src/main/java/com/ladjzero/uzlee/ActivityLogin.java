@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.ladjzero.hipda.api.OnRespondCallback;
 import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.User;
+import com.ladjzero.uzlee.stores.MetaStore;
 import com.ladjzero.uzlee.utils.Utils;
 import com.rey.material.app.Dialog;
 import com.rey.material.widget.Spinner;
@@ -107,7 +108,7 @@ public class ActivityLogin extends ActionBarActivity {
 		Animation animation = AnimationUtils.loadAnimation(this, R.anim.rotate);
 		logo.setAnimation(animation);
 
-		Integer userId = App.getInstance().getUid();
+		Integer userId = MetaStore.getMeta().getUid();
 
 		if (userId != null) {
 			Utils.replaceActivity(this, ActivityMain.class);

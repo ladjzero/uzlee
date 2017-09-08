@@ -16,7 +16,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.User;
+import com.ladjzero.uzlee.stores.MetaStore;
 import com.ladjzero.uzlee.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -25,6 +27,8 @@ import java.util.Observable;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 
 public class FragmentNav extends FragmentBase {
 	/**
@@ -65,11 +69,12 @@ public class FragmentNav extends FragmentBase {
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
 	private ActivityBase mContext;
-	private int mUserId;
+	private Integer mUserId;
+	private Disposable mMetaObserver;
 
 	@OnClick(R.id.nav_user)
 	void onUserClick() {
-		if (mUserId == 0) {
+		if (mUserId == null) {
 			mContext.toLoginPage();
 		} else {
 			Intent intent = new Intent(mContext, ActivityUser.class);
@@ -92,6 +97,41 @@ public class FragmentNav extends FragmentBase {
 			mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
 			mFromSavedInstanceState = true;
 		}
+
+		mMetaObserver = MetaStore.getObservable().subscribe(new Consumer<Response.Meta>() {
+			@Override
+			public void accept(Response.Meta meta) throws Exception {
+				mUserId = meta.getUid();
+				final boolean visible = mUserId != null;
+
+				message.setVisibility(visible ? View.VISIBLE : View.GONE);
+				myPosts.setVisibility(visible ? View.VISIBLE : View.GONE);
+				mSearch.setVisibility(visible ? View.VISIBLE : View.GONE);
+
+				new Handler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						if (visible) {
+							ImageLoader.getInstance().displayImage(new User().setId(mUserId).getImage(), imageView);
+						}
+
+						userName.setText(visible ? MetaStore.getMeta().getUserName() : "未登录");
+					}
+				}, 300);
+				Integer unread = meta.getUnread();
+
+				mAlertIcon.setTextColor(unread == null || unread == 0 ?
+						Utils.getThemeColor(mContext, R.attr.colorText) :
+						Utils.getColor(mContext, R.color.commentNoBg));
+			}
+		});
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+
+		mMetaObserver.dispose();
 	}
 
 	@Override
@@ -182,39 +222,6 @@ public class FragmentNav extends FragmentBase {
 
 	public boolean isDrawerOpen() {
 		return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mFragmentContainerView);
-	}
-
-	public void update(Observable observable, final Object o) {
-		getActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if ("user".equals(o)) {
-					mUserId = App.getInstance().getUid();
-					final boolean visible = mUserId != 0;
-
-					message.setVisibility(visible ? View.VISIBLE : View.GONE);
-					myPosts.setVisibility(visible ? View.VISIBLE : View.GONE);
-					mSearch.setVisibility(visible ? View.VISIBLE : View.GONE);
-
-					new Handler().postDelayed(new Runnable() {
-						@Override
-						public void run() {
-							if (visible) {
-								ImageLoader.getInstance().displayImage(new User().setId(mUserId).getImage(), imageView);
-							}
-
-							userName.setText(visible ? App.getInstance().getUserName() : "未登录");
-						}
-					}, 300);
-				} else if ("unread".equals(o)) {
-					int unread = App.getInstance().getUnread();
-
-					mAlertIcon.setTextColor(unread == 0 ?
-							Utils.getThemeColor(mContext, R.attr.colorText) :
-							Utils.getColor(mContext, R.color.commentNoBg));
-				}
-			}
-		});
 	}
 }
 

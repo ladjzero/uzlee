@@ -7,7 +7,7 @@ import java.lang.reflect.Field;
 /**
  * Created by chenzhuo on 9/6/17.
  */
-public class Utils {
+class Utils {
     public static Response.Meta smartMergeMeta(Response.Meta meta1, Response.Meta meta2) {
         if (null == meta2) {
             return meta1;

@@ -6,16 +6,19 @@ import com.ladjzero.hipda.api.OnRespondCallback;
 import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.parsers.Parsable;
 
+import java.util.Iterator;
+import java.util.ListIterator;
+
 /**
  * Created by chenzhuo on 8/29/17.
  */
 class ApiCallback implements HttpClientCallback {
-    private HttpClientApi api;
+    private InterceptorProvider ip;
     private Parsable p;
     private OnRespondCallback onRespondCallback;
 
-    public ApiCallback(HttpClientApi api, Parsable p, OnRespondCallback onRespondCallback) {
-        this.api = api;
+    public ApiCallback(InterceptorProvider ip, Parsable p, OnRespondCallback onRespondCallback) {
+        this.ip = ip;
         this.p = p;
         this.onRespondCallback = onRespondCallback;
     }
@@ -32,8 +35,10 @@ class ApiCallback implements HttpClientCallback {
             protected void onPostExecute(Object o) {
                 Response res = (Response) o;
 
-                for (Interceptor i : api.getInterceptors()) {
-                    res = i.intercept(res);
+                ListIterator<Interceptor> iterator = ip.getInterceptors().listIterator();
+
+                while(iterator.hasNext()) {
+                    res = iterator.next().intercept(res);
                 }
 
                 onRespondCallback.onRespond(res);

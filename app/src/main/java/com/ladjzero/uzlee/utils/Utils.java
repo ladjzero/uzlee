@@ -22,6 +22,7 @@ import com.ladjzero.hipda.entities.User;
 import com.ladjzero.uzlee.ActivityBase;
 import com.ladjzero.uzlee.App;
 import com.ladjzero.uzlee.R;
+import com.ladjzero.uzlee.stores.MetaStore;
 import com.nineoldandroids.animation.Animator;
 import com.orhanobut.logger.Logger;
 
@@ -294,7 +295,7 @@ public class Utils {
 	public static List<Forum> getUserSelectedForums(ActivityBase context) {
 		List<Integer> selectedForumIds = getAllSelectedForumIds(context);
 		final List<Forum> allForums = getAllForums(context);
-		final Integer myId = App.getInstance().getUid();
+		final Integer myId = MetaStore.getMeta().getUid();
 
 		ArrayList<Forum> ret = new ArrayList<>();
 

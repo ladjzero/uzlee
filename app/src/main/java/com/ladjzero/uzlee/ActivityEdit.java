@@ -27,6 +27,7 @@ import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.ladjzero.hipda.api.OnRespondCallback;
 import com.ladjzero.hipda.entities.Post;
 import com.ladjzero.hipda.api.Response;
+import com.ladjzero.uzlee.stores.MetaStore;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.EmojiUtils;
 import com.ladjzero.uzlee.utils.Utils;
@@ -136,7 +137,7 @@ public class ActivityEdit extends ActivityHardSlide implements OnRespondCallback
 		if (isNewThread) {
 			subjectInput.setVisibility(View.VISIBLE);
 		} else {
-			if (uid != App.getInstance().getUid()) {
+			if (uid != MetaStore.getMeta().getUid()) {
 				//reply
 				subjectInput.setVisibility(View.GONE);
 			} else if (no != 1) {
@@ -606,7 +607,7 @@ public class ActivityEdit extends ActivityHardSlide implements OnRespondCallback
 		if (res.isSuccess()) {
 			mSaveDraft = false;
 			Intent returnIntent = new Intent();
-			returnIntent.putExtra("posts-html", res);
+			returnIntent.putExtra("posts-html", res.toString());
 			setResult(EDIT_SUCCESS, returnIntent);
 			finish();
 		} else {

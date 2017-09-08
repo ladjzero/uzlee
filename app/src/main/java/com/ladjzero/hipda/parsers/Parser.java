@@ -75,7 +75,7 @@ public abstract class Parser implements Parsable, ParserMatcher {
 				meta.setUid(id);
 				meta.setUserName(name);
 			} else {
-				meta.setUid(0);
+				meta.setUid(null);
 				meta.setUserName(null);
 			}
 		} catch (Error e) {

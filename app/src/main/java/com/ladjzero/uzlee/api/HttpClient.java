@@ -21,8 +21,6 @@ abstract class HttpClient {
 	private AsyncHttpClient mAsyncHttpClient;
 	private PersistentCookieStore mCookieStore;
 
-	abstract Response.Meta getMeta();
-
 	abstract String getCode();
 
 	public HttpClient(Context context) {

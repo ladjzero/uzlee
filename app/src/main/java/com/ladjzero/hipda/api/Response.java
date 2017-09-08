@@ -1,5 +1,6 @@
 package com.ladjzero.hipda.api;
 
+import com.google.gson.Gson;
 import com.ladjzero.hipda.entities.User;
 import com.ladjzero.hipda.parsers.Parser;
 
@@ -8,7 +9,8 @@ import java.io.Serializable;
 /**
  * Created by chenzhuo on 2017/4/23.
  */
-public class Response implements Serializable {
+public class Response {
+	private static Gson gson = new Gson();
 	private boolean success = true;
 	private Meta meta;
 
@@ -39,6 +41,11 @@ public class Response implements Serializable {
 	private Object data;
 
 	public static class Meta {
+		@Override
+		public String toString() {
+			return gson.toJson(this);
+		}
+
 		public String getCode() {
 			return code;
 		}
@@ -67,7 +74,7 @@ public class Response implements Serializable {
 			return unread;
 		}
 
-		public void setUnread(int unread) {
+		public void setUnread(Integer unread) {
 			this.unread = unread;
 		}
 
@@ -75,7 +82,7 @@ public class Response implements Serializable {
 			return uid;
 		}
 
-		public void setUid(int uid) {
+		public void setUid(Integer uid) {
 			this.uid = uid;
 		}
 

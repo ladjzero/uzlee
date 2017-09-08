@@ -40,6 +40,7 @@ import com.ladjzero.hipda.api.Response;
 import com.ladjzero.hipda.entities.User;
 import com.ladjzero.hipda.parsers.PostsParser;
 import com.ladjzero.uzlee.model.ObservablePosts;
+import com.ladjzero.uzlee.stores.MetaStore;
 import com.ladjzero.uzlee.utils.CapturePhotoUtils;
 import com.ladjzero.uzlee.utils.Constants;
 import com.ladjzero.uzlee.utils.Json;
@@ -126,7 +127,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 	// Menu item click.
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		if (getInstance().getUid() == null) {
+		if (MetaStore.getMeta().getUid() == null) {
 			switch (position) {
 				case 0:
 					fetch(mPage);
@@ -224,7 +225,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 
 
 		try {
-			myid = App.getInstance().getUid();
+			myid = MetaStore.getMeta().getUid();
 		} catch (Exception e) {
 		}
 
@@ -265,7 +266,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		this.setContentView(R.layout.activity_posts);
 		ButterKnife.bind(this);
 
-		if (getInstance().getUid() == 0) {
+		if (MetaStore.getMeta().getUid() == 0) {
 			mQuickReplyLayout.setVisibility(View.INVISIBLE);
 		}
 
@@ -321,7 +322,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		mMenuDialog = new Dialog(this);
 		ListView menuList = (ListView) mMenuView.findViewById(R.id.actions);
 
-		if (getInstance().getUid() == 0) {
+		if (MetaStore.getMeta().getUid() == 0) {
 			actionsAdapter = new AdapterMenuItem(this, new String[]{
 					"刷新",
 					"复制链接",
@@ -569,7 +570,7 @@ public class ActivityPosts extends ActivityWithWebView implements AdapterView.On
 		if (getWebView().finishActionMode()) return;
 
 		if (ms == 0) {
-			int myId = App.getInstance().getUid();
+			int myId = MetaStore.getMeta().getUid();
 
 			if (myid == 0) {
 				showToast(getResources().getString(R.string.error_login_required));
